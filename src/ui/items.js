@@ -1,5 +1,6 @@
 import { h } from './h.js'
 import { codeBlock } from './code.js'
+import { rich } from './rich.js'
 
 const now = () => performance.now()
 
@@ -47,7 +48,7 @@ export const kindLabel = { mcq: 'Quiz', cloze: 'Fill in', parsons: 'Reorder', ca
 function verdictEl(correct, text) {
   return h('div', { class: `item-why show ${correct ? 'good' : 'bad'}` },
     h('span', { class: 'verdict' }, correct ? 'Correct' : 'Not quite'),
-    text ? h('span', null, text) : null)
+    text ? h('span', null, rich(text)) : null)
 }
 
 const pinnedChoice = /\b(all|none|both|neither) of\b|^(both|neither)\b/i
@@ -71,10 +72,10 @@ export function renderMcq(original, onDone) {
   const choices = item.choices || []
   const buttons = choices.map((choice, index) => h('button', { class: 'choice', onclick: () => pick(index) },
     h('span', { class: 'kbd choice-key' }, String(index + 1)),
-    h('span', { class: 'choice-text' }, choice)))
+    h('span', { class: 'choice-text' }, rich(choice))))
 
   const el = h('div', { class: 'item item-mcq' },
-    h('div', { class: 'item-q' }, item.q),
+    h('div', { class: 'item-q' }, rich(item.q)),
     item.code ? codeBlock(item.code) : null,
     h('div', { class: 'choices' }, buttons),
     whySlot)
@@ -381,9 +382,9 @@ export function renderCard(item, onGrade) {
   const flipHint = h('div', { class: 'flip-hint muted' }, 'Tap or ', h('span', { class: 'kbd' }, 'space'), ' to flip')
 
   const back = h('div', { class: 'flash-face flash-back' },
-    h('div', { class: 'flash-text' }, item.back),
+    h('div', { class: 'flash-text' }, rich(item.back)),
     item.code ? codeBlock(item.code) : null)
-  const front = h('div', { class: 'flash-face flash-front' }, h('div', { class: 'flash-text' }, item.front))
+  const front = h('div', { class: 'flash-face flash-front' }, h('div', { class: 'flash-text' }, rich(item.front)))
   const cardEl = h('div', { class: 'flash-card', tabindex: '0', onclick: () => flip() }, front, back)
 
   const el = h('div', { class: 'item item-card' }, cardEl, flipHint, grades)

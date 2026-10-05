@@ -3,6 +3,7 @@ import { codeBlock } from '../ui/code.js'
 import { recordAnswer, markSeen } from '../store.js'
 import { renderPanels, prepareLayouts } from './render.js'
 import { deepClone, formatValue, flash, setText } from './util.js'
+import { rich, stripMarks } from '../ui/rich.js'
 
 const maxSteps = 2000
 const baseDelay = 1000
@@ -77,7 +78,7 @@ export function mountStepper(container, trace, options = {}) {
   editorRow.style.display = 'none'
 
   const complexity = trace.complexity || {}
-  const why = h('div', { class: 'st-why' }, complexity.why || '')
+  const why = h('div', { class: 'st-why' }, rich(complexity.why || ''))
   why.style.display = 'none'
   const badge = h('button', { class: 'st-badge', title: 'Why?', onclick: () => { why.style.display = why.style.display === 'none' ? '' : 'none' } },
     complexity.time ? h('span', { class: 'pill pill-amber' }, `⏱ ${complexity.time}`) : null,
@@ -95,7 +96,7 @@ export function mountStepper(container, trace, options = {}) {
   }
   const root = h('div', { class: 'stepper' },
     h('div', { class: 'st-head' },
-      h('div', { class: 'st-title' }, h('h2', null, trace.title || trace.id), trace.problem ? h('p', { class: 'muted' }, trace.problem) : null),
+      h('div', { class: 'st-title' }, h('h2', null, stripMarks(trace.title || trace.id)), trace.problem ? h('p', { class: 'muted' }, rich(trace.problem)) : null),
       complexity.time || complexity.space ? badge : null),
     why,
     h('div', { class: 'st-inputs' }, presetChips),
@@ -173,8 +174,16 @@ export function mountStepper(container, trace, options = {}) {
   const renderTicks = () => {
     const total = run.steps.length
     ticks.replaceChildren(...run.steps.map((step, i) => (step.say && total > 1
-      ? h('button', { class: 'st-tick', title: step.say, style: { left: `calc(${(i / (total - 1)) * 100}% + ${8 - (i / (total - 1)) * 16}px)` }, onclick: () => go(i) })
+      ? h('button', { class: 'st-tick', title: stripMarks(step.say), style: { left: `calc(${(i / (total - 1)) * 100}% + ${8 - (i / (total - 1)) * 16}px)` }, onclick: () => go(i) })
       : null)).filter(Boolean))
+  }
+
+  const setRich = (node, text) => {
+    const value = String(text || '')
+    if (node.dataset.raw === value) return false
+    node.dataset.raw = value
+    node.replaceChildren(rich(value))
+    return true
   }
 
   const renderVars = vars => {
@@ -204,7 +213,7 @@ export function mountStepper(container, trace, options = {}) {
     const step = run.steps[index]
     if (!step) {
       counter.textContent = '0 / 0'
-      noteEl.textContent = run.error ? '' : 'No steps'
+      setRich(noteEl, run.error ? '' : 'No steps')
       sayEl.style.display = 'none'
       code.setHighlight(null)
       renderVars({})
@@ -213,10 +222,10 @@ export function mountStepper(container, trace, options = {}) {
     }
     code.setHighlight(step.line)
     renderPanels(diagram, step.panels || [], layoutCtx)
-    noteEl.textContent = step.note || ''
+    setRich(noteEl, step.note || '')
     noteEl.style.visibility = step.note ? '' : 'hidden'
     sayEl.style.display = step.say ? '' : 'none'
-    if (step.say && setText(sayText, step.say)) flash(sayEl)
+    if (step.say && setRich(sayText, step.say)) flash(sayEl)
     renderVars(step.vars)
     counter.textContent = `${index + 1} / ${total}`
     scrub.value = index

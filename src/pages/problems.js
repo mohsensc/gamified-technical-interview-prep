@@ -4,6 +4,7 @@ import { renderMcq } from '../ui/items.js'
 import * as store from '../store.js'
 import { problems, problemById, traceById } from '../content/index.js'
 import { skills } from '../content/skills.js'
+import { rich, stripMarks } from '../ui/rich.js'
 
 const filters = { search: '', googleOnly: false, difficulty: 'all', skill: 'all', pattern: 'all' }
 
@@ -76,7 +77,7 @@ function renderList(container) {
     h('td', { class: 'mono muted' }, problem.lc ?? ''),
     h('td', { class: 'problem-title-cell' },
       h('span', { class: `diff-dot ${difficultyClass(problem.difficulty)}`, title: problem.difficulty || '' }),
-      problem.title,
+      stripMarks(problem.title),
       problem.google ? h('span', { class: 'pill pill-google' }, 'G') : null,
       seen(problem.id) ? h('span', { class: 'seen-mark' }, '✓') : null),
     h('td', null, problem.pattern ? h('span', { class: 'chip chip-pattern' }, problem.pattern) : null),
@@ -219,7 +220,7 @@ function renderDetail(container, problem) {
     reveal.append(
       h('div', { class: 'card insight-card' },
         h('div', { class: 'label muted' }, 'Insight'),
-        h('div', { class: 'insight-text' }, problem.insight || '—'),
+        h('div', { class: 'insight-text' }, rich(problem.insight || '—')),
         h('div', { class: 'row' },
           problem.pattern ? h('span', { class: 'chip chip-pattern' }, problem.pattern) : null,
           ...(problem.ds || []).map(ds => h('span', { class: 'chip' }, ds)),
@@ -228,7 +229,7 @@ function renderDetail(container, problem) {
           trace ? h('a', { class: 'btn btn-primary', href: `#/trace/${encodeURIComponent(trace.id)}` }, '▶ Step through') : null)),
       problem.narration?.length ? h('div', { class: 'card narration-card' },
         h('div', { class: 'label muted' }, 'Say it'),
-        h('ol', { class: 'narration' }, problem.narration.map(line => h('li', null, line)))) : null,
+        h('ol', { class: 'narration' }, problem.narration.map(line => h('li', null, rich(line))))) : null,
       problem.solution ? h('div', { class: 'card solution-card' },
         h('div', { class: 'row' },
           h('div', { class: 'label muted' }, 'Solution'),
@@ -239,7 +240,7 @@ function renderDetail(container, problem) {
         codeBlock(problem.solution)) : null,
       problem.pitfalls?.length ? h('div', { class: 'card pitfalls-card' },
         h('div', { class: 'label muted' }, 'Pitfalls'),
-        h('ul', null, problem.pitfalls.map(pitfall => h('li', null, pitfall)))) : null)
+        h('ul', null, problem.pitfalls.map(pitfall => h('li', null, rich(pitfall))))) : null)
     reveal.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
@@ -251,19 +252,19 @@ function renderDetail(container, problem) {
     h('div', { class: 'page-header row' },
       h('a', { class: 'btn btn-ghost', href: '#/problems' }, '←'),
       problem.lc ? h('span', { class: 'mono muted lc-num' }, `#${problem.lc}`) : null,
-      h('h1', null, problem.title),
+      h('h1', null, stripMarks(problem.title)),
       problem.difficulty ? h('span', { class: `pill ${difficultyClass(problem.difficulty)}` }, problem.difficulty) : null,
       problem.google ? h('span', { class: 'pill pill-google' }, 'Google') : null),
     h('div', { class: 'card statement-card' },
       problem.constraints ? h('div', { class: 'constraints mono' }, problem.constraints) : null,
-      problem.signals?.length ? h('div', { class: 'row signals' }, problem.signals.map(signal => h('span', { class: 'chip chip-signal' }, signal))) : null,
+      problem.signals?.length ? h('div', { class: 'row signals' }, problem.signals.map(signal => h('span', { class: 'chip chip-signal' }, rich(signal)))) : null,
       problem.lc ? h('a', { class: 'muted lc-link', href: `https://leetcode.com/problems/${slugify(problem.title)}/`, target: '_blank', rel: 'noopener' }, 'Open on LeetCode ↗') : null),
     steps.length ? h('div', { class: 'row diag-head' }, h('h3', null, 'Diagnose first'), scoreEl, skipButton) : null,
     stepHost,
     reveal,
     h('div', { class: 'row problem-pager' },
-      prev ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(prev.id)}` }, `← ${prev.title}`) : h('span'),
-      next ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(next.id)}` }, `${next.title} →`) : null)))
+      prev ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(prev.id)}` }, `← ${stripMarks(prev.title)}`) : h('span'),
+      next ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(next.id)}` }, `${stripMarks(next.title)} →`) : null)))
 
   showStep(0)
 }

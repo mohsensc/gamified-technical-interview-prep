@@ -5,6 +5,7 @@ import { shuffleMcq } from '../ui/items.js'
 import * as store from '../store.js'
 import { topics, topicById, problems } from '../content/index.js'
 import { skills } from '../content/skills.js'
+import { rich, stripMarks } from '../ui/rich.js'
 
 const decodeParam = value => {
   try { return decodeURIComponent(value) } catch { return value }
@@ -47,7 +48,7 @@ function renderGrid(container) {
       h('div', { class: 'row topic-card-top' },
         h('span', { class: 'topic-icon' }, topic.icon || '•'),
         masteryRing(topicMastery(topic))),
-      h('div', { class: 'topic-title' }, topic.title),
+      h('div', { class: 'topic-title' }, stripMarks(topic.title)),
       h('div', { class: 'row topic-meta muted' },
         h('span', null, `${doneLessons}/${lessons.length} lessons`),
         h('span', null, `${(topic.traces || []).length} traces`)))
@@ -74,11 +75,11 @@ function askBlock(originalAsk, askId, skillsList) {
         else button.classList.add('is-dim')
       })
       why.append(h('div', { class: `item-why show ${correct ? 'good' : 'bad'}` },
-        h('span', { class: 'verdict' }, correct ? 'Yes' : 'Nope'), ask.why ? h('span', null, ask.why) : null))
+        h('span', { class: 'verdict' }, correct ? 'Yes' : 'Nope'), ask.why ? h('span', null, rich(ask.why)) : null))
       try { store.recordAnswer({ itemId: askId, kind: 'mcq', skills: skillsList, correct }) } catch {}
     },
-  }, h('span', { class: 'kbd choice-key' }, String(index + 1)), h('span', { class: 'choice-text' }, choice)))
-  return { el: h('div', { class: 'slide-ask' }, h('div', { class: 'ask-q' }, ask.q), h('div', { class: 'choices choices-compact' }, buttons), why), buttons }
+  }, h('span', { class: 'kbd choice-key' }, String(index + 1)), h('span', { class: 'choice-text' }, rich(choice))))
+  return { el: h('div', { class: 'slide-ask' }, h('div', { class: 'ask-q' }, rich(ask.q)), h('div', { class: 'choices choices-compact' }, buttons), why), buttons }
 }
 
 function renderTopic(container, topic) {
@@ -99,7 +100,7 @@ function renderTopic(container, topic) {
         drawTabs()
         drawSlide()
       },
-    }, seen(lesson.id) ? '✓ ' : '', lesson.title)))
+    }, seen(lesson.id) ? '✓ ' : '', stripMarks(lesson.title))))
   }
 
   function drawSlide() {
@@ -130,7 +131,7 @@ function renderTopic(container, topic) {
     }
     if (slide.code) visual.append(codeBlock(slide.code, { highlightLine: slide.highlight ?? null, dimOthers: Boolean(slide.highlight) }))
     if (visual.childNodes.length) body.append(visual)
-    if (slide.points?.length) body.append(h('ul', { class: 'slide-points' }, slide.points.map(point => h('li', null, point))))
+    if (slide.points?.length) body.append(h('ul', { class: 'slide-points' }, slide.points.map(point => h('li', null, rich(point)))))
     currentAsk = null
     if (slide.ask) {
       currentAsk = askBlock(slide.ask, `${lesson.id}:ask:${slideIndex}`, lesson.skills || topic.skills || [])
@@ -146,7 +147,7 @@ function renderTopic(container, topic) {
 
     deck.replaceChildren(
       h('div', { class: 'row slide-head' },
-        h('div', { class: 'slide-lesson muted' }, lesson.title),
+        h('div', { class: 'slide-lesson muted' }, stripMarks(lesson.title)),
         h('div', { class: 'slide-dots' }, slides.map((_, i) => h('button', {
           class: `slide-dot${i === slideIndex ? ' active' : ''}${i < slideIndex ? ' past' : ''}`,
           'aria-label': `slide ${i + 1}`,
@@ -155,7 +156,7 @@ function renderTopic(container, topic) {
             drawSlide()
           },
         })))),
-      h('h2', { class: 'slide-title' }, slide.title || lesson.title),
+      h('h2', { class: 'slide-title' }, rich(slide.title || lesson.title)),
       body,
       h('div', { class: 'row slide-nav' }, prevButton, h('span', { class: 'muted slide-count' }, `${slideIndex + 1} / ${slides.length || 1}`), nextButton))
   }
@@ -212,7 +213,7 @@ function renderTopic(container, topic) {
     h('div', { class: 'page-header row' },
       h('a', { class: 'btn btn-ghost', href: '#/learn' }, '←'),
       h('span', { class: 'topic-icon' }, topic.icon || ''),
-      h('h1', null, topic.title),
+      h('h1', null, stripMarks(topic.title)),
       masteryRing(topicMastery(topic), 48),
       h('a', { class: 'btn btn-primary learn-drill-all', href: `#/drill/${encodeURIComponent(topic.id)}` }, 'Drill topic')),
     lessons.length ? tabs : null,
@@ -220,8 +221,8 @@ function renderTopic(container, topic) {
     traces.length ? h('section', { class: 'stack learn-section' },
       h('h3', null, 'Step through'),
       h('div', { class: 'grid trace-grid' }, traces.map(trace => h('a', { class: 'card trace-link', href: `#/trace/${encodeURIComponent(trace.id)}` },
-        h('div', { class: 'trace-link-title' }, '▶ ', trace.title),
-        trace.problem ? h('div', { class: 'muted trace-link-problem' }, trace.problem) : null,
+        h('div', { class: 'trace-link-title' }, '▶ ', stripMarks(trace.title)),
+        trace.problem ? h('div', { class: 'muted trace-link-problem' }, stripMarks(trace.problem)) : null,
         trace.complexity ? h('div', { class: 'row' },
           h('span', { class: 'pill' }, `T ${trace.complexity.time}`),
           h('span', { class: 'pill' }, `S ${trace.complexity.space}`)) : null)))) : null,
@@ -231,7 +232,7 @@ function renderTopic(container, topic) {
     topicProblems.length ? h('section', { class: 'stack learn-section' },
       h('h3', null, 'Problems'),
       h('div', { class: 'row problem-chip-row' }, topicProblems.map(problem => h('a', { class: 'chip', href: `#/problems/${encodeURIComponent(problem.id)}` },
-        problem.lc ? h('span', { class: 'muted' }, `${problem.lc}`) : null, ' ', problem.title)))) : null))
+        problem.lc ? h('span', { class: 'muted' }, `${problem.lc}`) : null, ' ', stripMarks(problem.title))))) : null))
 
   drawTabs()
   drawSlide()

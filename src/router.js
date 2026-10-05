@@ -40,6 +40,25 @@ export function currentQuery() {
   return Object.fromEntries(new URLSearchParams(query))
 }
 
+export function parseQuery(input) {
+  const source = input ?? (typeof location === 'undefined' ? '' : location.hash)
+  const text = String(source)
+  const query = text.includes('?') ? text.slice(text.indexOf('?') + 1) : text.startsWith('#') ? '' : text
+  const result = {}
+  for (const [key, value] of new URLSearchParams(query)) result[key] = value
+  return result
+}
+
+export function buildQuery(params = {}) {
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === '' || value === false) continue
+    search.set(key, Array.isArray(value) ? value.join(',') : value === true ? '1' : String(value))
+  }
+  const text = search.toString()
+  return text ? `?${text}` : ''
+}
+
 export function navigate(path) {
   const target = path.startsWith('#') ? path : `#${path}`
   if (location.hash === target) resolve()

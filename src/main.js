@@ -31,6 +31,12 @@ const pages = {
   games: lazyPage(() => import('./pages/games.js')),
   mock: lazyPage(() => import('./pages/mock.js')),
   handbook: lazyPage(() => import('./pages/handbook.js')),
+  course: lazyPage(() => import('./pages/course.js')),
+  practice: lazyPage(() => import('./pages/practice.js')),
+  algorithms: lazyPage(() => import('./pages/algorithms.js')),
+  stats: lazyPage(() => import('./pages/stats.js')),
+  glossary: lazyPage(() => import('./pages/glossary.js')),
+  bite: lazyPage(() => import('./pages/bite.js')),
 }
 
 route('#/', pages.dashboard)
@@ -49,6 +55,16 @@ route('#/games/:id', pages.games)
 route('#/mock', pages.mock)
 route('#/handbook', pages.handbook)
 route('#/handbook/:id', pages.handbook)
+route('#/course', pages.course)
+route('#/course/:id', pages.course)
+route('#/practice', pages.practice)
+route('#/practice/:mode', pages.practice)
+route('#/algorithms', pages.algorithms)
+route('#/algorithms/:id', pages.algorithms)
+route('#/stats', pages.stats)
+route('#/glossary', pages.glossary)
+route('#/glossary/:term', pages.glossary)
+route('#/bite/:id', pages.bite)
 
 setNotFound(container => {
   container.replaceChildren(h('div', { class: 'page' },

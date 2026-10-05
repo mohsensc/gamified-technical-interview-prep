@@ -4,13 +4,15 @@ import { onNavigate, navigate } from '../router.js'
 
 const iconPaths = {
   dashboard: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
-  plan: '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6l1 1 2-2M3 12l1 1 2-2M3 18l1 1 2-2"/>',
+  course: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20"/><path d="M8 8h8M8 11.5h8"/>',
+  practice: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+  algorithms: '<circle cx="12" cy="4.5" r="2.3"/><circle cx="5" cy="13" r="2.3"/><circle cx="19" cy="13" r="2.3"/><circle cx="12" cy="20.5" r="2.3"/><path d="M12 6.8L6 11M12 6.8l6 4.2M6.6 14.6L11 18.8M17.4 14.6L13 18.8"/>',
   learn: '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
-  drill: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
-  flashcards: '<rect x="2" y="6" width="15" height="14" rx="2"/><path d="M7 2h13a2 2 0 0 1 2 2v12"/>',
   problems: '<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>',
   games: '<rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="15.5" cy="11.5" r=".8"/><circle cx="17.5" cy="13.5" r=".8"/>',
   mock: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>',
+  stats: '<path d="M4 20V10M12 20V4M20 20v-7"/><path d="M2 20h20"/>',
+  glossary: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/>',
   handbook: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
@@ -26,20 +28,24 @@ export const icon = (name, size = 20) => {
 }
 
 export const navItems = [
-  { id: 'dashboard', label: 'Dashboard', href: '#/', key: 'd' },
-  { id: 'plan', label: 'Plan', href: '#/plan', key: 'p' },
+  { id: 'dashboard', label: 'Home', href: '#/', key: 'h' },
+  { id: 'course', label: 'Course', href: '#/course', key: 'c' },
+  { id: 'practice', label: 'Practice', href: '#/practice', key: 'r' },
+  { id: 'algorithms', label: 'Algorithms', href: '#/algorithms', key: 'a' },
   { id: 'learn', label: 'Learn', href: '#/learn', key: 'l' },
-  { id: 'drill', label: 'Drill', href: '#/drill', key: 'r' },
-  { id: 'flashcards', label: 'Flashcards', href: '#/flashcards', key: 'f' },
   { id: 'problems', label: 'Problems', href: '#/problems', key: 'b' },
   { id: 'games', label: 'Games', href: '#/games', key: 'g' },
   { id: 'mock', label: 'Mock', href: '#/mock', key: 'm' },
-  { id: 'handbook', label: 'Handbook', href: '#/handbook', key: 'h' },
+  { id: 'stats', label: 'Stats', href: '#/stats', key: 's' },
+  { id: 'glossary', label: 'Glossary', href: '#/glossary', key: 'y' },
+  { id: 'handbook', label: 'Handbook', href: '#/handbook', key: 'k' },
 ]
 
 const sectionFor = path => {
   const first = path.split('/')[1] || ''
   if (first === 'trace') return 'learn'
+  if (first === 'bite') return 'course'
+  if (first === 'drill' || first === 'flashcards') return 'practice'
   return navItems.find(item => item.href === `#/${first}`)?.id || 'dashboard'
 }
 

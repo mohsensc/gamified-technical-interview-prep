@@ -4,6 +4,10 @@ const startMastery = 0.3
 const serverDebounceMs = 900
 const idleLimitMs = 3 * 60e3
 const tickMs = 15e3
+const maxEvents = 20000
+const maxSessions = 300
+const masteryFloor = startMastery
+const masteryTarget = 0.85
 
 const listeners = new Set()
 let state = null
@@ -35,16 +39,24 @@ const freshState = () => ({
   gameScores: {},
   notes: {},
   history: [],
+  events: [],
+  bites: {},
+  checkpoints: {},
+  bookmarks: {},
+  sessions: [],
+  skillHistory: {},
 })
 
 const normalize = raw => {
   const base = freshState()
   if (!raw || typeof raw !== 'object') return base
   const merged = { ...base, ...raw }
-  for (const key of ['skills', 'items', 'seen', 'daily', 'plan', 'settings', 'gameScores', 'notes']) {
+  for (const key of ['skills', 'items', 'seen', 'daily', 'plan', 'settings', 'gameScores', 'notes', 'bites', 'checkpoints', 'bookmarks', 'skillHistory']) {
     if (!merged[key] || typeof merged[key] !== 'object' || Array.isArray(merged[key])) merged[key] = base[key]
   }
   if (!Array.isArray(merged.history)) merged.history = []
+  if (!Array.isArray(merged.events)) merged.events = []
+  if (!Array.isArray(merged.sessions)) merged.sessions = []
   merged.settings = { ...base.settings, ...merged.settings }
   for (const key of ['xp', 'answerStreak', 'bestAnswerStreak', 'studyMs', 'updatedAt']) {
     if (!Number.isFinite(merged[key])) merged[key] = 0
@@ -150,7 +162,89 @@ const adjustMastery = (skill, outcome, weight = 1) => {
   record.attempts += 1
   if (outcome >= 0.5) record.correct += 1
   record.lastAt = Date.now()
+  const key = dayKey()
+  if (!state.skillHistory[key]) state.skillHistory[key] = {}
+  state.skillHistory[key][skill] = Math.round(record.mastery * 1000) / 1000
   return record.mastery
+}
+
+let curriculumApi = null
+
+export async function loadCurriculum() {
+  if (curriculumApi) return curriculumApi
+  try {
+    curriculumApi = await import('./content/curriculum.js')
+  } catch (error) {
+    console.error('curriculum load failed', error)
+  }
+  return curriculumApi
+}
+
+const findNode = id => curriculumApi?.findNode(id) || null
+
+let eventContext = {}
+
+export function setEventContext(context = {}) {
+  eventContext = { ...context }
+}
+
+export function clearEventContext() {
+  eventContext = {}
+}
+
+export function getEventContext() {
+  return { ...eventContext }
+}
+
+const eventFields = ['type', 'itemId', 'kind', 'mode', 'skills', 'topic', 'nodeId', 'correct', 'ms', 'hinted', 'grade', 'score', 'gameId', 'pct', 'sessionId']
+
+const buildEvent = fields => {
+  const merged = { ...eventContext, ...fields }
+  const event = { ts: Number.isFinite(merged.ts) ? merged.ts : Date.now() }
+  for (const key of eventFields) {
+    const value = merged[key]
+    if (value === undefined || value === null || value === '') continue
+    if (Array.isArray(value) && !value.length) continue
+    event[key] = value
+  }
+  if (!event.type) event.type = 'answer'
+  return event
+}
+
+const pushEvent = (draft, fields) => {
+  const event = buildEvent(fields)
+  draft.events.push(event)
+  if (draft.events.length > maxEvents) draft.events.splice(0, draft.events.length - maxEvents)
+  return event
+}
+
+export function logEvent(fields = {}) {
+  let event = null
+  update(draft => {
+    event = pushEvent(draft, fields)
+  })
+  return event
+}
+
+export function getEvents(filter = {}) {
+  const events = getState().events
+  if (typeof filter === 'function') return events.filter(filter)
+  const { type, since, until, skill, skills, nodeId, mode, itemId, kind, topic, correct, limit } = filter
+  const types = type ? [].concat(type) : null
+  const skillSet = skill || skills ? new Set([].concat(skill || skills)) : null
+  let result = events.filter(event =>
+    (!types || types.includes(event.type)) &&
+    (!since || event.ts >= since) &&
+    (!until || event.ts < until) &&
+    (!skillSet || (event.skills || []).some(id => skillSet.has(id))) &&
+    (!nodeId || event.nodeId === nodeId) &&
+    (!mode || event.mode === mode) &&
+    (!itemId || event.itemId === itemId) &&
+    (!kind || event.kind === kind) &&
+    (!topic || event.topic === topic) &&
+    (correct === undefined || Boolean(event.correct) === correct))
+  if (limit) result = result.slice(-limit)
+  return result
 }
 
 export async function initStore() {
@@ -165,6 +259,7 @@ export async function initStore() {
   const localTime = local?.updatedAt || 0
   const remoteTime = remote?.updatedAt || 0
   state = normalize(remoteTime > localTime ? remote : local || remote)
+  await loadCurriculum()
   writeLocal()
   if (localTime > remoteTime && serverAvailable) pushToServer()
   applyTheme()
@@ -196,7 +291,7 @@ export function subscribe(fn) {
   return () => listeners.delete(fn)
 }
 
-export function recordAnswer({ itemId, kind, skills = [], correct, ms } = {}) {
+export function recordAnswer({ itemId, kind, skills = [], correct, ms, mode, topic, nodeId, hinted } = {}) {
   let xpGained = 0
   const newMastery = {}
   update(draft => {
@@ -218,8 +313,10 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms } = {}) {
       item.box = correct ? Math.min(5, item.box + 1) : 0
       item.due = now + (correct ? boxIntervals[item.box] : 60e3)
       item.lastAt = now
+      item.lastCorrect = Boolean(correct)
       draft.seen[itemId] = draft.seen[itemId] || now
     }
+    pushEvent(draft, { type: 'answer', itemId, kind, skills, correct: Boolean(correct), ms: Number.isFinite(ms) ? Math.round(ms) : undefined, mode, topic, nodeId, hinted: hinted ? true : undefined, ts: now })
     const day = today()
     day.xp += xpGained
     day.answers += 1
@@ -234,7 +331,7 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms } = {}) {
   return { xpGained, newMastery }
 }
 
-export function rateCard(itemId, skills = [], grade = 2) {
+export function rateCard(itemId, skills = [], grade = 2, extra = {}) {
   const newMastery = {}
   let xpGained = 0
   update(draft => {
@@ -248,7 +345,9 @@ export function rateCard(itemId, skills = [], grade = 2) {
     item.attempts += 1
     if (grade >= 2) item.correct += 1
     item.lastAt = now
+    item.lastCorrect = grade >= 2
     draft.seen[itemId] = draft.seen[itemId] || now
+    pushEvent(draft, { ...extra, type: 'card', itemId, kind: 'card', skills, grade, correct: grade >= 2, ts: now })
     const outcome = [0, 0.45, 0.85, 1][Math.max(0, Math.min(3, grade))]
     for (const skill of skills) newMastery[skill] = adjustMastery(skill, outcome, 0.6)
     xpGained = [1, 3, 5, 6][Math.max(0, Math.min(3, grade))]
@@ -419,6 +518,7 @@ export function recordGameScore(gameId, score) {
       draft.gameScores[gameId] = score
       isBest = true
     }
+    pushEvent(draft, { type: 'game', gameId, itemId: gameId, score })
   })
   return isBest
 }
@@ -471,4 +571,163 @@ function startActivityTracking() {
     }
   })
   window.addEventListener('pagehide', flushNow)
+}
+
+export function getDailyRollups(days = 14) {
+  const current = getState()
+  const result = []
+  const cursor = new Date()
+  cursor.setDate(cursor.getDate() - (days - 1))
+  for (let i = 0; i < days; i++) {
+    const key = dayKey(cursor)
+    const day = current.daily[key] || { xp: 0, answers: 0, correct: 0, ms: 0 }
+    result.push({
+      day: key,
+      count: day.answers || 0,
+      correct: day.correct || 0,
+      accuracy: day.answers ? day.correct / day.answers : null,
+      minutes: Math.round((day.ms || 0) / 60e3),
+      xp: day.xp || 0,
+    })
+    cursor.setDate(cursor.getDate() + 1)
+  }
+  return result
+}
+
+export function getSkillHistory(skill) {
+  const history = getState().skillHistory
+  const days = Object.keys(history).sort()
+  if (skill) return days.filter(day => history[day][skill] !== undefined).map(day => ({ day, mastery: history[day][skill] }))
+  return days.map(day => ({ day, skills: { ...history[day] } }))
+}
+
+export function getSkillAccuracy(skill, lastN = 20) {
+  const events = getEvents({ type: ['answer', 'card'], skill })
+  const recent = events.slice(-lastN)
+  const correct = recent.filter(event => event.correct).length
+  return { total: recent.length, correct, wrong: recent.length - correct, accuracy: recent.length ? correct / recent.length : null }
+}
+
+export function completeBite(id, { ms, score } = {}) {
+  if (!id) return null
+  let record = null
+  update(draft => {
+    const now = Date.now()
+    const prev = draft.bites[id] || { count: 0 }
+    record = { done: true, at: now, firstAt: prev.firstAt || now, count: (prev.count || 0) + 1, best: Math.max(prev.best ?? 0, score ?? 0) }
+    draft.bites[id] = record
+    pushEvent(draft, { type: 'bite', nodeId: id, itemId: id, ms, score, ts: now })
+  })
+  return record
+}
+
+export function getBiteStatus(id) {
+  return getState().bites[id] || { done: false, count: 0 }
+}
+
+export function recordCheckpoint(nodeId, pct) {
+  if (!nodeId || !Number.isFinite(pct)) return null
+  let record = null
+  update(draft => {
+    const now = Date.now()
+    const prev = draft.checkpoints[nodeId] || { attempts: 0, best: 0 }
+    const value = Math.max(0, Math.min(100, Math.round(pct)))
+    record = { attempts: prev.attempts + 1, best: Math.max(prev.best, value), last: value, at: now, passed: Math.max(prev.best, value) >= 80 }
+    draft.checkpoints[nodeId] = record
+    pushEvent(draft, { type: 'checkpoint', nodeId, pct: value, correct: value >= 80, ts: now })
+  })
+  return record
+}
+
+export function getCheckpoint(nodeId) {
+  return getState().checkpoints[nodeId] || null
+}
+
+const masteryScore = skills => {
+  const ids = (skills || []).filter(skill => skill !== 'communication')
+  if (!ids.length) return 0
+  const avg = ids.reduce((sum, skill) => sum + getMastery(skill), 0) / ids.length
+  return Math.max(0, Math.min(1, (avg - masteryFloor) / (masteryTarget - masteryFloor)))
+}
+
+const checkpointScore = (nodeId, passPct = 80) => {
+  const record = getState().checkpoints[nodeId]
+  if (!record) return 0
+  return Math.min(1, record.best / passPct)
+}
+
+export function getNodeProgress(nodeId) {
+  const node = findNode(nodeId)
+  if (!node) return 0
+  if (node.kind === 'bite') return getBiteStatus(nodeId).done ? 1 : 0
+  if (node.kind === 'module') {
+    const core = node.bites.filter(bite => !bite.optional)
+    const list = core.length ? core : node.bites
+    const biteFrac = list.length ? list.filter(bite => getBiteStatus(bite.id).done).length / list.length : 0
+    return Math.min(1, biteFrac * 0.5 + checkpointScore(nodeId, node.checkpoint?.passPct) * 0.3 + masteryScore(node.skills) * 0.2)
+  }
+  const children = node.kind === 'unit' ? node.modules : node.units
+  const total = children.reduce((sum, child) => sum + (child.minutes || 1), 0) || 1
+  const rolled = children.reduce((sum, child) => sum + getNodeProgress(child.id) * (child.minutes || 1), 0) / total
+  if (node.kind === 'unit') return Math.min(1, rolled * 0.85 + checkpointScore(nodeId, node.checkpoint?.passPct) * 0.15)
+  return rolled
+}
+
+export function toggleBookmark(itemId) {
+  if (!itemId) return false
+  let on = false
+  update(draft => {
+    if (draft.bookmarks[itemId]) delete draft.bookmarks[itemId]
+    else {
+      draft.bookmarks[itemId] = Date.now()
+      on = true
+    }
+  })
+  return on
+}
+
+export function isBookmarked(itemId) {
+  return Boolean(getState().bookmarks[itemId])
+}
+
+export function getBookmarks() {
+  return Object.entries(getState().bookmarks).sort((a, b) => b[1] - a[1]).map(([id]) => id)
+}
+
+export function getMissed({ since = 0, kind } = {}) {
+  return Object.entries(getState().items)
+    .filter(([, item]) => item.attempts > 0 && item.lastCorrect === false && item.lastAt >= since && (!kind || item.kind === kind))
+    .sort((a, b) => b[1].lastAt - a[1].lastAt)
+    .map(([id, item]) => ({ id, kind: item.kind, skills: item.skills || [], lastAt: item.lastAt, attempts: item.attempts, correct: item.correct }))
+}
+
+export function saveSession({ mode, scope = {}, results = [], ms } = {}) {
+  let session = null
+  update(draft => {
+    const now = Date.now()
+    const total = results.length
+    const correct = results.filter(result => result.correct).length
+    const skillSet = [...new Set(results.flatMap(result => result.skills || []))]
+    session = {
+      id: `s${now.toString(36)}`,
+      at: now,
+      mode: mode || 'mixed',
+      scope,
+      total,
+      correct,
+      pct: total ? Math.round(correct / total * 100) : 0,
+      ms: Number.isFinite(ms) ? ms : results.reduce((sum, result) => sum + (result.ms || 0), 0),
+      skills: skillSet,
+      results: results.slice(0, 200).map(result => ({ itemId: result.itemId, correct: Boolean(result.correct), ms: result.ms, kind: result.kind })),
+    }
+    draft.sessions.push(session)
+    if (draft.sessions.length > maxSessions) draft.sessions.splice(0, draft.sessions.length - maxSessions)
+    pushEvent(draft, { type: 'session', mode: session.mode, skills: skillSet, nodeId: scope.nodeId || scope.moduleId || scope.unitId, score: session.pct, ms: session.ms, sessionId: session.id, ts: now })
+  })
+  return session
+}
+
+export function getSessions(limit) {
+  const sessions = getState().sessions
+  return limit ? sessions.slice(-limit).reverse() : [...sessions].reverse()
 }

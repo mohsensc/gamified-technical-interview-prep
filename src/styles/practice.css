@@ -1,0 +1,102 @@
+/* classes: .practice-page .practice-scope .practice-select .practice-skill-groups .practice-tiles(.practice-tile) .practice-session .practice-run .practice-item-card .practice-end .bookmark-btn .kw .rapid-* .diagnose-* .pm-predict-* .bite-* */
+
+.practice-select {
+  padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text); font-size: 13px; font-weight: 550; cursor: pointer;
+}
+
+.practice-scope-row { align-items: center; }
+
+.practice-skills-toggle summary { cursor: pointer; list-style: none; }
+.practice-skills-toggle summary::-webkit-details-marker { display: none; }
+.practice-skill-groups { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.practice-skill-group { display: flex; flex-direction: column; gap: 6px; }
+
+.practice-reset { color: var(--red); border-color: color-mix(in srgb, var(--red) 35%, var(--border)); }
+
+.practice-tiles { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.practice-tile { position: relative; gap: 10px; min-height: 108px; }
+.practice-tile-icon { font-size: 24px; line-height: 1; }
+.practice-tile-title { font-weight: 700; font-size: 15px; }
+.practice-tile-blurb { line-height: 1.3; }
+.practice-tile-actions { margin-top: auto; }
+
+.practice-session-top { margin-bottom: 4px; }
+.practice-session-stage { display: flex; flex-direction: column; gap: 16px; }
+
+.practice-run { display: flex; flex-direction: column; gap: 16px; max-width: 760px; }
+.practice-run-top { gap: 14px; }
+.practice-progress { flex: 1; }
+.practice-item-card { display: flex; flex-direction: column; gap: 14px; }
+.practice-item-top { align-items: flex-start; }
+.practice-run-actions { justify-content: flex-end; }
+
+.bookmark-btn {
+  background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;
+  color: var(--border-strong); padding: 2px; flex-shrink: 0; transition: color 0.15s, transform 0.1s;
+}
+.bookmark-btn:hover { color: var(--amber); }
+.bookmark-btn.active { color: var(--amber); }
+.bookmark-btn:active { transform: scale(0.88); }
+
+.kw { color: var(--teal); font-weight: 600; border-bottom: 1px dashed color-mix(in srgb, var(--teal) 50%, transparent); }
+.kw:hover { text-decoration: none; }
+
+.practice-end { max-width: 640px; }
+.practice-rec { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.practice-end-actions { flex-wrap: wrap; }
+
+.rapid-run { max-width: 640px; }
+.rapid-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.rapid-metric { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.rapid-clock { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.rapid-clock.low { color: var(--red); animation: pulse 0.6s infinite; }
+.rapid-score { font-size: 22px; font-weight: 800; color: var(--teal); }
+.rapid-combo { font-size: 15px; font-weight: 700; color: var(--amber); min-width: 90px; text-align: center; }
+.rapid-combo.hot { animation: pulse 0.5s infinite; }
+.rapid-card-wrap { position: relative; }
+.rapid-item-top { margin-bottom: 8px; }
+.rapid-flash {
+  position: absolute; inset: 0; pointer-events: none; border-radius: var(--radius-lg);
+  opacity: 0; transition: opacity 0.15s;
+}
+.rapid-flash.show { opacity: 1; }
+.rapid-flash.good { box-shadow: inset 0 0 0 3px var(--green); background: var(--green-soft); }
+.rapid-flash.bad { box-shadow: inset 0 0 0 3px var(--red); background: var(--red-soft); }
+
+.diagnose-run { max-width: 680px; }
+.diagnose-card { position: relative; }
+.diagnose-title { font-size: 19px; }
+.diagnose-constraints { padding: 8px 10px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.diagnose-steps { gap: 8px; }
+.diagnose-step {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 5px 10px; border-radius: 99px; background: var(--surface-2); color: var(--faint); border: 1px solid var(--border);
+}
+.diagnose-step.current { color: var(--amber); border-color: var(--amber); background: var(--amber-soft); }
+.diagnose-step.done { color: var(--teal); border-color: var(--teal); }
+.diagnose-q { text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
+.diagnose-insight { padding: 12px; border-radius: var(--radius-sm); background: var(--teal-soft); }
+.diagnose-say { padding: 8px 10px; border-radius: var(--radius-sm); background: var(--surface-2); font-style: italic; }
+.diagnose-solution summary { cursor: pointer; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+
+.pm-predict-host .stepper { margin: 0; }
+.pm-predict-actions { justify-content: flex-end; }
+
+.bite-page { max-width: 880px; }
+.bite-head h1 { font-size: 22px; }
+.bite-stage { display: flex; flex-direction: column; gap: 16px; }
+.bite-footer { justify-content: flex-end; }
+.bite-trace-host .stepper { margin: 0; }
+.bite-trace-actions { justify-content: flex-end; }
+.algo-card .pill { font-size: 12px; }
+.algo-mnemonic { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--amber-soft); color: var(--amber); font-weight: 600; }
+.algo-steps { display: flex; flex-direction: column; gap: 4px; padding-left: 20px; }
+.bite-phase-card .row span:first-child { font-size: 18px; }
+.bite-narrate-card { min-height: 140px; justify-content: center; }
+.bite-narrate-line { font-size: 17px; line-height: 1.5; min-height: 48px; }
+
+@media (max-width: 720px) {
+  .practice-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rapid-bar { flex-wrap: wrap; justify-content: center; }
+}

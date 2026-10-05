@@ -3,6 +3,7 @@ import { codeBlock } from '../ui/code.js'
 import { getState, update, recordAnswer } from '../store.js'
 import { problems } from '../content/index.js'
 import { framework, phrases, rubric, googleTips, blockKinds, splitSolution, templates } from '../content/narration.js'
+import { rich, stripMarks } from '../ui/rich.js'
 
 const totalMs = 45 * 60 * 1000
 const sessionKey = 'mock:session'
@@ -80,7 +81,7 @@ const renderPicker = (root, rerender) => {
       .filter(problem => !query || `${problem.title} ${problem.lc} ${problem.pattern}`.toLowerCase().includes(query))
       .slice(0, 60)
       .map(problem => h('button', { class: 'mk-problem-row', onclick: () => start(problem) },
-        h('span', { class: 'mk-problem-title' }, problem.title),
+        h('span', { class: 'mk-problem-title' }, stripMarks(problem.title)),
         h('span', { class: 'muted hb-small' }, problem.difficulty || ''))))
   }
   search.addEventListener('input', drawList)
@@ -102,13 +103,13 @@ const phaseExtras = (phase, problem, session, persist) => {
   if (phase.id === 'clarify') {
     return h('div', { class: 'stack' },
       problem.problem || problem.statement
-        ? h('div', { class: 'mk-statement' }, problem.problem || problem.statement)
+        ? h('div', { class: 'mk-statement' }, rich(problem.problem || problem.statement))
         : h('div', { class: 'mk-statement stack-sm' },
-          h('b', null, problem.lc ? `LC ${problem.lc} · ${problem.title}` : problem.title),
+          h('b', null, problem.lc ? `LC ${problem.lc} · ${stripMarks(problem.title)}` : stripMarks(problem.title)),
           problem.constraints ? h('span', { class: 'mono small' }, problem.constraints) : null,
-          problem.signals?.length ? h('span', { class: 'muted small' }, `Prompt mentions: ${problem.signals.join(' · ')}`) : null,
+          problem.signals?.length ? h('span', { class: 'muted small' }, 'Prompt mentions: ', rich(problem.signals.join(' · '))) : null,
           problem.lc ? h('a', { class: 'small', href: `https://leetcode.com/problems/${problem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}/`, target: '_blank', rel: 'noopener' }, `Open LC #${problem.lc} statement ↗`) : null),
-      problem.pitfalls?.length ? reveal('pitfalls', 'Questions worth asking', h('ul', { class: 'mk-list' }, problem.pitfalls.map(item => h('li', null, item)))) : null)
+      problem.pitfalls?.length ? reveal('pitfalls', 'Questions worth asking', h('ul', { class: 'mk-list' }, problem.pitfalls.map(item => h('li', null, rich(item))))) : null)
   }
   if (phase.id === 'constraints') {
     const target = h('input', { class: 'mk-input', placeholder: 'Target, e.g. O(n log n)', value: session.answers.target || '' })
@@ -119,22 +120,22 @@ const phaseExtras = (phase, problem, session, persist) => {
       h('a', { class: 'muted hb-small', href: '#/handbook/big-o' }, 'n → Big-O table'))
   }
   if (phase.id === 'brute') {
-    return reveal('signals', 'Show prompt signals', h('div', { class: 'row' }, (problem.signals || ['none listed']).map(signal => h('span', { class: 'chip' }, signal))))
+    return reveal('signals', 'Show prompt signals', h('div', { class: 'row' }, (problem.signals || ['none listed']).map(signal => h('span', { class: 'chip' }, rich(signal)))))
   }
   if (phase.id === 'optimize') {
     return h('div', { class: 'stack' },
-      reveal('pattern', 'Hint: pattern', h('div', { class: 'row' }, h('span', { class: 'pill' }, problem.pattern || '?'), (problem.ds || []).map(item => h('span', { class: 'pill' }, item)))),
-      session.revealed.pattern ? reveal('insight', 'Hint: key insight', h('div', null, problem.insight || '—')) : null)
+      reveal('pattern', 'Hint: pattern', h('div', { class: 'row' }, h('span', { class: 'pill' }, rich(problem.pattern || '?')), (problem.ds || []).map(item => h('span', { class: 'pill' }, rich(item))))),
+      session.revealed.pattern ? reveal('insight', 'Hint: key insight', h('div', null, rich(problem.insight || '—'))) : null)
   }
   if (phase.id === 'code') {
     const template = templates.find(item => (problem.skills || []).some(skill => item.skills.includes(skill)))
     return h('div', { class: 'stack' },
-      template ? h('div', { class: 'mk-template' }, h('div', { class: 'hb-small muted' }, `${template.title} lines`),
-        template.lines.slice(0, 5).map(line => h('div', { class: 'hb-say' }, h('span', { class: 'chip' }, line.cue), h('span', null, line.say)))) : null,
+      template ? h('div', { class: 'mk-template' }, h('div', { class: 'hb-small muted' }, `${stripMarks(template.title)} lines`),
+        template.lines.slice(0, 5).map(line => h('div', { class: 'hb-say' }, h('span', { class: 'chip' }, stripMarks(line.cue)), h('span', null, rich(line.say))))) : null,
       problem.solution ? reveal('solution', 'Peek at solution', codeBlock(problem.solution)) : null)
   }
   if (phase.id === 'test') {
-    return reveal('edges', 'Show edge cases', h('ul', { class: 'mk-list' }, (problem.pitfalls?.length ? problem.pitfalls : ['empty input', 'single element', 'all equal', 'max size']).map(item => h('li', null, item))))
+    return reveal('edges', 'Show edge cases', h('ul', { class: 'mk-list' }, (problem.pitfalls?.length ? problem.pitfalls : ['empty input', 'single element', 'all equal', 'max size']).map(item => h('li', null, rich(item)))))
   }
   if (phase.id === 'complexity') {
     const time = h('input', { class: 'mk-input', placeholder: 'Time  O(…)', value: session.answers.time || '' })
@@ -202,7 +203,7 @@ const renderRubric = (root, problem, session, rerender) => {
           buttons.forEach((button, index) => button.classList.toggle('active', index + 1 === score))
         },
       }, score))
-      return h('div', { class: 'mk-axis' }, h('div', null, h('strong', null, axis.label), h('div', { class: 'muted hb-small' }, axis.hint)), h('div', { class: 'row' }, buttons))
+      return h('div', { class: 'mk-axis' }, h('div', null, h('strong', null, stripMarks(axis.label)), h('div', { class: 'muted hb-small' }, rich(axis.hint))), h('div', { class: 'row' }, buttons))
     }),
     reflection,
     h('div', { class: 'row' },
@@ -248,7 +249,7 @@ const renderSession = (root, session, rerender, timers) => {
 
   const header = h('div', { class: 'card mk-head' },
     h('div', { class: 'mk-head-main' },
-      h('div', null, h('h2', { class: 'mk-title' }, problem.title), problemMeta(problem)),
+      h('div', null, h('h2', { class: 'mk-title' }, stripMarks(problem.title)), problemMeta(problem)),
       h('div', { class: 'mk-clock-wrap' }, clock, h('div', { class: 'mk-time-track' }, bar))),
     tracker)
 
@@ -284,7 +285,7 @@ const renderSession = (root, session, rerender, timers) => {
     class: 'mk-starter',
     title: 'Copy',
     onclick: () => navigator.clipboard?.writeText(line).then(() => toast('Copied', 'good')).catch(() => {}),
-  }, `“${line}”`)))
+  }, `“${stripMarks(line)}”`)))
 
   const isLast = session.phaseIndex === framework.length - 1
   const phaseCard = h('div', { class: 'card mk-phase-card stack' },
@@ -330,7 +331,7 @@ const renderNarrate = (root, rerender) => {
   if (drill.index >= blocks.length) {
     root.append(h('div', { class: 'card stack mk-narrate-done' },
       h('h2', null, `${drill.score}/${blocks.length} blocks narrated right`),
-      problem.narration?.length ? h('div', { class: 'stack' }, h('div', { class: 'muted hb-small' }, 'Full narration'), problem.narration.map(line => h('div', { class: 'hb-say' }, h('span', null, `“${line}”`)))) : null,
+      problem.narration?.length ? h('div', { class: 'stack' }, h('div', { class: 'muted hb-small' }, 'Full narration'), problem.narration.map(line => h('div', { class: 'hb-say' }, h('span', null, '“', rich(line), '”')))) : null,
       h('button', { class: 'btn btn-primary', onclick: () => { drill.finished = 'next'; rerender() } }, 'Next problem')))
     return
   }
@@ -357,7 +358,7 @@ const renderNarrate = (root, rerender) => {
   }
   root.append(h('div', { class: 'mk-narrate' },
     h('div', { class: 'card stack' },
-      h('div', { class: 'row mk-narrate-head' }, h('strong', null, problem.title), h('span', { class: 'pill' }, `Block ${drill.index + 1}/${blocks.length}`), h('span', { class: 'pill' }, `Lines ${block.start}-${block.end}`)),
+      h('div', { class: 'row mk-narrate-head' }, h('strong', null, stripMarks(problem.title)), h('span', { class: 'pill' }, `Block ${drill.index + 1}/${blocks.length}`), h('span', { class: 'pill' }, `Lines ${block.start}-${block.end}`)),
       h('div', { class: 'mk-block-preview' }, codeBlock(block.text, { lineNumbers: false })),
       h('details', { class: 'mk-full' }, h('summary', { class: 'muted hb-small' }, 'Full solution'), code)),
     h('div', { class: 'card stack' },
@@ -365,7 +366,7 @@ const renderNarrate = (root, rerender) => {
       drill.choices.map(kind => h('button', {
         class: `mk-choice ${drill.picked ? (kind === block.kind ? 'good' : kind === drill.picked ? 'bad' : 'faded') : ''}`,
         onclick: () => choose(kind),
-      }, blockKinds[kind])),
+      }, stripMarks(blockKinds[kind]))),
       drill.picked ? h('button', { class: 'btn btn-primary', onclick: next }, drill.index + 1 < blocks.length ? 'Next block →' : 'Finish') : null)))
 }
 
@@ -381,12 +382,12 @@ const renderHistory = root => {
   })
   root.append(
     h('div', { class: 'card mk-averages' }, averages.map(([axis, value]) => h('div', { class: 'mk-avg' },
-      h('div', { class: 'muted hb-small' }, axis.label),
+      h('div', { class: 'muted hb-small' }, stripMarks(axis.label)),
       h('div', { class: 'mk-avg-value' }, value.toFixed(1)),
       h('div', { class: 'progress' }, h('div', { style: { width: `${(value / 4) * 100}%` } }))))),
     h('div', { class: 'stack' }, history.map(entry => h('div', { class: 'card mk-history-row' },
       h('div', null,
-        h('strong', null, entry.title),
+        h('strong', null, stripMarks(entry.title)),
         h('div', { class: 'muted hb-small' }, `${new Date(entry.date).toLocaleString()} · ${Math.round(entry.durationMs / 60000)} min`),
         entry.reflection ? h('div', { class: 'hb-small' }, entry.reflection) : null),
       h('div', { class: 'row' }, rubric.map(axis => h('span', { class: `mk-rating r${entry.ratings?.[axis.id] || 0}`, title: axis.label }, `${axis.label[0]}${entry.ratings?.[axis.id] || '-'}`)),
@@ -395,10 +396,10 @@ const renderHistory = root => {
 
 const renderTips = root => {
   root.append(h('div', { class: 'grid mk-tips' },
-    googleTips.map(tip => h('div', { class: 'card' }, h('strong', null, tip.title), h('div', { class: 'muted hb-small' }, tip.text))),
+    googleTips.map(tip => h('div', { class: 'card' }, h('strong', null, stripMarks(tip.title)), h('div', { class: 'muted hb-small' }, rich(tip.text)))),
     Object.entries(phrases).map(([group, lines]) => h('div', { class: 'card stack' },
       h('strong', null, group.replace(/([A-Z])/g, ' $1').replace(/^./, char => char.toUpperCase())),
-      lines.map(line => h('div', { class: 'hb-small' }, `“${line}”`))))))
+      lines.map(line => h('div', { class: 'hb-small' }, '“', rich(line), '”'))))))
 }
 
 export default function render(container) {
