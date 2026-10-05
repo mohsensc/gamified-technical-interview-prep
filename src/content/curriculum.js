@@ -283,7 +283,7 @@ const buildModule = (mod, unit) => {
   for (const trace of extraTraces) add(traceBite(trace, true))
   for (const algo of extraAlgos) add(algoBite(algo, true))
 
-  const budget = mod.mustLearn ? 22 : 17
+  const budget = mod.mustLearn ? 20 : 13
   let spent = bites.filter(bite => bite.optional === false && bite.anchor).reduce((sum, bite) => sum + bite.minutes, 0)
   const ranked = bites.filter(bite => bite.optional === undefined).sort((a, b) => corePriority(a) - corePriority(b))
   for (const bite of ranked) {
