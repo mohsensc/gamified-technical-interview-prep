@@ -54,6 +54,18 @@ const unitDefs = [
     ],
   },
   {
+    id: 'u-oop', title: 'OOP & Design', icon: '🧱', topics: ['oop'],
+    modules: [
+      { id: 'oop-classes', title: 'Classes & self', skills: ['communication', 'ds-diagnosis'], lessons: ['oop:lesson:classes-101', 'oop:lesson:pitfalls'], algos: [] },
+      { id: 'oop-lru', title: 'LRU Cache', skills: ['linked-list', 'ds-diagnosis'], lessons: ['oop:lesson:building-blocks', 'oop:lesson:ordereddict-shortcut'], algos: [],
+        readRefs: [{ ref: 'statements-b:lc146', title: 'Read & sign: LRU Cache' }, { ref: 'statements-b:lc460', title: 'Read & sign: LFU Cache' }] },
+      { id: 'oop-heaps', title: 'Two-heap median & streams', skills: ['heap', 'ds-diagnosis'], lessons: ['oop:lesson:heaps-as-objects'], algos: [],
+        readRefs: [{ ref: 'statements-b:lc295', title: 'Read & sign: Find Median from Data Stream' }, { ref: 'statements-b:lc703', title: 'Read & sign: Kth Largest in a Stream' }] },
+      { id: 'oop-design', title: 'Design drills', skills: ['ds-diagnosis', 'trie', 'arrays-hashing', 'stack', 'queue-deque'], lessons: ['oop:lesson:design-interview-flow'], algos: [],
+        readRefs: [{ ref: 'statements-b:lc208', title: 'Read & sign: Implement Trie' }, { ref: 'statements-b:lc155', title: 'Read & sign: Min Stack' }, { ref: 'statements-b:lc981', title: 'Read & sign: Time Based Key-Value Store' }] },
+    ],
+  },
+  {
     id: 'u-arrays', title: 'Arrays, Windows, Prefix & Binary Search', icon: '📏', topics: ['linear'],
     modules: [
       { id: 'a-prefix', title: 'Prefix sum + hashmap', mustLearn: true, gap: 'prefix-hash', skills: ['prefix-sum', 'arrays-hashing'], lessons: ['gaps:prefix-hash:lesson', 'linear:lesson:prefix-sum'], algos: ['prefix-sum', 'prefix-sum-hashmap'] },
@@ -78,6 +90,14 @@ const unitDefs = [
   {
     id: 'u-craft', title: 'Interview Craft (narration + mock)', icon: '🎤', topics: [],
     modules: [
+      { id: 'ic-read', title: 'Read & Sign', skills: ['communication', 'ds-diagnosis'], lessons: [], algos: [], extraBites: [
+        { type: 'read', ref: 'drill', title: 'Signature drill: rapid-fire', minutes: 4 },
+        { type: 'read', ref: 'statements-a:lc743', title: 'Read: Network Delay Time', minutes: 6 },
+        { type: 'read', ref: 'statements-a:lc210', title: 'Read: Course Schedule II', minutes: 6 },
+        { type: 'read', ref: 'statements-a:lc312', title: 'Read: Burst Balloons', minutes: 6 },
+        { type: 'read', ref: 'statements-a:lc25', title: 'Read: Reverse Nodes in k-Group', minutes: 6 },
+        { type: 'read', ref: 'statements-a:lc215', title: 'Read: Kth Largest Element in an Array', minutes: 6 },
+      ] },
       { id: 'ic-framework', title: 'The 45-minute script', skills: ['communication'], lessons: [], algos: [], extraBites: [
         { type: 'mock', ref: 'framework', title: 'Clarify → plan → code → test', minutes: 5 },
         { type: 'mock', ref: 'tips', title: 'Phrases that keep you talking', minutes: 4 },
@@ -124,6 +144,16 @@ const traceOverrides = {
   'paradigms:trace:lis': 'p-lis',
   'paradigms:trace:coin-change': 'p-dp1',
   'paradigms:trace:unique-paths': 'p-dp2',
+  'oop:trace:lru-evict': 'oop-lru',
+  'oop:trace:lru-identity': 'oop-lru',
+  'oop:trace:median-two-heaps': 'oop-heaps',
+  'oop:trace:min-stack': 'oop-design',
+  'oop:trace:kth-largest': 'oop-design',
+  'oop:trace:time-map': 'oop-design',
+  'oop:trace:randomized-set': 'oop-design',
+  'oop:trace:trie': 'oop-design',
+  'oop:trace:queue-via-stacks': 'oop-design',
+  'oop:trace:browser-history': 'oop-design',
 }
 
 const mustKnowAlgos = new Set((algorithmsTopic.paths || []).find(path => path.id.endsWith('must-know'))?.algoIds || [])
@@ -235,7 +265,7 @@ const moduleProblems = mod => {
 }
 
 const lessonMinutes = lesson => Math.max(2, Math.min(5, Math.round((lesson.slides?.length || 4) * 0.7)))
-const biteMinutes = { trace: 4, algo: 3, cards: 3, rapid: 3, quiz: 4, diagnose: 4, predict: 3, mock: 5 }
+const biteMinutes = { trace: 4, algo: 3, cards: 3, rapid: 3, quiz: 4, diagnose: 4, predict: 3, mock: 5, read: 5 }
 const coreTraceLimit = 2
 
 const buildModule = (mod, unit) => {
@@ -282,6 +312,7 @@ const buildModule = (mod, unit) => {
 
   for (const trace of extraTraces) add(traceBite(trace, true))
   for (const algo of extraAlgos) add(algoBite(algo, true))
+  for (const read of mod.readRefs || []) add({ type: 'read', ref: read.ref, title: read.title, minutes: biteMinutes.read, skills: mod.skills, optional: true })
 
   const budget = mod.mustLearn ? 20 : 13
   let spent = bites.filter(bite => bite.optional === false && bite.anchor).reduce((sum, bite) => sum + bite.minutes, 0)

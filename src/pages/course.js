@@ -5,8 +5,8 @@ import { getNodeProgress, getBiteStatus, getCheckpoint, subscribe } from '../sto
 import { modes, practiceHref } from '../engine/session.js'
 import { continueTarget } from '../engine/recommend.js'
 
-const biteIcons = { lesson: '📖', trace: '🔍', algo: '🧠', predict: '🔮', cards: '🃏', rapid: '⚡', quiz: '🧩', diagnose: '🩺', mock: '🎙️' }
-const learnTypes = new Set(['lesson', 'trace', 'algo', 'mock'])
+const biteIcons = { lesson: '📖', trace: '🔍', algo: '🧠', predict: '🔮', cards: '🃏', rapid: '⚡', quiz: '🧩', diagnose: '🩺', mock: '🎙️', read: '📘' }
+const learnTypes = new Set(['lesson', 'trace', 'algo', 'mock', 'read'])
 
 const openUnits = new Set()
 const openModules = new Set()

@@ -37,6 +37,8 @@ const pages = {
   stats: lazyPage(() => import('./pages/stats.js')),
   glossary: lazyPage(() => import('./pages/glossary.js')),
   bite: lazyPage(() => import('./pages/bite.js')),
+  read: lazyPage(() => import('./pages/read.js')),
+  cheatsheet: lazyPage(() => import('./pages/cheatsheet.js')),
 }
 
 route('#/', pages.dashboard)
@@ -65,6 +67,10 @@ route('#/stats', pages.stats)
 route('#/glossary', pages.glossary)
 route('#/glossary/:term', pages.glossary)
 route('#/bite/:id', pages.bite)
+route('#/read', pages.read)
+route('#/read/drill', pages.read)
+route('#/read/:id', pages.read)
+route('#/cheatsheet', pages.cheatsheet)
 
 setNotFound(container => {
   container.replaceChildren(h('div', { class: 'page' },

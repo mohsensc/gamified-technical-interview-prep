@@ -9,8 +9,9 @@ import googleA from './google-a.js'
 import googleB from './google-b.js'
 import gaps from './gaps.js'
 import algorithms from './algorithms.js'
+import oop from './oop.js'
 
-export const topics = [gaps, complexity, graphsCore, graphsAdvanced, trees, stacksLists, linear, paradigms, algorithms]
+export const topics = [gaps, complexity, graphsCore, graphsAdvanced, trees, stacksLists, oop, linear, paradigms, algorithms]
 const bankModules = [googleA, googleB]
 const allModules = [...topics, ...bankModules]
 

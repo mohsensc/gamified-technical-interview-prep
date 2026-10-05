@@ -19,6 +19,8 @@ const iconPaths = {
   flame: '<path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   layers: '<path d="M12 2l10 5-10 5L2 7z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>',
+  read: '<path d="M4 4h12l4 4v13H4z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+  cheatsheet: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M8 8h3M8 12h8M8 16h8M14 8h2"/>',
 }
 
 export const icon = (name, size = 20) => {
@@ -34,11 +36,13 @@ export const navItems = [
   { id: 'algorithms', label: 'Algorithms', href: '#/algorithms', key: 'a' },
   { id: 'learn', label: 'Learn', href: '#/learn', key: 'l' },
   { id: 'problems', label: 'Problems', href: '#/problems', key: 'b' },
+  { id: 'read', label: 'Read', href: '#/read', key: 'd' },
   { id: 'games', label: 'Games', href: '#/games', key: 'g' },
   { id: 'mock', label: 'Mock', href: '#/mock', key: 'm' },
   { id: 'stats', label: 'Stats', href: '#/stats', key: 's' },
   { id: 'glossary', label: 'Glossary', href: '#/glossary', key: 'y' },
   { id: 'handbook', label: 'Handbook', href: '#/handbook', key: 'k' },
+  { id: 'cheatsheet', label: 'Cheat sheet', href: '#/cheatsheet', key: 'q' },
 ]
 
 const sectionFor = path => {

@@ -1,0 +1,102 @@
+.rd-page { gap: 18px; }
+
+.rd-progress { gap: 8px; margin-top: -6px; }
+
+.rd-stage { display: flex; flex-direction: column; gap: 16px; }
+
+.rd-read-head { font-size: 13px; }
+
+.rd-timer { font-size: 13px; color: var(--text); }
+
+.rd-statement-card { padding: 20px 22px; }
+
+.rd-statement { display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 1.7; }
+
+.rd-para { margin: 0; }
+
+.rd-chunk {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 2px;
+  transition: background 0.12s, color 0.12s;
+}
+.rd-chunk:hover { background: var(--surface-3); }
+.rd-chunk.picked { background: var(--sky-soft); color: var(--sky); box-shadow: 0 0 0 1px color-mix(in srgb, var(--sky) 40%, transparent) inset; }
+.rd-chunk.rd-frozen { cursor: default; }
+.rd-chunk.rd-frozen:hover { background: none; }
+.rd-chunk.rd-signal { background: var(--pink-soft); color: var(--pink); }
+.rd-chunk.rd-hit { box-shadow: 0 0 0 1px var(--pink) inset; font-weight: 650; }
+.rd-chunk.rd-missed { outline: 1px dashed var(--pink); outline-offset: -1px; }
+.rd-chunk.rd-extra { background: var(--red-soft); color: var(--red); box-shadow: 0 0 0 1px color-mix(in srgb, var(--red) 40%, transparent) inset; }
+
+.rd-examples { gap: 12px; }
+.rd-example {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+.rd-example-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.rd-example-row { font-size: 14px; }
+.rd-example-row code { white-space: pre-wrap; word-break: break-word; }
+
+.rd-constraints-list { margin: 0; padding-left: 18px; font-size: 13.5px; display: flex; flex-direction: column; gap: 3px; }
+
+.rd-followup { padding: 2px 2px 0; }
+
+.rd-score-chip { font-weight: 650; }
+
+.rd-legend { display: flex; flex-direction: column; gap: 6px; }
+.rd-legend-item {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 8px 12px; border-radius: 9px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.rd-legend-item.good { border-color: color-mix(in srgb, var(--green) 45%, var(--border)); }
+.rd-legend-item.bad { border-color: color-mix(in srgb, var(--red) 45%, var(--border)); }
+.rd-legend-phrase { font-weight: 700; color: var(--pink); }
+.rd-legend-arrow { color: var(--faint); }
+.rd-legend-means { color: var(--muted); }
+
+.rd-step-actions { justify-content: flex-end; margin-top: 4px; }
+
+.rd-sign-recap { gap: 4px; }
+
+.sig-box { gap: 10px; }
+.sig-editor {
+  width: 100%; min-height: 120px; resize: vertical;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  background: var(--code-bg); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; line-height: 1.6; tab-size: 4;
+}
+.sig-editor:focus-visible { outline: 2px solid var(--sky); outline-offset: 1px; }
+.sig-editor.is-correct { border-color: var(--green); }
+.sig-editor.is-wrong { border-color: var(--red); }
+.sig-actions { flex-wrap: wrap; }
+.sig-issues { display: flex; flex-direction: column; gap: 6px; }
+.sig-issue {
+  font-size: 13px; padding: 7px 11px; border-radius: 8px;
+  background: var(--red-soft); color: var(--red);
+  border: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
+}
+.sig-issue.sig-warn { background: var(--amber-soft); color: var(--amber); border-color: color-mix(in srgb, var(--amber) 35%, transparent); }
+.sig-issue.sig-ok { background: var(--green-soft); color: var(--green); border-color: color-mix(in srgb, var(--green) 35%, transparent); }
+.sig-reveal { display: flex; flex-direction: column; gap: 6px; }
+
+.rd-edge-list { gap: 2px; }
+.rd-edge-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 9px; cursor: pointer;
+}
+.rd-edge-row:hover { background: var(--surface-2); }
+.rd-edge-row .check.good { background: var(--green); border-color: var(--green); }
+.rd-edge-row .check.bad { background: var(--red); border-color: var(--red); }
+
+.rd-drill-hud { font-size: 14px; }
+
+.rd-summary { align-items: flex-start; }
+
+@media (max-width: 640px) {
+  .rd-statement { font-size: 15px; }
+  .rd-legend-item { font-size: 13px; }
+}

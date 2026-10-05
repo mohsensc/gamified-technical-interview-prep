@@ -1,4 +1,4 @@
-import { allBites, allModules, findNode, hrefFor, units } from '../content/curriculum.js'
+import { allBites, allModules, findNode, hrefFor, units, algorithmById } from '../content/curriculum.js'
 import { skills as skillInfo } from '../content/skills.js'
 import { getState, getEvents, getBiteStatus, getNodeProgress, getSessions, dueItems, getMissed, getCheckpoint } from '../store.js'
 import { practiceHref } from './session.js'
@@ -35,8 +35,14 @@ const recentSkills = () => {
   return new Set(getEvents({ type: ['answer', 'card', 'bite'], limit: 12 }).flatMap(event => event.skills || []))
 }
 
+const lowPriorityAlgoSlugs = Object.values(algorithmById)
+  .filter(algo => algo.tier === 3 || algo.id === 'algorithms:floyd-warshall')
+  .map(algo => algo.id.split(':').pop())
+
+const isLowPriorityItem = itemId => lowPriorityAlgoSlugs.some(slug => String(itemId || '').includes(slug))
+
 const skillStats = (skill, lastN = 5) => {
-  const events = getEvents({ type: ['answer', 'card'], skill })
+  const events = getEvents({ type: ['answer', 'card'], skill }).filter(event => !isLowPriorityItem(event.itemId))
   const recent = events.slice(-lastN)
   const wrong = recent.filter(event => !event.correct).length
   return { total: events.length, recent: recent.length, wrong }
@@ -82,6 +88,38 @@ export function recommendNext({ limit = 3 } = {}) {
       kind: 'must-learn',
       skills: mod.skills,
       score: 44 + (tier === 'P0' ? 10 : 4) + (hoursLeft < 12 && hoursLeft > 3 ? 6 : 0),
+    })
+  }
+
+  const oopRanked = allModules
+    .filter(mod => mod.unitId === 'u-oop' && mod.id !== bite?.moduleId)
+    .map(mod => ({ mod, progress: getNodeProgress(mod.id) }))
+    .sort((a, b) => a.progress - b.progress)
+  const oopTarget = oopRanked.find(entry => entry.progress < 0.8)
+  if (oopTarget) {
+    const open = firstOpenBite(oopTarget.mod)
+    add({
+      title: oopTarget.mod.title,
+      reason: oopTarget.progress > 0.02 ? `You flagged this: OOP & design, ${pct(oopTarget.progress)} done` : 'You flagged this: OOP, self and design patterns',
+      href: open ? hrefFor(open.id) : hrefFor(oopTarget.mod.id),
+      minutes: open ? Math.min(oopTarget.mod.minutes, 20) : oopTarget.mod.minutes,
+      kind: 'oop',
+      skills: oopTarget.mod.skills,
+      score: 54 + (hoursLeft < 12 && hoursLeft > 3 ? 6 : 0),
+    })
+  }
+
+  const readModule = findNode('ic-read')
+  if (readModule && readModule.id !== bite?.moduleId) {
+    const openRead = firstOpenBite(readModule)
+    add({
+      title: openRead ? openRead.title : 'Read & Sign: rapid drill',
+      reason: openRead ? 'You flagged this: read long problems, write the signature' : 'Keep signature speed sharp before Tuesday',
+      href: openRead ? hrefFor(openRead.id) : '#/read/drill',
+      minutes: openRead ? openRead.minutes : 4,
+      kind: 'read',
+      skills: ['communication', 'ds-diagnosis'],
+      score: 50 + (hoursLeft < 12 && hoursLeft > 3 ? 6 : 0),
     })
   }
 

@@ -1,6 +1,7 @@
 import { h } from './h.js'
 import { codeBlock } from './code.js'
 import { rich } from './rich.js'
+import { isValidOrder } from './order.js'
 
 const now = () => performance.now()
 
@@ -45,9 +46,9 @@ export const kindOf = item => {
 
 export const kindLabel = { mcq: 'Quiz', cloze: 'Fill in', parsons: 'Reorder', card: 'Card' }
 
-function verdictEl(correct, text) {
+function verdictEl(correct, text, label) {
   return h('div', { class: `item-why show ${correct ? 'good' : 'bad'}` },
-    h('span', { class: 'verdict' }, correct ? 'Correct' : 'Not quite'),
+    h('span', { class: 'verdict' }, label || (correct ? 'Correct' : 'Not quite')),
     text ? h('span', null, rich(text)) : null)
 }
 
@@ -333,20 +334,30 @@ export function renderParsons(item, onDone) {
   function check() {
     if (checked || !answer.length) return
     checked = true
+    const hasDistractor = answer.some(piece => piece.distractor)
+    const sameLength = answer.length === correctLines.length
+    const exact = sameLength && !hasDistractor && answer.every((piece, i) => piece.text === correctLines[i])
+    const validReordered = !exact && sameLength && !hasDistractor && isValidOrder(correctLines, answer.map(piece => piece.text))
+    const correct = exact || validReordered
+
     const lineEls = [...answerEl.querySelectorAll('.parsons-line')]
-    answer.forEach((piece, i) => {
-      const ok = !piece.distractor && correctLines[i] === piece.text
-      lineEls[i]?.classList.add(ok ? 'is-correct' : 'is-wrong')
-    })
+    if (correct) {
+      lineEls.forEach(node => node.classList.add('is-correct'))
+    } else {
+      answer.forEach((piece, i) => {
+        const ok = !piece.distractor && correctLines[i] === piece.text
+        lineEls[i]?.classList.add(ok ? 'is-correct' : 'is-wrong')
+      })
+    }
     for (const lineNode of el.querySelectorAll('.parsons-line')) lineNode.setAttribute('draggable', 'false')
     for (const lineNode of poolEl.querySelectorAll('.parsons-line')) {
       if (findPiece(lineNode.dataset.id)?.distractor) lineNode.classList.add('is-discarded')
     }
-    const correct = answer.length === correctLines.length && answer.every((piece, i) => !piece.distractor && piece.text === correctLines[i])
     checkButton.disabled = true
     resetButton.disabled = true
     const placed = answer.filter((piece, i) => !piece.distractor && piece.text === correctLines[i]).length
-    feedback.append(verdictEl(correct, correct ? null : `${placed}/${correctLines.length} in place`))
+    const label = validReordered ? 'Accepted — independent lines can go in any order' : undefined
+    feedback.append(verdictEl(correct, correct ? null : `${placed}/${correctLines.length} in place`, label))
     if (!correct) feedback.append(h('div', { class: 'parsons-solution' }, h('div', { class: 'label muted' }, 'Answer'), codeBlock(correctLines.join('\n'))))
     onDone?.({ correct, ms: now() - started })
   }

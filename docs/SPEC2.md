@@ -26,6 +26,7 @@ Bite types and what `ref` means:
 | predict | trace id | `buildSession({mode:'predict', scope})` |
 | cards, rapid, quiz, diagnose | none | `buildSession({mode: bite.mode, scope: bite.scope})` |
 | mock | `framework`, `tips`, `sim`, `narrate:<templateId>` | narration content in `narration.js` |
+| read | statement id (`statements-a`/`statements-b`) or `drill` | link card to `#/read/<ref>` or `#/read/drill`, self-reported done |
 
 Units in order: `u-complexity`, `u-graphs1`, `u-graphs2`, `u-trees`, `u-stacks`, `u-arrays`, `u-paradigms`, `u-craft`.
 Must-learn modules (`mustLearn:true`, from `gaps.priority` P0/P1) come early in their unit.

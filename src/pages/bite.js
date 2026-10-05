@@ -244,6 +244,19 @@ function renderNarrateRef(stage, templateId, markDone) {
   return null
 }
 
+function renderReadBite(stage, bite, markDone) {
+  const isDrill = !bite.ref || bite.ref === 'drill'
+  const target = isDrill ? '#/read/drill' : `#/read/${encodeURIComponent(bite.ref)}`
+  stage.replaceChildren(
+    h('div', { class: 'card stack' },
+      h('p', { class: 'muted' }, isDrill
+        ? 'Rapid-fire signature drill: title + one-liner, type the class and method signature from memory.'
+        : 'Read the full statement, extract the signal, then type the exact signature (class included).'),
+      h('a', { class: 'btn btn-primary', href: target }, 'Open Read & Sign →')),
+    doneButton(markDone, 'Done, mark complete'))
+  return null
+}
+
 function renderMockBite(stage, bite, markDone) {
   const ref = bite.ref || ''
   if (ref === 'framework') return renderFrameworkRef(stage, markDone)
@@ -287,6 +300,7 @@ function renderBite(container, bite) {
   else if (bite.type === 'predict') cleanup = renderPredictBite(stage, bite, markDone)
   else if (['cards', 'rapid', 'quiz', 'diagnose'].includes(bite.type)) cleanup = renderSessionBite(stage, bite, markDone)
   else if (bite.type === 'mock') cleanup = renderMockBite(stage, bite, markDone)
+  else if (bite.type === 'read') cleanup = renderReadBite(stage, bite, markDone)
   else {
     stage.replaceChildren(emptyCard('Unknown bite type.'))
     markDone()

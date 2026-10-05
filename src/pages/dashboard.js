@@ -15,7 +15,7 @@ const heatColor = (mastery, attempts) => {
   return 'var(--green)'
 }
 
-const kindColor = { continue: 'teal', 'must-learn': 'amber', drill: 'sky', review: 'pink', checkpoint: 'green', mock: 'amber', warmup: 'teal' }
+const kindColor = { continue: 'teal', 'must-learn': 'amber', drill: 'sky', review: 'pink', checkpoint: 'green', mock: 'amber', warmup: 'teal', oop: 'amber', read: 'sky' }
 
 const countdownParts = () => {
   const ms = Math.max(0, interviewAt.getTime() - Date.now())
