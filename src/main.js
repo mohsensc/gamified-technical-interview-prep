@@ -90,4 +90,29 @@ const boot = async () => {
   startRouter(view)
 }
 
+const fetchVersion = async () => {
+  try {
+    const res = await fetch('/api/version', { cache: 'no-store' })
+    return (await res.json()).version
+  } catch {
+    return null
+  }
+}
+
+const watchForUpdates = async () => {
+  const loadedVersion = await fetchVersion()
+  if (!loadedVersion) return
+  let stale = false
+  const check = async () => {
+    const latest = await fetchVersion()
+    if (latest && latest !== loadedVersion) stale = true
+  }
+  setInterval(check, 30000)
+  window.addEventListener('hashchange', async () => {
+    await check()
+    if (stale) setTimeout(() => location.reload(), 600)
+  })
+}
+
 boot()
+watchForUpdates()

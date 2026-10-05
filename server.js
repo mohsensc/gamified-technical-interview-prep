@@ -1,5 +1,5 @@
 import http from 'node:http'
-import { readFile, writeFile, rename, mkdir, stat } from 'node:fs/promises'
+import { readFile, writeFile, rename, mkdir, stat, readdir } from 'node:fs/promises'
 import { join, normalize, extname, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -22,6 +22,15 @@ const mimeTypes = {
   '.py': 'text/plain; charset=utf-8',
   '.txt': 'text/plain; charset=utf-8',
   '.woff2': 'font/woff2',
+}
+
+const latestMtime = async dir => {
+  let latest = 0
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    latest = Math.max(latest, entry.isDirectory() ? await latestMtime(full) : (await stat(full)).mtimeMs)
+  }
+  return latest
 }
 
 const sendJson = (res, status, body) => {
@@ -115,6 +124,10 @@ const serveStatic = async (req, res) => {
 const server = http.createServer(async (req, res) => {
   try {
     if (req.url.startsWith('/api/state')) return await handleState(req, res)
+    if (req.url.startsWith('/api/version')) {
+      const version = Math.max(await latestMtime(join(rootDir, 'src')), (await stat(join(rootDir, 'index.html'))).mtimeMs)
+      return sendJson(res, 200, { version })
+    }
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.writeHead(405)
       res.end()
