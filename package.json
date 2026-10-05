@@ -1,0 +1,6 @@
+{
+  "name": "google-cram",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.js" }
+}
