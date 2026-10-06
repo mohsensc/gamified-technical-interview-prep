@@ -21,6 +21,7 @@ const iconPaths = {
   layers: '<path d="M12 2l10 5-10 5L2 7z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>',
   read: '<path d="M4 4h12l4 4v13H4z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
   cheatsheet: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M8 8h3M8 12h8M8 16h8M14 8h2"/>',
+  dayof: '<path d="M13 2 4 14h6l-1 8 9-12h-6z"/>',
 }
 
 export const icon = (name, size = 20) => {
@@ -30,6 +31,7 @@ export const icon = (name, size = 20) => {
 }
 
 export const navItems = [
+  { id: 'dayof', label: 'DAYOF', href: '#/dayof', key: 'z', amber: true },
   { id: 'dashboard', label: 'Home', href: '#/', key: 'h' },
   { id: 'course', label: 'Course', href: '#/course', key: 'c' },
   { id: 'practice', label: 'Practice', href: '#/practice', key: 'r' },
@@ -54,7 +56,7 @@ const sectionFor = path => {
 }
 
 export function mountShell(root) {
-  const navLinks = navItems.map(item => h('a', { class: 'nav-link', href: item.href, title: `${item.label}  (g ${item.key})`, 'data-id': item.id },
+  const navLinks = navItems.map(item => h('a', { class: `nav-link${item.amber ? ' nav-link-amber' : ''}`, href: item.href, title: `${item.label}  (g ${item.key})`, 'data-id': item.id },
     icon(item.id), h('span', { class: 'nav-label' }, item.label)))
 
   const levelLabel = h('span', { class: 'top-level' })

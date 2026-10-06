@@ -39,6 +39,7 @@ const pages = {
   bite: lazyPage(() => import('./pages/bite.js')),
   read: lazyPage(() => import('./pages/read.js')),
   cheatsheet: lazyPage(() => import('./pages/cheatsheet.js')),
+  dayof: lazyPage(() => import('./pages/dayof.js')),
 }
 
 route('#/', pages.dashboard)
@@ -70,6 +71,9 @@ route('#/bite/:id', pages.bite)
 route('#/read', pages.read)
 route('#/read/:id', pages.read)
 route('#/cheatsheet', pages.cheatsheet)
+route('#/dayof', pages.dayof)
+route('#/dayof/:stage', pages.dayof)
+route('#/dayof/:stage/:id', pages.dayof)
 
 setNotFound(container => {
   container.replaceChildren(h('div', { class: 'page' },
