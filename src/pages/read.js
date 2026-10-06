@@ -293,6 +293,18 @@ function renderExtractStep(stage, statement, allStatements, onDone) {
   showStep(0)
 }
 
+function renderStatementPanel(statement) {
+  const paragraphs = statementPlainText(statement).split(/\n\n+/).filter(Boolean)
+  return h('div', { class: 'card rd-side-statement' },
+    h('div', { class: 'row spread' }, h('h3', null, stripMarks(statement.title)), statement.difficulty ? h('span', { class: 'pill' }, statement.difficulty) : null),
+    ...paragraphs.map(text => h('p', null, rich(text))),
+    ...(statement.examples || []).map(renderExample),
+    statement.constraints?.length ? h('div', { class: 'rd-side-constraints' },
+      h('div', { class: 'label muted' }, 'Constraints'),
+      h('ul', null, ...statement.constraints.map(line => h('li', null, h('code', null, line))))) : null,
+    statement.followUp ? h('div', { class: 'muted' }, h('b', null, 'Follow-up: '), rich(statement.followUp)) : null)
+}
+
 function renderSignStep(stage, statement, onDone) {
   const oneLiner = statementPlainText(statement).split(/(?<=[.!?])\s+/)[0] || statement.title
   let logged = false
@@ -309,10 +321,12 @@ function renderSignStep(stage, statement, onDone) {
     },
   })
 
-  stage.append(h('div', { class: 'stack' },
-    h('div', { class: 'card rd-sign-recap' }, h('div', { class: 'label muted' }, 'Write the signature for'), h('div', null, rich(oneLiner))),
-    editor.el,
-    h('div', { class: 'row rd-step-actions' }, continueBtn)))
+  stage.append(h('div', { class: 'rd-sign-split' },
+    renderStatementPanel(statement),
+    h('div', { class: 'stack rd-sign-work' },
+      h('div', { class: 'card rd-sign-recap' }, h('div', { class: 'label muted' }, 'Write the signature for'), h('div', null, rich(oneLiner))),
+      editor.el,
+      h('div', { class: 'row rd-step-actions' }, continueBtn))))
 }
 
 function renderEdgeStep(stage, statement, allStatements, onDone) {
@@ -575,14 +589,16 @@ function renderDrill(container, statements) {
         drawHud()
       },
     })
-    stage.append(h('div', { class: 'stack' },
-      h('div', { class: 'card rd-sign-recap' },
-        h('div', { class: 'row spread' },
-          h('h3', null, stripMarks(statement.title)),
-          statement.signature?.kind === 'class' ? h('span', { class: 'pill pill-sky' }, 'OOP') : null),
-        h('div', { class: 'muted' }, stripMarks(oneLiner))),
-      editor.el,
-      h('div', { class: 'row rd-step-actions' }, nextBtn)))
+    stage.append(h('div', { class: 'rd-sign-split' },
+      renderStatementPanel(statement),
+      h('div', { class: 'stack rd-sign-work' },
+        h('div', { class: 'card rd-sign-recap' },
+          h('div', { class: 'row spread' },
+            h('h3', null, stripMarks(statement.title)),
+            statement.signature?.kind === 'class' ? h('span', { class: 'pill pill-sky' }, 'OOP') : null),
+          h('div', { class: 'muted' }, stripMarks(oneLiner))),
+        editor.el,
+        h('div', { class: 'row rd-step-actions' }, nextBtn))))
   }
 
   function advance() {

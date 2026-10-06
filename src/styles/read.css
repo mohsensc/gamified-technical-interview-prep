@@ -100,3 +100,14 @@
   .rd-statement { font-size: 15px; }
   .rd-legend-item { font-size: 13px; }
 }
+
+.rd-sign-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.rd-side-statement { position: sticky; top: 16px; max-height: calc(100vh - 120px); overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 14.5px; line-height: 1.65; }
+.rd-side-statement p { margin: 0; }
+.rd-side-statement h3 { margin: 0; }
+.rd-side-constraints ul { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 2px; }
+.rd-sign-work { min-width: 0; }
+@media (max-width: 900px) {
+  .rd-sign-split { grid-template-columns: 1fr; }
+  .rd-side-statement { position: static; max-height: 40vh; }
+}
