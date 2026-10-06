@@ -68,7 +68,6 @@ route('#/glossary', pages.glossary)
 route('#/glossary/:term', pages.glossary)
 route('#/bite/:id', pages.bite)
 route('#/read', pages.read)
-route('#/read/drill', pages.read)
 route('#/read/:id', pages.read)
 route('#/cheatsheet', pages.cheatsheet)
 
