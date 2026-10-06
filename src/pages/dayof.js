@@ -204,14 +204,12 @@ function renderHome(container) {
   ensureDayof()
 
   let sheets = []
-  let tickTimer = null
   let unsub = null
   let destroyed = false
 
   function draw() {
     if (destroyed) return
     const dayof = getDayof() || ensureDayof()
-    const remaining = (dayof.budgetMs || budgetMs) - (Date.now() - dayof.startedAt)
 
     if (!sheets.length) {
       page.replaceChildren(
@@ -234,10 +232,7 @@ function renderHome(container) {
       h('div', null,
         h('div', { class: 'row-wrap' }, h('span', { class: 'eyebrow' }, 'DAYOF'), h('span', { class: 'pill pill-amber' }, 'Interview today')),
         h('h1', null, '3-hour final cram'),
-        h('p', { class: 'muted' }, 'Review → Test → Final sheets. One pass through, then you walk in.')),
-      h('div', { class: `dayof-timer${remaining < 0 ? ' over' : ''}` },
-        h('div', { class: 'dayof-timer-value mono' }, formatClock(remaining)),
-        h('div', { class: 'dayof-timer-label muted small' }, remaining < 0 ? 'over budget — keep going' : 'left in your 3h')))
+        h('p', { class: 'muted' }, 'Review → Test → Final sheets. One pass through, then you walk in.'))))
 
     const nextBtn = h('a', { class: 'btn btn-primary btn-lg dayof-next', href: next.href }, h('span', null, 'Next step'), h('b', null, next.label))
 
@@ -266,13 +261,11 @@ function renderHome(container) {
     if (destroyed) return
     sheets = result
     draw()
-    tickTimer = setInterval(draw, 1000)
     unsub = subscribe(draw)
   })
 
   return () => {
     destroyed = true
-    if (tickTimer) clearInterval(tickTimer)
     if (unsub) unsub()
   }
 }
