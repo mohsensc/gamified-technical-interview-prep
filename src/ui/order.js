@@ -125,7 +125,10 @@ function collectChainReads(line, reads) {
     let effective = chain
     if (followedByCall) {
       const lastDot = chain.lastIndexOf('.')
-      if (lastDot === -1) continue
+      if (lastDot === -1) {
+        if (!KEYWORDS.has(chain) && !BUILTINS.has(chain)) reads.add(chain)
+        continue
+      }
       effective = chain.slice(0, lastDot)
     }
     const firstToken = effective.match(/^[A-Za-z_]\w*/)
@@ -255,6 +258,8 @@ function collectLines(unit, out) {
 }
 
 function analyzeUnit(unit) {
+  const definition = !unit.chain && unit.text.trim().match(/^(?:async\s+)?(?:def|class)\s+([A-Za-z_]\w*)/)
+  if (definition) return { writes: new Set([definition[1]]), reads: new Set() }
   const lines = []
   collectLines(unit, lines)
   const writes = new Set()
