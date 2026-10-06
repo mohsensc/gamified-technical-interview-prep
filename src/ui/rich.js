@@ -1,11 +1,11 @@
 import { h } from './h.js'
 import { surfaceForms, termId, findTerm, categoryMeta } from '../content/glossary.js'
 
-const markPattern = /==([^=\n]+)==/g
+const markPattern = /==([^\n]+?)==/g
 const isWordChar = ch => /[a-z0-9]/i.test(ch)
 
 export function stripMarks(text) {
-  return String(text ?? '').replace(/==([^=\n]+)==/g, '$1')
+  return String(text ?? '').replace(/==([^\n]+?)==/g, '$1')
 }
 
 function matchAt(lowerText, pos) {
@@ -72,6 +72,22 @@ export function rich(text) {
   const source = String(text ?? '')
   if (!source) return frag
   const used = new Set()
+  const parts = source.split(/`([^`\n]+)`/)
+  parts.forEach((part, i) => {
+    if (i % 2) {
+      const code = document.createElement('code')
+      code.className = 'rich-code'
+      code.textContent = part
+      frag.append(code)
+    } else if (part) {
+      frag.append(richMarks(part, used))
+    }
+  })
+  return frag
+}
+
+function richMarks(source, used) {
+  const frag = document.createDocumentFragment()
   let lastIndex = 0
   let match
   markPattern.lastIndex = 0

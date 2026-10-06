@@ -453,3 +453,5 @@ button { font: inherit; color: inherit; }
 a.plan-step { color: var(--text); text-decoration: none; }
 a.plan-step:hover { text-decoration: none; }
 .plan-step-type { font-size: 15px; opacity: 0.85; flex-shrink: 0; }
+
+code, pre, kbd, .mono, .rich-code, textarea, [class*="code"] { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }

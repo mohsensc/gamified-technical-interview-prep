@@ -98,3 +98,5 @@
   .gl-controls { flex-wrap: wrap; }
   .gl-term-grid { grid-template-columns: 1fr; }
 }
+
+.rich-code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.9em; padding: 1px 6px; border-radius: 5px; background: var(--surface-2, rgba(127,127,127,0.14)); white-space: pre-wrap; }
