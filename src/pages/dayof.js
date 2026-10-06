@@ -232,7 +232,7 @@ function renderHome(container) {
       h('div', null,
         h('div', { class: 'row-wrap' }, h('span', { class: 'eyebrow' }, 'DAYOF'), h('span', { class: 'pill pill-amber' }, 'Interview today')),
         h('h1', null, '3-hour final cram'),
-        h('p', { class: 'muted' }, 'Review → Test → Final sheets. One pass through, then you walk in.'))))
+        h('p', { class: 'muted' }, 'Review → Test → Final sheets. One pass through, then you walk in.')))
 
     const nextBtn = h('a', { class: 'btn btn-primary btn-lg dayof-next', href: next.href }, h('span', null, 'Next step'), h('b', null, next.label))
 
