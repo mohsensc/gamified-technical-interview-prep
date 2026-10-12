@@ -1,0 +1,115 @@
+.thought-filters { display: flex; flex-direction: column; gap: 12px; }
+.thought-chip-row { gap: 8px; }
+.thought-chip-count { opacity: 0.7; }
+.thought-chip-pct { color: var(--teal); font-weight: 700; }
+.thought-start { align-self: flex-start; }
+
+.thought-list { gap: 8px; }
+.thought-row {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
+  color: inherit; font: inherit; cursor: pointer; text-align: left;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.thought-row:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.thought-row-lc { width: 46px; flex-shrink: 0; }
+.thought-row-title { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thought-row-cat { flex-shrink: 0; white-space: nowrap; }
+
+.thought-top { margin-bottom: -4px; }
+.thought-body { display: flex; flex-direction: column; gap: 14px; }
+.thought-card { display: flex; flex-direction: column; gap: 14px; }
+.thought-head-row { gap: 10px; }
+.thought-mini-head { gap: 8px; margin-bottom: -4px; }
+
+.thought-statement { display: flex; flex-direction: column; gap: 10px; font-size: 14.5px; line-height: 1.55; }
+.thought-examples { display: flex; flex-direction: column; gap: 8px; }
+.thought-example {
+  padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.thought-example-row { display: flex; gap: 8px; align-items: baseline; }
+.thought-example-label {
+  width: 56px; flex-shrink: 0; color: var(--muted); font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.thought-constraints ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+
+.thought-actions { gap: 10px; margin-top: 4px; align-items: center; }
+.thought-feedback-slot:empty { display: none; }
+
+.thought-select {
+  appearance: none; -webkit-appearance: none;
+  width: 100%; max-width: 440px;
+  padding: 10px 36px 10px 14px;
+  border-radius: 10px; border: 1px solid var(--border-strong);
+  background-color: var(--surface-2); color: var(--text);
+  font: inherit; font-size: 14px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a9ab0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 14px;
+}
+.thought-select:hover { border-color: var(--border-strong); }
+.thought-select:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+.thought-select:disabled { opacity: 0.65; cursor: default; }
+
+.thought-radio-list { display: flex; flex-direction: column; gap: 8px; }
+.thought-radio { align-items: flex-start; }
+.thought-radio-dot {
+  width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; border-radius: 50%;
+  border: 2px solid var(--border-strong); background: transparent; transition: all 0.15s;
+}
+.thought-radio.checked .thought-radio-dot { border-color: var(--teal); background: var(--teal); }
+.thought-radio.is-correct .thought-radio-dot { border-color: var(--green); background: var(--green); }
+.thought-radio.is-wrong .thought-radio-dot { border-color: var(--red); background: var(--red); }
+
+.thought-complexity-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+.thought-fill-line { gap: 2px; }
+.thought-fill-text { display: inline-flex; align-items: center; gap: 6px; white-space: pre; flex-wrap: wrap; }
+.thought-fill-indent { white-space: pre; }
+.thought-fill-input {
+  font-family: var(--mono); font-size: 13px; padding: 2px 6px; border-radius: 6px;
+  border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text);
+}
+.thought-fill-input:focus-visible { outline: 2px solid var(--sky); outline-offset: 1px; }
+.thought-fill-input.is-correct { border-color: var(--green); background: color-mix(in srgb, var(--green) 16%, var(--surface-2)); }
+.thought-fill-input.is-wrong { border-color: var(--red); background: color-mix(in srgb, var(--red) 16%, var(--surface-2)); animation: itemShake 0.35s; }
+.thought-fill-input.is-revealed { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 16%, var(--surface-2)); }
+.thought-show-line { flex-shrink: 0; }
+.thought-attempts { white-space: nowrap; }
+
+.thought-checklist { display: flex; flex-direction: column; gap: 6px; }
+.thought-check-row {
+  display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 9px;
+  background: var(--surface-2); border: 1px solid var(--border); font-size: 13.5px; font-weight: 600;
+}
+.thought-check-row.good { color: var(--green); border-color: color-mix(in srgb, var(--green) 40%, var(--border)); }
+.thought-check-row.bad { color: var(--red); border-color: color-mix(in srgb, var(--red) 40%, var(--border)); }
+.thought-check-mark { font-weight: 800; }
+
+.thought-sayit { background: var(--teal-soft); border-color: color-mix(in srgb, var(--teal) 40%, var(--border)); }
+.thought-sayit-text { font-size: 16px; font-weight: 650; line-height: 1.5; }
+.thought-pitfall { background: var(--amber-soft); border-color: color-mix(in srgb, var(--amber) 40%, var(--border)); }
+
+.thought-stepper { display: flex; gap: 4px; flex-wrap: wrap; margin: 2px 0; }
+.thought-step {
+  display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 99px;
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--faint);
+  font-size: 12.5px; font-weight: 600;
+}
+.thought-step-num {
+  display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--surface-3); font-size: 10.5px; flex-shrink: 0;
+}
+.thought-step.current { color: var(--text); border-color: var(--amber); background: var(--amber-soft); }
+.thought-step.current .thought-step-num { background: var(--amber); color: #1f1300; }
+.thought-step.done { color: var(--muted); }
+.thought-step.done .thought-step-num { background: var(--green-soft); color: var(--green); }
+
+.dot-red { background: var(--red); }
+
+@media (max-width: 720px) {
+  .thought-complexity-grid { grid-template-columns: 1fr; }
+  .thought-row-cat { display: none; }
+  .thought-step-label { display: none; }
+}

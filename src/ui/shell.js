@@ -22,6 +22,7 @@ const iconPaths = {
   read: '<path d="M4 4h12l4 4v13H4z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
   cheatsheet: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M8 8h3M8 12h8M8 16h8M14 8h2"/>',
   dayof: '<path d="M13 2 4 14h6l-1 8 9-12h-6z"/>',
+  thought: '<path d="M9 18h6"/><path d="M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.6 11.9c.6.4 1.1 1.2 1.1 2.1h5a2.6 2.6 0 0 1 1.1-2.1A6.5 6.5 0 0 0 12 2.5z"/>',
 }
 
 export const icon = (name, size = 20) => {
@@ -32,6 +33,7 @@ export const icon = (name, size = 20) => {
 
 export const navItems = [
   { id: 'dayof', label: 'DAYOF', href: '#/dayof', key: 'z', amber: true },
+  { id: 'thought', label: 'Thought Processes', href: '#/thought', key: 't' },
   { id: 'dashboard', label: 'Home', href: '#/', key: 'h' },
   { id: 'course', label: 'Course', href: '#/course', key: 'c' },
   { id: 'practice', label: 'Practice', href: '#/practice', key: 'r' },
