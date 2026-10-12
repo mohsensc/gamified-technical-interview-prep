@@ -3,10 +3,12 @@ import { codeBlock, highlightPython } from '../ui/code.js'
 import { rich } from '../ui/rich.js'
 import { getState, update, recordAnswer, subscribe } from '../store.js'
 import { navigate } from '../router.js'
+import { priorityIds } from '../content/thought/priority.js'
 
 const queueKey = 'thought-queue'
 const stepLabels = ['Read', 'Data structure', 'Method', 'Code', 'Fill 3 lines', 'Complexity']
 const modeDefs = [
+  { id: 'priority', label: 'Priority' },
   { id: 'order', label: 'In order' },
   { id: 'shuffle', label: 'Shuffle' },
   { id: 'missed', label: 'Missed only' },
@@ -69,6 +71,10 @@ function statusTone(status) {
   return values.some(Boolean) ? 'amber' : 'red'
 }
 
+const isDone = status => ['green', 'amber'].includes(statusTone(status))
+const priorityRank = new Map(priorityIds.map((id, i) => [id, i]))
+const sortByPriority = pool => [...pool].sort((a, b) => (priorityRank.get(a.id) ?? 1e6) - (priorityRank.get(b.id) ?? 1e6))
+
 const toneDot = { green: 'dot-green', amber: 'dot-amber', red: 'dot-red', gray: 'dot-accent' }
 
 function normalizeLine(text) {
@@ -109,7 +115,7 @@ function listHeader() {
 
 function categoryStats(ids, statusMap) {
   const total = ids.length
-  const green = ids.filter(id => statusTone(statusMap[id]) === 'green').length
+  const green = ids.filter(id => isDone(statusMap[id])).length
   return { total, pct: total ? Math.round((green / total) * 100) : 0 }
 }
 
@@ -143,21 +149,25 @@ function itemsForCategory(categories, items, selected) {
 
 function buildQueueIds(pool, mode, statusMap) {
   let list = pool
-  if (mode === 'missed') list = pool.filter(item => ['red', 'amber'].includes(statusTone(statusMap[item.id])))
+  if (mode === 'priority') list = sortByPriority(pool).filter(item => !isDone(statusMap[item.id]))
+  else if (mode === 'missed') list = pool.filter(item => statusTone(statusMap[item.id]) === 'red')
   else if (mode === 'unseen') list = pool.filter(item => statusTone(statusMap[item.id]) === 'gray')
   const ids = list.map(item => item.id)
   return mode === 'shuffle' ? shuffle(ids) : ids
 }
 
-function listRow(item, categories, statusMap, onClick) {
+function listRow(item, categories, statusMap, onClick, rank) {
   const tone = statusTone(statusMap[item.id])
+  const done = isDone(statusMap[item.id])
   const catTitle = categories.find(cat => cat.id === item.category)?.title || item.category
-  const row = h('button', { class: 'thought-row', type: 'button' },
+  const row = h('button', { class: `thought-row${done ? ' is-done' : ''}`, type: 'button' },
+    rank != null ? h('span', { class: 'thought-row-rank mono small' }, done ? '✓' : String(rank)) : null,
     h('span', { class: `dot ${toneDot[tone]}` }),
     h('span', { class: 'thought-row-lc mono muted small' }, item.lc != null ? `#${item.lc}` : ''),
     h('span', { class: 'thought-row-title' }, item.title),
     h('span', { class: `pill diff-${String(item.difficulty || '').toLowerCase()}` }, item.difficulty),
-    h('span', { class: 'thought-row-cat muted small' }, catTitle))
+    h('span', { class: 'thought-row-cat muted small' }, catTitle),
+    rank != null && priorityRank.has(item.id) ? h('span', { class: 'pill thought-core' }, 'Core') : null)
   row.addEventListener('click', onClick)
   return row
 }
@@ -171,7 +181,7 @@ function renderList(container) {
   let unsub = null
   let data = null
   let selectedCategory = 'all'
-  let selectedMode = 'order'
+  let selectedMode = 'priority'
 
   function startQueue(category, mode, ids) {
     if (!ids.length) return
@@ -201,13 +211,16 @@ function renderList(container) {
     }, queueIds.length ? `Start — ${queueIds.length} problem${queueIds.length > 1 ? 's' : ''}` : 'Nothing in this queue')
     startBtn.addEventListener('click', () => startQueue(selectedCategory, selectedMode, queueIds))
 
-    const rows = pool.map(item => listRow(item, data.categories, statusMap, () => runFromRow(item, pool)))
+    const shown = selectedMode === 'priority' ? sortByPriority(pool) : pool
+    const coreLeft = shown.filter(item => priorityRank.has(item.id) && !isDone(statusMap[item.id])).length
+    const rows = shown.map((item, i) => listRow(item, data.categories, statusMap, () => runFromRow(item, shown), selectedMode === 'priority' ? i + 1 : null))
 
     page.replaceChildren(
       listHeader(),
       h('div', { class: 'card thought-filters' },
         h('div', { class: 'row-wrap thought-chip-row' }, buildCategoryChips(data.categories, data.items, statusMap, selectedCategory, cat => { selectedCategory = cat; draw() })),
         h('div', { class: 'row-wrap thought-chip-row' }, buildModeChips(selectedMode, mode => { selectedMode = mode; draw() })),
+        selectedMode === 'priority' ? h('p', { class: 'muted small' }, `Core list first: one problem per pattern, graphs → trees → DP → stacks/tries → strings. ${coreLeft} core left. Yellow and green count as done.`) : null,
         startBtn),
       h('div', { class: 'stack-sm thought-list' }, rows.length ? rows : [h('p', { class: 'muted small' }, 'No problems in this view.')]))
   }

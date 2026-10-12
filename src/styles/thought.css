@@ -113,3 +113,9 @@
   .thought-row-cat { display: none; }
   .thought-step-label { display: none; }
 }
+
+.thought-row-rank { width: 26px; text-align: right; color: var(--muted, #8a93a6); flex-shrink: 0; }
+.thought-row.is-done { opacity: 0.55; }
+.thought-row.is-done .thought-row-rank { color: var(--green, #4ade80); font-weight: 700; }
+.thought-row.is-done .thought-row-title { text-decoration: line-through; text-decoration-thickness: 1px; }
+.thought-core { font-size: 11px; color: var(--amber, #f5b942); border-color: currentColor; }
