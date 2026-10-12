@@ -1,4 +1,4 @@
-const sheetPaths = ['./init.js', './decide.js', './graphs.js', './patterns.js', './strings.js', './trees-design.js', './interview.js']
+const sheetPaths = ['./init.js', './decide.js', './graphs.js', './patterns.js', './dp.js', './strings.js', './trees-design.js', './interview.js']
 
 async function safeLoad(path) {
   try {
