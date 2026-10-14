@@ -10,9 +10,10 @@ import googleB from './google-b.js'
 import gaps from './gaps.js'
 import algorithms from './algorithms.js'
 import oop from './oop.js'
+import bank from './bank/index.js'
 
 export const topics = [gaps, complexity, graphsCore, graphsAdvanced, trees, stacksLists, oop, linear, paradigms, algorithms]
-const bankModules = [googleA, googleB]
+const bankModules = [googleA, googleB, ...bank]
 const allModules = [...topics, ...bankModules]
 
 const collect = key => allModules.flatMap(mod => (mod[key] || []).map(item => ({ ...item, topic: mod.id })))

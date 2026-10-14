@@ -1,4 +1,4 @@
-const categoryPaths = ['./graphs.js', './graphs-weighted.js', './trees.js', './dp.js', './stack-trie.js', './strings.js']
+const categoryPaths = ['./graphs.js', './graphs-weighted.js', './trees.js', './dp.js', './stack-trie.js', './strings.js', './arrays-pointers.js', './windows-search.js', './lists-heaps.js', './backtracking-greedy.js']
 
 async function safeLoad(path) {
   try {
