@@ -1,4 +1,4 @@
-import { h } from '../ui/h.js'
+import { h, svg } from '../ui/h.js'
 import { codeBlock, highlightPython } from '../ui/code.js'
 import { rich } from '../ui/rich.js'
 import { getState, update, recordAnswer, subscribe } from '../store.js'
@@ -6,15 +6,23 @@ import { navigate } from '../router.js'
 import { priorityIds } from '../content/thought/priority.js'
 import { codeMatches } from '../ui/codeMatch.js'
 import { overrideButton, applyOverrideVisuals, persistOverride } from '../ui/override.js'
+import { companiesFor, matchesCompanies, companyCounts } from '../content/companies.js'
+import { companyChips, companyFilter } from '../ui/companies.js'
 
 const queueKey = 'thought-queue'
-const stepLabels = ['Read', 'Data structure', 'Method', 'Code', 'Fill 3 lines', 'Complexity']
+const stepLabels = ['Read', 'Data structure', 'Method', 'Complexity', 'Code', 'Fill lines']
 const modeDefs = [
   { id: 'priority', label: 'Priority' },
   { id: 'order', label: 'In order' },
   { id: 'shuffle', label: 'Shuffle' },
   { id: 'missed', label: 'Missed only' },
   { id: 'unseen', label: 'Not seen' },
+]
+const mixedDrillSize = 10
+const sayItRatings = [
+  { id: 'good', label: 'Nailed it', icon: '✓' },
+  { id: 'shaky', label: 'Shaky', icon: '~' },
+  { id: 'blank', label: 'Blanked', icon: '✗' },
 ]
 
 let contentPromise = null
@@ -112,28 +120,47 @@ function listHeader() {
     h('div', null,
       h('span', { class: 'eyebrow' }, 'Memory recall'),
       h('h1', null, 'Thought Processes'),
-      h('p', { class: 'muted' }, 'Read it, pick the structure and method, recall the key lines, say the complexity.')))
+      h('p', { class: 'muted' }, 'Read it, pick the structure and method, predict the complexity, recall the key lines, say it out loud.')))
+}
+
+function progressRing(pct, { size = 48, stroke = 5 } = {}) {
+  const clamped = Math.min(1, Math.max(0, pct || 0))
+  const radius = (size - stroke) / 2
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference * (1 - clamped)
+  const tier = clamped >= 0.999 ? 'ring-high' : clamped > 0 ? 'ring-mid' : 'ring-low'
+  return h('div', { class: `ring ${tier}`, style: { width: `${size}px`, height: `${size}px` } },
+    svg('svg', { viewBox: `0 0 ${size} ${size}` },
+      svg('circle', { class: 'ring-track', cx: size / 2, cy: size / 2, r: radius }),
+      svg('circle', {
+        class: 'ring-value', cx: size / 2, cy: size / 2, r: radius,
+        'stroke-dasharray': circumference, 'stroke-dashoffset': offset,
+        transform: `rotate(-90 ${size / 2} ${size / 2})`,
+      })),
+    h('span', { class: 'ring-label' }, `${Math.round(clamped * 100)}%`))
 }
 
 function categoryStats(ids, statusMap) {
   const total = ids.length
   const green = ids.filter(id => isDone(statusMap[id])).length
-  return { total, pct: total ? Math.round((green / total) * 100) : 0 }
+  return { total, green, pct: total ? Math.round((green / total) * 100) : 0 }
 }
 
-function chipEl(label, stats, active, onClick) {
-  const chip = h('button', { class: `chip${active ? ' active' : ''}`, type: 'button' },
-    label,
-    h('span', { class: 'thought-chip-count' }, ` ${stats.total}`),
-    stats.total ? h('span', { class: 'thought-chip-pct' }, ` · ${stats.pct}%`) : null)
-  chip.addEventListener('click', onClick)
-  return chip
+function categoryCard(title, icon, stats, active, onClick) {
+  const card = h('button', { class: `thought-cat-card${active ? ' active' : ''}`, type: 'button' },
+    progressRing(stats.total ? stats.green / stats.total : 0, { size: 46, stroke: 4 }),
+    h('div', { class: 'thought-cat-info' },
+      h('span', { class: 'thought-cat-icon' }, icon),
+      h('h3', null, title),
+      h('span', { class: 'muted small' }, stats.total ? `${stats.green}/${stats.total} mastered` : 'Coming soon')))
+  card.addEventListener('click', onClick)
+  return card
 }
 
-function buildCategoryChips(categories, items, statusMap, selected, onPick) {
-  const chips = [chipEl('All', categoryStats(items.map(i => i.id), statusMap), selected === 'all', () => onPick('all'))]
-  for (const cat of categories) chips.push(chipEl(cat.title, categoryStats(cat.items.map(i => i.id), statusMap), selected === cat.id, () => onPick(cat.id)))
-  return chips
+function buildCategoryGrid(categories, items, statusMap, selected, onPick) {
+  const cards = [categoryCard('All patterns', '🧠', categoryStats(items.map(i => i.id), statusMap), selected === 'all', () => onPick('all'))]
+  for (const cat of categories) cards.push(categoryCard(cat.title, cat.icon || '•', categoryStats(cat.items.map(i => i.id), statusMap), selected === cat.id, () => onPick(cat.id)))
+  return cards
 }
 
 function buildModeChips(selected, onPick) {
@@ -147,6 +174,14 @@ function buildModeChips(selected, onPick) {
 function itemsForCategory(categories, items, selected) {
   if (selected === 'all') return items
   return categories.find(cat => cat.id === selected)?.items || []
+}
+
+function filterPool(pool, companies, query) {
+  let result = pool
+  if (companies.length) result = result.filter(item => matchesCompanies(item, companies))
+  const q = query.trim().toLowerCase().replace(/^#/, '')
+  if (q) result = result.filter(item => item.title.toLowerCase().includes(q) || (item.lc != null && String(item.lc).includes(q)))
+  return result
 }
 
 function buildQueueIds(pool, mode, statusMap) {
@@ -168,10 +203,33 @@ function listRow(item, categories, statusMap, onClick, rank) {
     h('span', { class: 'thought-row-lc mono muted small' }, item.lc != null ? `#${item.lc}` : ''),
     h('span', { class: 'thought-row-title' }, item.title),
     h('span', { class: `pill diff-${String(item.difficulty || '').toLowerCase()}` }, item.difficulty),
+    companyChips(companiesFor(item), { size: 'xs', labels: false, max: 4 }),
     h('span', { class: 'thought-row-cat muted small' }, catTitle),
     rank != null && priorityRank.has(item.id) ? h('span', { class: 'pill thought-core' }, 'Core') : null)
   row.addEventListener('click', onClick)
   return row
+}
+
+function searchBox(value) {
+  const input = h('input', {
+    class: 'thought-search', type: 'search', placeholder: 'Search by title or LC#…',
+    value, 'aria-label': 'Search thought process problems',
+  })
+  return h('div', { class: 'thought-search-wrap' },
+    h('span', { class: 'thought-search-icon', 'aria-hidden': 'true' }, '🔎'),
+    input,
+    h('span', { class: 'kbd thought-search-kbd' }, '/'))
+}
+
+function mixedDrillCard(count, onStart) {
+  const startBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: !count }, count ? `Start — ${count} random problems` : 'Add more problems first')
+  startBtn.addEventListener('click', onStart)
+  return h('div', { class: 'card thought-mixed-card' },
+    h('div', { class: 'thought-mixed-icon', 'aria-hidden': 'true' }, '🎲'),
+    h('div', { class: 'thought-mixed-copy' },
+      h('h3', null, 'Mixed interview drill'),
+      h('p', { class: 'muted small' }, "Random problems pulled from every pattern, like a real interview where you don't know what's coming.", h('span', { class: 'kbd' }, 'M'))),
+    startBtn)
 }
 
 function renderList(container) {
@@ -184,6 +242,8 @@ function renderList(container) {
   let data = null
   let selectedCategory = 'all'
   let selectedMode = 'priority'
+  let selectedCompanies = []
+  let searchQuery = ''
 
   function startQueue(category, mode, ids) {
     if (!ids.length) return
@@ -199,6 +259,26 @@ function renderList(container) {
     navigate(`#/thought/${encodeURIComponent(item.id)}`)
   }
 
+  function startMixedDrill() {
+    if (!data) return
+    const eligible = selectedCompanies.length ? data.items.filter(item => matchesCompanies(item, selectedCompanies)) : data.items
+    const ids = shuffle(eligible.map(item => item.id)).slice(0, Math.min(mixedDrillSize, eligible.length))
+    startQueue('mixed', 'shuffle', ids)
+  }
+
+  function handleKeys(event) {
+    const tag = document.activeElement?.tagName
+    const typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA'
+    if (event.key === '/' && !typing) {
+      event.preventDefault()
+      page.querySelector('.thought-search')?.focus()
+    } else if (event.key.toLowerCase() === 'm' && !typing) {
+      event.preventDefault()
+      startMixedDrill()
+    }
+  }
+  window.addEventListener('keydown', handleKeys)
+
   function draw() {
     if (destroyed || !data) return
     if (!data.items.length) {
@@ -206,7 +286,13 @@ function renderList(container) {
       return
     }
     const statusMap = getThoughtMap()
-    const pool = itemsForCategory(data.categories, data.items, selectedCategory)
+    const activeEl = document.activeElement
+    const restoreSearch = activeEl && activeEl.classList?.contains('thought-search')
+    const selStart = restoreSearch ? activeEl.selectionStart : null
+    const selEnd = restoreSearch ? activeEl.selectionEnd : null
+
+    const categoryPool = itemsForCategory(data.categories, data.items, selectedCategory)
+    const pool = filterPool(categoryPool, selectedCompanies, searchQuery)
     const queueIds = buildQueueIds(pool, selectedMode, statusMap)
     const startBtn = h('button', {
       class: 'btn btn-primary btn-lg thought-start', type: 'button', disabled: !queueIds.length,
@@ -217,14 +303,28 @@ function renderList(container) {
     const coreLeft = shown.filter(item => priorityRank.has(item.id) && !isDone(statusMap[item.id])).length
     const rows = shown.map((item, i) => listRow(item, data.categories, statusMap, () => runFromRow(item, shown), selectedMode === 'priority' ? i + 1 : null))
 
+    const search = searchBox(searchQuery)
+    search.querySelector('.thought-search').addEventListener('input', event => { searchQuery = event.target.value; draw() })
+    const filters = companyFilter({ selected: selectedCompanies, counts: companyCounts(categoryPool), onChange: next => { selectedCompanies = next; draw() } })
+
     page.replaceChildren(
       listHeader(),
+      mixedDrillCard(Math.min(mixedDrillSize, selectedCompanies.length ? data.items.filter(item => matchesCompanies(item, selectedCompanies)).length : data.items.length), startMixedDrill),
+      h('div', { class: 'thought-cat-grid' }, buildCategoryGrid(data.categories, data.items, statusMap, selectedCategory, cat => { selectedCategory = cat; draw() })),
       h('div', { class: 'card thought-filters' },
-        h('div', { class: 'row-wrap thought-chip-row' }, buildCategoryChips(data.categories, data.items, statusMap, selectedCategory, cat => { selectedCategory = cat; draw() })),
+        h('div', { class: 'thought-toolbar' }, search, filters),
         h('div', { class: 'row-wrap thought-chip-row' }, buildModeChips(selectedMode, mode => { selectedMode = mode; draw() })),
-        selectedMode === 'priority' ? h('p', { class: 'muted small' }, `Core list first: one problem per pattern, graphs → trees → DP → stacks/tries → strings. ${coreLeft} core left. Yellow and green count as done.`) : null,
+        selectedMode === 'priority' ? h('p', { class: 'muted small' }, `Core list first: one problem per pattern across every category. ${coreLeft} core left. Yellow and green count as done.`) : null,
         startBtn),
-      h('div', { class: 'stack-sm thought-list' }, rows.length ? rows : [h('p', { class: 'muted small' }, 'No problems in this view.')]))
+      h('div', { class: 'stack-sm thought-list' }, rows.length ? rows : [h('p', { class: 'muted small' }, 'No problems match these filters.')]))
+
+    if (restoreSearch) {
+      const freshInput = page.querySelector('.thought-search')
+      if (freshInput) {
+        freshInput.focus()
+        if (selStart != null) freshInput.setSelectionRange(selStart, selEnd)
+      }
+    }
   }
 
   loadThoughtContent().then(result => {
@@ -236,6 +336,7 @@ function renderList(container) {
 
   return () => {
     destroyed = true
+    window.removeEventListener('keydown', handleKeys)
     if (unsub) unsub()
   }
 }
@@ -271,7 +372,7 @@ function buildRunner(page, item, data) {
   const nextItemId = queue.ids[queue.index + 1] || null
 
   const categoryTitle = data.categories.find(cat => cat.id === item.category)?.title || item.category
-  const stepState = { ds: null, method: null, fill: null, time: null, space: null }
+  const stepState = { ds: null, method: null, fill: null, time: null, space: null, sayIt: null }
   let keyDisposer = null
 
   function setKeys(fn) {
@@ -300,6 +401,7 @@ function buildRunner(page, item, data) {
     return h('div', { class: 'row-wrap thought-mini-head' },
       item.lc != null ? h('span', { class: 'pill mono' }, `#${item.lc}`) : null,
       h('span', { class: `pill diff-${String(item.difficulty || '').toLowerCase()}` }, item.difficulty),
+      companyChips(companiesFor(item), { size: 'xs', labels: false, max: 4 }),
       h('b', null, item.title))
   }
 
@@ -312,6 +414,7 @@ function buildRunner(page, item, data) {
         h('div', { class: 'row-wrap thought-head-row' },
           item.lc != null ? h('span', { class: 'pill mono' }, `#${item.lc}`) : null,
           h('span', { class: `pill diff-${String(item.difficulty || '').toLowerCase()}` }, item.difficulty),
+          companyChips(companiesFor(item), { size: 'sm' }),
           h('h2', null, item.title)),
         h('div', { class: 'thought-statement' }, String(item.statement || '').split(/\n\n+/).map(p => h('p', null, rich(p)))),
         item.examples?.length ? h('div', { class: 'thought-examples' }, item.examples.map(ex => exampleBox(ex))) : null,
@@ -448,8 +551,74 @@ function buildRunner(page, item, data) {
 
   function renderStep4() {
     stepperEl.replaceChildren(stepperHeader(4))
-    const hideBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, 'Hide 3 lines & test me →')
-    hideBtn.addEventListener('click', () => renderStep5())
+    const stepStartedAt = Date.now()
+    const timeChoices = shuffle(item.time.choices)
+    const spaceChoices = shuffle(item.space.choices)
+    let locked = false
+
+    const timeSelect = h('select', { class: 'thought-select' },
+      h('option', { value: '', disabled: true, selected: true }, 'Time complexity…'),
+      timeChoices.map(choice => h('option', { value: choice }, choice)))
+    const spaceSelect = h('select', { class: 'thought-select' },
+      h('option', { value: '', disabled: true, selected: true }, 'Space complexity…'),
+      spaceChoices.map(choice => h('option', { value: choice }, choice)))
+    const lockBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: true }, 'Lock in')
+    const timeFeedback = h('div', { class: 'thought-feedback-slot' })
+    const spaceFeedback = h('div', { class: 'thought-feedback-slot' })
+    const codeBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button', style: { display: 'none' } }, 'See the code →')
+
+    function updateLock() { lockBtn.disabled = !timeSelect.value || !spaceSelect.value }
+    timeSelect.addEventListener('change', updateLock)
+    spaceSelect.addEventListener('change', updateLock)
+
+    function lock() {
+      if (locked || !timeSelect.value || !spaceSelect.value) return
+      locked = true
+      timeSelect.disabled = true
+      spaceSelect.disabled = true
+      lockBtn.style.display = 'none'
+      const timeCorrect = timeSelect.value === item.time.answer
+      const spaceCorrect = spaceSelect.value === item.space.answer
+      stepState.time = timeCorrect
+      stepState.space = spaceCorrect
+      saveStatus(item.id, { time: timeCorrect, space: spaceCorrect })
+      try {
+        recordAnswer({ itemId: `${item.id}:time`, kind: 'thought', skills: item.skills, correct: timeCorrect, ms: Date.now() - stepStartedAt })
+        recordAnswer({ itemId: `${item.id}:space`, kind: 'thought', skills: item.skills, correct: spaceCorrect, ms: Date.now() - stepStartedAt })
+      } catch (error) { console.error(error) }
+      timeFeedback.replaceChildren(h('div', { class: `item-why show ${timeCorrect ? 'good' : 'bad'}` },
+        h('span', { class: 'verdict' }, timeCorrect ? 'Correct' : `Correct: ${item.time.answer}`),
+        h('span', null, rich(item.time.why || ''))))
+      spaceFeedback.replaceChildren(h('div', { class: `item-why show ${spaceCorrect ? 'good' : 'bad'}` },
+        h('span', { class: 'verdict' }, spaceCorrect ? 'Correct' : `Correct: ${item.space.answer}`),
+        h('span', null, rich(item.space.why || ''))))
+      codeBtn.style.display = ''
+      codeBtn.focus()
+    }
+    lockBtn.addEventListener('click', lock)
+    codeBtn.addEventListener('click', () => renderStep5())
+
+    bodyEl.replaceChildren(
+      h('div', { class: 'card thought-card' },
+        miniHeader(),
+        h('h3', null, 'Before seeing the code: time and space complexity'),
+        h('p', { class: 'muted small' }, 'Predict it from the method alone — the code is next.'),
+        h('div', { class: 'thought-complexity-grid' },
+          h('div', { class: 'stack-sm' }, h('div', { class: 'section-title' }, 'Time'), timeSelect, timeFeedback),
+          h('div', { class: 'stack-sm' }, h('div', { class: 'section-title' }, 'Space'), spaceSelect, spaceFeedback)),
+        h('div', { class: 'row thought-actions' }, lockBtn, codeBtn)))
+
+    setKeys(event => {
+      if (event.key !== 'Enter') return
+      event.preventDefault()
+      if (!locked) lock(); else renderStep5()
+    })
+  }
+
+  function renderStep5() {
+    stepperEl.replaceChildren(stepperHeader(5))
+    const hideBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, 'Hide the key lines & test me →')
+    hideBtn.addEventListener('click', () => renderStep6())
     bodyEl.replaceChildren(
       h('div', { class: 'card thought-card' },
         miniHeader(),
@@ -464,8 +633,8 @@ function buildRunner(page, item, data) {
     })
   }
 
-  function renderStep5() {
-    stepperEl.replaceChildren(stepperHeader(5))
+  function renderStep6() {
+    stepperEl.replaceChildren(stepperHeader(6))
     const stepStartedAt = Date.now()
     const rawLines = String(item.code).replace(/\t/g, '    ').replace(/\s+$/, '').split('\n')
     const blankSet = new Set(item.blanks || [])
@@ -562,7 +731,7 @@ function buildRunner(page, item, data) {
       saveStatus(item.id, { fill: allCorrect })
       try { recordAnswer({ itemId: `${item.id}:fill`, kind: 'thought', skills: item.skills, correct: allCorrect, ms: Date.now() - stepStartedAt }) } catch (error) { console.error(error) }
       feedback.replaceChildren(h('div', { class: `item-why show ${allCorrect ? 'good' : 'bad'}` },
-        h('span', { class: 'verdict' }, allCorrect ? 'All 3 lines' : `${correctCount}/${total} lines`)))
+        h('span', { class: 'verdict' }, allCorrect ? 'All lines' : `${correctCount}/${total} lines`)))
       const typedWrong = Object.entries(blankState).filter(([, state]) => !state.correct && state.typedWrong)
       if (!allCorrect && typedWrong.length) {
         feedback.append(h('div', { class: 'override-row' },
@@ -594,12 +763,12 @@ function buildRunner(page, item, data) {
     }
 
     checkBtn.addEventListener('click', check)
-    nextBtn.addEventListener('click', () => renderStep6())
+    nextBtn.addEventListener('click', () => renderSummary())
 
     bodyEl.replaceChildren(
       h('div', { class: 'card thought-card' },
         miniHeader(),
-        h('h3', null, 'Recall the 3 key lines'),
+        h('h3', null, 'Recall the key lines'),
         block,
         h('div', { class: 'row spread thought-actions' }, h('div', { class: 'row' }, checkBtn, attemptsLabel), nextBtn),
         feedback))
@@ -613,98 +782,63 @@ function buildRunner(page, item, data) {
     setTimeout(() => { if (firstInput?.isConnected) firstInput.focus() }, 30)
   }
 
-  function renderStep6() {
-    stepperEl.replaceChildren(stepperHeader(6))
-    const stepStartedAt = Date.now()
-    const timeChoices = shuffle(item.time.choices)
-    const spaceChoices = shuffle(item.space.choices)
-    let locked = false
-
-    const timeSelect = h('select', { class: 'thought-select' },
-      h('option', { value: '', disabled: true, selected: true }, 'Time complexity…'),
-      timeChoices.map(choice => h('option', { value: choice }, choice)))
-    const spaceSelect = h('select', { class: 'thought-select' },
-      h('option', { value: '', disabled: true, selected: true }, 'Space complexity…'),
-      spaceChoices.map(choice => h('option', { value: choice }, choice)))
-    const lockBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: true }, 'Lock in')
-    const timeFeedback = h('div', { class: 'thought-feedback-slot' })
-    const spaceFeedback = h('div', { class: 'thought-feedback-slot' })
-    const summaryBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button', style: { display: 'none' } }, 'See summary →')
-
-    function updateLock() { lockBtn.disabled = !timeSelect.value || !spaceSelect.value }
-    timeSelect.addEventListener('change', updateLock)
-    spaceSelect.addEventListener('change', updateLock)
-
-    function lock() {
-      if (locked || !timeSelect.value || !spaceSelect.value) return
-      locked = true
-      timeSelect.disabled = true
-      spaceSelect.disabled = true
-      lockBtn.style.display = 'none'
-      const timeCorrect = timeSelect.value === item.time.answer
-      const spaceCorrect = spaceSelect.value === item.space.answer
-      stepState.time = timeCorrect
-      stepState.space = spaceCorrect
-      saveStatus(item.id, { time: timeCorrect, space: spaceCorrect })
-      try {
-        recordAnswer({ itemId: `${item.id}:time`, kind: 'thought', skills: item.skills, correct: timeCorrect, ms: Date.now() - stepStartedAt })
-        recordAnswer({ itemId: `${item.id}:space`, kind: 'thought', skills: item.skills, correct: spaceCorrect, ms: Date.now() - stepStartedAt })
-      } catch (error) { console.error(error) }
-      timeFeedback.replaceChildren(h('div', { class: `item-why show ${timeCorrect ? 'good' : 'bad'}` },
-        h('span', { class: 'verdict' }, timeCorrect ? 'Correct' : `Correct: ${item.time.answer}`),
-        h('span', null, rich(item.time.why || ''))))
-      spaceFeedback.replaceChildren(h('div', { class: `item-why show ${spaceCorrect ? 'good' : 'bad'}` },
-        h('span', { class: 'verdict' }, spaceCorrect ? 'Correct' : `Correct: ${item.space.answer}`),
-        h('span', null, rich(item.space.why || ''))))
-      summaryBtn.style.display = ''
-      summaryBtn.focus()
-    }
-    lockBtn.addEventListener('click', lock)
-    summaryBtn.addEventListener('click', () => renderSummary())
-
-    bodyEl.replaceChildren(
-      h('div', { class: 'card thought-card' },
-        miniHeader(),
-        h('h3', null, 'Time and space complexity'),
-        h('div', { class: 'thought-complexity-grid' },
-          h('div', { class: 'stack-sm' }, h('div', { class: 'section-title' }, 'Time'), timeSelect, timeFeedback),
-          h('div', { class: 'stack-sm' }, h('div', { class: 'section-title' }, 'Space'), spaceSelect, spaceFeedback)),
-        h('div', { class: 'row thought-actions' }, lockBtn, summaryBtn)))
-
-    setKeys(event => {
-      if (event.key !== 'Enter') return
-      event.preventDefault()
-      if (!locked) lock(); else renderSummary()
-    })
-  }
-
   function renderSummary() {
     stepperEl.replaceChildren(stepperHeader(7))
     const rows = [
       ['Data structure', stepState.ds],
       ['Method', stepState.method],
+      ['Time & space', stepState.time && stepState.space],
       ['Fill the lines', stepState.fill],
-      ['Time complexity', stepState.time],
-      ['Space complexity', stepState.space],
     ]
     const checklist = h('div', { class: 'thought-checklist' }, rows.map(([label, ok]) =>
       h('div', { class: `thought-check-row ${ok === true ? 'good' : ok === false ? 'bad' : ''}` },
         h('span', null, label),
         h('span', { class: 'thought-check-mark' }, ok === true ? '✓' : ok === false ? '✗' : '–'))))
 
-    const sayItCard = h('div', { class: 'card thought-sayit' },
-      h('div', { class: 'section-title' }, 'Say this'),
-      h('p', { class: 'thought-sayit-text' }, rich(item.sayIt || '')))
+    let sayItStartedAt = Date.now()
+    const sayItRow = h('div', { class: 'thought-sayit-rate' })
+    function renderSayItRow() {
+      sayItRow.replaceChildren(sayItRatings.map(rating => {
+        const active = stepState.sayIt === rating.id
+        const btn = h('button', { class: `thought-sayit-btn thought-sayit-${rating.id}${active ? ' active' : ''}`, type: 'button' },
+          h('span', null, rating.icon), ` ${rating.label}`)
+        btn.addEventListener('click', () => {
+          stepState.sayIt = rating.id
+          saveStatus(item.id, { sayIt: rating.id })
+          try { recordAnswer({ itemId: `${item.id}:sayit`, kind: 'thought', skills: item.skills, correct: rating.id === 'good', ms: Date.now() - sayItStartedAt }) } catch (error) { console.error(error) }
+          renderSayItRow()
+        })
+        return btn
+      }))
+    }
+    renderSayItRow()
 
+    const sayItCard = h('div', { class: 'card thought-sayit' },
+      h('div', { class: 'section-title' }, 'Say this out loud'),
+      h('p', { class: 'thought-sayit-text' }, rich(item.sayIt || '')),
+      h('p', { class: 'muted small' }, 'How did narrating it feel?'),
+      sayItRow)
+
+    let pitfallRevealed = false
+    const pitfallBody = h('div', { class: 'thought-pitfall-body' })
+    const pitfallBtn = h('button', { class: 'btn btn-ghost btn-sm', type: 'button' }, 'Reveal pitfall ', h('span', { class: 'kbd' }, 'P'))
+    function revealPitfall() {
+      if (pitfallRevealed || !item.pitfall) return
+      pitfallRevealed = true
+      pitfallBtn.style.display = 'none'
+      pitfallBody.replaceChildren(h('p', null, rich(item.pitfall)))
+    }
+    pitfallBtn.addEventListener('click', revealPitfall)
     const pitfallCard = item.pitfall ? h('div', { class: 'card thought-pitfall' },
       h('div', { class: 'section-title' }, 'Watch out'),
-      h('p', null, rich(item.pitfall))) : null
+      pitfallBtn,
+      pitfallBody) : null
 
     const nextBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, nextItemId ? 'Next problem →' : 'Back to list', h('span', { class: 'kbd' }, 'N'))
     nextBtn.addEventListener('click', goNext)
-    const retryBtn = h('button', { class: 'btn', type: 'button' }, 'Retry')
+    const retryBtn = h('button', { class: 'btn', type: 'button' }, 'Retry ', h('span', { class: 'kbd' }, 'R'))
     retryBtn.addEventListener('click', () => {
-      stepState.ds = stepState.method = stepState.fill = stepState.time = stepState.space = null
+      stepState.ds = stepState.method = stepState.fill = stepState.time = stepState.space = stepState.sayIt = null
       renderStep1()
     })
     const backBtn = h('a', { class: 'btn btn-ghost', href: '#/thought' }, 'Back to list')
@@ -718,9 +852,10 @@ function buildRunner(page, item, data) {
         h('div', { class: 'row-wrap thought-actions' }, nextBtn, retryBtn, backBtn)))
 
     setKeys(event => {
-      if (event.key.toLowerCase() !== 'n') return
-      event.preventDefault()
-      goNext()
+      const key = event.key.toLowerCase()
+      if (key === 'n') { event.preventDefault(); goNext() }
+      else if (key === 'p') { event.preventDefault(); revealPitfall() }
+      else if (key === 'r') { event.preventDefault(); retryBtn.click() }
     })
   }
 

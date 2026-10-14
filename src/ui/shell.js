@@ -399,6 +399,12 @@ export function mountShell(root) {
 
   const view = h('main', { class: 'view', id: 'view' })
 
+  const syncCollapseLabel = () => {
+    const label = shellEl.classList.contains('rail-collapsed') ? 'Expand sidebar' : 'Collapse sidebar'
+    collapseButton.title = label
+    collapseButton.setAttribute('aria-label', label)
+  }
+
   const collapseButton = h('button', {
     class: 'btn-icon rail-collapse',
     type: 'button',
@@ -408,6 +414,7 @@ export function mountShell(root) {
       const collapsed = !shellEl.classList.contains('rail-collapsed')
       shellEl.classList.toggle('rail-collapsed', collapsed)
       writePref('codecram-rail', collapsed ? 'collapsed' : 'open')
+      syncCollapseLabel()
     },
   }, icon('collapse', 18))
 
@@ -432,6 +439,7 @@ export function mountShell(root) {
   const scrim = h('div', { class: 'drawer-scrim', onclick: () => setDrawer(false) })
 
   if (readPref('codecram-rail', 'open') === 'collapsed') shellEl.classList.add('rail-collapsed')
+  syncCollapseLabel()
   shellEl.append(rail, scrim, h('div', { class: 'main-col' }, topbar, view), bottomNav)
   root.replaceChildren(shellEl, palette.overlay)
 

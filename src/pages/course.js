@@ -1,9 +1,10 @@
 import { h, svg } from '../ui/h.js'
 import { breadcrumb } from '../ui/breadcrumb.js'
-import { course, units, allModules, findNode, hrefFor, pathTo } from '../content/curriculum.js'
+import { course, units, allModules, findNode, hrefFor, pathTo, problemsForNode } from '../content/curriculum.js'
 import { getNodeProgress, getBiteStatus, getCheckpoint, subscribe } from '../store.js'
 import { modes, practiceHref } from '../engine/session.js'
 import { continueTarget } from '../engine/recommend.js'
+import { companyChips } from '../ui/companies.js'
 
 const biteIcons = { lesson: '📖', trace: '🔍', algo: '🧠', predict: '🔮', cards: '🃏', rapid: '⚡', quiz: '🧩', diagnose: '🩺', mock: '🎙️', read: '📘' }
 const learnTypes = new Set(['lesson', 'trace', 'algo', 'mock', 'read'])
@@ -33,6 +34,19 @@ function ring(pct, { size = 52, stroke = 5 } = {}) {
         transform: `rotate(-90 ${size / 2} ${size / 2})`,
       })),
     h('span', { class: 'crs-ring-label' }, `${Math.round(clamped * 100)}%`))
+}
+
+const unlockHint = (unit, index) => {
+  if (index === 0) return null
+  const prior = units[index - 1]
+  if (!prior) return null
+  if (getNodeProgress(unit.id) > 0.05 || getNodeProgress(prior.id) >= 0.2) return null
+  return `Pairs well after ${prior.title}`
+}
+
+const checkpointPill = cp => {
+  if (!cp) return h('span', { class: 'pill' }, 'Checkpoint not started')
+  return h('span', { class: `pill ${cp.passed ? 'pill-green' : 'pill-amber'}` }, cp.passed ? 'Checkpoint ✓' : `Checkpoint ${cp.best}%`)
 }
 
 const biteRow = bite => {
@@ -70,10 +84,11 @@ function moduleRow(mod, redraw) {
   return h('div', { class: 'stack-sm' }, row, bites)
 }
 
-function unitCard(unit, redraw) {
+function unitCard(unit, index, redraw) {
   const progress = getNodeProgress(unit.id)
   const isOpen = openUnits.has(unit.id)
   const cp = getCheckpoint(unit.id)
+  const hint = unlockHint(unit, index)
   const toggle = () => {
     if (isOpen) openUnits.delete(unit.id)
     else openUnits.add(unit.id)
@@ -83,12 +98,14 @@ function unitCard(unit, redraw) {
     ring(progress, { size: 52 }),
     h('div', { class: 'crs-unit-title grow' },
       h('div', { class: 'row-wrap' }, h('span', null, unit.icon), h('h3', null, unit.title), unit.mustLearn ? h('span', { class: 'pill pill-amber' }, 'Must-learn') : null),
-      h('span', { class: 'small muted' }, `${unit.modules.length} modules · ${formatMinutes(unit.minutes)}`)),
+      h('span', { class: 'small muted' }, `${unit.modules.length} modules · ${formatMinutes(unit.minutes)}`),
+      hint ? h('span', { class: 'small crs-hint' }, `💡 ${hint}`) : null),
     h('button', { class: 'crs-expand' }, isOpen ? '▾' : '▸'))
   const actions = h('div', { class: 'row-wrap' },
     h('a', { class: 'btn btn-sm btn-primary', href: practiceHref('mixed', { unitId: unit.id }) }, '▶ Play unit'),
     h('a', { class: 'btn btn-sm', href: practiceHref('checkpoint', { unitId: unit.id }) }, cp?.passed ? 'Checkpoint ✓' : 'Checkpoint'),
-    h('a', { class: 'btn btn-sm btn-ghost', href: hrefFor(unit.id) }, 'Open ▸'))
+    h('a', { class: 'btn btn-sm btn-ghost', href: hrefFor(unit.id) }, 'Open ▸'),
+    checkpointPill(cp))
   const moduleList = isOpen ? h('div', { class: 'crs-module-list' }, unit.modules.map(mod => moduleRow(mod, redraw))) : null
   return h('div', { class: 'card crs-unit-card' }, head, actions, moduleList)
 }
@@ -102,9 +119,9 @@ function renderOverview(container) {
     const header = h('div', { class: 'page-header' },
       h('div', null,
         h('h1', null, 'Course'),
-        h('p', null, `${units.length} units · ${allModules.length} modules · ${Math.round(overall * 100)}% complete`)),
+        h('p', null, `${units.length} units · ${allModules.length} modules · ${formatMinutes(course.minutes)} total · ${Math.round(overall * 100)}% complete`)),
       h('a', { class: 'btn btn-primary', href: continueTarget() }, 'Continue ▸'))
-    page.replaceChildren(header, h('div', { class: 'crs-unit-grid' }, units.map(unit => unitCard(unit, redraw))))
+    page.replaceChildren(header, h('div', { class: 'crs-unit-grid' }, units.map((unit, index) => unitCard(unit, index, redraw))))
   }
   draw()
   return subscribe(draw)
@@ -155,6 +172,18 @@ function renderFocused(container, id) {
         modes.filter(mode => mode.id !== 'checkpoint').map(mode =>
           h('a', { class: 'btn btn-sm', href: practiceHref(mode.id, scope) }, `${mode.icon} ${mode.title}`))))
 
+    const problems = problemsForNode(id).slice(0, 6)
+    const problemsSection = problems.length ? h('div', { class: 'card crs-section' },
+      h('div', { class: 'spread' },
+        h('span', { class: 'section-title' }, 'Problems in this scope'),
+        h('a', { class: 'small', href: practiceHref('diagnose', scope) }, 'Diagnose them ▸')),
+      h('div', { class: 'stack-sm' }, problems.map(problem => h('a', { class: 'crs-problem-row', href: `#/problems/${encodeURIComponent(problem.id)}` },
+        h('div', { class: 'row-wrap grow' },
+          problem.lc != null ? h('span', { class: 'mono small muted' }, `#${problem.lc}`) : null,
+          h('span', null, problem.title),
+          h('span', { class: `pill diff-${String(problem.difficulty || '').toLowerCase()}` }, problem.difficulty)),
+        companyChips(problem.companies, { size: 'xs' }))))) : null
+
     const target = node.checkpoint
     const checkpointSection = h('div', { class: 'card crs-section' },
       h('span', { class: 'section-title' }, 'Checkpoint'),
@@ -164,7 +193,7 @@ function renderFocused(container, id) {
           h('span', { class: 'small muted' }, cp ? `Best ${cp.best}% · ${cp.attempts} attempt${cp.attempts === 1 ? '' : 's'}` : `${target.itemCount} items · need ${target.passPct}%`)),
         h('a', { class: 'btn btn-primary btn-sm', href: practiceHref('checkpoint', scope) }, cp?.passed ? 'Retry' : 'Start')))
 
-    page.replaceChildren(header, learnSection, practiceSection, checkpointSection)
+    page.replaceChildren(header, learnSection, practiceSection, problemsSection, checkpointSection)
   }
   draw()
   return subscribe(draw)

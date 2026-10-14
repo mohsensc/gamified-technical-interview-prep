@@ -3,7 +3,7 @@ import { codeBlock } from '../code.js'
 import { renderMcq } from '../items.js'
 import { recordAnswer } from '../../store.js'
 import { problemById } from '../../content/index.js'
-import { bookmarkButton, itemLabel, richText } from './shared.js'
+import { bookmarkButton, itemLabel, richText, companyBadge } from './shared.js'
 
 const partLabel = { pattern: 'Pattern', ds: 'Data structure', time: 'Time complexity', space: 'Space complexity' }
 const parts = ['pattern', 'ds', 'time', 'space']
@@ -49,7 +49,7 @@ export default function runDiagnose(container, items, { onFinish } = {}) {
           h('div', { class: 'row-wrap' },
             problem?.lc ? h('span', { class: 'pill mono' }, `#${problem.lc}`) : null,
             problem?.difficulty ? h('span', { class: 'pill' }, problem.difficulty) : null,
-            problem?.google ? h('span', { class: 'pill pill-sky' }, 'Google') : null)),
+            problem ? companyBadge(problem, { size: 'xs' }) : null)),
         bookmarkButton(group.items[0]?.id)),
       problem?.constraints ? h('div', { class: 'diagnose-constraints mono small muted' }, problem.constraints) : null,
       problem?.signals?.length ? h('div', { class: 'row-wrap' }, problem.signals.map(signal => h('span', { class: 'chip' }, signal))) : null,
@@ -100,5 +100,7 @@ export default function runDiagnose(container, items, { onFinish } = {}) {
 
   showGroup()
 
-  return () => {}
+  const cleanup = () => {}
+  cleanup.endNow = () => onFinish?.(results)
+  return cleanup
 }

@@ -1,35 +1,28 @@
 import { h, clear, confetti } from '../ui/h.js'
 import { units, allModules } from '../content/curriculum.js'
-import { topics } from '../content/index.js'
+import { topics, problems } from '../content/index.js'
 import { skillGroups, skills } from '../content/skills.js'
-import { buildSession, scopeFromQuery, practiceHref, modeById } from '../engine/session.js'
+import { companyCounts } from '../content/companies.js'
+import { companyFilter } from '../ui/companies.js'
+import { buildSession, scopeFromQuery, practiceHref, modeById, modes, modeCounts } from '../engine/session.js'
 import { recommendNext } from '../engine/recommend.js'
 import {
   getXP, getMastery, setEventContext, clearEventContext,
-  saveSession, recordCheckpoint,
+  saveSession, recordCheckpoint, dueItems, getMissed, getBookmarks,
 } from '../store.js'
 import runRapid from '../ui/modes/rapid.js'
 import runDiagnose from '../ui/modes/diagnose.js'
 import runPredict from '../ui/modes/predict.js'
 import runGeneric from '../ui/modes/generic.js'
-import { statBlock } from '../ui/modes/shared.js'
+import { statBlock, resultItemId, formatElapsed } from '../ui/modes/shared.js'
 
 const scopeKey = 'cram.practiceScope'
-
-const tiles = [
-  { mode: 'rapid', title: 'Rapid Fire', icon: '⚡', blurb: 'Beat the clock, 1-4 keys', seconds: [60, 120] },
-  { mode: 'diagnose', title: 'Diagnose', icon: '🩺', blurb: 'Pattern → DS → time → space' },
-  { mode: 'mcq', title: 'Multiple Choice', icon: '❓', blurb: 'Quick quiz' },
-  { mode: 'cards', title: 'Flashcards', icon: '🃏', blurb: 'Flip and rate' },
-  { mode: 'cloze', title: 'Fill-in', icon: '🧩', blurb: 'Complete the code' },
-  { mode: 'parsons', title: 'Reorder', icon: '🔀', blurb: 'Put the lines in order' },
-  { mode: 'predict', title: 'Predict the Trace', icon: '🔮', blurb: 'Guess the next line' },
-  { mode: 'weakest', title: 'Weakest-first', icon: '🎯', blurb: 'Aimed at low mastery' },
-  { mode: 'mixed', title: 'Redo Missed', icon: '🔁', blurb: 'Fix recent misses', extraScope: { missedOnly: true } },
-  { mode: 'mixed', title: 'Bookmarks', icon: '★', blurb: 'Your saved items', extraScope: { bookmarksOnly: true } },
-]
+const lengthOptions = [5, 10, 20, 0]
+const lengthLabel = n => (n ? String(n) : 'Endless')
+const hubModes = modes.filter(mode => mode.id !== 'checkpoint')
 
 const safeMastery = skill => { try { return getMastery(skill) ?? 0.3 } catch { return 0.3 } }
+const safeCount = fn => { try { return fn().length } catch { return 0 } }
 
 const readScope = () => {
   try {
@@ -50,42 +43,55 @@ function renderHub(container) {
     moduleId: saved.moduleId || '',
     skills: Array.isArray(saved.skills) ? [...saved.skills] : [],
     topic: saved.topic || '',
-    googleOnly: Boolean(saved.googleOnly),
+    companies: Array.isArray(saved.companies) ? [...saved.companies] : [],
     difficulty: Number(saved.difficulty) || 0,
     missedOnly: Boolean(saved.missedOnly),
+    bookmarksOnly: Boolean(saved.bookmarksOnly),
+    dueOnly: Boolean(saved.dueOnly),
   }
-  let minutes = Number(saved.minutes) || 0
+  let length = lengthOptions.includes(Number(saved.length)) ? Number(saved.length) : 10
+  let timerOn = Boolean(saved.timerOn)
 
   const root = h('div', { class: 'page practice-page' })
   container.append(root)
 
   function persist() {
-    writeScope({ ...scope, minutes })
+    writeScope({ ...scope, length, timerOn })
   }
 
-  function cleanScope(extra) {
-    const out = {}
-    if (scope.unitId) out.unitId = scope.unitId
-    if (scope.moduleId) out.moduleId = scope.moduleId
-    if (scope.skills.length) out.skills = scope.skills
-    if (scope.topic) out.topic = scope.topic
-    if (scope.googleOnly) out.googleOnly = true
-    if (scope.difficulty) out.difficulty = scope.difficulty
-    if (scope.missedOnly) out.missedOnly = true
-    return { ...out, ...extra }
+  function sessionOptions() {
+    const options = { timer: timerOn || undefined }
+    if (length) options.count = length
+    else options.endless = true
+    return options
   }
 
-  function tileHref(tile, seconds) {
-    const options = {}
-    if (minutes) options.minutes = minutes
-    if (seconds) options.seconds = seconds
-    return practiceHref(tile.mode, cleanScope(tile.extraScope), options)
+  function cardHref(mode) {
+    return practiceHref(mode.id, scope, sessionOptions())
+  }
+
+  function resetScope() {
+    scope.unitId = ''
+    scope.moduleId = ''
+    scope.skills = []
+    scope.topic = ''
+    scope.companies = []
+    scope.difficulty = 0
+    scope.missedOnly = false
+    scope.bookmarksOnly = false
+    scope.dueOnly = false
   }
 
   function draw() {
     persist()
+    const counts = modeCounts(scope)
+    const dueCount = safeCount(dueItems)
+    const missedCount = safeCount(getMissed)
+    const bookmarkCount = safeCount(getBookmarks)
+    const companyBase = companyCounts(problems)
     const moduleOptions = scope.unitId ? allModules.filter(mod => mod.unitId === scope.unitId) : allModules
-    const anyActive = scope.unitId || scope.moduleId || scope.skills.length || scope.topic || scope.googleOnly || scope.difficulty || scope.missedOnly || minutes
+    const anyActive = scope.unitId || scope.moduleId || scope.skills.length || scope.topic || scope.companies.length ||
+      scope.difficulty || scope.missedOnly || scope.bookmarksOnly || scope.dueOnly
 
     const unitSelect = h('select', { class: 'practice-select' },
       h('option', { value: '' }, 'All units'),
@@ -110,10 +116,15 @@ function renderHub(container) {
       onclick: () => { scope.difficulty = scope.difficulty === level ? 0 : level; draw() },
     }, '●'.repeat(level) + '○'.repeat(3 - level))))
 
-    const minuteChips = h('div', { class: 'row-wrap' }, [5, 10, 20].map(value => h('button', {
-      class: `chip${minutes === value ? ' active' : ''}`,
-      onclick: () => { minutes = minutes === value ? 0 : value; draw() },
-    }, `${value}m`)))
+    const toggleChip = (key, label, count) => h('button', {
+      class: `chip${scope[key] ? ' active' : ''}`,
+      onclick: () => { scope[key] = !scope[key]; draw() },
+    }, label, count ? h('span', { class: 'chip-count' }, String(count)) : null)
+
+    const scopeToggles = h('div', { class: 'row-wrap' },
+      toggleChip('dueOnly', '⏰ Due', dueCount),
+      toggleChip('missedOnly', '↩ Missed', missedCount),
+      toggleChip('bookmarksOnly', '★ Bookmarked', bookmarkCount))
 
     const skillGroupsEl = skillGroups.map(group => h('div', { class: 'practice-skill-group' },
       h('span', { class: 'muted small' }, group.label),
@@ -125,39 +136,73 @@ function renderHub(container) {
         },
       }, label)))))
 
-    const scopeBar = h('div', { class: 'card practice-scope stack' },
+    const companyFilterEl = companyFilter({
+      selected: scope.companies,
+      counts: companyBase,
+      onChange: next => { scope.companies = next; draw() },
+    })
+
+    const scopeCard = h('div', { class: 'card practice-scope stack' },
       h('div', { class: 'row-wrap practice-scope-row' },
-        unitSelect, moduleSelect, topicSelect,
-        h('button', { class: `chip${scope.googleOnly ? ' active' : ''}`, onclick: () => { scope.googleOnly = !scope.googleOnly; draw() } }, '🔎 Google only'),
-        h('button', { class: `chip${scope.missedOnly ? ' active' : ''}`, onclick: () => { scope.missedOnly = !scope.missedOnly; draw() } }, '✗ Missed only'),
-        diffChips,
-        minuteChips,
-        anyActive ? h('button', {
-          class: 'chip practice-reset',
-          onclick: () => { scope.unitId = ''; scope.moduleId = ''; scope.skills = []; scope.topic = ''; scope.googleOnly = false; scope.difficulty = 0; scope.missedOnly = false; minutes = 0; draw() },
-        }, 'Reset') : null),
+        topicSelect, diffChips, scopeToggles,
+        anyActive ? h('button', { class: 'chip practice-reset', onclick: () => { resetScope(); draw() } }, 'Reset') : null),
+      h('div', { class: 'stack-sm' },
+        h('span', { class: 'label muted' }, 'Company'),
+        companyFilterEl),
       h('details', { class: 'practice-skills-toggle' },
         h('summary', { class: 'muted small' }, scope.skills.length ? `${scope.skills.length} skill${scope.skills.length > 1 ? 's' : ''} selected` : 'Filter by skill'),
-        h('div', { class: 'practice-skill-groups' }, skillGroupsEl)))
+        h('div', { class: 'practice-skill-groups' }, skillGroupsEl)),
+      h('details', { class: 'practice-more' },
+        h('summary', { class: 'muted small' }, 'Unit / module'),
+        h('div', { class: 'row-wrap practice-more-row' }, unitSelect, moduleSelect)))
 
-    const tilesEl = h('div', { class: 'grid practice-tiles' }, tiles.map(tile => {
-      if (tile.seconds) {
-        return h('div', { class: 'tile practice-tile' },
-          h('div', { class: 'practice-tile-icon' }, tile.icon),
-          h('div', { class: 'practice-tile-title' }, tile.title),
-          h('div', { class: 'practice-tile-blurb muted small' }, tile.blurb),
-          h('div', { class: 'row practice-tile-actions' }, tile.seconds.map(s => h('a', { class: 'btn btn-sm', href: tileHref(tile, s) }, `${s}s`))))
+    const lengthSeg = h('div', { class: 'segmented' }, lengthOptions.map(n => h('button', {
+      type: 'button',
+      class: `segmented-option${length === n ? ' active' : ''}`,
+      onclick: () => { length = n; draw() },
+    }, lengthLabel(n))))
+
+    const timerSeg = h('div', { class: 'segmented' }, [false, true].map(value => h('button', {
+      type: 'button',
+      class: `segmented-option${timerOn === value ? ' active' : ''}`,
+      onclick: () => { timerOn = value; draw() },
+    }, value ? 'On' : 'Off')))
+
+    const settingsCard = h('div', { class: 'card practice-settings row-wrap' },
+      h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Length'), lengthSeg),
+      h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Timer'), timerSeg))
+
+    const modeCards = hubModes.map(mode => {
+      const count = counts[mode.id] ?? 0
+      const countLabel = mode.seconds ? null : h('span', { class: 'practice-mode-count' }, count ? `${count} item${count === 1 ? '' : 's'}` : 'none yet')
+      const body = [
+        h('div', { class: 'practice-mode-icon' }, mode.icon),
+        h('div', { class: 'practice-mode-title' }, mode.title),
+        h('div', { class: 'practice-mode-blurb muted small' }, mode.blurb),
+        countLabel,
+      ]
+      if (mode.id === 'rapid') {
+        return h('div', { class: `tile practice-mode-card${count ? '' : ' is-empty'}` },
+          ...body,
+          h('div', { class: 'row practice-mode-actions' }, [60, 120].map(secs => h('a', {
+            class: 'btn btn-sm', href: practiceHref('rapid', scope, { seconds: secs, timer: timerOn || undefined }),
+          }, `${secs}s`))))
       }
-      return h('a', { class: 'tile practice-tile', href: tileHref(tile) },
-        h('div', { class: 'practice-tile-icon' }, tile.icon),
-        h('div', { class: 'practice-tile-title' }, tile.title),
-        h('div', { class: 'practice-tile-blurb muted small' }, tile.blurb))
-    }))
+      if (mode.id === 'speed') {
+        return h('a', {
+          class: `tile practice-mode-card${count ? '' : ' is-empty'}`,
+          href: practiceHref('speed', scope, { seconds: 60, timer: timerOn || undefined }),
+        }, ...body, h('span', { class: 'practice-mode-count' }, '60s, go'))
+      }
+      return h('a', { class: `tile practice-mode-card${count ? '' : ' is-empty'}`, href: cardHref(mode) }, ...body)
+    })
 
     root.replaceChildren(
-      h('div', { class: 'page-header' }, h('div', null, h('h1', null, 'Practice'), h('p', { class: 'muted' }, 'Pick a mode. Your scope sticks around.'))),
-      scopeBar,
-      tilesEl)
+      h('div', { class: 'page-header' },
+        h('div', null, h('h1', null, 'Practice'), h('p', { class: 'muted' }, 'Pick a scope, pick a mode. It sticks around.'))),
+      scopeCard,
+      settingsCard,
+      h('div', { class: 'grid practice-mode-grid' }, modeCards))
   }
 
   draw()
@@ -168,7 +213,7 @@ function missedExists(results) {
   return results.some(result => !result.correct)
 }
 
-function renderEnd(container, { results, xpGained, masteryBefore, mode, scope }) {
+function renderEnd(container, { results, xpGained, masteryBefore, mode, scope, ms }) {
   const answered = results.filter(result => !result.skipped)
   const correctCount = answered.filter(result => result.correct).length
   const total = answered.length
@@ -190,10 +235,11 @@ function renderEnd(container, { results, xpGained, masteryBefore, mode, scope })
     h('div', { class: 'summary-stats' },
       statBlock(`${Math.round(accuracy * 100)}%`, 'accuracy'),
       statBlock(`${correctCount}/${total}`, 'correct'),
+      statBlock(formatElapsed(ms), 'time'),
       statBlock(`+${xpGained}`, 'XP')),
     deltas.length ? h('div', { class: 'stack' },
-      h('div', { class: 'label muted' }, 'Mastery'),
-      deltas.map(({ skill, before, after, delta }) => h('a', { class: 'delta-row', href: practiceHref('weakest', { skills: [skill] }, { minutes: 5 }) },
+      h('div', { class: 'label muted' }, 'Skills moved'),
+      deltas.map(({ skill, before, after, delta }) => h('a', { class: 'delta-row', href: practiceHref('weakest', { skills: [skill] }, { count: 10 }) },
         h('span', { class: 'delta-name' }, skills[skill]?.label || skill),
         h('span', { class: 'delta-bar' },
           h('span', { class: 'delta-before', style: { width: `${Math.round(Math.min(before, after) * 100)}%` } }),
@@ -211,7 +257,7 @@ function renderEnd(container, { results, xpGained, masteryBefore, mode, scope })
       h('span', { class: 'muted small' }, rec.reason)) : null,
     h('div', { class: 'row practice-end-actions' },
       h('a', { class: 'btn btn-ghost', href: '#/practice' }, 'Practice hub'),
-      h('button', { class: 'btn', 'data-action': 'again' }, 'Again'),
+      h('button', { class: 'btn', 'data-action': 'again' }, 'Retry'),
       missedExists(results) ? h('a', { class: 'btn', href: practiceHref('mixed', { ...scope, missedOnly: true }) }, 'Redo misses') : null,
       rec ? h('a', { class: 'btn btn-primary', href: rec.href }, 'Next recommended') : null)))
 }
@@ -220,20 +266,27 @@ function renderSession(container, params) {
   clear(container)
   const mode = params.mode
   const modeInfo = modeById[mode]
-  const { scope, count, minutes, seconds } = scopeFromQuery(params.query || {})
+  const { scope, count, minutes, seconds, endless, timerOn } = scopeFromQuery(params.query || {})
   const nodeId = scope.nodeId || scope.moduleId || scope.unitId || null
+  const effectiveEndless = endless && mode !== 'checkpoint'
 
-  const topRow = h('div', { class: 'row practice-session-top' },
-    h('a', { class: 'btn btn-ghost btn-sm', href: '#/practice' }, '← Practice'),
-    h('span', { class: 'chip' }, modeInfo ? `${modeInfo.icon} ${modeInfo.title}` : mode))
+  const endButton = h('button', { class: 'btn btn-ghost btn-sm', onclick: () => activeCleanup?.endNow?.() }, 'End session')
+  const timerPill = h('span', { class: 'pill mono practice-timer-pill' }, '0:00')
+  const topRow = h('div', { class: 'row spread practice-session-top' },
+    h('div', { class: 'row' },
+      h('a', { class: 'btn btn-ghost btn-sm', href: '#/practice' }, '← Practice'),
+      h('span', { class: 'chip' }, modeInfo ? `${modeInfo.icon} ${modeInfo.title}` : mode)),
+    h('div', { class: 'row' }, timerOn ? timerPill : null, endButton))
   const stage = h('div', { class: 'practice-session-stage' })
   const page = h('div', { class: 'page practice-session' }, topRow, stage)
   container.append(page)
 
   let activeCleanup = null
+  let timerInterval = null
 
   function teardown() {
     clearEventContext()
+    clearInterval(timerInterval)
     if (typeof activeCleanup === 'function') {
       try { activeCleanup() } catch {}
     }
@@ -241,6 +294,8 @@ function renderSession(container, params) {
   }
 
   function finish(results) {
+    clearInterval(timerInterval)
+    endButton.hidden = true
     const ms = Date.now() - startedAt
     let session = null
     try { session = saveSession({ mode, scope, results, ms }) } catch {}
@@ -251,7 +306,7 @@ function renderSession(container, params) {
     const xpGained = Math.max(0, getXP() - xpBefore)
     const endEl = h('div')
     stage.replaceChildren(endEl)
-    renderEnd(endEl, { results, xpGained, masteryBefore, mode, scope })
+    renderEnd(endEl, { results, xpGained, masteryBefore, mode, scope, ms })
     endEl.querySelector('[data-action="again"]')?.addEventListener('click', start)
   }
 
@@ -259,11 +314,24 @@ function renderSession(container, params) {
   let xpBefore = 0
   let masteryBefore = {}
 
+  function loadMore(resultsSoFar) {
+    const usedIds = new Set(resultsSoFar.map(result => result.itemId))
+    let extra = []
+    try { extra = buildSession({ mode, scope, count, seconds, minutes }) } catch { extra = [] }
+    return extra.filter(item => !usedIds.has(resultItemId(item)))
+  }
+
   function start() {
     teardown()
     startedAt = Date.now()
     xpBefore = getXP()
     setEventContext({ mode, nodeId, topic: scope.topic })
+
+    if (timerOn) {
+      timerPill.textContent = '0:00'
+      timerInterval = setInterval(() => { timerPill.textContent = formatElapsed(Date.now() - startedAt) }, 1000)
+    }
+    endButton.hidden = false
 
     let items = []
     try { items = buildSession({ mode, scope, count, seconds, minutes }) } catch (error) { console.error(error) }
@@ -272,6 +340,7 @@ function renderSession(container, params) {
 
     if (!items.length) {
       clearEventContext()
+      clearInterval(timerInterval)
       stage.replaceChildren(h('div', { class: 'empty card' },
         h('div', { class: 'empty-icon' }, '🗂'),
         h('h3', null, 'Nothing matches this scope'),
@@ -281,10 +350,10 @@ function renderSession(container, params) {
 
     const runStage = h('div')
     stage.replaceChildren(runStage)
-    if (mode === 'rapid') activeCleanup = runRapid(runStage, items, { seconds: seconds || modeInfo?.seconds || 90, onFinish: finish })
+    if (mode === 'rapid' || mode === 'speed') activeCleanup = runRapid(runStage, items, { seconds: seconds || modeInfo?.seconds || 90, onFinish: finish })
     else if (mode === 'diagnose') activeCleanup = runDiagnose(runStage, items, { onFinish: finish })
     else if (mode === 'predict') activeCleanup = runPredict(runStage, items, { onFinish: finish })
-    else activeCleanup = runGeneric(runStage, items, { onFinish: finish })
+    else activeCleanup = runGeneric(runStage, items, { onFinish: finish, endless: effectiveEndless, loadMore })
   }
 
   start()

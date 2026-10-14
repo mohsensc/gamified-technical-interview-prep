@@ -5,7 +5,8 @@ import { shuffleMcq } from '../ui/items.js'
 import { renderPanels } from '../viz/render.js'
 import { mountStepper } from '../viz/stepper.js'
 import { findNode, hrefFor, pathTo, nextBite, algorithmById } from '../content/curriculum.js'
-import { lessons, traceById } from '../content/index.js'
+import { lessons, traceById, problems } from '../content/index.js'
+import { companyChips } from '../ui/companies.js'
 import { framework, phrases, googleTips, templates } from '../content/narration.js'
 import { buildSession } from '../engine/session.js'
 import { recordAnswer, completeBite, saveSession, setEventContext, clearEventContext } from '../store.js'
@@ -247,8 +248,11 @@ function renderNarrateRef(stage, templateId, markDone) {
 function renderReadBite(stage, bite, markDone) {
   const isDrill = !bite.ref || bite.ref === 'drill'
   const target = isDrill ? '#/read/drill' : `#/read/${encodeURIComponent(bite.ref)}`
+  const lcMatch = !isDrill && bite.ref.match(/lc(\d+)/)
+  const problem = lcMatch ? problems.find(entry => entry.lc === Number(lcMatch[1])) : null
   stage.replaceChildren(
     h('div', { class: 'card stack' },
+      problem ? companyChips(problem.companies, { size: 'sm' }) : null,
       h('p', { class: 'muted' }, isDrill
         ? 'Rapid-fire signature drill: title + one-liner, type the class and method signature from memory.'
         : 'Read the full statement, extract the signal, then type the exact signature (class included).'),

@@ -1,7 +1,7 @@
 import { h } from '../h.js'
 import { mountStepper } from '../../viz/stepper.js'
 import { traceById } from '../../content/index.js'
-import { bookmarkButton } from './shared.js'
+import { bookmarkButton, companyBadge } from './shared.js'
 
 export default function runPredict(container, items, { onFinish, nextLabel = 'Finish' } = {}) {
   let index = 0
@@ -29,7 +29,9 @@ export default function runPredict(container, items, { onFinish, nextLabel = 'Fi
       return loadTrace()
     }
     head.replaceChildren(
-      h('span', { class: 'muted small' }, items.length > 1 ? `Trace ${index + 1}/${items.length}` : 'Predict the trace'),
+      h('div', { class: 'row' },
+        h('span', { class: 'muted small' }, items.length > 1 ? `Trace ${index + 1}/${items.length}` : 'Predict the trace'),
+        companyBadge(item, { size: 'xs' })),
       bookmarkButton(item.id))
     if (stepperDestroy) stepperDestroy()
     host.replaceChildren()
@@ -56,5 +58,7 @@ export default function runPredict(container, items, { onFinish, nextLabel = 'Fi
 
   loadTrace()
 
-  return () => { if (stepperDestroy) stepperDestroy() }
+  const cleanup = () => { if (stepperDestroy) stepperDestroy() }
+  cleanup.endNow = finish
+  return cleanup
 }

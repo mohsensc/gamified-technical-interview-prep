@@ -4,6 +4,10 @@ import { overrideResult } from '../engine/session.js'
 import * as store from '../store.js'
 import { mcqs, clozes, parsons, flashcards, generators, topicById } from '../content/index.js'
 import { skills, skillGroups, skillIds } from '../content/skills.js'
+import { companyChips } from '../ui/companies.js'
+import { companiesFor } from '../content/companies.js'
+
+const companyBadge = item => { try { return companyChips(companiesFor(item), { size: 'xs' }) } catch { return null } }
 
 const sessionSize = 15
 const generatedPerGenerator = 3
@@ -191,6 +195,7 @@ export default function render(container, params = {}) {
       skipButton.hidden = false
       metaEl.replaceChildren(
         h('span', { class: `chip kind-chip kind-${kind}` }, kindLabel[kind] || kind),
+        companyBadge(item),
         ...(item.skills || []).slice(0, 3).map(skill => h('span', { class: 'chip chip-skill' }, skills[skill]?.label || skill)),
         item.difficulty ? h('span', { class: 'muted diff-dots' }, '●'.repeat(item.difficulty) + '○'.repeat(Math.max(0, 3 - item.difficulty))) : null)
       stage.replaceChildren(renderItem(item, result => onAnswered(item, kind, result), { onOverride: () => onOverridden(item, kind) }))

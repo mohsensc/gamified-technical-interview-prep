@@ -4,8 +4,11 @@ import { makeQuestion as patternQuestion } from './pattern-radar.js'
 import { makeQuestion as dsQuestion } from './ds-match.js'
 import { makeQuestion as bigoQuestion } from './bigo-ladder.js'
 import { makeQuestion as graphQuestion } from './bfs-or-dfs.js'
+import { makeQuestion as heapQuestion } from './heap-builder.js'
+import { makeQuestion as stackQuestion } from './stack-sim.js'
+import { makeQuestion as raceQuestion } from './two-pointer-race.js'
 
-const sources = [constraintQuestion, patternQuestion, dsQuestion, bigoQuestion, graphQuestion, constraintQuestion, bigoQuestion]
+const sources = [constraintQuestion, patternQuestion, dsQuestion, bigoQuestion, graphQuestion, heapQuestion, stackQuestion, raceQuestion]
 
 export function makeQuestion(level = 1) {
   const question = pick(sources)(Math.min(6, level + 1))
@@ -17,7 +20,10 @@ export default {
   title: 'Complexity Boss',
   icon: '🐉',
   blurb: 'Everything mixed. Three lives. Beat bosses.',
-  skills: ['complexity', 'constraints', 'ds-diagnosis', 'graph-bfs', 'graph-dfs'],
+  skills: ['complexity', 'constraints', 'ds-diagnosis', 'graph-bfs', 'graph-dfs', 'heap', 'stack', 'two-pointers'],
+  difficulty: 'Everything mixed',
+  modeLabel: 'Boss · 3 lives',
+  supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'Complexity Boss',
     icon: '🐉',
@@ -26,6 +32,7 @@ export default {
     lives: 3,
     boss: true,
     speedMs: 12000,
+    seed: api.seed,
     makeQuestion,
   }),
 }

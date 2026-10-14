@@ -3,6 +3,10 @@ import { renderCard } from '../ui/items.js'
 import * as store from '../store.js'
 import { flashcards } from '../content/index.js'
 import { skills, skillGroups } from '../content/skills.js'
+import { companyChips } from '../ui/companies.js'
+import { companiesFor } from '../content/companies.js'
+
+const companyBadge = card => { try { return companyChips(companiesFor(card), { size: 'xs' }) } catch { return null } }
 
 const newPerSession = 20
 let activeDeck = 'all'
@@ -116,6 +120,7 @@ export default function render(container) {
       stage.replaceChildren(
         h('div', { class: 'row flash-meta' },
           isNew ? h('span', { class: 'chip chip-new' }, 'new') : h('span', { class: 'chip' }, mode === 'cram' ? 'cram' : 'review'),
+          companyBadge(card),
           ...(card.skills || []).slice(0, 3).map(skill => h('a', { class: 'chip chip-skill', href: `#/drill/${skill}` }, skills[skill]?.label || skill))),
         cardEl)
       cardEl.querySelector('.flash-card')?.focus({ preventScroll: true })

@@ -1,14 +1,18 @@
-import { problems, traces } from '../content/index.js'
+import { problems, traces, traceById, problemById, flashcards } from '../content/index.js'
 import { allItems, findNode, itemsForNode, problemsForNode, tracesForNode } from '../content/curriculum.js'
 import { skillIds } from '../content/skills.js'
+import { companyIds, companiesFor, matchesCompanies } from '../content/companies.js'
 import { pickAdaptive, weakestSkills, getMissed, getBookmarks, dueItems } from '../store.js'
 import { persistOverride } from '../ui/override.js'
 
 export const modes = [
   { id: 'rapid', title: 'Rapid fire', icon: '⚡', blurb: 'Beat the clock', seconds: 90 },
+  { id: 'speed', title: 'Speed round', icon: '🏃', blurb: '60 seconds, one tap', seconds: 60 },
   { id: 'diagnose', title: 'Diagnose', icon: '🩺', blurb: 'Pattern, DS, time, space' },
   { id: 'weakest', title: 'Weak spots', icon: '🎯', blurb: 'Aimed at your lowest skills' },
   { id: 'mixed', title: 'Mixed', icon: '🎲', blurb: 'A bit of everything' },
+  { id: 'review', title: 'Mixed review', icon: '🔁', blurb: 'Spaced repetition, every kind' },
+  { id: 'companyMix', title: 'Company mix', icon: '🏢', blurb: 'One company, every format' },
   { id: 'mcq', title: 'Quiz', icon: '❓', blurb: 'Multiple choice' },
   { id: 'cards', title: 'Cards', icon: '🃏', blurb: 'Flip and rate' },
   { id: 'cloze', title: 'Fill in', icon: '🧩', blurb: 'Complete the code' },
@@ -19,8 +23,8 @@ export const modes = [
 
 export const modeById = Object.fromEntries(modes.map(mode => [mode.id, mode]))
 
-const defaultCounts = { rapid: 30, diagnose: 12, weakest: 12, mixed: 12, mcq: 10, cards: 15, cloze: 5, parsons: 4, predict: 3, checkpoint: 10 }
-const secondsPerItem = { rapid: 6, diagnose: 15, weakest: 30, mixed: 35, mcq: 25, cards: 10, cloze: 60, parsons: 60, predict: 150, checkpoint: 30 }
+const defaultCounts = { rapid: 30, speed: 30, diagnose: 12, weakest: 12, mixed: 12, review: 14, companyMix: 12, mcq: 10, cards: 15, cloze: 5, parsons: 4, predict: 3, checkpoint: 10 }
+const secondsPerItem = { rapid: 6, speed: 6, diagnose: 15, weakest: 30, mixed: 35, review: 30, companyMix: 30, mcq: 25, cards: 10, cloze: 60, parsons: 60, predict: 150, checkpoint: 30 }
 
 const hashString = text => {
   let hash = 2166136261
@@ -97,6 +101,7 @@ export function makeDiagnoseQuestions(problem, pool = problems) {
       why: problem.insight || '',
       diagnose: { problemId: problem.id, part },
       google: Boolean(problem.google),
+      companies: companiesFor(problem),
     })
   }
   return result
@@ -156,6 +161,7 @@ const applyScope = (items, scope = {}, { isProblem = false } = {}) => {
     pool = pool.filter(item => (item.skills || []).some(skill => wanted.has(skill)))
   }
   if (scope.kinds?.length) pool = pool.filter(item => scope.kinds.includes(item.kind) || (item.kind === 'generator' && scope.kinds.includes('mcq')))
+  if (scope.companies?.length) pool = pool.filter(item => matchesCompanies(item, scope.companies))
   if (scope.googleOnly) pool = pool.filter(item => item.google || String(item.topic || '').startsWith('google'))
   if (scope.difficulty) pool = pool.filter(item => !item.difficulty || String(item.difficulty) === String(scope.difficulty))
   if (scope.missedOnly) {
@@ -223,6 +229,7 @@ const predictSession = (scope, count) => {
   let pool = nodeId && findNode(nodeId) ? tracesForNode(nodeId) : traces
   if (scope.topic) pool = pool.filter(trace => trace.topic === scope.topic)
   if (scope.skills?.length) pool = pool.filter(trace => (trace.skills || []).some(skill => scope.skills.includes(skill)))
+  if (scope.companies?.length) pool = pool.filter(trace => matchesCompanies(trace, scope.companies))
   if (!pool.length && nodeId) pool = traces.filter(trace => (trace.skills || []).some(skill => (findNode(nodeId)?.skills || []).includes(skill)))
   const items = pool.map(trace => ({ id: `predict:${trace.id}`, kind: 'predict', traceId: trace.id, title: trace.title, skills: trace.skills, topic: trace.topic }))
   return pickAdaptive(items, count)
@@ -239,11 +246,69 @@ const checkpointSession = (scope, count) => {
   return interleave([...picked, ...diagnose]).slice(0, target)
 }
 
+const companyMixSession = (scope, count) => {
+  const companies = scope.companies?.length ? scope.companies : companyIds
+  const companyScope = { ...scope, companies }
+  const diagCount = Math.max(1, Math.ceil(count / 3))
+  const diag = diagnoseSession(companyScope, diagCount)
+  const itemPool = expandGenerators(applyScope(allItems.filter(item => item.kind !== 'card'), companyScope), 2)
+  const items = pickAdaptive(itemPool, Math.max(0, count - diag.length))
+  return interleave([...diag, ...items]).slice(0, count)
+}
+
+const allItemsById = new Map(allItems.map(item => [item.id, item]))
+
+const resolveDueCandidate = entry => {
+  const id = entry.id
+  if (entry.kind === 'thought') return null
+  if (id.startsWith('predict:')) {
+    const traceId = id.slice('predict:'.length)
+    const trace = traceById[traceId]
+    return trace ? { id, kind: 'predict', traceId, title: trace.title, skills: trace.skills || [], topic: trace.topic } : null
+  }
+  const dx = /^(.+):dx:(pattern|ds|time|space)$/.exec(id)
+  if (dx) {
+    const problem = problemById[dx[1]]
+    if (!problem) return null
+    return makeDiagnoseQuestions(problem).find(question => question.id === id) || null
+  }
+  const found = allItemsById.get(id)
+  if (found) return found
+  if (id.endsWith(':mcq')) {
+    const card = flashcards.find(entry2 => entry2.id === id.slice(0, -4))
+    return card ? cardAsMcq(card, flashcards) : null
+  }
+  return null
+}
+
+const reviewSession = (scope, count) => {
+  const nodeId = scopeNodeId(scope)
+  const node = nodeId ? findNode(nodeId) : null
+  const nodeSkills = node ? new Set(node.skills || []) : null
+  const candidates = []
+  for (const entry of dueItems()) {
+    const item = resolveDueCandidate(entry)
+    if (!item) continue
+    if (nodeSkills && !(item.skills || []).some(skill => nodeSkills.has(skill))) continue
+    if (scope.topic && item.topic && item.topic !== scope.topic) continue
+    if (scope.skills?.length && !(item.skills || []).some(skill => scope.skills.includes(skill))) continue
+    if (scope.companies?.length && !matchesCompanies(item, scope.companies)) continue
+    candidates.push(item)
+  }
+  if (candidates.length < count) {
+    const usedIds = new Set(candidates.map(item => item.id))
+    const backfill = expandGenerators(applyScope(allItems, scope), 2).filter(item => !usedIds.has(item.id))
+    candidates.push(...pickAdaptive(backfill, count - candidates.length))
+  }
+  return interleave(capKinds(candidates, { card: 0.3, cloze: 0.2, parsons: 0.2 }, count))
+}
+
 export function buildSession({ mode = 'mixed', scope = {}, count, seconds, minutes } = {}) {
   const safeScope = scope || {}
   const n = resolveCount(mode, { count, seconds, minutes })
   switch (mode) {
     case 'rapid':
+    case 'speed':
       return pickAdaptive(rapidPool(safeScope), n)
     case 'diagnose':
       return diagnoseSession(safeScope, Math.max(1, Math.ceil(n / 4)))
@@ -259,6 +324,10 @@ export function buildSession({ mode = 'mixed', scope = {}, count, seconds, minut
       return predictSession(safeScope, n)
     case 'checkpoint':
       return checkpointSession(safeScope, n)
+    case 'companyMix':
+      return companyMixSession(safeScope, n)
+    case 'review':
+      return reviewSession(safeScope, n)
     case 'weakest': {
       const skills = safeScope.skills?.length ? safeScope.skills : weakestSkills(3, skillIds.filter(id => id !== 'communication'))
       const pool = expandGenerators(applyScope(allItems, { ...safeScope, skills }), 2)
@@ -268,6 +337,39 @@ export function buildSession({ mode = 'mixed', scope = {}, count, seconds, minut
       const pool = expandGenerators(applyScope(allItems, safeScope), 2)
       return interleave(capKinds(pickAdaptive(pool, n * 3), { card: 0.3, cloze: 0.2, parsons: 0.2 }, n))
     }
+  }
+}
+
+export function modeCounts(scope = {}) {
+  const safeScope = scope || {}
+  const base = applyScope(allItems, safeScope)
+  const byKind = {}
+  for (const item of base) byKind[item.kind] = (byKind[item.kind] || 0) + 1
+  const problemPool = applyScope(problems.filter(problem => problem.pattern && problem.time), { ...safeScope, kinds: null }, { isProblem: true })
+  const nodeId = scopeNodeId(safeScope)
+  let tracePool = nodeId && findNode(nodeId) ? tracesForNode(nodeId) : traces
+  if (safeScope.topic) tracePool = tracePool.filter(trace => trace.topic === safeScope.topic)
+  if (safeScope.skills?.length) tracePool = tracePool.filter(trace => (trace.skills || []).some(skill => safeScope.skills.includes(skill)))
+  if (safeScope.companies?.length) tracePool = tracePool.filter(trace => matchesCompanies(trace, safeScope.companies))
+  const mcqLike = (byKind.mcq || 0) + (byKind.generator || 0)
+  const companies = safeScope.companies?.length ? safeScope.companies : companyIds
+  const companyProblemPool = applyScope(problems.filter(problem => problem.pattern && problem.time), { ...safeScope, companies, kinds: null }, { isProblem: true })
+  let dueCount = 0
+  try { dueCount = dueItems().length } catch {}
+  return {
+    rapid: mcqLike,
+    speed: mcqLike,
+    diagnose: problemPool.length,
+    weakest: base.length,
+    mixed: base.length,
+    review: dueCount,
+    companyMix: companyProblemPool.length,
+    mcq: byKind.mcq || 0,
+    cards: byKind.card || 0,
+    cloze: byKind.cloze || 0,
+    parsons: byKind.parsons || 0,
+    predict: tracePool.length,
+    checkpoint: problemPool.length,
   }
 }
 
@@ -286,16 +388,19 @@ export function scopeFromQuery(query = {}) {
     missedOnly: flag(query.missed) || undefined,
     bookmarksOnly: flag(query.bookmarks) || undefined,
     dueOnly: flag(query.due) || undefined,
+    companies: list(query.co),
   }
   for (const key of Object.keys(scope)) if (scope[key] === undefined) delete scope[key]
   const options = { scope }
   if (query.n) options.count = Number(query.n)
   if (query.min) options.minutes = Number(query.min)
   if (query.sec) options.seconds = Number(query.sec)
+  options.endless = flag(query.endless)
+  options.timerOn = flag(query.timer)
   return options
 }
 
-export function practiceHref(mode, scope = {}, { minutes, count } = {}) {
+export function practiceHref(mode, scope = {}, { minutes, count, endless, timer } = {}) {
   const params = new URLSearchParams()
   if (scope.unitId) params.set('unit', scope.unitId)
   if (scope.moduleId) params.set('module', scope.moduleId)
@@ -308,8 +413,11 @@ export function practiceHref(mode, scope = {}, { minutes, count } = {}) {
   if (scope.missedOnly) params.set('missed', '1')
   if (scope.bookmarksOnly) params.set('bookmarks', '1')
   if (scope.dueOnly) params.set('due', '1')
+  if (scope.companies?.length) params.set('co', scope.companies.join(','))
   if (minutes) params.set('min', String(minutes))
   if (count) params.set('n', String(count))
+  if (endless) params.set('endless', '1')
+  if (timer) params.set('timer', '1')
   const text = params.toString()
   return `#/practice/${mode}${text ? `?${text}` : ''}`
 }

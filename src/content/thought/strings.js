@@ -6,6 +6,7 @@ const items = [
     difficulty: 'Easy',
     category: 'strings',
     skills: ['arrays-hashing'],
+    companies: ['amazon', 'microsoft', 'bloomberg'],
     statement: `You're given two strings s and t. Decide whether t is an anagram of s — meaning t uses exactly the same letters as s, same multiset of counts, just possibly reordered.
 
 If the strings are different lengths they obviously can't match, so that's an instant no. Otherwise every letter's count in one string has to equal its count in the other.`,
@@ -53,6 +54,7 @@ If the strings are different lengths they obviously can't match, so that's an in
     difficulty: 'Medium',
     category: 'strings',
     skills: ['arrays-hashing'],
+    companies: ['google', 'amazon', 'meta', 'bloomberg'],
     statement: `You get a list of lowercase words. Bucket them into groups where every word in a group is an anagram of every other word in that group, and return the groups in any order.
 
 The trick is finding a key that's identical for any two anagrams but different otherwise — either a sorted version of the word, or a fixed-length count of how many of each letter it has.`,
@@ -102,6 +104,7 @@ The trick is finding a key that's identical for any two anagrams but different o
     difficulty: 'Medium',
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
+    companies: ['google', 'amazon', 'microsoft', 'meta', 'apple', 'bloomberg'],
     statement: `Given a string s, find the length of the longest contiguous substring that never repeats a character.
 
 A brute-force check of every substring is too slow, so the standard move is a sliding window: grow the right edge, and the moment a character would repeat, snap the left edge forward past its previous occurrence instead of inching forward one step at a time.`,
@@ -155,6 +158,7 @@ A brute-force check of every substring is too slow, so the standard move is a sl
     difficulty: 'Medium',
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
+    companies: ['google'],
     statement: `You can change up to k characters in string s to any other character. After doing so, find the length of the longest substring where every character is the same.
 
 Slide a window over s while tracking the count of the most frequent letter inside it. The window is valid as long as everything else in it — window size minus that top count — is at most k replacements; otherwise shrink from the left.`,
@@ -213,6 +217,7 @@ Slide a window over s while tracking the count of the most frequent letter insid
     difficulty: 'Medium',
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
+    companies: ['amazon', 'microsoft'],
     statement: `Given two strings s1 and s2, decide whether any contiguous substring of s2 is a permutation of s1 — same letters, same counts, any order.
 
 Since a permutation only cares about letter counts, slide a fixed-size window of length len(s1) across s2 and compare its letter counts to s1's letter counts at every position.`,
@@ -272,6 +277,7 @@ Since a permutation only cares about letter counts, slide a fixed-size window of
     difficulty: 'Hard',
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
+    companies: ['google', 'amazon', 'microsoft', 'meta'],
     statement: `Given strings s and t, find the shortest contiguous substring of s that contains every character of t, including duplicates — or an empty string if no such window exists.
 
 Expand a window over s, counting how many of t's required letters are currently satisfied in full. Once every required letter is satisfied, shrink the window from the left to look for something tighter before it breaks the condition again.`,
@@ -337,6 +343,7 @@ Expand a window over s, counting how many of t's required letters are currently 
     difficulty: 'Easy',
     category: 'strings',
     skills: ['two-pointers'],
+    companies: ['microsoft', 'meta', 'apple'],
     statement: `Given a string s, decide whether it reads the same forwards and backwards once you ignore every character that isn't a letter or digit, and ignore case.
 
 Rather than building a cleaned copy of the string, walk inward from both ends at once, skipping past anything that isn't alphanumeric, and compare the letters you land on (lowercased).`,
@@ -392,6 +399,7 @@ Rather than building a cleaned copy of the string, walk inward from both ends at
     difficulty: 'Easy',
     category: 'strings',
     skills: ['two-pointers'],
+    companies: ['microsoft', 'meta'],
     statement: `Given a string s, decide whether it can be made into a palindrome by deleting at most one character.
 
 Two-pointer scan inward as usual. The first time the two ends disagree, you have exactly one chance left: try skipping the left character or skipping the right character, and see if either remaining range is a clean palindrome on its own.`,
@@ -448,6 +456,7 @@ Two-pointer scan inward as usual. The first time the two ends disagree, you have
     difficulty: 'Medium',
     category: 'strings',
     skills: ['two-pointers'],
+    companies: ['amazon', 'microsoft', 'meta'],
     statement: `Given a string s, count how many substrings of s are palindromes — the same substring appearing at different positions counts separately each time.
 
 Every palindrome has a center: either a single character (odd length) or a gap between two characters (even length). Expand outward from every possible center and count every step that still matches on both sides.`,
@@ -504,6 +513,7 @@ Every palindrome has a center: either a single character (odd length) or a gap b
     difficulty: 'Medium',
     category: 'strings',
     skills: ['two-pointers', 'arrays-hashing'],
+    companies: ['google', 'meta'],
     statement: `Design an encode(strs) function that joins a list of strings into one string, and a decode(s) function that perfectly recovers the original list — even when the strings themselves contain any character, including commas, spaces, or whatever delimiter you were about to pick.
 
 The standard trick is to never rely on a separator character that could appear inside the data. Instead, prefix each string with its own length and a delimiter the length itself can't be confused with, so decoding always knows exactly how many characters to read next.`,
@@ -561,6 +571,7 @@ The standard trick is to never rely on a separator character that could appear i
     difficulty: 'Medium',
     category: 'strings',
     skills: ['two-pointers'],
+    companies: ['microsoft', 'apple', 'bloomberg'],
     statement: `Given a string s containing words separated by spaces, return a string with the words in reverse order, using a single space between words and no leading, trailing, or doubled-up spaces even if the input had extra ones.
 
 Python's split() already collapses any run of whitespace and drops empty pieces, so the real work is just reversing the resulting list of words and joining it back with single spaces.`,
@@ -611,6 +622,7 @@ Python's split() already collapses any run of whitespace and drops empty pieces,
     difficulty: 'Medium',
     category: 'strings',
     skills: ['math'],
+    companies: ['amazon', 'microsoft', 'meta', 'bloomberg'],
     statement: `Implement a function that converts a string to a 32-bit signed integer, mimicking the rules of C's atoi: skip leading whitespace, read an optional + or - sign, read as many digits as follow, stop at the first non-digit character, and clamp the result into the 32-bit signed integer range if it overflows.
 
 Any invalid string with no digits at all should just produce 0, not an error.`,
@@ -668,6 +680,7 @@ Any invalid string with no digits at all should just produce 0, not an error.`,
     difficulty: 'Medium',
     category: 'strings',
     skills: ['math'],
+    companies: ['amazon', 'microsoft', 'apple'],
     statement: `Write the characters of string s in a zigzag pattern across numRows rows — straight down one column, then diagonally back up, then straight down again — and return the string formed by reading row by row left to right.
 
 Rather than computing each character's final (row, column) position with a formula, you can simulate it: walk through s once, append each character to whichever row you're currently on, and bounce that row pointer between 0 and numRows-1.`,
@@ -726,6 +739,7 @@ Rather than computing each character's final (row, column) position with a formu
     difficulty: 'Easy',
     category: 'strings',
     skills: ['arrays-hashing'],
+    companies: ['google', 'apple'],
     statement: `Given two strings s and t of the same length, decide whether they're isomorphic: there must exist a way to replace every character in s with another character (always the same replacement) so that it becomes exactly t, and that mapping has to be one-to-one in both directions.
 
 It's not enough to track s's characters mapping to t's — two different characters in s are also not allowed to map to the same character in t, so you need to check both directions as you scan.`,
@@ -780,6 +794,7 @@ It's not enough to track s's characters mapping to t's — two different charact
     difficulty: 'Easy',
     category: 'strings',
     skills: ['math', 'arrays-hashing'],
+    companies: ['amazon', 'microsoft', 'apple', 'bloomberg'],
     statement: `Convert a Roman numeral string into its integer value. Each symbol (I, V, X, L, C, D, M) has a fixed value, and the only wrinkle is the subtractive notation — a smaller-value symbol placed right before a larger one means subtract instead of add, like IV meaning 4 instead of 6.
 
 Scanning left to right, you only need to look one symbol ahead: if the next symbol outranks the current one, the current one's value gets subtracted instead of added.`,
@@ -831,6 +846,7 @@ Scanning left to right, you only need to look one symbol ahead: if the next symb
     difficulty: 'Easy',
     category: 'strings',
     skills: ['two-pointers'],
+    companies: ['amazon', 'microsoft', 'meta'],
     statement: `Given two strings haystack and needle, return the index of the first occurrence of needle inside haystack, or -1 if needle never appears there at all.
 
 The straightforward approach tries every possible starting index in haystack and checks whether needle matches character by character from there, stopping as soon as a mismatch rules that start out.`,
@@ -886,6 +902,7 @@ The straightforward approach tries every possible starting index in haystack and
     difficulty: 'Easy',
     category: 'strings',
     skills: ['arrays-hashing'],
+    companies: ['amazon', 'bloomberg'],
     statement: `Given a string s, find the index of the first character that appears exactly once in the whole string, or -1 if every character repeats.
 
 Since uniqueness depends on the WHOLE string's counts, not just what's been seen so far, you need two passes: one to tally every character's total count, and a second to walk left to right looking for the first one whose total count is exactly 1.`,
@@ -934,6 +951,7 @@ Since uniqueness depends on the WHOLE string's counts, not just what's been seen
     difficulty: 'Easy',
     category: 'strings',
     skills: ['two-pointers'],
+    companies: ['google', 'amazon', 'apple'],
     statement: `Given a list of strings, find the longest prefix string that all of them share. If there's no common prefix at all, return an empty string.
 
 Use the first string as a yardstick and check column by column: for position i, see whether every other string still has a character at i and whether it matches the first string's character there. The moment one doesn't, the prefix found so far is the answer.`,
@@ -978,6 +996,322 @@ Use the first string as a yardstick and check column by column: for position i, 
     space: { answer: 'O(1)', choices: ['O(1)', 'O(S)', 'O(n)', 'O(log S)'], why: 'only a slice of the first string is returned' },
     sayIt: 'I use the first string as reference and scan column by column across the rest, stopping the moment any word differs or runs out — O(S) time.',
     pitfall: 'Forgetting to check i == len(word) before indexing word[i].',
+  },
+  {
+    id: 'thought:strings:string-compression',
+    lc: 443,
+    title: 'String Compression',
+    difficulty: 'Medium',
+    category: 'strings',
+    skills: ['two-pointers'],
+    companies: ['microsoft', 'bloomberg'],
+    statement: `You're given an array of characters. Compress it in place by replacing each run of repeated characters with the character followed by the run's length (only when the run is longer than 1), and return the new length of the array.
+
+You must modify the input array in place using only O(1) extra space beyond the pointers you need. Characters past the returned length can be ignored.`,
+    examples: [
+      { input: 'chars = ["a","a","b","b","c","c","c"]', output: '6, chars = ["a","2","b","2","c","3"]', explanation: 'each run of 2+ gets its count written out as separate characters' },
+      { input: 'chars = ["a"]', output: '1, chars = ["a"]', explanation: 'a run of length 1 writes no digit' },
+    ],
+    constraints: ['1 <= chars.length <= 2000', 'chars[i] is a lowercase/uppercase English letter, digit, or symbol'],
+    ds: {
+      answer: 'two pointers (read, write) over the chars array, mutated in place',
+      choices: ['two pointers (read, write) over the chars array, mutated in place', 'dict Counter of character frequencies built first, then rewritten', 'stack of (char, count) pairs popped at the end to rebuild the array', 'new output list, chars copied over at the end'],
+    },
+    method: {
+      answer: "Two pointers: ==read scans forward counting a run of the same character==, then ==write the character once==, and if the run length is more than 1, write out each digit of the count one character at a time, all in place",
+      choices: [
+        "Two pointers: ==read scans forward counting a run of the same character==, then ==write the character once==, and if the run length is more than 1, write out each digit of the count one character at a time, all in place",
+        "Build a separate string like char + str(count) for every run, then copy that whole string back over chars",
+        'Use a dict to count every character in the whole array first, then write pairs out in dict order',
+        "Two pointers, but always write the count even when it's 1, then strip trailing '1's afterward",
+      ],
+    },
+    code: `class Solution:
+    def compress(self, chars: List[str]) -> int:
+        write = 0
+        read = 0
+
+        while read < len(chars):
+            char = chars[read]
+            count = 0
+
+            while read < len(chars) and chars[read] == char:
+                read += 1
+                count += 1
+
+            chars[write] = char
+            write += 1
+
+            if count > 1:
+                for digit in str(count):
+                    chars[write] = digit
+                    write += 1
+
+        return write`,
+    blanks: [10, 13, 18],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(n^2)', 'O(1)'], why: 'read advances through the array once total across all runs' },
+    space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(log n)', 'O(n^2)'], why: 'compresses in place aside from a few pointers and the digit string' },
+    sayIt: 'Read pointer counts each run, write pointer lays down the char and then the digits of the run length only if count > 1, all in place; O(n) time, O(1) space.',
+    pitfall: "A run of length 1 writes just the character — no '1' digit gets appended.",
+  },
+  {
+    id: 'thought:strings:text-justification',
+    lc: 68,
+    title: 'Text Justification',
+    difficulty: 'Hard',
+    category: 'strings',
+    skills: ['arrays-hashing'],
+    companies: ['google', 'meta'],
+    statement: `Given an array of words and a width maxWidth, format the text into lines that are fully justified: each line (except the last) has exactly maxWidth characters, padded with extra spaces between words so both edges are flush.
+
+Pack as many words as possible onto each line without exceeding maxWidth, distributing extra spaces as evenly as possible between words, with the leftmost gaps getting any extra space when it doesn't divide evenly. The last line should be left-justified instead, with no extra space between words and only trailing spaces to pad it out.`,
+    examples: [
+      { input: 'words = ["This","is","an","example","of","text","justification."], maxWidth = 16', output: '["This    is    an", "example  of text", "justification.  "]', explanation: 'first two lines distribute extra spaces evenly; the last line is left-justified with trailing padding' },
+    ],
+    constraints: ['1 <= words.length <= 300', '1 <= words[i].length <= 20', '1 <= maxWidth <= 100'],
+    ds: {
+      answer: 'greedy word-wrap: accumulate words into a line list, flush and redistribute spaces when the next word would overflow',
+      choices: ['greedy word-wrap: accumulate words into a line list, flush and redistribute spaces when the next word would overflow', '2-D dp table minimizing total raggedness across all line breaks', 'binary search on the number of lines, checking feasibility of a max line width', 'queue of words popped one line-width at a time regardless of word boundaries'],
+    },
+    method: {
+      answer: "Greedy line-fill: keep adding words while ==length + mandatory single spaces + the next word still fits==, then on overflow distribute the leftover spaces ==round-robin across the gaps, leftmost gaps getting the extra one==; the ==very last line is left-justified with simple trailing padding==, not evenly distributed",
+      choices: [
+        "Greedy line-fill: keep adding words while ==length + mandatory single spaces + the next word still fits==, then on overflow distribute the leftover spaces ==round-robin across the gaps, leftmost gaps getting the extra one==; the ==very last line is left-justified with simple trailing padding==, not evenly distributed",
+        'Greedy line-fill, but every line including the last is evenly space-distributed the same way',
+        "DP that considers every possible line-break point to minimize the sum of squared leftover spaces (like a word processor's paragraph breaking)",
+        'Split on every single space first into a flat token list, then just insert a newline every maxWidth characters',
+      ],
+    },
+    code: `class Solution:
+    def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:
+        result = []
+        line = []
+        length = 0
+
+        for word in words:
+            if length + len(line) + len(word) > maxWidth:
+                for i in range(maxWidth - length):
+                    line[i % (len(line) - 1 or 1)] += " "
+                result.append("".join(line))
+                line, length = [], 0
+
+            line.append(word)
+            length += len(word)
+
+        lastLine = " ".join(line)
+        result.append(lastLine + " " * (maxWidth - len(lastLine)))
+        return result`,
+    blanks: [7, 9, 17],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(n * maxWidth)'], why: 'each word and space character is processed a constant number of times (n = total characters)' },
+    space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(maxWidth)', 'O(n^2)'], why: 'result holds every line, each roughly maxWidth characters long' },
+    sayIt: 'Greedy fill each line until the next word overflows, then round-robin the leftover spaces across the gaps, leftmost gaps first; the last line alone is just left-justified with padding; O(n) time.',
+    pitfall: 'The last line is NOT space-distributed like the others — it is single-spaced and padded on the right only.',
+  },
+  {
+    id: 'thought:strings:compare-version-numbers',
+    lc: 165,
+    title: 'Compare Version Numbers',
+    difficulty: 'Medium',
+    category: 'strings',
+    skills: ['two-pointers'],
+    companies: ['amazon', 'microsoft'],
+    statement: `Given two version strings, version1 and version2, compare them. A version string is a sequence of revisions separated by dots, e.g. "1.01" or "1.001.0". Each revision is compared as an integer, so leading zeros don't matter and a missing trailing revision is treated as 0.
+
+Return -1 if version1 < version2, 1 if version1 > version2, and 0 if they're equal.`,
+    examples: [
+      { input: 'version1 = "1.01", version2 = "1.001"', output: '0', explanation: "revision '01' and '001' both parse to the integer 1" },
+      { input: 'version1 = "1.0", version2 = "1.0.0"', output: '0', explanation: "the missing third revision of version1 is treated as 0, matching version2's trailing 0" },
+    ],
+    constraints: ['1 <= version1.length, version2.length <= 500', 'each revision contains only digits', 'no leading zeros in a non-zero revision unless written that way in input'],
+    ds: {
+      answer: 'split both versions on "." into revision lists, compared index by index as integers',
+      choices: ['split both versions on "." into revision lists, compared index by index as integers', 'two pointers scanning both raw strings character by character, comparing digit runs', 'pad both strings with leading zeros to equal length, then compare lexicographically', 'convert each version to a single float and compare directly'],
+    },
+    method: {
+      answer: 'Split both versions on ==\".\"== into revision lists, pad the shorter one with an implicit ==0 for any missing trailing revision==, and compare each revision as an ==integer (which drops leading zeros for free)==, returning as soon as a difference is found',
+      choices: [
+        'Split both versions on ==\".\"== into revision lists, pad the shorter one with an implicit ==0 for any missing trailing revision==, and compare each revision as an ==integer (which drops leading zeros for free)==, returning as soon as a difference is found',
+        "Convert each full version string to a float (e.g. '1.01' -> 1.01) and compare the two floats directly",
+        'Pad both strings with leading zeros to the same character length, then compare them lexicographically as strings',
+        'Two pointers walking both raw strings, comparing digit by digit without ever splitting on the dot',
+      ],
+    },
+    code: `class Solution:
+    def compareVersion(self, version1: str, version2: str) -> int:
+        parts1 = version1.split(".")
+        parts2 = version2.split(".")
+        length = max(len(parts1), len(parts2))
+
+        for i in range(length):
+            num1 = int(parts1[i]) if i < len(parts1) else 0
+            num2 = int(parts2[i]) if i < len(parts2) else 0
+
+            if num1 != num2:
+                return 1 if num1 > num2 else -1
+
+        return 0`,
+    blanks: [4, 7, 11],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(n^2)', 'O(1)'], why: 'split both strings then one pass over the longer revision list (n = total length)' },
+    space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(log n)', 'O(n^2)'], why: 'split() allocates a list of revision substrings for each version' },
+    sayIt: "Split on '.', treat a missing trailing revision as 0, compare each revision as an int so leading zeros vanish automatically, stop at the first difference; O(n) time.",
+    pitfall: "Comparing as raw strings or floats breaks on inputs like '1.01' vs '1.001' or a missing revision — must split and int()-compare per revision.",
+  },
+  {
+    id: 'thought:strings:integer-to-roman',
+    lc: 12,
+    title: 'Integer to Roman',
+    difficulty: 'Medium',
+    category: 'strings',
+    skills: ['math'],
+    companies: ['amazon', 'microsoft', 'bloomberg'],
+    statement: `Given an integer, convert it to a Roman numeral string.
+
+Roman numerals use symbols (I, V, X, L, C, D, M) combined additively, but also subtractively in six special cases (like IV for 4, or CM for 900) to avoid ever repeating a symbol more than three times in a row.
+
+The input is guaranteed to be within the range that Roman numerals can represent (1 to 3999).`,
+    examples: [
+      { input: 'num = 1994', output: '"MCMXCIV"', explanation: 'M (1000) + CM (900) + XC (90) + IV (4)' },
+      { input: 'num = 58', output: '"LVIII"', explanation: 'L (50) + V (5) + III (3)' },
+    ],
+    constraints: ['1 <= num <= 3999'],
+    ds: {
+      answer: 'two parallel lists of value-symbol pairs, ordered largest to smallest (greedy table)',
+      choices: ['two parallel lists of value-symbol pairs, ordered largest to smallest (greedy table)', 'a single dict mapping each of the 13 symbols to its value, iterated in dict order', 'recursion that picks the single largest symbol fitting num, then recurses on the remainder', 'hardcoded if/elif chain for every one of the 13 roman numeral symbols'],
+    },
+    method: {
+      answer: "Greedy, largest value first: for each (value, symbol) pair in descending order, ==divmod(num, value)== gives how many times that symbol repeats and the remainder to carry forward, appending ==symbol * count== before moving to the next smaller value",
+      choices: [
+        'Recursively find the single largest symbol <= num, append it once, and recurse on num minus that value',
+        'Convert each digit (ones, tens, hundreds, thousands) separately using 4 separate lookup tables, then concatenate the four pieces',
+        "Greedy, largest value first: for each (value, symbol) pair in descending order, ==divmod(num, value)== gives how many times that symbol repeats and the remainder to carry forward, appending ==symbol * count== before moving to the next smaller value",
+        'Apply the subtractive notation rules inline for each digit (I-before-V, X-before-L, C-before-D, etc.) with no lookup table at all',
+      ],
+    },
+    code: `class Solution:
+    def intToRoman(self, num: int) -> str:
+        values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+        symbols = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+        result = []
+
+        for value, symbol in zip(values, symbols):
+            if num == 0:
+                break
+
+            count, num = divmod(num, value)
+            result.append(symbol * count)
+
+        return "".join(result)`,
+    blanks: [10, 11, 13],
+    time: { answer: 'O(1)', choices: ['O(1)', 'O(log num)', 'O(num)', 'O(13^2)'], why: 'at most 13 fixed value/symbol pairs are checked regardless of num' },
+    space: { answer: 'O(1)', choices: ['O(1)', 'O(num)', 'O(log num)', 'O(13^2)'], why: "result holds a bounded number of symbol characters (at most ~15), independent of num's magnitude" },
+    sayIt: "Walk a fixed table of 13 (value, symbol) pairs largest to smallest, ==divmod== gives the repeat count and carries the remainder forward, O(1) time since the table size never changes.",
+    pitfall: "The value/symbol table must include the subtractive pairs like (900,'CM') and (400,'CD'), not just the 7 base symbols, or compound numbers like 1994 come out wrong.",
+  },
+  {
+    id: 'thought:strings:multiply-strings',
+    lc: 43,
+    title: 'Multiply Strings',
+    difficulty: 'Medium',
+    category: 'strings',
+    skills: ['math'],
+    companies: ['meta', 'microsoft', 'amazon'],
+    statement: `Given two non-negative integers represented as strings, return the product of the two numbers, also as a string.
+
+You cannot convert the entire input strings directly to integers or use any built-in big-integer library; the multiplication has to be computed digit by digit.
+
+The result can be arbitrarily large, which is exactly why it has to stay a string instead of a built-in int.`,
+    examples: [
+      { input: 'num1 = "123", num2 = "456"', output: '"56088"', explanation: '123 * 456 = 56088, built up digit pair by digit pair' },
+      { input: 'num1 = "2", num2 = "3"', output: '"6"', explanation: 'single-digit multiply, no carrying needed' },
+    ],
+    constraints: ['1 <= num1.length, num2.length <= 200', 'num1 and num2 consist of digits only', 'neither num1 nor num2 has leading zeros, except the number 0 itself'],
+    ds: {
+      answer: 'fixed-size digits array of length len(num1)+len(num2), carries resolved in place',
+      choices: ['fixed-size digits array of length len(num1)+len(num2), carries resolved in place', 'convert both strings to Python ints, multiply directly, convert back to a string', 'repeated string addition: add num1 to itself num2 times using a string-addition helper', 'two stacks of digits, multiplying and carrying from the top of each stack'],
+    },
+    method: {
+      answer: "Grade-school multiplication: every digit pair (i,j) contributes to position ==pos = i + j + 1== in a result array sized len(num1)+len(num2) (the max possible digits); accumulate the product there, then immediately push the ==carry into digits[pos-1]== and ==mod digits[pos] down to one digit==",
+      choices: [
+        'Convert both input strings directly to a Python int, multiply with *, and str() the result',
+        'Repeated addition: parse num1 as an int and add it to a running total num2 times using grade-school string addition',
+        'Karatsuba divide-and-conquer, splitting each number in half and combining four sub-products',
+        "Grade-school multiplication: every digit pair (i,j) contributes to position ==pos = i + j + 1== in a result array sized len(num1)+len(num2) (the max possible digits); accumulate the product there, then immediately push the ==carry into digits[pos-1]== and ==mod digits[pos] down to one digit==",
+      ],
+    },
+    code: `class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+        if num1 == "0" or num2 == "0":
+            return "0"
+
+        n1, n2 = len(num1), len(num2)
+        digits = [0] * (n1 + n2)
+
+        for i in range(n1 - 1, -1, -1):
+            for j in range(n2 - 1, -1, -1):
+                product = int(num1[i]) * int(num2[j])
+                pos = i + j + 1
+
+                digits[pos] += product
+                digits[pos - 1] += digits[pos] // 10
+                digits[pos] %= 10
+
+        result = "".join(map(str, digits)).lstrip("0")
+        return result`,
+    blanks: [11, 14, 15],
+    time: { answer: 'O(n1 * n2)', choices: ['O(n1 * n2)', 'O(n1 + n2)', 'O((n1+n2) log(n1+n2))', 'O(n1^2 * n2^2)'], why: 'every pair of digits (one from num1, one from num2) is multiplied exactly once' },
+    space: { answer: 'O(n1 + n2)', choices: ['O(n1 + n2)', 'O(n1 * n2)', 'O(1)', 'O(log(n1*n2))'], why: 'one fixed-size digits array sized to the maximum possible result length' },
+    sayIt: "Every digit pair lands at ==pos = i+j+1== in a digits array sized n1+n2, accumulate then carry into ==pos-1== and mod pos down to one digit, strip leading zeros at the end, O(n1*n2) time.",
+    pitfall: "The early 'num1 == 0 or num2 == 0' guard is required — without it the digits array can stay all zeros and lstrip('0') would wrongly return an empty string instead of '0'.",
+  },
+  {
+    id: 'thought:strings:repeated-dna-sequences',
+    lc: 187,
+    title: 'Repeated DNA Sequences',
+    difficulty: 'Medium',
+    category: 'strings',
+    skills: ['sliding-window', 'arrays-hashing'],
+    companies: ['google', 'amazon'],
+    statement: `DNA sequences are made only of the letters A, C, G, T. Given a string representing a DNA sequence, find every 10-letter-long substring that occurs more than once in the string.
+
+Return each such repeated substring once, in any order.
+
+Overlapping occurrences still count as repeats; two windows starting one character apart can both be valid.`,
+    examples: [
+      { input: 's = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT"', output: '["AAAAACCCCC","CCCCCAAAAA"]', explanation: 'both of these 10-letter windows appear more than once in the string' },
+    ],
+    constraints: ['1 <= s.length <= 10^5', "s[i] is one of 'A', 'C', 'G', or 'T'"],
+    ds: {
+      answer: 'sliding window of fixed length 10 + two hash sets (seen, repeated)',
+      choices: ['sliding window of fixed length 10 + two hash sets (seen, repeated)', 'rolling polynomial hash of each 10-length window stored in a single Counter', 'trie of the 4 DNA characters (A,C,G,T), marking repeated paths at depth 10', 'sort all length-10 substrings and scan for adjacent duplicates'],
+    },
+    method: {
+      answer: "Slide a fixed ==length-10 window== across the string; the first time a window string is seen it goes into ==seen==, the second time (or later) it goes into ==repeated==, which naturally dedupes itself since it's a set",
+      choices: [
+        'Encode each of the 4 bases into 2 bits and roll a single integer hash forward one base at a time, checking a Counter of integer hashes',
+        'Build a Counter of every length-10 substring directly, then filter for counts >= 2 at the end',
+        "Use a trie where only paths visited more than once trigger adding that path's string to the result",
+        "Slide a fixed ==length-10 window== across the string; the first time a window string is seen it goes into ==seen==, the second time (or later) it goes into ==repeated==, which naturally dedupes itself since it's a set",
+      ],
+    },
+    code: `class Solution:
+    def findRepeatedDnaSequences(self, s: str) -> List[str]:
+        seen = set()
+        repeated = set()
+
+        for i in range(len(s) - 9):
+            window = s[i:i + 10]
+
+            if window in seen:
+                repeated.add(window)
+            else:
+                seen.add(window)
+
+        return list(repeated)`,
+    blanks: [5, 6, 9],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(4^10)'], why: 'each of the ~n length-10 windows is sliced and hashed in O(1) amortized, one pass total' },
+    space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(n^2)', 'O(log n)'], why: 'up to n distinct length-10 windows can be stored across the two sets' },
+    sayIt: "Slide a ==length-10 window==, first sighting goes into seen, any later sighting goes into repeated (a set, so duplicates self-dedupe), O(n) time.",
+    pitfall: "The loop bound must be len(s) - 9, not -10 — range(i, i+10) needs i+10 <= len(s), so i only goes up to len(s)-10, meaning range(len(s)-9) is what correctly includes it.",
   },
 ]
 

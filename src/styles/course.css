@@ -57,6 +57,14 @@
 .crs-mode-grid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
 .crs-section { display: flex; flex-direction: column; gap: 10px; }
 
+.crs-hint { color: var(--amber); }
+
+.crs-problem-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 12px; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+}
+.crs-problem-row:hover { border-color: var(--border-strong); text-decoration: none; }
+
 @media (max-width: 600px) {
   .crs-unit-grid { grid-template-columns: 1fr; }
   .crs-module-row { flex-wrap: wrap; }

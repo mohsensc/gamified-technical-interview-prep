@@ -10,6 +10,7 @@ export default {
       difficulty: 'Easy',
       category: 'stack-trie',
       skills: ['stack'],
+      companies: ['google', 'amazon', 'microsoft', 'meta', 'bloomberg'],
       statement: "You're given a string made only of the characters (, ), {, }, [, and ]. Decide whether the brackets are balanced: every closing bracket must match the most recently opened bracket of the same type, and every open bracket must eventually close.\n\nAn empty string counts as balanced. Think about what happens the instant you see a closing bracket — what do you need to compare it against, and where does that thing live?",
       examples: [
         { input: "s = '()[]{}'", output: 'true' },
@@ -62,6 +63,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['stack'],
+      companies: ['google', 'amazon', 'bloomberg'],
       statement: 'Design a stack that supports push, pop, top, and getMin, where getMin must return the current minimum in O(1). The hard part is that pop can remove the current minimum, so you need to know the next minimum without rescanning the whole stack.\n\nAll four operations are expected to run in constant time. Think about carrying extra information alongside each pushed value instead of keeping a separate structure in sync.',
       examples: [
         { input: 'push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()', output: '-3, None, 0, -2', explanation: 'getMin right after push(-3) is -3; after pop, top is 0 and the new getMin is -2' },
@@ -116,6 +118,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['stack'],
+      companies: ['google', 'amazon', 'meta'],
       statement: "You're given tokens of an arithmetic expression already written in postfix order — operands come before the operator that uses them. Evaluate it and return the integer result.\n\nValid operators are +, -, *, and /, and division truncates toward zero. There are no divide-by-zero cases and the result always fits in a 32-bit integer.\n\nBecause an operator always arrives right after the two operands it needs, you only ever have to remember a small amount of recent state.",
       examples: [{ input: "tokens = ['2','1','+','3','*']", output: '9', explanation: '(2 + 1) * 3' }],
       constraints: ['1 <= tokens.length <= 10^4', "each token is an operator, or an integer in [-200, 200]"],
@@ -168,6 +171,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['monotonic-stack'],
+      companies: ['google', 'amazon'],
       statement: "Given the day's temperature for n days, for each day return how many days you'd have to wait until a warmer temperature shows up. If none ever comes, that day's answer is 0.\n\nChecking every future day for every day is quadratic. Instead keep a stack of days that are still waiting for something warmer, and resolve them the moment a hotter day finally arrives.",
       examples: [{ input: 'temperatures = [73,74,75,71,69,72,76,73]', output: '[1,1,4,2,1,1,0,0]' }],
       constraints: ['1 <= temperatures.length <= 10^5', '30 <= temperatures[i] <= 100'],
@@ -215,6 +219,7 @@ export default {
       difficulty: 'Easy',
       category: 'stack-trie',
       skills: ['monotonic-stack'],
+      companies: ['amazon'],
       statement: "You have two arrays, nums1 and nums2, where every value in nums1 also appears somewhere in nums2. For each value in nums1, find its next greater element to the right in nums2 — the first value further right that's strictly bigger. If there isn't one, the answer is -1.\n\nBuild the next-greater answer for every value in nums2 once with a monotonic stack, then just look up each nums1 value in that map.",
       examples: [{ input: 'nums1 = [4,1,2], nums2 = [1,3,4,2]', output: '[-1,3,-1]', explanation: "4 has nothing bigger after it; 1's next greater is 3; 2 has nothing after it" }],
       constraints: ['1 <= nums1.length <= nums2.length <= 1000', 'all integers in nums2 are distinct', 'nums1 is a subset of nums2'],
@@ -262,6 +267,7 @@ export default {
       difficulty: 'Hard',
       category: 'stack-trie',
       skills: ['monotonic-stack'],
+      companies: ['google', 'amazon', 'microsoft', 'meta'],
       statement: "Given the bar heights of a histogram where each bar has width 1, find the area of the largest rectangle that fits entirely under the skyline.\n\nFor every bar, imagine it's the shortest bar in some rectangle — that rectangle can then stretch left and right until it hits a shorter bar on either side. A monotonic increasing stack of indices finds those boundaries for every bar in one pass instead of n separate scans.\n\nWhenever a shorter bar forces you to pop something off the stack, you now know exactly where that popped bar's rectangle ends on the right.",
       examples: [{ input: 'heights = [2,1,5,6,2,3]', output: '10', explanation: 'the bars of height 5 and 6 together give width 2 * height 5 = 10' }],
       constraints: ['1 <= heights.length <= 10^5', '0 <= heights[i] <= 10^4'],
@@ -314,6 +320,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['monotonic-stack'],
+      companies: ['google'],
       statement: "Cars start at different positions on a single-lane road, all driving toward the same target at their own fixed speed, and no car can pass another — a faster car behind a slower one just bunches up into that car's fleet and matches its speed. Given each car's starting position and speed, count how many distinct fleets arrive at the target.\n\nSort cars by starting position, closest to the target first, and compute how long each car would take to reach the target alone. Walking from the car nearest the target backward, a car merges into the fleet ahead whenever its own arrival time doesn't exceed that fleet's time — otherwise it becomes its own fleet.",
       examples: [{ input: 'target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]', output: '3', explanation: 'the cars at 10 and 8 merge into one fleet; the remaining three cars form two more fleets' }],
       constraints: ['n == position.length == speed.length', '1 <= n <= 10^5', '0 < position[i] < target <= 10^6', '0 < speed[i] <= 10^6', 'all positions are distinct'],
@@ -361,6 +368,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['stack'],
+      companies: ['google', 'amazon', 'bloomberg'],
       statement: "Asteroids move along a single row: a positive value moves right, a negative value moves left, and the absolute value is its size. When two asteroids collide, the smaller one explodes; equal sizes mean both explode. Asteroids moving the same direction never meet. Return the state of all asteroids after every collision has finished.\n\nA collision only happens when a right-moving asteroid is already sitting on the stack and the next asteroid moves left — so scan left to right, resolve the stack's top against each new left-mover, and only push what survives.",
       examples: [
         { input: 'asteroids = [5,10,-5]', output: '[5,10]', explanation: '10 and -5 collide; 10 survives since it is bigger' },
@@ -417,6 +425,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['stack'],
+      companies: ['google', 'amazon', 'bloomberg'],
       statement: "You're given an encoded string like '3[a2[c]]' where k[encoded] means encoded repeats k times, and these encodings can nest arbitrarily deep. Decode it back to the full string.\n\nEvery '[' starts a new nested layer, so save the string built so far plus the repeat count, then start fresh. Every ']' finishes the layer you were just building, so pop back to the saved string and append the repeated result onto it.",
       examples: [
         { input: "s = '3[a2[c]]'", output: "'accaccacc'" },
@@ -478,6 +487,7 @@ export default {
       difficulty: 'Easy',
       category: 'stack-trie',
       skills: ['stack'],
+      companies: ['meta', 'bloomberg'],
       statement: "Repeatedly remove any two adjacent, identical letters from a string until no such pair remains, then return what's left. Order matters here — removing one pair can expose a brand new pair right next to where it used to be.\n\nA single left-to-right pass with a stack handles the whole cascade for free: push each letter, but if it matches what's already on top, pop instead of pushing. Whatever survives, read bottom to top, is the answer.",
       examples: [{ input: "s = 'abbaca'", output: "'ca'", explanation: "'bb' cancels first leaving 'aaca', then 'aa' cancels, leaving 'ca'" }],
       constraints: ['1 <= s.length <= 10^5', 's consists of lowercase English letters'],
@@ -524,6 +534,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['stack'],
+      companies: ['microsoft', 'meta'],
       statement: "You're given an absolute Unix-style file path and need its simplified canonical form. A single dot means stay in the current directory, a double dot means go up one directory, and repeated slashes just collapse into one.\n\nSplit the path on '/' and process each piece: '..' pops the last real directory off a stack (if any exist), '.' and the empty pieces from repeated slashes are skipped, and everything else gets pushed. Join what's left with '/' and a leading slash.",
       examples: [
         { input: "path = '/a/./b/../../c/'", output: "'/c'" },
@@ -576,6 +587,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['monotonic-stack'],
+      companies: ['amazon'],
       statement: "Design a class that is called once per day with that day's stock price, and returns the stock's span: the number of consecutive days up to and including today where the price stayed less than or equal to today's price, counting backward.\n\nA naive approach rescans every previous day on every call. Instead keep a stack of (price, span) pairs — when a new price is at least as big as the stack top's price, that whole span gets absorbed into today's span, since every day that span covers is also <= today's price.",
       examples: [{ input: 'next(100), next(80), next(60), next(70), next(60), next(75), next(85)', output: '1, 1, 1, 2, 1, 4, 6' }],
       constraints: ['1 <= price <= 10^5', 'at most 10^4 calls to next'],
@@ -624,6 +636,7 @@ export default {
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['trie'],
+      companies: ['google', 'amazon', 'microsoft', 'meta'],
       statement: "Design a trie that supports insert, search (exact word match), and startsWith (prefix match), all faster than scanning a word list each time.\n\nEach node holds a dict mapping the next character to a child node, plus a flag marking whether some word ends exactly there. Walking character by character from the root either builds new nodes along the way (insert) or bails out the instant a needed character is missing (search / startsWith).",
       examples: [{ input: "insert('apple'), search('apple'), search('app'), startsWith('app'), insert('app'), search('app')", output: 'None, true, false, true, None, true' }],
       constraints: ['1 <= word.length, prefix.length <= 2000', 'word and prefix consist only of lowercase English letters', 'at most 3*10^4 calls total to insert, search, startsWith'],
@@ -691,6 +704,7 @@ class Trie:
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['trie'],
+      companies: ['amazon', 'microsoft', 'meta'],
       statement: "Design a structure that supports adding words and then searching with a wildcard: a '.' in the search pattern matches any single letter. addWord behaves like a normal trie insert; search needs to branch into every child the moment it hits a '.'.\n\nWalk the pattern index by index. On a normal letter, follow that one matching child or fail immediately. On '.', try every child at that node and succeed if any of them lets the rest of the pattern match too.",
       examples: [{ input: "addWord('bad'), addWord('dad'), addWord('mad'), search('pad'), search('bad'), search('.ad'), search('b..')", output: 'None, None, None, false, true, true, true' }],
       constraints: ['1 <= word.length <= 25', 'word in addWord consists of lowercase English letters', 'word in search consists of lowercase letters and/or periods', 'at most 2*10^4 calls total'],
@@ -755,6 +769,7 @@ class WordDictionary:
       difficulty: 'Hard',
       category: 'stack-trie',
       skills: ['trie', 'grid', 'backtracking'],
+      companies: ['google', 'amazon', 'microsoft', 'meta'],
       statement: "Given a grid of letters and a list of words, find every word that can be traced by moving to horizontally or vertically adjacent cells, never reusing a cell within one word.\n\nChecking each word against the grid one at a time repeats a lot of shared work when many words share prefixes. Building all the words into one trie first lets a single DFS over the grid explore every candidate word at once, pruning the search the instant the path no longer matches any remaining prefix.",
       examples: [{ input: "board = [['o','a','a','n'],['e','t','a','e'],['i','h','k','r'],['i','f','l','v']], words = ['oath','pea','eat','rain']", output: "['eat','oath']" }],
       constraints: ['1 <= rows, cols <= 12', '1 <= words.length <= 3*10^4', '1 <= word.length <= 10', 'all inputs are lowercase English letters'],
@@ -826,6 +841,7 @@ class Solution:
       difficulty: 'Easy',
       category: 'stack-trie',
       skills: ['arrays-hashing'],
+      companies: ['google', 'amazon', 'apple'],
       statement: "Given a list of strings, find the longest prefix that every single one of them starts with. If there's no common starting prefix at all, return an empty string.\n\nThe shortest string in the list caps how long any common prefix could possibly be. Walk column by column up to that length, comparing the same character position across every string, and stop the instant one of them disagrees.",
       examples: [{ input: "strs = ['flower','flow','flight']", output: "'fl'" }, { input: "strs = ['dog','racecar','car']", output: "''" }],
       constraints: ['1 <= strs.length <= 200', '0 <= strs[i].length <= 200', 'strs[i] consists of lowercase English letters'],
@@ -871,6 +887,7 @@ class Solution:
       difficulty: 'Medium',
       category: 'stack-trie',
       skills: ['trie'],
+      companies: ['amazon'],
       statement: "You have a dictionary of root words and a sentence. For every word in the sentence, if some root is a prefix of it, replace the word with the shortest such root. Words with no matching root stay exactly as they are.\n\nInsert every root into a trie, then for each sentence word walk the trie character by character — the moment you reach a node flagged as the end of a root, you've found the shortest replacement and can stop immediately.",
       examples: [{ input: "dictionary = ['cat','bat','rat'], sentence = 'the cattle was rattled by the battery'", output: "'the cat was rat by the bat'" }],
       constraints: ['1 <= dictionary.length <= 1000', '1 <= roots[i].length <= 100', '1 <= sentence.length <= 10^6', 'roots and sentence words are lowercase English letters'],
@@ -924,6 +941,328 @@ class Solution:
       space: { answer: 'O(D)', choices: ['O(D)', 'O(S)', 'O(D * S)', 'O(1)'], why: 'trie nodes stored once per unique character path in the dictionary' },
       sayIt: 'Trie of roots; walk each sentence word and ==stop at the first endOfWord==, that is the shortest matching root.',
       pitfall: 'Continuing past the first endOfWord instead of stopping immediately, which picks a longer wrong root',
+    },
+    {
+      id: 'thought:stack-trie:basic-calculator-ii',
+      lc: 227,
+      title: 'Basic Calculator II',
+      difficulty: 'Medium',
+      category: 'stack-trie',
+      skills: ['stack'],
+      companies: ['amazon', 'meta'],
+      statement: "You're given a string expression containing non-negative integers and the operators +, -, *, and /, with no parentheses and no spaces to worry about once you skip them. Evaluate it following standard operator precedence (multiply and divide before add and subtract) and return the integer result.\n\nDivision between two integers should truncate toward zero. Think about what you can resolve immediately versus what has to wait.",
+      examples: [
+        { input: 's = "3+2*2"', output: '7', explanation: '2*2 is evaluated first (6), then 3+6=9... actually 3 + (2*2) = 7' },
+        { input: 's = " 3/2 "', output: '1', explanation: 'integer division truncates 1.5 toward zero' },
+      ],
+      constraints: ['1 <= s.length <= 3*10^5', 's consists of digits, +, -, *, /, and spaces', 'the expression is always valid'],
+      ds: {
+        answer: 'single stack of signed terms, resolve * and / immediately against the top',
+        choices: ['single stack of signed terms, resolve * and / immediately against the top', 'two stacks: one for numbers, one for operators, resolved by precedence at the end', 'queue converting the expression to postfix first, then evaluate the queue', '2-D dp table of (position, running total)'],
+      },
+      method: {
+        answer: "One-pass stack machine: build each multi-digit number as you scan, and when you hit an operator (or the end) apply the PREVIOUS sign — for + or - just push the signed number, but for ==* or / pop the top of the stack and combine it with num immediately==, so precedence falls out for free; sum the stack at the end",
+        choices: [
+          "One-pass stack machine: build each multi-digit number as you scan, and when you hit an operator (or the end) apply the PREVIOUS sign — for + or - just push the signed number, but for ==* or / pop the top of the stack and combine it with num immediately==, so precedence falls out for free; sum the stack at the end",
+          'Convert the expression to postfix (Shunting-yard) first, then evaluate the postfix stack in a second pass',
+          "Recursive descent parser splitting on + and - first, then recursively evaluating each term's * and /",
+          'Scan right to left, pushing every number and operator, resolving all operators in one final pass by precedence',
+        ],
+      },
+      code: `class Solution:
+    def calculate(self, s: str) -> int:
+        stack = []
+        num = 0
+        sign = "+"
+
+        for i, ch in enumerate(s):
+            if ch.isdigit():
+                num = num * 10 + int(ch)
+
+            if ch in "+-*/" or i == len(s) - 1:
+                if sign == "+":
+                    stack.append(num)
+                elif sign == "-":
+                    stack.append(-num)
+                elif sign == "*":
+                    stack.append(stack.pop() * num)
+                else:
+                    stack.append(int(stack.pop() / num))
+
+                num = 0
+                sign = ch
+
+        return sum(stack)`,
+      blanks: [8, 16, 23],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(n^2)', 'O(1)'], why: 'single left-to-right scan of the string' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(log n)', 'O(n^2)'], why: 'stack can hold up to one term per number in the expression' },
+      sayIt: 'I resolve * and / the instant I see them by popping the stack, but push + and - as signed numbers to resolve later with a final sum; one pass, O(n) time.',
+      pitfall: 'Integer division must truncate toward zero (int(a / b)), not floor — matters on negative intermediate results.',
+    },
+    {
+      id: 'thought:stack-trie:implement-queue-using-stacks',
+      lc: 232,
+      title: 'Implement Queue using Stacks',
+      difficulty: 'Easy',
+      category: 'stack-trie',
+      skills: ['stack'],
+      companies: ['amazon', 'microsoft', 'bloomberg'],
+      statement: "Implement a first-in-first-out (FIFO) queue using only two stacks. The queue must support push, pop, peek, and empty, each behaving like a normal queue's version of that operation.\n\nYou may only use standard stack operations: push to top, pop from top, peek at top, and check if empty.",
+      examples: [
+        { input: 'push(1), push(2), peek(), pop(), empty()', output: '1, 1, false', explanation: 'FIFO order means the first pushed value comes out first, even though stacks are LIFO' },
+      ],
+      constraints: ['1 <= x <= 9', 'at most 100 calls to push, pop, peek, empty', 'pop and peek are only called on a non-empty queue'],
+      ds: {
+        answer: 'two stacks: inStack for pushes, outStack for pops/peeks (lazy transfer)',
+        choices: ['two stacks: inStack for pushes, outStack for pops/peeks (lazy transfer)', 'one stack + reversing it into a new list on every pop', 'deque used directly as a queue (single structure)', 'two stacks, transferring every element on every single push'],
+      },
+      method: {
+        answer: "Two-stack trick: push always goes onto inStack; pop/peek only refill ==outStack by dumping all of inStack onto it== when outStack is empty, so each element crosses over exactly once no matter how many peeks happen",
+        choices: [
+          "Two-stack trick: push always goes onto inStack; pop/peek only refill ==outStack by dumping all of inStack onto it== when outStack is empty, so each element crosses over exactly once no matter how many peeks happen",
+          'Transfer every element from inStack to outStack and back on every single push, keeping outStack always in FIFO order',
+          'Use one stack only, and on pop reverse the whole stack in place to reach the bottom element',
+          'Maintain both stacks always in sync (double-write every push to both) so either can be read directly',
+        ],
+      },
+      code: `class MyQueue:
+    def __init__(self):
+        self.inStack = []
+        self.outStack = []
+
+    def push(self, x: int) -> None:
+        self.inStack.append(x)
+
+    def pop(self) -> int:
+        self.peek()
+        return self.outStack.pop()
+
+    def peek(self) -> int:
+        if not self.outStack:
+            while self.inStack:
+                self.outStack.append(self.inStack.pop())
+        return self.outStack[-1]
+
+    def empty(self) -> bool:
+        return not self.inStack and not self.outStack`,
+      blanks: [15, 16, 19],
+      time: { answer: 'O(1) amortized', choices: ['O(1) amortized', 'O(n) every call', 'O(n) amortized', 'O(log n) amortized'], why: 'each element moves from inStack to outStack at most once across its lifetime' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(log n)', 'O(n^2)'], why: 'the two stacks together hold every currently queued element' },
+      sayIt: "Push onto inStack; pop/peek dump inStack into outStack ONLY when outStack is empty, so every element crosses over once — O(1) amortized.",
+      pitfall: "Refilling outStack on every call instead of only when it's empty reverses the order and breaks FIFO.",
+    },
+    {
+      id: 'thought:stack-trie:132-pattern',
+      lc: 456,
+      title: '132 Pattern',
+      difficulty: 'Hard',
+      category: 'stack-trie',
+      skills: ['monotonic-stack'],
+      companies: ['google', 'amazon'],
+      statement: `Given an array of integers, find three indices i < j < k such that nums[i] < nums[k] < nums[j]. This is called a 132 pattern, since the relative order of (small, big, middle) matches the digits 1, 3, 2.
+
+Return true if any such triple exists anywhere in the array, false otherwise. You don't need to return the indices themselves.`,
+      examples: [
+        { input: 'nums = [3,1,4,2]', output: 'true', explanation: 'i=1 (1), j=2 (4), k=3 (2): 1 < 2 < 4' },
+        { input: 'nums = [1,2,3,4]', output: 'false', explanation: 'strictly increasing, no later value ever dips back between two earlier ones' },
+      ],
+      constraints: ['1 <= nums.length <= 2*10^5', '-10^9 <= nums[i] <= 10^9'],
+      ds: {
+        answer: 'monotonic decreasing stack scanned right-to-left + a running thirdMax variable',
+        choices: ['monotonic decreasing stack scanned right-to-left + a running thirdMax variable', 'monotonic increasing stack scanned left-to-right + a running min variable', 'prefix-min array + suffix-max array compared at every index', '2-D dp table of (i, k) pairs'],
+      },
+      method: {
+        answer: "Scan ==right to left==, maintaining a decreasing stack of potential '2' values; whenever the current number pops a smaller value off the stack, that popped value becomes the new ==thirdMax (the '3' candidate)==; if the current number is ever less than thirdMax, it's the '1' and a valid 132 pattern exists",
+        choices: [
+          "Scan ==right to left==, maintaining a decreasing stack of potential '2' values; whenever the current number pops a smaller value off the stack, that popped value becomes the new ==thirdMax (the '3' candidate)==; if the current number is ever less than thirdMax, it's the '1' and a valid 132 pattern exists",
+          "Scan left to right tracking the running minimum so far as the '1' candidate, then check every later pair for a '3' bigger than a '2'",
+          'For every index j, binary search to the left for the minimum before j and to the right for a value strictly between min and nums[j]',
+          'Brute-force triple nested loop checking every i < j < k directly, no stack',
+        ],
+      },
+      code: `class Solution:
+    def find132pattern(self, nums: List[int]) -> bool:
+        stack = []
+        thirdMax = -math.inf
+
+        for num in reversed(nums):
+            if num < thirdMax:
+                return True
+
+            while stack and stack[-1] < num:
+                thirdMax = stack.pop()
+
+            stack.append(num)
+
+        return False`,
+      blanks: [7, 10, 12],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(n^3)'], why: 'each element is pushed and popped from the stack at most once' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(log n)', 'O(n^2)'], why: 'the stack can hold up to n elements in the worst case' },
+      sayIt: "Right-to-left with a decreasing stack: popped values become my '3' candidate (thirdMax), and if the current number ever dips below thirdMax that's my '1' — O(n) time.",
+      pitfall: 'thirdMax must start at -infinity, and every comparison must be strict, or equal values wrongly count as a pattern.',
+    },
+    {
+      id: 'thought:stack-trie:remove-k-digits',
+      lc: 402,
+      title: 'Remove K Digits',
+      difficulty: 'Medium',
+      category: 'stack-trie',
+      skills: ['monotonic-stack', 'greedy'],
+      companies: ['amazon', 'google'],
+      statement: `You're given a string of digits and a number k. Remove exactly k digits from the string so that the remaining digits, kept in their original order, form the smallest possible number.
+
+The result can't have leading zeros unless the number itself is 0, in which case return "0".
+
+Removing a digit means deleting it, not replacing it; the remaining digits just close the gap.`,
+      examples: [
+        { input: 'num = "1432219", k = 3', output: '"1219"', explanation: 'removing the three largest out-of-place digits (4,3,2) leaves 1219' },
+        { input: 'num = "10200", k = 1', output: '"200"', explanation: 'removing the leading 1 leaves "0200", which strips down to "200"' },
+      ],
+      constraints: ['1 <= k <= num.length <= 10^5', 'num consists of only digits', 'num does not have any leading zeros other than the number 0 itself'],
+      ds: {
+        answer: 'monotonic increasing stack of digits, with a remaining-removal budget k',
+        choices: ['monotonic increasing stack of digits, with a remaining-removal budget k', 'min-heap of digits, popping the k smallest and reassembling in original order', 'two pointers scanning for the first descending pair, removing greedily k times', 'sort the digits and keep the (len(num)-k) smallest, preserving original order'],
+      },
+      method: {
+        answer: "Greedy monotonic stack: while the ==top of the stack is bigger than the current digit== and removals remain, pop (dropping a bigger digit before a smaller one later always helps), then push the current digit; any leftover budget removes from the end, and leading zeros get stripped",
+        choices: [
+          'Repeat k times: scan the whole string for the first place digit[i] > digit[i+1] and delete digit[i] there, naive O(k*n)',
+          'Sort all digits ascending and keep the smallest len(num)-k of them, ignoring their original order',
+          "Greedy monotonic stack: while the ==top of the stack is bigger than the current digit== and removals remain, pop (dropping a bigger digit before a smaller one later always helps), then push the current digit; any leftover budget removes from the end, and leading zeros get stripped",
+          'Greedy: always remove the single largest digit in the entire remaining string each round',
+        ],
+      },
+      code: `class Solution:
+    def removeKdigits(self, num: str, k: int) -> str:
+        stack = []
+
+        for digit in num:
+            while stack and k > 0 and stack[-1] > digit:
+                stack.pop()
+                k -= 1
+            stack.append(digit)
+
+        while k > 0:
+            stack.pop()
+            k -= 1
+
+        result = "".join(stack).lstrip("0")
+        return result if result else "0"`,
+      blanks: [5, 8, 14],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n * k)', 'O(n log n)', 'O(n^2)'], why: 'each digit is pushed and popped from the stack at most once total' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(k)', 'O(log n)'], why: 'the stack can hold up to n digits in the worst case' },
+      sayIt: 'Monotonic increasing stack: pop a bigger top digit whenever a smaller one shows up and budget remains, trim leftover budget off the end, strip leading zeros; O(n) time.',
+      pitfall: 'Leftover k after the main pass still needs removing from the END of the stack, and leading zeros must be stripped before returning.',
+    },
+    {
+      id: 'thought:stack-trie:next-greater-element-ii',
+      lc: 503,
+      title: 'Next Greater Element II',
+      difficulty: 'Medium',
+      category: 'stack-trie',
+      skills: ['monotonic-stack'],
+      companies: ['google', 'amazon'],
+      statement: `You're given a circular array (the last element wraps around to connect to the first). For every element, find its next greater element: the first element you'd reach scanning forward (wrapping once if needed) that is strictly bigger.
+
+If no such element exists even after wrapping all the way around, that position's answer is -1.
+
+The array is circular but you only ever wrap around once per starting position, never twice.`,
+      examples: [
+        { input: 'nums = [1,2,1]', output: '[2,-1,2]', explanation: 'index 0 (1) sees 2 next; index 1 (2) wraps all the way around and finds nothing bigger; index 2 (1) wraps to find 2' },
+      ],
+      constraints: ['1 <= nums.length <= 10^4', '-10^9 <= nums[i] <= 10^9'],
+      ds: {
+        answer: 'monotonic decreasing stack of values, scanned over the array twice (circular wrap via modulo)',
+        choices: ['monotonic decreasing stack of values, scanned over the array twice (circular wrap via modulo)', 'monotonic decreasing stack scanned once, then the array is physically doubled (nums + nums) before scanning', 'two pointers, one starting at i and one circularly scanning ahead until a bigger value or a full lap', 'min-heap of (value, index), popping until a bigger value surfaces'],
+      },
+      method: {
+        answer: "Monotonic stack scanned right to left over TWO laps (==idx = i % n== simulates a doubled array without copying it): pop anything on the stack that is <= the current value, and only RECORD an answer during the first lap (==i < n==) since the second lap just primes the stack with wraparound candidates",
+        choices: [
+          'Scan left to right once, pushing indices and resolving each one the first time a bigger value appears anywhere later, including wrapping past the end',
+          "Monotonic stack scanned right to left over TWO laps (==idx = i % n== simulates a doubled array without copying it): pop anything on the stack that is <= the current value, and only RECORD an answer during the first lap (==i < n==) since the second lap just primes the stack with wraparound candidates",
+          'Physically build doubled = nums + nums, run the standard single-pass next-greater-element scan on it, then only keep the first n answers',
+          'For each index, linearly scan forward (wrapping with modulo) until a bigger element or a full lap is completed',
+        ],
+      },
+      code: `class Solution:
+    def nextGreaterElements(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        result = [-1] * n
+        stack = []
+
+        for i in range(2 * n - 1, -1, -1):
+            idx = i % n
+            while stack and stack[-1] <= nums[idx]:
+                stack.pop()
+            if stack and i < n:
+                result[idx] = stack[-1]
+            stack.append(nums[idx])
+
+        return result`,
+      blanks: [7, 8, 11],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(2^n)'], why: 'each of the 2n positions pushes and pops from the stack at most once total' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(log n)', 'O(n^2)'], why: 'the stack and result array both scale with n' },
+      sayIt: "Two laps right to left via ==i % n==, pop smaller-or-equal values off the stack, only WRITE answers on the first lap since the second lap just seeds wraparound candidates, O(n) time.",
+      pitfall: 'The i < n guard matters: skipping it writes answers during the priming lap, before the stack reflects the full circular context.',
+    },
+    {
+      id: 'thought:stack-trie:map-sum-pairs',
+      lc: 677,
+      title: 'Map Sum Pairs',
+      difficulty: 'Medium',
+      category: 'stack-trie',
+      skills: ['trie'],
+      companies: ['google', 'amazon'],
+      statement: `Design a structure that supports insert(key, val), storing a value for a string key, and sum(prefix), returning the sum of values for every key that starts with that prefix.
+
+Inserting a key that was already inserted before overwrites its value; it doesn't add to it.
+
+Think about where to store partial sums so sum(prefix) doesn't have to rescan every stored key.`,
+      examples: [
+        { input: 'insert("apple", 3), sum("ap"), insert("app", 2), sum("ap")', output: '3, 5', explanation: 'sum("ap") first counts only "apple" (3), then also "app" (2) once inserted, for a total of 5' },
+      ],
+      constraints: ['1 <= key.length, prefix.length <= 50', 'key and prefix consist of only lowercase English letters', '1 <= val <= 1000', 'at most 50 calls total to insert and sum'],
+      ds: {
+        answer: 'trie of dict children, each node carrying a running prefix sum',
+        choices: ['trie of dict children, each node carrying a running prefix sum', 'plain dict mapping key -> val, summing by filtering key.startswith(prefix) on every sum() call', 'sorted list of (key, val) pairs, binary-searching the prefix range on every sum() call', 'trie of dict children storing the full list of (key, val) pairs at each node, summed on demand'],
+      },
+      method: {
+        answer: "Trie where every node along a key's path accumulates that key's value: inserting a key that already exists first computes ==delta = newVal - oldVal==, so re-inserting only adjusts every node's running sum by the difference instead of double-counting; sum(prefix) just walks to that prefix's node and reads its running total",
+        choices: [
+          'Store every (key, val) pair in a flat dict, and on sum(prefix) iterate all keys checking startswith(prefix), summing matches each time',
+          'Trie storing only characters with no running sums, requiring a DFS from the prefix node to total every matching key on each sum() call',
+          'Maintain a separate dict for every possible prefix length, recomputing all of them whenever a key is inserted',
+          "Trie where every node along a key's path accumulates that key's value: inserting a key that already exists first computes ==delta = newVal - oldVal==, so re-inserting only adjusts every node's running sum by the difference instead of double-counting; sum(prefix) just walks to that prefix's node and reads its running total",
+        ],
+      },
+      code: `class MapSum:
+    def __init__(self):
+        self.root = {}
+        self.scores = {}
+
+    def insert(self, key: str, val: int) -> None:
+        delta = val - self.scores.get(key, 0)
+        self.scores[key] = val
+
+        node = self.root
+        node["_sum"] = node.get("_sum", 0) + delta
+        for ch in key:
+            node = node.setdefault(ch, {})
+            node["_sum"] = node.get("_sum", 0) + delta
+
+    def sum(self, prefix: str) -> int:
+        node = self.root
+        for ch in prefix:
+            if ch not in node:
+                return 0
+            node = node[ch]
+
+        return node.get("_sum", 0)`,
+      blanks: [6, 12, 13],
+      time: { answer: 'O(L)', choices: ['O(L)', 'O(26^L)', 'O(number of keys)', 'O(L^2)'], why: 'L = key/prefix length, insert and sum both walk one node per character' },
+      space: { answer: 'O(total characters inserted)', choices: ['O(total characters inserted)', 'O(L)', 'O(26^L)', 'O(number of keys)'], why: 'a trie node is created once per unique character position across all inserted keys' },
+      sayIt: "Every node on a key's path carries a running sum; re-inserting a key applies ==delta = newVal - oldVal== instead of double counting, sum(prefix) is just one node lookup, O(L) per call.",
+      pitfall: 'Re-inserting an existing key must ADJUST every node\'s sum by the delta, not add the new value on top of the old one.',
     },
   ],
 }

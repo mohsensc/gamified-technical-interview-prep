@@ -1,12 +1,19 @@
 import { h } from '../ui/h.js'
-import { getState, subscribe, getMastery, getSkillRecord, weakestSkills, dueItems, getMissed, getLevelInfo, getStreak, getStudyMinutes, getNodeProgress, getBiteStatus } from '../store.js'
+import { getState, subscribe, getSkillRecord, weakestSkills, dueItems, getMissed, getLevelInfo, getStreak, getStudyMinutes, getNodeProgress, getBiteStatus, getSetting, setSetting, recordAnswer } from '../store.js'
 import { skillGroups, skills, skillIds } from '../content/skills.js'
-import { units, allBites, hrefFor } from '../content/curriculum.js'
-import { interviewLabel, totalPlanMinutes } from '../content/plan.js'
-import { recommendNext, nextIncompleteBite, interviewAt } from '../engine/recommend.js'
+import { units, allBites, hrefFor, allItems } from '../content/curriculum.js'
+import { totalPlanMinutes } from '../content/plan.js'
+import { recommendNext, nextIncompleteBite, getInterviewAt, setInterviewAt } from '../engine/recommend.js'
 import { practiceHref } from '../engine/session.js'
 import { planMinutesRemaining } from './plan.js'
+import { getUser, accountsAvailable } from '../auth/index.js'
+import { problems } from '../content/index.js'
+import { matchesCompanies } from '../content/companies.js'
+import { companyChips, companyFilter } from '../ui/companies.js'
+import { renderItem, kindOf } from '../ui/items.js'
+import { persistOverride } from '../ui/override.js'
 
+const dailyGoalMinutes = 20
 const heatColor = (mastery, attempts) => {
   if (!attempts) return 'var(--gray)'
   if (mastery < 0.35) return 'var(--red)'
@@ -17,17 +24,6 @@ const heatColor = (mastery, attempts) => {
 
 const kindColor = { continue: 'teal', 'must-learn': 'amber', drill: 'sky', review: 'pink', checkpoint: 'green', mock: 'amber', warmup: 'teal', oop: 'amber', read: 'sky' }
 
-const countdownParts = () => {
-  const ms = Math.max(0, interviewAt.getTime() - Date.now())
-  const totalSeconds = Math.floor(ms / 1000)
-  return {
-    days: Math.floor(totalSeconds / 86400),
-    hours: Math.floor(totalSeconds % 86400 / 3600),
-    minutes: Math.floor(totalSeconds % 3600 / 60),
-    seconds: totalSeconds % 60,
-  }
-}
-
 const formatMinutes = minutes => {
   const hours = Math.floor(minutes / 60)
   const rest = Math.round(minutes % 60)
@@ -35,45 +31,191 @@ const formatMinutes = minutes => {
   return rest ? `${hours}h ${rest}m` : `${hours}h`
 }
 
-export default function render(container) {
+const dateKey = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
+const hashString = text => {
+  let hash = 2166136261
+  for (const char of String(text)) {
+    hash ^= char.charCodeAt(0)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
+}
+
+const seededPick = (list, seed, count) => {
+  if (!list.length || count <= 0) return []
+  const arr = [...list]
+  let state = (seed >>> 0) || 1
+  const rand = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0
+    return state / 4294967296
+  }
+  const n = Math.min(count, arr.length)
+  for (let i = arr.length - 1; i > arr.length - 1 - n; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr.slice(arr.length - n)
+}
+
+const isNewVisitor = () => {
+  const state = getState()
+  return !Object.keys(state.items).length && !Object.keys(state.bites).length && !state.xp
+}
+
+async function loadTodaysThought() {
+  try {
+    const mod = await import('../content/thought/index.js')
+    const data = await mod.loadThought()
+    const pool = data?.items || []
+    return pool.length ? seededPick(pool, hashString(dateKey()) + 1, 1)[0] : null
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+function welcomeHero() {
+  const canSignIn = accountsAvailable() && !getUser()
+  return h('div', { class: 'welcome-hero' },
+    h('span', { class: 'eyebrow' }, 'Free coding interview prep'),
+    h('h1', null, 'Learn the patterns behind every coding interview question.'),
+    h('p', { class: 'muted welcome-sub' }, 'Lessons, drills, and mock interviews for Google, Amazon, Meta, Microsoft, Apple, and Bloomberg style problems — no signup required to start.'),
+    h('div', { class: 'row-wrap' },
+      h('a', { class: 'btn btn-primary btn-lg', href: '#/course' }, 'Start learning'),
+      canSignIn ? h('a', { class: 'btn btn-lg btn-ghost', href: '#/login' }, 'Sign in to sync') : null))
+}
+
+function buildInterviewControl() {
+  const el = h('div', { class: 'row-wrap interview-control' })
+  let open = false
+
+  const update = () => {
+    const at = getInterviewAt()
+    if (!open) {
+      el.replaceChildren(
+        at
+          ? h('span', { class: 'eyebrow' }, `Interview in ${Math.max(0, Math.ceil((at.getTime() - Date.now()) / 86400e3))}d`)
+          : h('span', { class: 'eyebrow' }, 'Studying at your own pace'),
+        h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { open = true; update() } }, at ? 'Change date' : '+ Add interview date'))
+      return
+    }
+    const input = h('input', { type: 'date', class: 'interview-date-input', value: at ? at.toISOString().slice(0, 10) : '' })
+    el.replaceChildren(
+      input,
+      h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => { setInterviewAt(input.value || null); open = false; update() } }, 'Save'),
+      at ? h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { setInterviewAt(null); open = false; update() } }, 'Clear') : null,
+      h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => { open = false; update() } }, 'Cancel'))
+  }
+
+  update()
+  return el
+}
+
+function returningHero(interviewEl) {
+  const levelInfo = getLevelInfo()
+  const bite = nextIncompleteBite()
+  const planLeft = planMinutesRemaining()
+  const todayMinutes = getStudyMinutes({ todayOnly: true })
+  const goalPct = Math.min(100, Math.round((todayMinutes / dailyGoalMinutes) * 100))
+
+  return h('div', { class: 'hero-main' },
+    bite
+      ? h('a', { class: 'btn btn-primary hero-cta', href: hrefFor(bite.id) },
+        h('span', { class: 'hero-cta-play' }, '▶'),
+        h('span', { class: 'hero-cta-text' }, h('small', null, `Continue · ${bite.minutes}m`), h('b', null, bite.title)))
+      : h('a', { class: 'btn btn-primary hero-cta', href: '#/course' },
+        h('span', { class: 'hero-cta-play' }, '🎉'), h('span', { class: 'hero-cta-text' }, h('small', null, 'Core course complete'), h('b', null, 'Review the tree'))),
+    interviewEl,
+    h('div', { class: 'hero-stat-row' },
+      h('div', { class: 'goal-ring-wrap' },
+        h('div', { class: 'ring ring-lg', style: { '--pct': goalPct, '--ring-color': goalPct >= 100 ? 'var(--green)' : 'var(--teal)' } }, h('span', null, `${todayMinutes}m`)),
+        h('span', { class: 'small muted' }, `Today's goal · ${dailyGoalMinutes}m`)),
+      h('div', { class: 'grid-3 hero-stats' },
+        h('div', { class: 'stat' }, h('span', { class: 'stat-value', style: 'color:var(--amber)' }, `Lv ${levelInfo.level}`), h('span', { class: 'stat-label' }, `${levelInfo.xp} XP`)),
+        h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${getStreak()}🔥`), h('span', { class: 'stat-label' }, 'day streak')),
+        h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, formatMinutes(planLeft)), h('span', { class: 'stat-label' }, 'plan left')))),
+    h('div', { class: 'progress' }, h('div', { style: { width: `${Math.min(100, (1 - planLeft / Math.max(1, totalPlanMinutes)) * 100)}%` } })))
+}
+
+function dailyQuestionCard(item) {
+  const kind = kindOf(item)
+  const stage = h('div', { class: 'card tight daily-question' })
+  const onAnswer = result => {
+    try { recordAnswer({ itemId: item.id, kind, skills: item.skills || [], correct: result.correct, ms: result.ms }) } catch {}
+  }
+  const onOverride = () => persistOverride({ itemId: item.id, kind, skills: item.skills || [] })
+  stage.append(renderItem(item, onAnswer, { onOverride }))
+  return stage
+}
+
+function buildDailyChallengeSection(thoughtItem) {
+  const dailySeed = hashString(dateKey())
+  const questionPool = allItems.filter(item => ['mcq', 'cloze', 'parsons'].includes(item.kind) && item.skills?.length)
+  const questionItems = seededPick(questionPool, dailySeed, 3)
+  return h('div', { class: 'stack' },
+    h('div', { class: 'spread' },
+      h('span', { class: 'section-title' }, "Today's challenge"),
+      h('span', { class: 'muted small mono' }, dateKey())),
+    h('div', { class: 'stack daily-challenge-card card' },
+      thoughtItem
+        ? h('a', { class: 'daily-thought-row', href: `#/thought/${encodeURIComponent(thoughtItem.id)}` },
+          h('div', { class: 'row-wrap' },
+            thoughtItem.lc != null ? h('span', { class: 'mono small muted' }, `#${thoughtItem.lc}`) : null,
+            h('span', { class: `pill diff-${String(thoughtItem.difficulty || '').toLowerCase()}` }, thoughtItem.difficulty),
+            h('b', null, thoughtItem.title),
+            companyChips(thoughtItem.companies, { size: 'xs' })),
+          h('span', { class: 'btn btn-sm btn-primary' }, 'Walk through it →'))
+        : null,
+      questionItems.length
+        ? h('div', { class: 'grid daily-questions' }, questionItems.map(dailyQuestionCard))
+        : h('p', { class: 'muted small' }, 'No drill questions available yet.')))
+}
+
+function buildCompanyTrackSection() {
+  const el = h('div', { class: 'stack' })
+  let selected = getSetting('targetCompanies', [])
+
+  const update = () => {
+    const pool = selected.length ? problems.filter(problem => matchesCompanies(problem, selected)) : problems.filter(problem => (problem.companies || []).length)
+    const picked = [...pool].sort((a, b) => (b.companies?.length || 0) - (a.companies?.length || 0) || (a.lc ?? 9999) - (b.lc ?? 9999)).slice(0, 8)
+    el.replaceChildren(
+      h('div', { class: 'spread' },
+        h('span', { class: 'section-title' }, 'Company tracks'),
+        h('span', { class: 'small muted' }, selected.length ? `${pool.length} matching` : 'pick a target company')),
+      companyFilter({ selected, onChange: next => { selected = next; setSetting('targetCompanies', next); update() } }),
+      picked.length
+        ? h('div', { class: 'stack-sm track-list' }, picked.map(problem => h('a', { class: 'card card-hover track-row', href: `#/problems/${encodeURIComponent(problem.id)}` },
+          h('div', { class: 'row-wrap grow' },
+            problem.lc != null ? h('span', { class: 'mono small muted' }, `#${problem.lc}`) : null,
+            h('b', null, problem.title),
+            h('span', { class: `pill diff-${String(problem.difficulty || '').toLowerCase()}` }, problem.difficulty)),
+          companyChips(problem.companies, { size: 'xs' }))))
+        : h('p', { class: 'muted small' }, 'No problems tagged for that company yet.'))
+  }
+
+  update()
+  return el
+}
+
+export default async function render(container) {
   const page = h('div', { class: 'page' })
   container.appendChild(page)
 
-  const countdownEls = { days: h('b'), hours: h('b'), minutes: h('b'), seconds: h('b') }
-  const tickCountdown = () => {
-    const parts = countdownParts()
-    for (const key of Object.keys(countdownEls)) countdownEls[key].textContent = String(parts[key]).padStart(2, '0')
-  }
+  const thoughtItem = await loadTodaysThought()
+  const interviewEl = buildInterviewControl()
+  const dailySection = buildDailyChallengeSection(thoughtItem)
+  const trackSection = buildCompanyTrackSection()
 
   let mapOpen = null
-  const draw = () => {
-    const levelInfo = getLevelInfo()
-    const bite = nextIncompleteBite()
-    const planLeft = planMinutesRemaining()
 
-    const hero = h('div', { class: 'hero-main' },
-      bite
-        ? h('a', { class: 'btn btn-primary hero-cta', href: hrefFor(bite.id) },
-          h('span', { class: 'hero-cta-play' }, '▶'),
-          h('span', { class: 'hero-cta-text' }, h('small', null, `Continue · ${bite.minutes}m`), h('b', null, bite.title)))
-        : h('a', { class: 'btn btn-primary hero-cta', href: '#/course' },
-          h('span', { class: 'hero-cta-play' }, '🎉'), h('span', { class: 'hero-cta-text' }, h('small', null, 'Core course complete'), h('b', null, 'Review the tree'))),
-      h('span', { class: 'eyebrow' }, interviewLabel),
-      h('div', { class: 'countdown' },
-        h('div', { class: 'countdown-unit' }, countdownEls.days, h('span', null, 'days')),
-        h('div', { class: 'countdown-unit' }, countdownEls.hours, h('span', null, 'hrs')),
-        h('div', { class: 'countdown-unit' }, countdownEls.minutes, h('span', null, 'min')),
-        h('div', { class: 'countdown-unit' }, countdownEls.seconds, h('span', null, 'sec'))),
-      h('div', { class: 'grid-4', style: 'gap:10px' },
-        h('div', { class: 'stat' }, h('span', { class: 'stat-value', style: 'color:var(--amber)' }, `Lv ${levelInfo.level}`), h('span', { class: 'stat-label' }, `${levelInfo.xp} XP`)),
-        h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${getStreak()}🔥`), h('span', { class: 'stat-label' }, 'day streak')),
-        h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, formatMinutes(getStudyMinutes({ todayOnly: true }))), h('span', { class: 'stat-label' }, 'today')),
-        h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, formatMinutes(planLeft)), h('span', { class: 'stat-label' }, 'plan left'))),
-      h('div', { class: 'progress' }, h('div', { style: { width: `${Math.min(100, (1 - planLeft / Math.max(1, totalPlanMinutes)) * 100)}%` } })))
+  const draw = () => {
+    const newVisitor = isNewVisitor()
+    const heroEl = newVisitor ? welcomeHero() : returningHero(interviewEl)
 
     const recs = recommendNext({ limit: 3 })
     const nextSection = h('div', { class: 'stack' },
-      h('span', { class: 'section-title' }, 'Do this next'),
+      h('span', { class: 'section-title' }, 'Recommended next'),
       h('div', { class: 'grid-3' }, recs.map(rec => h('a', { class: 'card card-hover stack-sm', href: rec.href },
         h('div', { class: 'spread' },
           h('span', { class: `pill pill-${kindColor[rec.kind] || 'teal'}` }, rec.kind.replace('-', ' ')),
@@ -142,12 +284,13 @@ export default function render(container) {
             h('div', { class: 'heat-bar' }, h('div', { style: { width: `${record.mastery * 100}%` } })))
         })))))
 
-    page.replaceChildren(hero, nextSection, courseMap, quickSection, algoSection, statsSection)
-    tickCountdown()
+    const sections = newVisitor
+      ? [heroEl, dailySection, trackSection, courseMap, quickSection]
+      : [heroEl, dailySection, nextSection, trackSection, courseMap, quickSection, algoSection, statsSection]
+    page.replaceChildren(...sections)
   }
 
   draw()
-  const timer = setInterval(tickCountdown, 1000)
   let lastSignature = ''
   const signature = state => `${state.xp}|${Object.keys(state.items).length}|${Object.keys(state.bites).length}|${Object.keys(state.checkpoints).length}|${state.sessions.length}|${Math.floor(state.studyMs / 60e3)}`
   lastSignature = signature(getState())
@@ -159,7 +302,6 @@ export default function render(container) {
     }
   })
   return () => {
-    clearInterval(timer)
     unsubscribe()
   }
 }

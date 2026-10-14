@@ -1,0 +1,41 @@
+.welcome-hero {
+  position: relative; overflow: hidden;
+  padding: 36px 28px; border-radius: var(--radius-lg);
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 14px; align-items: flex-start;
+}
+.welcome-hero::after {
+  content: ''; position: absolute; right: -60px; top: -60px; width: 240px; height: 240px; border-radius: 50%;
+  background: radial-gradient(circle, var(--teal-soft), transparent 70%); pointer-events: none;
+}
+.welcome-hero h1 { max-width: 640px; font-size: 30px; }
+.welcome-sub { max-width: 560px; }
+
+.interview-control { font-size: 13px; }
+.interview-date-input {
+  padding: 7px 10px; border-radius: 9px; border: 1px solid var(--border-strong);
+  background: var(--surface-2); color: var(--text); font: inherit;
+}
+
+.hero-stat-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.goal-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.hero-stats { flex: 1; min-width: 220px; }
+
+.daily-challenge-card { gap: 14px; }
+.daily-thought-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border); color: inherit;
+}
+.daily-thought-row:hover { text-decoration: none; }
+.daily-questions { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.daily-question { padding: 14px; }
+.daily-question .item { gap: 8px; }
+
+.track-list { gap: 8px; }
+.track-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; }
+
+@media (max-width: 760px) {
+  .welcome-hero { padding: 26px 18px; }
+  .welcome-hero h1 { font-size: 24px; }
+  .hero-stat-row { gap: 14px; }
+}

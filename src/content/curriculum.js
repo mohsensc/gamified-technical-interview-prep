@@ -103,7 +103,7 @@ const unitDefs = [
         { type: 'mock', ref: 'tips', title: 'Phrases that keep you talking', minutes: 4 },
       ] },
       { id: 'ic-narrate', title: 'Narrate the templates', skills: ['communication', 'graph-dfs', 'graph-bfs'], lessons: [], algos: [], narrate: true },
-      { id: 'ic-diagnose', title: 'Diagnose Google problems', skills: ['ds-diagnosis', 'constraints'], lessons: [], algos: [], googleDiagnose: true },
+      { id: 'ic-diagnose', title: 'Diagnose curated problems', skills: ['ds-diagnosis', 'constraints'], lessons: [], algos: [], googleDiagnose: true },
       { id: 'ic-mock', title: 'Full mock', skills: ['communication'], lessons: [], algos: [], extraBites: [
         { type: 'mock', ref: 'sim', title: 'Timed mock interview', minutes: 20 },
       ] },
@@ -192,6 +192,14 @@ const flatModules = unitDefs.flatMap(unit => unit.modules.map(mod => ({ mod, uni
 const moduleDefById = Object.fromEntries(flatModules.map(({ mod, unit }) => [mod.id, { mod, unit }]))
 const gapModule = Object.fromEntries(flatModules.filter(({ mod }) => mod.gap).map(({ mod }) => [mod.gap, mod.id]))
 
+const skillHomeModule = new Map()
+for (const { mod } of flatModules) {
+  mod.skills.forEach((skill, index) => {
+    const existing = skillHomeModule.get(skill)
+    if (!existing || index < existing.index) skillHomeModule.set(skill, { id: mod.id, index })
+  })
+}
+
 const gapSlugOf = id => {
   const match = /^gaps:([^:]+):/.exec(id || '')
   return match ? match[1] : null
@@ -245,7 +253,8 @@ const itemMatchesModule = (item, mod) => {
   if (!skills.length) return false
   const primary = mod.skills[0]
   if (skills[0] === primary) return true
-  return skills.includes(primary) && mod.skills.includes(skills[0])
+  if (skills.includes(primary) && mod.skills.includes(skills[0])) return true
+  return skillHomeModule.get(skills[0])?.id === mod.id
 }
 
 const moduleItemCache = new Map()
@@ -302,11 +311,11 @@ const buildModule = (mod, unit) => {
   const cards = items.filter(item => item.kind === 'card')
   const quizzable = items.filter(item => item.kind === 'mcq' || item.kind === 'generator')
   const buildable = items.filter(item => item.kind === 'cloze' || item.kind === 'parsons')
-  const probs = mod.googleDiagnose ? problems.filter(problem => problem.google) : moduleProblems(mod)
+  const probs = mod.googleDiagnose ? problems.filter(problem => (problem.companies || []).length) : moduleProblems(mod)
   if (cards.length >= 3) add({ type: 'cards', slot: 'cards', title: 'Flash cards', minutes: biteMinutes.cards, skills: mod.skills, mode: 'cards', scope, rank: 4 })
   if (quizzable.length >= 3) add({ type: 'rapid', slot: 'rapid', title: 'Rapid fire', minutes: biteMinutes.rapid, skills: mod.skills, mode: 'rapid', scope, rank: 2 })
   if (buildable.length) add({ type: 'quiz', slot: 'build', title: 'Fill & order the code', minutes: biteMinutes.quiz, skills: mod.skills, mode: 'mixed', scope: { ...scope, kinds: ['cloze', 'parsons'] }, rank: 7 })
-  if (probs.length >= 2) add({ type: 'diagnose', slot: 'diagnose', title: mod.googleDiagnose ? 'Diagnose: Google set' : 'Diagnose the problem', minutes: mod.googleDiagnose ? 8 : biteMinutes.diagnose, skills: [...new Set(['ds-diagnosis', ...mod.skills])], mode: 'diagnose', scope: mod.googleDiagnose ? { googleOnly: true } : scope, rank: 3.5 })
+  if (probs.length >= 2) add({ type: 'diagnose', slot: 'diagnose', title: mod.googleDiagnose ? 'Diagnose: curated set' : 'Diagnose the problem', minutes: mod.googleDiagnose ? 8 : biteMinutes.diagnose, skills: [...new Set(['ds-diagnosis', ...mod.skills])], mode: 'diagnose', scope: mod.googleDiagnose ? { googleOnly: true } : scope, rank: 3.5 })
   if (mod.googleDiagnose) add({ type: 'rapid', slot: 'constraints', title: 'Constraint sprint', minutes: 3, skills: ['constraints', 'complexity'], mode: 'rapid', scope: { skills: ['constraints', 'complexity'] }, rank: 1 })
   if (coreTraces.length) add({ type: 'predict', slot: 'predict', ref: coreTraces[0].id, title: 'Predict the next step', minutes: biteMinutes.predict, skills: coreTraces[0].skills, mode: 'predict', scope, rank: 8 })
 
@@ -374,8 +383,8 @@ export const units = unitDefs.map(unit => {
 export const course = {
   id: 'course',
   kind: 'course',
-  title: 'Google SWE Intern Cram',
-  deadline: '2026-10-06T12:00:00',
+  title: 'CodeCram Interview Course',
+  deadline: null,
   minutes: units.reduce((sum, unit) => sum + unit.minutes, 0),
   units,
 }
@@ -452,7 +461,7 @@ export function problemsForNode(id) {
   const node = findNode(id)
   if (!node) return []
   if (node.kind === 'course') return problems
-  if (node.kind === 'module' && moduleDefById[id].mod.googleDiagnose) return problems.filter(problem => problem.google)
+  if (node.kind === 'module' && moduleDefById[id].mod.googleDiagnose) return problems.filter(problem => (problem.companies || []).length)
   return uniqueById(modulesUnder(node).flatMap(mod => moduleProblems(moduleDefById[mod.id].mod)))
 }
 

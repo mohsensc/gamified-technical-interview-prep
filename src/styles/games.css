@@ -4,6 +4,19 @@
 .boss-tile { border-color: color-mix(in srgb, var(--red) 40%, var(--border)); }
 .game-title { font-size: 22px; }
 
+.tile-skills { gap: 5px; margin-top: 2px; }
+.tile-chip { padding: 3px 9px; font-size: 11px; cursor: default; pointer-events: none; }
+.tile-meta { margin-top: auto; padding-top: 4px; }
+
+.daily-card { display: flex; align-items: center; gap: 18px; padding: 20px; }
+.daily-card-icon { font-size: 34px; line-height: 1; flex-shrink: 0; }
+.daily-card-title { font-size: 19px; font-weight: 750; }
+.daily-card-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+@media (max-width: 640px) {
+  .daily-card { flex-wrap: wrap; }
+  .daily-card-side { align-items: flex-start; width: 100%; }
+}
+
 .game-host { max-width: 760px; width: 100%; margin: 0 auto; }
 .game { display: flex; flex-direction: column; gap: 14px; }
 
@@ -42,15 +55,21 @@
 .game-combo { font-family: var(--mono); transition: background 0.2s, color 0.2s; }
 .game-combo.hot { background: var(--amber-soft); color: var(--amber); }
 .game-combo.blazing { background: var(--red-soft); color: var(--red); animation: game-pulse 0.9s ease-in-out infinite; }
+.game-combo-wrap { display: flex; flex-direction: column; gap: 3px; min-width: 64px; }
+.game-combo-bar { height: 3px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
+.game-combo-fill { height: 100%; width: 0%; background: var(--amber); transition: width 0.25s ease; }
+.game-daily-chip { align-self: flex-start; }
 
 .game-lives { display: flex; gap: 3px; font-size: 20px; line-height: 1; }
 .game-lives .heart { color: var(--red); transition: transform 0.2s, opacity 0.2s; }
 .game-lives .heart.lost { opacity: 0.18; transform: scale(0.8); }
 .game-lives.shake { animation: game-shake 0.4s ease; }
+.game-lives.critical .heart:not(.lost) { animation: game-pulse 0.8s ease-in-out infinite; }
 
 .game-timer { height: 6px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
 .game-timer-fill { height: 100%; width: 100%; background: var(--sky); transition: width 0.1s linear, background 0.3s; }
 .game-timer-fill.low { background: var(--red); }
+.game-timer-fill.critical { animation: game-pulse 0.5s ease-in-out infinite; }
 .game-timer-text { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
 .game-boss { display: flex; flex-direction: column; gap: 4px; }
@@ -166,12 +185,32 @@
 @keyframes game-rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes game-pop { 0% { transform: scale(0.85); } 100% { transform: scale(1); } }
 
+.heap-ask, .race-ask { text-transform: none; }
+.heap-ask-cap { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.heap-row, .race-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.heap-box, .race-box {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface-2); font-family: var(--mono); flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.race-box { width: 40px; height: 40px; font-weight: 700; font-size: 14px; }
+.heap-val { font-weight: 700; font-size: 15px; }
+.heap-idx { font-size: 10px; color: var(--faint); }
+.heap-box.heap-current { border-color: var(--amber); background: var(--amber-soft); }
+.heap-box.heap-parent, .heap-box.heap-left, .heap-box.heap-right { border-color: var(--teal); background: var(--teal-soft); }
+.race-box.race-l { border-color: var(--sky); background: var(--sky-soft); }
+.race-box.race-r { border-color: var(--pink); background: var(--pink-soft); }
+.race-box.race-l.race-r { border-color: var(--green); background: var(--green-soft); }
+.race-target { margin-top: 8px; }
+
 @media (max-width: 640px) {
   .game-choices { grid-template-columns: 1fr; }
   .trav-wrap { flex-direction: column; }
   .ptr-columns { grid-template-columns: 1fr; }
   .game-prompt { font-size: 17px; }
   .game-final-score { font-size: 42px; }
+  .heap-box, .race-box { width: 36px; height: 36px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

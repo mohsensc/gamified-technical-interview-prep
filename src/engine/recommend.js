@@ -1,12 +1,26 @@
 import { allBites, allModules, findNode, hrefFor, units, algorithmById } from '../content/curriculum.js'
 import { skills as skillInfo } from '../content/skills.js'
-import { getState, getEvents, getBiteStatus, getNodeProgress, getSessions, dueItems, getMissed, getCheckpoint } from '../store.js'
+import { getState, getEvents, getBiteStatus, getNodeProgress, getSessions, dueItems, getMissed, getCheckpoint, getSetting, setSetting } from '../store.js'
 import { practiceHref } from './session.js'
 
-export const interviewAt = new Date(2026, 9, 6, 12, 0, 0)
+const interviewSettingKey = 'interviewAt'
+const noDeadlineHorizonHours = 24 * 365
+
+export function getInterviewAt() {
+  const iso = getSetting(interviewSettingKey, null)
+  if (!iso) return null
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export function setInterviewAt(value) {
+  const date = value ? new Date(value) : null
+  setSetting(interviewSettingKey, date && !Number.isNaN(date.getTime()) ? date.toISOString() : null)
+}
 
 export function hoursUntilInterview(now = Date.now()) {
-  return (interviewAt.getTime() - now) / 3600e3
+  const at = getInterviewAt()
+  return at ? (at.getTime() - now) / 3600e3 : noDeadlineHorizonHours
 }
 
 const label = skill => skillInfo[skill]?.label || skill
@@ -212,7 +226,7 @@ export function recommendNext({ limit = 3 } = {}) {
   }
 
   if (!candidates.length) {
-    add({ title: 'Diagnose Google problems', reason: 'Everything on track, keep diagnosis sharp', href: practiceHref('diagnose', { googleOnly: true }), minutes: 5, kind: 'drill', skills: ['ds-diagnosis'], score: 1 })
+    add({ title: 'Diagnose curated problems', reason: 'Everything on track, keep diagnosis sharp', href: practiceHref('diagnose', { googleOnly: true }), minutes: 5, kind: 'drill', skills: ['ds-diagnosis'], score: 1 })
   }
 
   for (const candidate of candidates) {

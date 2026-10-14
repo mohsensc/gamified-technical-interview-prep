@@ -141,6 +141,134 @@ const puzzles = [
         distractors: ['tail.next = None', 'head = newTail', 'newTail = tail'],
       }
     } },
+  { id: 'remove-head', d: 1, title: 'Remove the head node', skills: ['linked-list'],
+    build() {
+      const values = shuffle(distinctValues(4))
+      return {
+        nodes: chain('n', values), env: { head: 'n0' },
+        resultFrom: 'head', expected: values.slice(1),
+        rows: [['n0', 'n1', 'n2', 'n3']],
+        template: '???\n\nreturn head',
+        correct: ['head = head.next'],
+        distractors: ['head.next = head', 'head = head.next.next', 'head.next = None'],
+      }
+    } },
+  { id: 'insert-before', d: 2, title: 'Insert node before p (prev given)', skills: ['linked-list'],
+    build() {
+      const [v1, v2, v3, v4] = distinctValues(4)
+      const nodes = { ...chain('n', [v1, v2, v4]), x: { val: v3, next: null } }
+      return {
+        nodes, env: { head: 'n0', prev: 'n0', p: 'n1', node: 'x' },
+        resultFrom: 'head', expected: [v1, v3, v2, v4],
+        rows: [['n0', 'n1', 'n2'], [null, 'x']],
+        template: '???\n\nreturn head',
+        correct: ['node.next = p', 'prev.next = node'],
+        distractors: ['prev.next = p', 'node.next = prev', 'p.next = node'],
+      }
+    } },
+  { id: 'remove-after-dummy', d: 1, title: 'Remove the first real node via a dummy', skills: ['linked-list'],
+    build() {
+      const values = shuffle(distinctValues(4))
+      const nodes = { d: { val: 'D', next: 'n0' }, ...chain('n', values) }
+      return {
+        nodes, env: { dummy: 'd', head: 'n0' },
+        resultFrom: 'dummy', skipFirst: true, expected: values.slice(1),
+        rows: [['d', 'n0', 'n1', 'n2', 'n3']],
+        template: '???\n\nreturn dummy.next',
+        correct: ['dummy.next = head.next'],
+        distractors: ['head.next = dummy.next', 'dummy.next = head', 'head = dummy.next'],
+      }
+    } },
+  { id: 'detach-tail', d: 1, title: 'Detach the tail node', skills: ['linked-list'],
+    build() {
+      const values = distinctValues(4)
+      return {
+        nodes: chain('n', values), env: { head: 'n0', newTail: 'n2', tail: 'n3' },
+        resultFrom: 'head', expected: values.slice(0, 3),
+        rows: [['n0', 'n1', 'n2', 'n3']],
+        template: '???\n\nreturn head',
+        correct: ['newTail.next = None'],
+        distractors: ['tail.next = None', 'newTail = tail', 'tail = newTail'],
+      }
+    } },
+  { id: 'merge-step-b', d: 2, title: 'Merge step: l2.val < l1.val', skills: ['linked-list', 'two-pointers'],
+    build() {
+      const [v1, v2, v3, v4] = distinctValues(4)
+      const nodes = { d: { val: 'D', next: null }, a0: { val: v3, next: 'a1' }, a1: { val: v4, next: null }, b0: { val: v1, next: 'b1' }, b1: { val: v2, next: null } }
+      return {
+        nodes, env: { dummy: 'd', tail: 'd', l1: 'a0', l2: 'b0' },
+        resultFrom: 'dummy', skipFirst: true, expected: [v1, v2], requireEnv: { tail: 'b0', l1: 'a0', l2: 'b1' },
+        rows: [['d', 'a0', 'a1'], [null, 'b0', 'b1']],
+        template: 'if l2.val < l1.val:\n    ???\nelse:\n    ...',
+        correct: ['tail.next = l2', 'l2 = l2.next', 'tail = tail.next'],
+        distractors: ['tail = l2.next', 'l2.next = tail', 'l1 = l1.next'],
+      }
+    } },
+  { id: 'swap-head-pair', d: 2, title: 'Swap the first two nodes, no dummy', skills: ['linked-list'],
+    build() {
+      const values = shuffle(distinctValues(4))
+      return {
+        nodes: chain('n', values), env: { head: 'n0', first: 'n0', second: 'n1' },
+        resultFrom: 'head', expected: [values[1], values[0], values[2], values[3]],
+        rows: [['n0', 'n1', 'n2', 'n3']],
+        template: '???',
+        correct: ['first.next = second.next', 'second.next = first', 'head = second'],
+        distractors: ['second = first.next', 'first.next = second', 'head = first'],
+      }
+    } },
+  { id: 'break-cycle', d: 2, title: 'Break a cycle at the tail', skills: ['linked-list', 'two-pointers'],
+    build() {
+      const values = shuffle(distinctValues(4))
+      const nodes = chain('n', values)
+      nodes.n3.next = 'n1'
+      return {
+        nodes, env: { head: 'n0', tail: 'n3' },
+        resultFrom: 'head', expected: values,
+        rows: [['n0', 'n1', 'n2', 'n3']],
+        template: '???\n\nreturn head',
+        correct: ['tail.next = None'],
+        distractors: ['head.next = None', 'tail = head', 'tail.next = head'],
+      }
+    } },
+  { id: 'add-dummy', d: 1, title: 'Prepend a dummy before head', skills: ['linked-list'],
+    build() {
+      const values = distinctValues(3)
+      const nodes = { ...chain('n', values), d: { val: 'D', next: null } }
+      return {
+        nodes, env: { head: 'n0', dummy: 'd' },
+        resultFrom: 'dummy', skipFirst: true, expected: values,
+        rows: [['d', 'n0', 'n1', 'n2']],
+        template: '???\n\nreturn dummy.next',
+        correct: ['dummy.next = head'],
+        distractors: ['head.next = dummy', 'dummy = head', 'dummy.next = dummy'],
+      }
+    } },
+  { id: 'reorder-step', d: 3, title: 'Interleave a and b by one step (reorder list)', skills: ['linked-list', 'two-pointers'],
+    build() {
+      const [v1, v2, v3, v4] = distinctValues(4)
+      const nodes = { a0: { val: v1, next: 'a1' }, a1: { val: v3, next: null }, b0: { val: v4, next: 'b1' }, b1: { val: v2, next: null } }
+      return {
+        nodes, env: { a: 'a0', b: 'b0', start: 'a0' },
+        resultFrom: 'start', expected: [v1, v4, v3], requireEnv: { a: 'a1', b: 'b1' },
+        rows: [['a0', 'a1'], ['b0', 'b1']],
+        template: '???',
+        correct: ['aNext = a.next', 'bNext = b.next', 'a.next = b', 'b.next = aNext', 'a = aNext', 'b = bNext'],
+        distractors: ['a.next = bNext', 'b.next = a', 'a = b'],
+      }
+    } },
+  { id: 'splice-between', d: 1, title: 'Splice a node between two adjacent nodes', skills: ['linked-list'],
+    build() {
+      const [v1, v2, v3] = distinctValues(3)
+      const nodes = { p: { val: v1, next: 'q' }, q: { val: v2, next: null }, x: { val: v3, next: null } }
+      return {
+        nodes, env: { head: 'p', a: 'p', b: 'q', node: 'x' },
+        resultFrom: 'head', expected: [v1, v3, v2],
+        rows: [['p', 'q'], [null, 'x']],
+        template: '???\n\nreturn head',
+        correct: ['node.next = b', 'a.next = node'],
+        distractors: ['a.next = b', 'node.next = a', 'b.next = node'],
+      }
+    } },
 ]
 
 const usablePuzzles = puzzles
@@ -396,6 +524,7 @@ function mount(container, api) {
     rules: ['build the lines', 'watch it run'],
     mode: 'lives',
     lives: 3,
+    seed: api.seed,
     onStart: ctx => nextPuzzle(ctx),
     onKey: (event, ctx) => {
       if (!spec || locked) return
@@ -426,5 +555,8 @@ export default {
   icon: '🔗',
   blurb: 'Rewire linked lists without losing nodes.',
   skills: ['linked-list'],
+  difficulty: 'Escalates with streak',
+  modeLabel: '3 lives',
+  supportsDaily: true,
   mount,
 }
