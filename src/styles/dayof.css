@@ -11,6 +11,7 @@
 
 .dayof-next {
   width: 100%; justify-content: space-between; padding: 16px 22px; font-size: 15px; gap: 14px;
+  white-space: normal; text-align: right;
 }
 .dayof-next b { font-weight: 800; font-size: 16px; }
 

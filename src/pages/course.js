@@ -1,6 +1,6 @@
 import { h, svg } from '../ui/h.js'
 import { breadcrumb } from '../ui/breadcrumb.js'
-import { course, units, allModules, findNode, hrefFor, pathTo, problemsForNode } from '../content/curriculum.js'
+import { course, units, findNode, hrefFor, pathTo, problemsForNode } from '../content/curriculum.js'
 import { getNodeProgress, getBiteStatus, getCheckpoint, subscribe } from '../store.js'
 import { modes, practiceHref } from '../engine/session.js'
 import { continueTarget } from '../engine/recommend.js'
@@ -102,9 +102,7 @@ function unitCard(unit, index, redraw) {
       hint ? h('span', { class: 'small crs-hint' }, `💡 ${hint}`) : null),
     h('button', { class: 'crs-expand' }, isOpen ? '▾' : '▸'))
   const actions = h('div', { class: 'row-wrap' },
-    h('a', { class: 'btn btn-sm btn-primary', href: practiceHref('mixed', { unitId: unit.id }) }, '▶ Play unit'),
-    h('a', { class: 'btn btn-sm', href: practiceHref('checkpoint', { unitId: unit.id }) }, cp?.passed ? 'Checkpoint ✓' : 'Checkpoint'),
-    h('a', { class: 'btn btn-sm btn-ghost', href: hrefFor(unit.id) }, 'Open ▸'),
+    h('a', { class: 'btn btn-sm btn-primary', href: hrefFor(unit.id) }, 'Open ▸'),
     checkpointPill(cp))
   const moduleList = isOpen ? h('div', { class: 'crs-module-list' }, unit.modules.map(mod => moduleRow(mod, redraw))) : null
   return h('div', { class: 'card crs-unit-card' }, head, actions, moduleList)
@@ -119,7 +117,7 @@ function renderOverview(container) {
     const header = h('div', { class: 'page-header' },
       h('div', null,
         h('h1', null, 'Course'),
-        h('p', null, `${units.length} units · ${allModules.length} modules · ${formatMinutes(course.minutes)} total · ${Math.round(overall * 100)}% complete`)),
+        h('p', { class: 'muted small' }, `${Math.round(overall * 100)}% complete · ${formatMinutes(course.minutes)} total`)),
       h('a', { class: 'btn btn-primary', href: continueTarget() }, 'Continue ▸'))
     page.replaceChildren(header, h('div', { class: 'crs-unit-grid' }, units.map((unit, index) => unitCard(unit, index, redraw))))
   }
@@ -166,11 +164,17 @@ function renderFocused(container, id) {
         ? h('div', { class: 'crs-bite-list' }, learnItems.map(biteRow))
         : h('p', { class: 'muted small' }, 'No lessons here — jump straight to practice.'))
 
+    const primaryModeIds = new Set(['mixed', 'diagnose', 'rapid'])
     const practiceSection = h('div', { class: 'card crs-section' },
       h('span', { class: 'section-title' }, 'Practice'),
       h('div', { class: 'crs-mode-grid' },
-        modes.filter(mode => mode.id !== 'checkpoint').map(mode =>
-          h('a', { class: 'btn btn-sm', href: practiceHref(mode.id, scope) }, `${mode.icon} ${mode.title}`))))
+        modes.filter(mode => primaryModeIds.has(mode.id)).map(mode =>
+          h('a', { class: 'btn btn-sm', href: practiceHref(mode.id, scope) }, `${mode.icon} ${mode.title}`))),
+      h('details', null,
+        h('summary', { class: 'muted small' }, 'More modes'),
+        h('div', { class: 'crs-mode-grid' },
+          modes.filter(mode => !primaryModeIds.has(mode.id) && mode.id !== 'checkpoint').map(mode =>
+            h('a', { class: 'btn btn-sm', href: practiceHref(mode.id, scope) }, `${mode.icon} ${mode.title}`)))))
 
     const problems = problemsForNode(id).slice(0, 6)
     const problemsSection = problems.length ? h('div', { class: 'card crs-section' },

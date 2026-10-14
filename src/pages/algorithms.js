@@ -9,6 +9,7 @@ import { allBites } from '../content/curriculum.js'
 import { problems } from '../content/index.js'
 import { skills as skillMeta } from '../content/skills.js'
 import algorithmsContent from '../content/algorithms.js'
+import { subnav } from '../ui/subnav.js'
 
 const branches = algorithmsContent.branches
 const branchById = Object.fromEntries(branches.map(b => [b.id, b]))
@@ -254,8 +255,9 @@ function renderTree(container, query) {
     levelLabel.map((label, i) => h('span', null, h('i', { style: { background: `var(--border-strong)`, opacity: 0.35 + i * 0.22 } }), label)))
 
   const page = h('div', { class: 'page algo-tree-page' },
+    subnav('learn', 'algorithms'),
     h('div', { class: 'page-header' },
-      h('div', null, h('h1', null, 'Algorithm Tree'), h('p', { class: 'muted' }, 'Pan, zoom, click a node. Lit nodes are the ones you already know.')),
+      h('h1', null, 'Algorithms'),
       h('div', { class: 'row' }, viewTreeChip, viewListChip)),
     h('div', { class: 'card algo-controls' },
       searchInput,
@@ -564,6 +566,7 @@ function renderDetail(container, algo, query) {
     nextHref ? h('a', { class: 'btn btn-ghost', href: nextHref }, 'Next →') : null)
 
   const page = h('div', { class: 'page algo-detail-page' },
+    subnav('learn', 'algorithms'),
     header,
     mnemonicHero,
     h('div', { class: 'grid-2 algo-pair' }, signals, traps),

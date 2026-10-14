@@ -5,48 +5,24 @@ import { companyMark } from '../ui/companies.js'
 import { companyById } from '../content/companies.js'
 import { cheatSheets, cheatSheetsByGroup } from '../content/cheatsheets.js'
 import { recordAnswer, getSetting, setSetting } from '../store.js'
+import { subnav } from '../ui/subnav.js'
 
 const sheetSkills = {
-  constraints: ['constraints'],
-  ladder: ['complexity'],
+  constraints: ['constraints', 'complexity'],
   algos: ['complexity'],
-  space: ['complexity'],
   signals: ['ds-diagnosis'],
-  'py-list': ['complexity'],
-  'py-dict-set': ['complexity'],
-  'py-deque': ['complexity'],
-  'py-heapq': ['heap'],
-  'py-bisect': ['binary-search'],
-  'py-str': ['complexity'],
-  'py-idioms': ['complexity'],
-  'tpl-two-pointers': ['two-pointers'],
-  'tpl-sliding-fixed': ['sliding-window'],
-  'tpl-sliding-variable': ['sliding-window'],
-  'tpl-binary-search': ['binary-search'],
-  'tpl-binary-search-answer': ['binary-search'],
-  'tpl-prefix-sum': ['prefix-sum'],
-  'tpl-monotonic-stack': ['monotonic-stack'],
-  'tpl-bfs-dfs-grid': ['grid'],
-  'tpl-topo-sort': ['topo-sort'],
-  'tpl-union-find': ['union-find'],
-  'tpl-dijkstra': ['dijkstra'],
-  'tpl-mst': ['mst'],
-  'tpl-backtracking': ['backtracking'],
-  'tpl-dp-1d': ['dp-1d'],
-  'tpl-dp-2d': ['dp-2d'],
-  'tpl-knapsack': ['dp-2d'],
-  'tpl-lis': ['binary-search'],
-  'tpl-intervals': ['intervals'],
-  'tpl-heap-topk': ['heap'],
-  'tpl-trie': ['trie'],
-  'tpl-bit-tricks': ['bit'],
-  'tree-traversal': ['tree-dfs', 'tree-bfs'],
-  'linked-list-surgery': ['linked-list'],
-  'recursion-memo-tabulation': ['dp-1d'],
-  'edge-cases': ['communication'],
-  'communication-script': ['communication'],
-  'behavioral-star': ['communication'],
-  'company-notes': ['communication'],
+  'python-ops': ['complexity'],
+  'two-pointers-windows': ['two-pointers', 'sliding-window'],
+  'binary-search': ['binary-search'],
+  'prefix-monostack': ['prefix-sum', 'monotonic-stack'],
+  'graph-traversal': ['graph-bfs', 'topo-sort', 'dijkstra'],
+  'unionfind-mst': ['union-find', 'mst'],
+  'backtracking-dp': ['backtracking', 'dp-1d', 'dp-2d'],
+  'intervals-heap': ['intervals', 'heap'],
+  'trie-bits': ['trie', 'bit'],
+  'core-templates': ['tree-dfs', 'tree-bfs', 'linked-list', 'dp-1d'],
+  'interview-communication': ['communication'],
+  'edge-cases-companies': ['communication'],
 }
 
 const sup = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' }
@@ -283,8 +259,8 @@ function buildPairQuiz(rows, { prompt, answerIndex, count, idPrefix }) {
   return questions
 }
 
-function buildConstraintsQuiz(sheet, count) {
-  const rows = sheet.rows
+function buildConstraintsQuiz(part, count, idPrefix) {
+  const rows = part.rows
   const candidates = shuffleArray(rows)
   const questions = []
   for (const entry of candidates) {
@@ -293,7 +269,7 @@ function buildConstraintsQuiz(sheet, count) {
     if (!distractorTexts.length) continue
     const distractors = shuffleArray(distractorTexts).slice(0, 3)
     questions.push({
-      id: `${sheet.id}:auto:${questions.length}:${Math.floor(Math.random() * 1e6)}`,
+      id: `${idPrefix}:auto:${questions.length}:${Math.floor(Math.random() * 1e6)}`,
       q: `${entry.n} → target complexity?`,
       choices: [entry.target, ...distractors],
       answer: 0,
@@ -303,13 +279,18 @@ function buildConstraintsQuiz(sheet, count) {
   return questions
 }
 
-function quizPoolFor(sheet) {
-  const manual = (sheet.quiz || []).map((item, i) => ({ id: `${sheet.id}:manual:${i}`, ...item }))
+function quizPoolForPart(part, idPrefix) {
+  const manual = (part.quiz || []).map((item, i) => ({ id: `${idPrefix}:manual:${i}`, ...item }))
   let auto = []
-  if (sheet.kind === 'constraints') auto = buildConstraintsQuiz(sheet, 8)
-  else if (sheet.kind === 'signals' && sheet.quizPrompt) auto = buildPairQuiz(sheet.rows, { prompt: sheet.quizPrompt, answerIndex: 1, count: 10, idPrefix: sheet.id })
-  else if (sheet.kind === 'table' && sheet.quizCol != null && sheet.quizPrompt) auto = buildPairQuiz(sheet.rows, { prompt: sheet.quizPrompt, answerIndex: sheet.quizCol, count: 8, idPrefix: sheet.id })
+  if (part.kind === 'constraints') auto = buildConstraintsQuiz(part, 8, idPrefix)
+  else if (part.kind === 'signals' && part.quizPrompt) auto = buildPairQuiz(part.rows, { prompt: part.quizPrompt, answerIndex: 1, count: 10, idPrefix })
+  else if (part.kind === 'table' && part.quizCol != null && part.quizPrompt) auto = buildPairQuiz(part.rows, { prompt: part.quizPrompt, answerIndex: part.quizCol, count: 8, idPrefix })
   return [...manual, ...auto]
+}
+
+function quizPoolFor(sheet) {
+  if (sheet.parts) return sheet.parts.flatMap((part, i) => quizPoolForPart(part, `${sheet.id}:p${i}`))
+  return quizPoolForPart(sheet, sheet.id)
 }
 
 function renderInlineQuiz(host, items, defaultSkills, { onClose } = {}) {
@@ -342,10 +323,22 @@ function renderInlineQuiz(host, items, defaultSkills, { onClose } = {}) {
   draw()
 }
 
+function buildPartBody(part) {
+  const builder = bodyBuilders[part.kind]
+  const inner = builder ? builder(part) : [h('p', { class: 'muted small' }, 'Nothing here yet.')]
+  return h('div', { class: 'cheat-part' },
+    part.title ? h('div', { class: 'cheat-part-title' }, part.title) : null,
+    ...inner)
+}
+
 function buildSheetCard(sheet, group) {
   const tone = group.tone
-  const builder = bodyBuilders[sheet.kind]
-  const body = builder ? builder(sheet) : [h('p', { class: 'muted small' }, 'Nothing here yet.')]
+  const body = sheet.parts
+    ? sheet.parts.map(buildPartBody)
+    : (() => {
+        const builder = bodyBuilders[sheet.kind]
+        return builder ? builder(sheet) : [h('p', { class: 'muted small' }, 'Nothing here yet.')]
+      })()
 
   const quizHost = h('div', { class: 'cheat-quiz-host' })
   let quizOpen = false
@@ -359,7 +352,7 @@ function buildSheetCard(sheet, group) {
   } }, 'Quiz me on this')
 
   const stored = getCollapsedState()
-  const isOpen = stored[sheet.id] !== false
+  const isOpen = stored[sheet.id] === true
 
   const details = h('details', { id: sheet.id, class: 'card cheat-card', open: isOpen || null, style: { '--sheet-tone': `var(--${tone})` } },
     h('summary', { class: 'cheat-card-head' },
@@ -464,8 +457,8 @@ export default function render(container) {
     group.sheets.map(sheet => buildSheetCard(sheet, group))))
 
   const page = h('div', { class: 'page cheat-page' },
-    h('div', { class: 'page-header' },
-      h('div', null, h('h1', null, 'Cheat sheet'), h('p', { class: 'muted' }, 'Scan it in 5 seconds. Click a row to copy, or copy a whole template. Printable.'))),
+    subnav('cheatsheet', 'cheatsheet'),
+    h('div', { class: 'page-header' }, h('h1', null, 'Cheat sheet')),
     toolbar,
     navStrip,
     quizHost,

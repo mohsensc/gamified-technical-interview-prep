@@ -6,6 +6,7 @@ import * as store from '../store.js'
 import { topics, topicById, problems } from '../content/index.js'
 import { skills } from '../content/skills.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { subnav } from '../ui/subnav.js'
 
 const decodeParam = value => {
   try { return decodeURIComponent(value) } catch { return value }
@@ -53,8 +54,12 @@ function renderGrid(container) {
         h('span', null, `${doneLessons}/${lessons.length} lessons`),
         h('span', null, `${(topic.traces || []).length} traces`)))
   })
+  const nextTopic = topics.find(topic => (topic.lessons || []).some(lesson => !seen(lesson.id))) || topics[0]
   container.append(h('div', { class: 'page learn-page' },
-    h('div', { class: 'page-header' }, h('h1', null, 'Learn')),
+    subnav('learn', 'learn'),
+    h('div', { class: 'page-header row' },
+      h('h1', null, 'Learn'),
+      nextTopic ? h('a', { class: 'btn btn-primary', href: `#/learn/${encodeURIComponent(nextTopic.id)}` }, 'Start next lesson') : null),
     cards.length ? h('div', { class: 'grid topic-grid' }, cards) : h('div', { class: 'empty card' }, 'No topics yet.')))
 }
 
@@ -210,6 +215,7 @@ function renderTopic(container, topic) {
   })
 
   container.append(h('div', { class: 'page learn-topic' },
+    subnav('learn', 'learn'),
     h('div', { class: 'page-header row' },
       h('a', { class: 'btn btn-ghost', href: '#/learn' }, '←'),
       h('span', { class: 'topic-icon' }, topic.icon || ''),

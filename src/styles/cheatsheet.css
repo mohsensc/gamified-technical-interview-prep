@@ -43,6 +43,10 @@
 .cheat-card[open] > .cheat-card-body { display: flex; }
 .cheat-card-footer { display: flex; justify-content: flex-end; }
 
+.cheat-part { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px dashed var(--border); }
+.cheat-part:first-child { padding-top: 0; border-top: none; }
+.cheat-part-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--sheet-tone, var(--muted)); }
+
 .cheat-row { cursor: pointer; border-radius: 10px; transition: background 0.12s, border-color 0.12s; border: 1px solid transparent; }
 .cheat-row:hover { background: var(--surface-2); }
 .cheat-row:focus-visible { outline: 2px solid var(--sky); outline-offset: 1px; }

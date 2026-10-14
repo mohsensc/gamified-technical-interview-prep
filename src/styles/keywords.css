@@ -32,10 +32,11 @@
 
 .kw[data-tip]::after {
   content: attr(data-tip);
+  display: none;
   position: absolute;
   left: 50%;
   bottom: calc(100% + 9px);
-  transform: translateX(-50%) translateY(4px);
+  transform: translateX(-50%);
   background: var(--surface-3);
   color: var(--text);
   border: 1px solid var(--border-strong);
@@ -46,16 +47,13 @@
   line-height: 1.4;
   white-space: normal;
   width: max-content;
-  max-width: 230px;
+  max-width: min(230px, calc(100vw - 24px));
   text-align: left;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.12s ease, transform 0.12s ease;
   z-index: 60;
 }
 .kw[data-tip]:hover::after, .kw[data-tip]:focus-visible::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  display: block;
 }
 
 .pill-accent { background: var(--surface-3); color: var(--muted); }

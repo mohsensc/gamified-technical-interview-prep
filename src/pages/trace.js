@@ -2,6 +2,7 @@ import { h } from '../ui/h.js'
 import { traces, traceById, topics } from '../content/index.js'
 import { skills } from '../content/skills.js'
 import { mountStepper } from '../viz/stepper.js'
+import { subnav } from '../ui/subnav.js'
 
 const galleryIds = new Set(['', 'all', 'gallery', 'index'])
 
@@ -38,6 +39,7 @@ function renderTrace(container, trace) {
   const inputIndex = Number(query.get('input')) || 0
   const host = h('div', { class: 'trace-host' })
   const page = h('div', { class: 'page trace-page' },
+    subnav('learn', null),
     h('div', { class: 'trace-nav' },
       h('a', { class: 'btn btn-ghost btn-sm', href: '#/trace/all' }, '← Traces'),
       h('span', { class: 'trace-crumb muted small' }, `${topicMeta(trace.topic).icon} ${topicMeta(trace.topic).title}`)),
@@ -55,8 +57,9 @@ function renderGallery(container, missingId) {
   const results = h('div', { class: 'trace-groups' })
   const count = h('span', { class: 'muted small' })
   const page = h('div', { class: 'page trace-gallery' },
+    subnav('learn', null),
     h('div', { class: 'page-header trace-gallery-head' },
-      h('div', null, h('h1', null, 'Traces'), h('p', { class: 'muted' }, 'Step through code. Watch the data move.')),
+      h('h1', null, 'Traces'),
       count),
     missingId ? h('div', { class: 'card tight trace-missing' }, `No trace “${missingId}”. Pick one below.`) : null,
     search,
@@ -99,9 +102,9 @@ function renderGallery(container, missingId) {
 
 function traceCard(trace) {
   return h('a', { class: 'card card-hover trace-card', href: `#/trace/${trace.id}` },
-    h('div', { class: 'trace-card-top' },
+    h('div', { class: 'trace-card-top', style: { flexWrap: 'wrap' } },
       h('strong', null, trace.title || trace.id),
-      trace.complexity?.time ? h('span', { class: 'pill pill-amber mono' }, trace.complexity.time) : null),
+      trace.complexity?.time ? h('span', { class: 'pill pill-amber mono', style: { whiteSpace: 'normal', textAlign: 'right' } }, trace.complexity.time) : null),
     trace.problem ? h('p', { class: 'muted small trace-card-problem' }, trace.problem) : null,
     h('div', { class: 'trace-card-skills' }, (trace.skills || []).slice(0, 3).map(id => h('span', { class: 'trace-skill' }, skillLabel(id)))))
 }

@@ -1,21 +1,8 @@
-.games-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-.game-tile { min-height: 132px; }
-.game-tile .tile-icon { font-size: 30px; }
+.games-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.game-tile { min-height: 104px; justify-content: flex-start; }
+.game-tile .tile-icon { font-size: 30px; line-height: 1; height: 34px; display: flex; align-items: center; }
 .boss-tile { border-color: color-mix(in srgb, var(--red) 40%, var(--border)); }
 .game-title { font-size: 22px; }
-
-.tile-skills { gap: 5px; margin-top: 2px; }
-.tile-chip { padding: 3px 9px; font-size: 11px; cursor: default; pointer-events: none; }
-.tile-meta { margin-top: auto; padding-top: 4px; }
-
-.daily-card { display: flex; align-items: center; gap: 18px; padding: 20px; }
-.daily-card-icon { font-size: 34px; line-height: 1; flex-shrink: 0; }
-.daily-card-title { font-size: 19px; font-weight: 750; }
-.daily-card-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-@media (max-width: 640px) {
-  .daily-card { flex-wrap: wrap; }
-  .daily-card-side { align-items: flex-start; width: 100%; }
-}
 
 .game-host { max-width: 760px; width: 100%; margin: 0 auto; }
 .game { display: flex; flex-direction: column; gap: 14px; }

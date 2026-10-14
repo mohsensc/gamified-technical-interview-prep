@@ -4,6 +4,7 @@ import { topics, problems } from '../content/index.js'
 import { skillGroups, skills } from '../content/skills.js'
 import { companyCounts } from '../content/companies.js'
 import { companyFilter } from '../ui/companies.js'
+import { subnav } from '../ui/subnav.js'
 import { buildSession, scopeFromQuery, practiceHref, modeById, modes, modeCounts } from '../engine/session.js'
 import { recommendNext } from '../engine/recommend.js'
 import {
@@ -20,6 +21,7 @@ const scopeKey = 'cram.practiceScope'
 const lengthOptions = [5, 10, 20, 0]
 const lengthLabel = n => (n ? String(n) : 'Endless')
 const hubModes = modes.filter(mode => mode.id !== 'checkpoint')
+const rapidSeconds = [60, 90, 120]
 
 const safeMastery = skill => { try { return getMastery(skill) ?? 0.3 } catch { return 0.3 } }
 const safeCount = fn => { try { return fn().length } catch { return 0 } }
@@ -51,12 +53,14 @@ function renderHub(container) {
   }
   let length = lengthOptions.includes(Number(saved.length)) ? Number(saved.length) : 10
   let timerOn = Boolean(saved.timerOn)
+  let selectedMode = modeById[saved.lastMode] && saved.lastMode !== 'checkpoint' ? saved.lastMode : null
+  let selectedRapidSeconds = rapidSeconds.includes(Number(saved.rapidSeconds)) ? Number(saved.rapidSeconds) : 90
 
   const root = h('div', { class: 'page practice-page' })
   container.append(root)
 
   function persist() {
-    writeScope({ ...scope, length, timerOn })
+    writeScope({ ...scope, length, timerOn, lastMode: selectedMode, rapidSeconds: selectedRapidSeconds })
   }
 
   function sessionOptions() {
@@ -66,8 +70,11 @@ function renderHub(container) {
     return options
   }
 
-  function cardHref(mode) {
-    return practiceHref(mode.id, scope, sessionOptions())
+  function startHref() {
+    if (!selectedMode) return null
+    if (selectedMode === 'rapid') return practiceHref('rapid', scope, { seconds: selectedRapidSeconds, timer: timerOn || undefined })
+    if (selectedMode === 'speed') return practiceHref('speed', scope, { seconds: 60, timer: timerOn || undefined })
+    return practiceHref(selectedMode, scope, sessionOptions())
   }
 
   function resetScope() {
@@ -172,37 +179,50 @@ function renderHub(container) {
       h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Length'), lengthSeg),
       h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Timer'), timerSeg))
 
-    const modeCards = hubModes.map(mode => {
+    const filtersSummary = anyActive ? 'Filters & length (active)' : 'Filters & length'
+    const filtersDetails = h('details', { class: 'practice-filters', open: anyActive || null },
+      h('summary', { class: 'muted small' }, filtersSummary),
+      h('div', { class: 'stack' }, scopeCard, settingsCard))
+
+    const modeTiles = hubModes.map(mode => {
       const count = counts[mode.id] ?? 0
       const countLabel = mode.seconds ? null : h('span', { class: 'practice-mode-count' }, count ? `${count} item${count === 1 ? '' : 's'}` : 'none yet')
-      const body = [
+      const active = selectedMode === mode.id
+      const tile = h('button', {
+        type: 'button',
+        class: `tile practice-mode-card${count ? '' : ' is-empty'}${active ? ' active' : ''}`,
+      },
         h('div', { class: 'practice-mode-icon' }, mode.icon),
         h('div', { class: 'practice-mode-title' }, mode.title),
         h('div', { class: 'practice-mode-blurb muted small' }, mode.blurb),
-        countLabel,
-      ]
-      if (mode.id === 'rapid') {
-        return h('div', { class: `tile practice-mode-card${count ? '' : ' is-empty'}` },
-          ...body,
-          h('div', { class: 'row practice-mode-actions' }, [60, 120].map(secs => h('a', {
-            class: 'btn btn-sm', href: practiceHref('rapid', scope, { seconds: secs, timer: timerOn || undefined }),
-          }, `${secs}s`))))
-      }
-      if (mode.id === 'speed') {
-        return h('a', {
-          class: `tile practice-mode-card${count ? '' : ' is-empty'}`,
-          href: practiceHref('speed', scope, { seconds: 60, timer: timerOn || undefined }),
-        }, ...body, h('span', { class: 'practice-mode-count' }, '60s, go'))
-      }
-      return h('a', { class: `tile practice-mode-card${count ? '' : ' is-empty'}`, href: cardHref(mode) }, ...body)
+        countLabel)
+      tile.addEventListener('click', () => { selectedMode = mode.id; draw() })
+      return tile
     })
 
+    const rapidOptionsRow = selectedMode === 'rapid'
+      ? h('div', { class: 'row-wrap practice-rapid-seconds' },
+        h('span', { class: 'small muted' }, 'Duration'),
+        rapidSeconds.map(secs => h('button', {
+          type: 'button',
+          class: `chip${selectedRapidSeconds === secs ? ' active' : ''}`,
+          onclick: () => { selectedRapidSeconds = secs; draw() },
+        }, `${secs}s`)))
+      : null
+
+    const startLabel = selectedMode ? `Start · ${modeById[selectedMode].title}` : 'Pick a mode above'
+    const startBtn = h('a', {
+      class: `btn btn-primary btn-lg practice-start${selectedMode ? '' : ' disabled'}`,
+      href: startHref() || '#',
+      onclick: event => { if (!selectedMode) event.preventDefault() },
+    }, startLabel)
+
     root.replaceChildren(
-      h('div', { class: 'page-header' },
-        h('div', null, h('h1', null, 'Practice'), h('p', { class: 'muted' }, 'Pick a scope, pick a mode. It sticks around.'))),
-      scopeCard,
-      settingsCard,
-      h('div', { class: 'grid practice-mode-grid' }, modeCards))
+      subnav('practice', 'practice'),
+      h('div', { class: 'page-header' }, h('h1', null, 'Practice')),
+      h('div', { class: 'grid practice-mode-grid' }, modeTiles),
+      h('div', { class: 'stack practice-start-wrap' }, rapidOptionsRow, startBtn),
+      filtersDetails)
   }
 
   draw()

@@ -2,6 +2,7 @@ import { h, toast } from '../ui/h.js'
 import { codeBlock } from '../ui/code.js'
 import { chapters, chapterById } from '../content/handbook.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { subnav } from '../ui/subnav.js'
 
 let panelRenderer = null
 const loadPanelRenderer = () => {
@@ -106,9 +107,11 @@ const listSection = section => h('div', { class: 'hb-checklist' },
   section.items.map(item => h('label', { class: 'hb-check' }, h('input', { type: 'checkbox' }), h('span', null, rich(item)))))
 
 const narrationSection = section => h('div', { class: 'hb-narration' },
-  section.items.map(template => h('div', { class: 'hb-narration-card' },
+  section.items.map(template => h('div', { class: 'hb-narration-card', style: { minWidth: 0 } },
     h('div', { class: 'hb-narration-title' }, stripMarks(template.title)),
-    template.lines.map(line => h('div', { class: 'hb-say' }, h('span', { class: 'chip' }, stripMarks(line.cue)), h('span', null, rich(line.say)))))))
+    template.lines.map(line => h('div', { class: 'hb-say', style: { minWidth: 0 } },
+      h('span', { class: 'chip' }, stripMarks(line.cue)),
+      h('span', { style: { minWidth: 0, overflowWrap: 'anywhere' } }, rich(line.say)))))))
 
 const sectionRenderers = {
   bars: barsSection,
@@ -134,7 +137,8 @@ const renderSection = section => {
 
 const renderList = container => {
   container.append(h('div', { class: 'page' },
-    h('div', { class: 'page-header' }, h('h1', null, 'Handbook'), h('span', { class: 'muted' }, 'Cheat sheets. Tables, trees, templates.')),
+    subnav('handbook', 'handbook'),
+    h('div', { class: 'page-header' }, h('h1', null, 'Handbook')),
     h('div', { class: 'grid hb-grid' },
       chapters.map(chapter => h('a', { class: 'card hb-chapter', href: `#/handbook/${chapter.id}` },
         h('div', { class: 'hb-chapter-icon' }, chapter.icon),
@@ -152,6 +156,7 @@ export default function render(container, params = {}) {
   const previous = chapters[index - 1]
   const next = chapters[index + 1]
   container.append(h('div', { class: 'page hb-page' },
+    subnav('handbook', 'handbook'),
     h('div', { class: 'page-header' },
       h('a', { class: 'btn btn-ghost', href: '#/handbook' }, '← Handbook'),
       h('h1', null, `${chapter.icon} ${stripMarks(chapter.title)}`)),

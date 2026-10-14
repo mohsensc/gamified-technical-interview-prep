@@ -5,6 +5,7 @@ import { createSignatureEditor } from '../ui/signature.js'
 import { persistOverride } from '../ui/override.js'
 import { rich, stripMarks } from '../ui/rich.js'
 import { recordAnswer, markSeen, isSeen } from '../store.js'
+import { subnav } from '../ui/subnav.js'
 
 const commonTimes = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n^2)', 'O(n^3)', 'O(2^n)', 'O(n!)', 'O(V+E)', 'O(m·n)', 'O(n·k)', 'O(E log V)', 'O(n log k)', 'O(√n)']
 const drillSize = 16
@@ -447,6 +448,7 @@ function renderRunner(container, statement, allStatements) {
   }
 
   container.append(h('div', { class: 'page rd-page' },
+    subnav('learn', 'read'),
     h('div', { class: 'page-header row' },
       h('a', { class: 'btn btn-ghost', href: '#/read' }, '←'),
       statement.lc ? h('span', { class: 'mono muted lc-num' }, `#${statement.lc}`) : null,
@@ -547,8 +549,8 @@ function renderList(container, statements) {
   }, 'Random')
 
   container.append(h('div', { class: 'page rd-page' },
+    subnav('learn', 'read'),
     h('div', { class: 'page-header row' }, h('h1', null, 'Read & sign'), countEl, randomButton, h('a', { class: 'btn btn-ghost', href: '#/read/drill' }, 'Signature drill →')),
-    h('p', { class: 'muted' }, 'Read the full prompt, pick what matters, then type the exact signature from memory.'),
     h('div', { class: 'row problem-filters' }, searchInput, designChip, difficultyChips, doneChips),
     statements.length
       ? h('div', { class: 'card table-wrap' }, h('table', { class: 'problem-table' },
@@ -635,8 +637,8 @@ function renderDrill(container, statements) {
   }
 
   container.append(h('div', { class: 'page rd-page' },
+    subnav('learn', 'read'),
     h('div', { class: 'page-header row' }, h('a', { class: 'btn btn-ghost', href: '#/read' }, '←'), h('h1', null, 'Signature drill'), hud),
-    h('p', { class: 'muted' }, 'Title and a one-liner only — type the class and method signatures from memory.'),
     stage))
   drawCurrent()
 }

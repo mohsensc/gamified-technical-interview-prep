@@ -403,6 +403,11 @@
 .grade-btn {
   justify-content: center;
   gap: 6px;
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 .grade-again {

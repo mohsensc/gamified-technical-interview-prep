@@ -1,4 +1,5 @@
-import { runQuiz, part, pickByLevel } from './_engine.js'
+import { h } from '../ui/h.js'
+import { runQuiz, part, pickByLevel, shuffle, rand } from './_engine.js'
 
 const costs = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(α(n))', 'O(L)', 'O(k)']
 
@@ -101,7 +102,7 @@ const scenarios = [
     why: 'Counts track frequency; the queue holds candidates, dropping ones that became repeated.', op: ['Amortized cost per character?', 'O(1)', 'Each character enters and leaves the queue at most once.'], skills: ['arrays-hashing', 'queue-deque'] },
 ]
 
-export function makeQuestion(level = 1) {
+function structureQuestion(level) {
   const item = pickByLevel(scenarios, level)
   const index = scenarios.indexOf(item)
   const [opQ, opAnswer, opWhy] = item.op
@@ -121,11 +122,217 @@ export function makeQuestion(level = 1) {
   }
 }
 
+function heapPush(heap, value) {
+  heap.push(value)
+  let idx = heap.length - 1
+  while (idx > 0) {
+    const parent = Math.floor((idx - 1) / 2)
+    if (heap[parent] <= heap[idx]) break
+    ;[heap[parent], heap[idx]] = [heap[idx], heap[parent]]
+    idx = parent
+  }
+}
+
+function randomHeap(size) {
+  const values = shuffle(Array.from({ length: 30 }, (_, i) => i + 1)).slice(0, size)
+  const heap = []
+  for (const value of values) heapPush(heap, value)
+  return heap
+}
+
+function buildPushSteps(heap, value) {
+  const arr = [...heap, value]
+  const steps = []
+  let idx = arr.length - 1
+  while (idx > 0) {
+    const parent = Math.floor((idx - 1) / 2)
+    const swap = arr[idx] < arr[parent]
+    steps.push({ idx, parent, parentVal: arr[parent], val: arr[idx], swap, before: [...arr] })
+    if (!swap) break
+    ;[arr[idx], arr[parent]] = [arr[parent], arr[idx]]
+    idx = parent
+  }
+  return steps
+}
+
+function buildPopSteps(heap) {
+  const arr = [...heap]
+  const popped = arr[0]
+  const last = arr.pop()
+  if (!arr.length) return { popped, steps: [] }
+  arr[0] = last
+  const steps = []
+  let idx = 0
+  while (true) {
+    const left = 2 * idx + 1
+    const right = 2 * idx + 2
+    let smallest = idx
+    if (left < arr.length && arr[left] < arr[smallest]) smallest = left
+    if (right < arr.length && arr[right] < arr[smallest]) smallest = right
+    steps.push({
+      idx, val: arr[idx], target: smallest,
+      left: left < arr.length ? left : null, leftVal: left < arr.length ? arr[left] : null,
+      right: right < arr.length ? right : null, rightVal: right < arr.length ? arr[right] : null,
+      before: [...arr],
+    })
+    if (smallest === idx) break
+    ;[arr[idx], arr[smallest]] = [arr[smallest], arr[idx]]
+    idx = smallest
+  }
+  return { popped, steps }
+}
+
+function drawHeapArray(arr, roles = {}) {
+  return h('div', { class: 'heap-row' }, arr.map((val, i) => h('div', { class: `heap-box${roles[i] ? ` heap-${roles[i]}` : ''}` },
+    h('span', { class: 'heap-val' }, String(val)),
+    h('span', { class: 'heap-idx' }, String(i)))))
+}
+
+function heapStepVisual(caption, arr, roles) {
+  return h('div', { class: 'heap-ask' }, h('div', { class: 'heap-ask-cap' }, caption), drawHeapArray(arr, roles))
+}
+
+function heapPushQuestion(level) {
+  const size = Math.min(12, 5 + Math.floor(level / 1.4) + rand(3))
+  const heap = randomHeap(size)
+  const value = 1 + rand(30)
+  const steps = buildPushSteps(heap, value)
+  const parts = steps.map((step, i) => {
+    const roles = { [step.idx]: 'current', [step.parent]: 'parent' }
+    const swapLabel = `Swap with parent (idx ${step.parent}, val ${step.parentVal})`
+    const stopLabel = 'Stop — in place'
+    const answer = step.swap ? swapLabel : stopLabel
+    const why = step.swap ? `${step.val} < ${step.parentVal}, so it keeps bubbling up.` : `${step.val} ≥ ${step.parentVal}: the min-heap property holds here.`
+    return part(heapStepVisual(`Step ${i + 1} · index ${step.idx} (${step.val}) vs parent`, step.before, roles), answer, [swapLabel, stopLabel], why)
+  })
+  return {
+    id: `ds-match:heap:push:${size}:${value}`,
+    skills: ['ds-diagnosis', 'heap'],
+    tag: '🧱 Sift up',
+    tagClass: 'pill-sky',
+    summary: `Push ${value} into a size-${size} min-heap`,
+    prompt: `Push ${value} onto the heap — where does it settle?`,
+    parts,
+  }
+}
+
+function heapPopQuestion(level) {
+  const size = Math.min(12, 6 + Math.floor(level / 1.4) + rand(3))
+  const heap = randomHeap(size)
+  const { popped, steps } = buildPopSteps(heap)
+  if (!steps.length) return heapPushQuestion(level)
+  const parts = steps.map((step, i) => {
+    const roles = { [step.idx]: 'current' }
+    if (step.left != null) roles[step.left] = 'left'
+    if (step.right != null) roles[step.right] = 'right'
+    const options = []
+    if (step.left != null) options.push({ key: 'left', label: `Swap with left (idx ${step.left}, val ${step.leftVal})` })
+    if (step.right != null) options.push({ key: 'right', label: `Swap with right (idx ${step.right}, val ${step.rightVal})` })
+    options.push({ key: 'stop', label: 'Stop — smaller than both children' })
+    const answerKey = step.target === step.idx ? 'stop' : (step.target === step.left ? 'left' : 'right')
+    const answerOption = options.find(option => option.key === answerKey)
+    const distractors = options.map(option => option.label)
+    const why = answerKey === 'stop' ? `${step.val} is already ≤ both children.` : `The smaller child wins: swap with ${answerKey}.`
+    return part(heapStepVisual(`Step ${i + 1} · index ${step.idx} (${step.val}) vs children`, step.before, roles), answerOption.label, distractors, why)
+  })
+  return {
+    id: `ds-match:heap:pop:${size}`,
+    skills: ['ds-diagnosis', 'heap'],
+    tag: '🧱 Sift down',
+    tagClass: 'pill-sky',
+    summary: `Pop the min from a size-${size} heap (removed ${popped})`,
+    prompt: `Pop the min (${popped}) — sift the replacement down`,
+    parts,
+  }
+}
+
+function heapQuestion(level) {
+  return rand(2) === 0 ? heapPushQuestion(level) : heapPopQuestion(level)
+}
+
+function buildStackOps(level) {
+  const opsCount = Math.min(11, 5 + Math.floor(level / 1.3) + rand(3))
+  const stack = []
+  const ops = []
+  for (let i = 0; i < opsCount; i++) {
+    const doPop = stack.length > 0 && (rand(3) === 0 || i === opsCount - 1 && stack.length > 2 && rand(2) === 0)
+    if (doPop) {
+      const val = stack.pop()
+      ops.push({ type: 'pop', val })
+    } else {
+      const val = 1 + rand(99)
+      stack.push(val)
+      ops.push({ type: 'push', val })
+    }
+  }
+  if (!stack.length) {
+    const val = 1 + rand(99)
+    stack.push(val)
+    ops.push({ type: 'push', val })
+  }
+  return { ops, finalStack: [...stack] }
+}
+
+function stackOpsToCode(ops) {
+  const lines = ['stack = []']
+  for (const op of ops) lines.push(op.type === 'push' ? `stack.append(${op.val})` : 'stack.pop()')
+  return lines.join('\n')
+}
+
+function stackLabel(list) {
+  return `[${list.join(', ')}]`
+}
+
+function stackVariants(finalStack) {
+  const variants = new Set([stackLabel(finalStack)])
+  if (finalStack.length > 1) variants.add(stackLabel([...finalStack].reverse()))
+  if (finalStack.length > 1) {
+    const swapped = [...finalStack]
+    const n = swapped.length
+    ;[swapped[n - 1], swapped[n - 2]] = [swapped[n - 2], swapped[n - 1]]
+    variants.add(stackLabel(swapped))
+  }
+  if (finalStack.length > 2) variants.add(stackLabel(finalStack.slice(0, -1)))
+  if (finalStack.length > 2) variants.add(stackLabel(finalStack.slice(1)))
+  variants.add(stackLabel([...finalStack, finalStack[finalStack.length - 1]]))
+  return [...variants]
+}
+
+function stackQuestion(level) {
+  const { ops, finalStack } = buildStackOps(level)
+  const code = stackOpsToCode(ops)
+  const answer = stackLabel(finalStack)
+  const variants = stackVariants(finalStack)
+  const topVal = finalStack[finalStack.length - 1]
+  const prevVal = finalStack.length > 1 ? finalStack[finalStack.length - 2] : null
+  const poppedVal = [...ops].reverse().find(op => op.type === 'pop')?.val
+  const popDistractors = [...new Set([prevVal, poppedVal, 1 + rand(99), 1 + rand(99)].filter(v => v !== undefined && v !== null && v !== topVal))].map(String)
+  return {
+    id: `ds-match:stack:${ops.length}:${finalStack.join('-')}`,
+    skills: ['ds-diagnosis', 'stack'],
+    tag: '🥞 Predict the stack',
+    tagClass: 'pill-teal',
+    summary: `Stack after ${ops.length} ops`,
+    code,
+    parts: [
+      part('Stack now, bottom → top?', answer, variants, `Last in, first out: ${answer}.`),
+      part('Next stack.pop() returns?', String(topVal), popDistractors, `The top is the most recent value still on the stack: ${topVal}.`),
+    ],
+  }
+}
+
+export function makeQuestion(level = 1) {
+  const roll = rand(3)
+  if (roll === 0) return structureQuestion(level)
+  if (roll === 1) return heapQuestion(level)
+  return stackQuestion(level)
+}
+
 export default {
   id: 'ds-match',
   title: 'DS Match',
   icon: '🧩',
-  blurb: 'Scenario in, data structure and cost out.',
+  blurb: 'Scenario, heap sifts, and stack traces.',
   skills: ['ds-diagnosis', 'heap', 'stack', 'queue-deque'],
   difficulty: 'Up to Lv 6',
   modeLabel: '3 lives',
@@ -133,7 +340,7 @@ export default {
   mount: (container, api) => runQuiz(container, api, {
     title: 'DS Match',
     icon: '🧩',
-    rules: ['structure, then cost', 'combos multiply'],
+    rules: ['structure, heap, or stack', 'combos multiply'],
     mode: 'lives',
     lives: 3,
     speedMs: 12000,

@@ -7,6 +7,7 @@ import { rich, stripMarks } from '../ui/rich.js'
 import { companyChips } from '../ui/companies.js'
 import { overrideButton, persistOverride } from '../ui/override.js'
 import { companiesFor } from '../content/companies.js'
+import { subnav } from '../ui/subnav.js'
 
 const totalMs = 45 * 60 * 1000
 const sessionKey = 'mock:session'
@@ -427,6 +428,7 @@ export default function render(container) {
     container.replaceChildren()
     const body = h('div')
     container.append(h('div', { class: 'page mk-page' },
+      subnav('practice', 'mock'),
       h('div', { class: 'page-header' }, h('h1', null, 'Mock interview'), tabsBar(rerender)),
       body))
     if (mode === 'sim') {

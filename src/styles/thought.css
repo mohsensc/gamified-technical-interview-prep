@@ -1,15 +1,12 @@
-.thought-filters { display: flex; flex-direction: column; gap: 12px; }
 .thought-chip-row { gap: 8px; }
 .thought-start { align-self: flex-start; }
 
-.thought-mixed-card {
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--teal) 14%, var(--surface)), var(--surface));
-  border-color: color-mix(in srgb, var(--teal) 35%, var(--border));
+.thought-options {
+  padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface);
 }
-.thought-mixed-icon { font-size: 28px; flex-shrink: 0; }
-.thought-mixed-copy { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; }
-.thought-mixed-copy .kbd { margin-left: 6px; }
+.thought-options summary { cursor: pointer; list-style: none; color: var(--muted); font-weight: 600; font-size: 13px; }
+.thought-options summary::-webkit-details-marker { display: none; }
+.thought-options[open] summary { margin-bottom: 12px; }
 
 .thought-cat-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
 .thought-cat-card {

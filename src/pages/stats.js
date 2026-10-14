@@ -663,6 +663,42 @@ function renderEmpty() {
     renderGoalsSection())
 }
 
+const statsTabs = [
+  { id: 'progress', label: 'Progress' },
+  { id: 'mastery', label: 'Mastery' },
+  { id: 'activity', label: 'Activity' },
+  { id: 'company', label: 'Company' },
+  { id: 'history', label: 'History' },
+]
+
+function renderKeyStats(data) {
+  const coverage = data.breakdown.find(row => row.id === 'coverage')
+  const accuracy = data.breakdown.find(row => row.id === 'accuracy')
+  const scoreColor = data.score >= 75 ? 'var(--green)' : data.score >= 50 ? 'var(--amber)' : 'var(--red)'
+  const tile = (value, label, color) => h('div', { class: 'stat' }, h('span', { class: 'stat-value', style: color ? `color:${color}` : null }, value), h('span', { class: 'stat-label' }, label))
+  return h('div', { class: 'card grid-4 stats-key-numbers' },
+    tile(String(data.score), 'Readiness', scoreColor),
+    tile(`${getStreak()}🔥`, 'Day streak'),
+    tile(`${coverage?.pct ?? 0}%`, 'Course coverage'),
+    tile(accuracy?.pct == null ? '–' : `${accuracy.pct}%`, '7d accuracy'))
+}
+
+function renderTabBar(active, onChange) {
+  return h('div', { class: 'segmented stats-tabbar' }, statsTabs.map(tab => h('button', {
+    type: 'button',
+    class: `segmented-option${active === tab.id ? ' active' : ''}`,
+    onclick: () => onChange(tab.id),
+  }, tab.label)))
+}
+
+function renderTabContent(tab, state, pageState, companyIndex) {
+  if (tab === 'mastery') return h('div', { class: 'stack-lg' }, renderMasteryRadarSection(), renderMasterySection(), renderSkillExtremesSection(state))
+  if (tab === 'activity') return h('div', { class: 'stack-lg' }, renderSpeedSection(), renderXpMinutesSection(), h('div', { class: 'grid-2' }, renderActivitySection(), renderTimeOfDaySection()))
+  if (tab === 'company') return h('div', { class: 'stack-lg' }, h('div', { class: 'grid-2' }, renderCompanySection(companyIndex), renderKindSection()))
+  if (tab === 'history') return h('div', { class: 'stack-lg' }, renderMissedSection(), renderSessionsSection())
+  return h('div', { class: 'stack-lg' }, renderReadiness(), h('div', { class: 'grid-2' }, renderDailyGoalsSection(), renderBestsSection(state)), renderCourseSection(pageState), renderGoalsSection())
+}
+
 let thoughtItemsPromise = null
 function loadThoughtItemsOnce() {
   if (!thoughtItemsPromise) {
@@ -679,7 +715,7 @@ export default function render(container) {
   const page = h('div', { class: 'page stats-page' })
   container.append(page)
 
-  const pageState = { accuracyUnit: '', openUnits: new Set() }
+  const pageState = { accuracyUnit: '', openUnits: new Set(), activeTab: 'progress' }
   let thoughtItems = []
   let mounted = true
 
@@ -704,20 +740,13 @@ export default function render(container) {
       return
     }
     const companyIndex = buildCompanyIndex(thoughtItems)
+    const readinessData = computeReadiness()
     page.replaceChildren(
-      h('div', { class: 'page-header' }, h('h1', null, 'Stats'), h('p', { class: 'sub' }, 'How ready you are, and where to focus next.')),
-      renderReadiness(),
-      h('div', { class: 'grid-2' }, renderDailyGoalsSection(), renderBestsSection(state)),
-      h('div', { class: 'grid-2' }, renderAccuracySection(pageState), renderSpeedSection()),
-      h('div', { class: 'grid-2' }, renderMasteryRadarSection(), renderXpMinutesSection()),
-      renderMasterySection(),
-      renderCourseSection(pageState),
-      h('div', { class: 'grid-2' }, renderActivitySection(), renderTimeOfDaySection()),
-      h('div', { class: 'grid-2' }, renderCompanySection(companyIndex), renderKindSection()),
-      renderSkillExtremesSection(state),
-      renderMissedSection(),
-      renderSessionsSection(),
-      renderGoalsSection())
+      h('div', { class: 'page-header' }, h('h1', null, 'Stats')),
+      renderKeyStats(readinessData),
+      renderAccuracySection(pageState),
+      renderTabBar(pageState.activeTab, tab => { pageState.activeTab = tab; draw() }),
+      renderTabContent(pageState.activeTab, state, pageState, companyIndex))
   }
 
   draw()

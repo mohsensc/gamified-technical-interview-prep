@@ -3,6 +3,7 @@ import { codeBlock } from '../ui/code.js'
 import { rich } from '../ui/rich.js'
 import { renderMcq } from '../ui/items.js'
 import { getState, update, subscribe, recordAnswer } from '../store.js'
+import { subnav } from '../ui/subnav.js'
 
 const budgetMs = 3 * 3600e3
 const passPct = 80
@@ -213,8 +214,8 @@ function renderHome(container) {
 
     if (!sheets.length) {
       page.replaceChildren(
-        h('div', { class: 'page-header' },
-          h('div', null, h('span', { class: 'eyebrow' }, 'DAYOF'), h('h1', null, '3-hour final cram'))),
+        subnav('handbook', 'dayof'),
+        h('div', { class: 'page-header' }, h('h1', null, 'Interview day')),
         emptyCard('Building your sheets…', 'The cram sheets are still being written. This page will pick them up automatically once ready.'))
       return
     }
@@ -229,10 +230,8 @@ function renderHome(container) {
     const next = computeNextStep(sheets, dayof)
 
     const header = h('div', { class: 'page-header' },
-      h('div', null,
-        h('div', { class: 'row-wrap' }, h('span', { class: 'eyebrow' }, 'DAYOF'), h('span', { class: 'pill pill-amber' }, 'Interview today')),
-        h('h1', null, '3-hour final cram'),
-        h('p', { class: 'muted' }, 'Review → Test → Final sheets. One pass through, then you walk in.')))
+      h('h1', null, 'Interview day'),
+      h('span', { class: 'pill pill-amber' }, 'Interview today'))
 
     const nextBtn = h('a', { class: 'btn btn-primary btn-lg dayof-next', href: next.href }, h('span', null, 'Next step'), h('b', null, next.label))
 
@@ -254,7 +253,7 @@ function renderHome(container) {
       h('div', { class: `plan-block${allTestsPassed ? ' done' : allReviewed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, allTestsPassed ? '✓' : '2'), testStage),
       h('div', { class: `plan-block${allTestsPassed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, '3'), finalStage))
 
-    page.replaceChildren(header, nextBtn, timeline)
+    page.replaceChildren(subnav('handbook', 'dayof'), header, nextBtn, timeline)
   }
 
   loadSheets().then(result => {
@@ -552,7 +551,7 @@ function buildReview(page, sheet, sheets) {
   const toc = h('nav', { class: 'dayof-toc' }, tocLinks)
 
   const layout = h('div', { class: 'dayof-review-layout' }, toc, flowEl)
-  page.replaceChildren(backRow, header, layout)
+  page.replaceChildren(subnav('handbook', 'dayof'), backRow, header, layout)
 
   let finished = false
   function finishReview() {
@@ -611,6 +610,7 @@ function runTest(page, initialItems, title, retryHref, onComplete) {
       const retryBtn = misses.length ? h('button', { class: 'btn btn-primary', type: 'button' }, 'Retry misses') : null
       if (retryBtn) retryBtn.addEventListener('click', () => { items = misses.map(m => m.item); index = 0; results = []; draw() })
       page.append(
+        subnav('handbook', 'dayof'),
         h('div', { class: 'page-header' },
           h('div', null, h('h1', null, title), h('p', { class: 'muted' }, `${correct}/${items.length} correct`)),
           h('span', { class: `pill dayof-score-pill ${passed ? 'pill-green' : 'pill-red'}` }, `${pct}%${passed ? ' PASS' : ''}`)),
@@ -642,6 +642,7 @@ function runTest(page, initialItems, title, retryHref, onComplete) {
       nextBtn.disabled = false
     })
     page.append(
+      subnav('handbook', 'dayof'),
       h('div', { class: 'page-header' },
         h('h1', null, title),
         h('span', { class: 'pill' }, `${results.filter(r => r.correct).length} correct`)),
@@ -692,7 +693,7 @@ function summaryCard(sheet) {
 
 function buildFinalOverview(sheets) {
   const header = h('div', { class: 'page-header' },
-    h('div', null, h('span', { class: 'eyebrow' }, 'DAYOF'), h('h1', null, 'Final sheets'), h('p', { class: 'muted' }, 'One screen each. Scan right before you go in.')),
+    h('h1', null, 'Final sheets'),
     h('a', { class: 'btn btn-ghost', href: '#/dayof' }, '← DAYOF'))
 
   const grid = h('div', { class: 'grid-3 dayof-final-grid' }, sheets.map(sheet => summaryCard(sheet)))
@@ -711,7 +712,7 @@ function buildFinalOverview(sheets) {
     secHead('Script', 'pink', 'Say this out loud'),
     h('ul', { class: 'dayof-list' }, scriptItems.map(item => h('li', null, rich(item)))))
 
-  return h('div', { class: 'stack-lg dayof-final-page' }, header, grid, h('div', { class: 'grid-2' }, constraintCard, scriptCard))
+  return h('div', { class: 'stack-lg dayof-final-page' }, subnav('handbook', 'dayof'), header, grid, h('div', { class: 'grid-2' }, constraintCard, scriptCard))
 }
 
 function compactBoilerplate(section) {
@@ -740,7 +741,7 @@ function buildSheetFinal(sheet) {
   const codeGrid = boilerplates.length ? h('div', { class: 'grid-2 dayof-final-code-grid' }, boilerplates.map(section => compactBoilerplate(section))) : null
   const others = sheet.sections.filter(s => s.kind !== 'boilerplate').map((section, i) => sectionCard(section, `fsec-${i}`, { sheet, sheets: [sheet] }))
 
-  return h('div', { class: 'stack dayof-final-page' }, header, summary, codeGrid, others.length ? h('div', { class: 'stack' }, others) : null)
+  return h('div', { class: 'stack dayof-final-page' }, subnav('handbook', 'dayof'), header, summary, codeGrid, others.length ? h('div', { class: 'stack' }, others) : null)
 }
 
 async function renderFinal(container, sheetId) {

@@ -1,5 +1,5 @@
 import { h } from './h.js'
-import { subscribe, getLevelInfo, getStreak, dueItems, getStudyMinutes, getSetting, setSetting } from '../store.js'
+import { getSetting, setSetting } from '../store.js'
 import { onNavigate, navigate } from '../router.js'
 
 const iconPaths = {
@@ -355,18 +355,11 @@ export function mountShell(root) {
   const searchButton = h('button', { class: 'search-trigger', type: 'button', onclick: () => palette.open(), 'aria-label': 'Search' },
     icon('search', 16), h('span', { class: 'search-trigger-text' }, 'Search'), h('span', { class: 'kbd search-trigger-kbd' }, shortcutLabel))
 
-  const levelLabel = h('span', { class: 'top-level' })
-  const xpFill = h('div', { class: 'xp-fill' })
-  const xpText = h('span', { class: 'xp-text' })
-  const streakValue = h('b')
-  const dueValue = h('b')
-  const minutesValue = h('b')
   const themeButton = h('button', { class: 'btn-icon', type: 'button', title: 'Toggle theme', 'aria-label': 'Toggle theme', onclick: () => {
     setSetting('theme', getSetting('theme', 'dark') === 'dark' ? 'light' : 'dark')
     renderStats()
   } })
 
-  const dueLink = h('a', { class: 'stat-pill due', href: '#/drill?due=1', title: 'Due reviews' }, icon('layers', 16), dueValue, h('span', { class: 'stat-label' }, 'due'))
   const accountSlot = h('div', { class: 'account-slot' })
 
   const shellEl = h('div', { class: 'app-shell' })
@@ -382,16 +375,9 @@ export function mountShell(root) {
     menuButton,
     h('a', { class: 'brand brand-compact', href: '#/', 'aria-label': 'CodeCram home' }, h('span', { class: 'brand-mark' }, '</>')),
     searchButton,
-    h('div', { class: 'xp-wrap', title: 'Level progress' },
-      levelLabel,
-      h('div', { class: 'xp-bar' }, xpFill),
-      xpText),
-    h('div', { class: 'top-stats' },
-      h('span', { class: 'stat-pill streak', title: 'Day streak' }, icon('flame', 16), streakValue, h('span', { class: 'stat-label' }, 'day')),
-      dueLink,
-      h('span', { class: 'stat-pill minutes', title: 'Minutes studied today' }, icon('clock', 16), minutesValue, h('span', { class: 'stat-label' }, 'min')),
-      themeButton,
-      accountSlot))
+    h('div', { class: 'grow' }),
+    themeButton,
+    accountSlot)
 
   const view = h('main', { class: 'view', id: 'view' })
 
@@ -447,22 +433,11 @@ export function mountShell(root) {
     .catch(() => {})
 
   function renderStats() {
-    const info = getLevelInfo()
-    levelLabel.textContent = `Lv ${info.level}`
-    xpFill.style.width = `${Math.round(info.progress * 100)}%`
-    xpText.textContent = `${info.into}/${info.needed} XP`
-    streakValue.textContent = String(getStreak())
-    const dueCount = dueItems().length
-    dueValue.textContent = String(dueCount)
-    dueLink.classList.toggle('hot', dueCount > 0)
-    minutesValue.textContent = String(getStudyMinutes({ todayOnly: true }))
     const dark = getSetting('theme', 'dark') === 'dark'
     themeButton.replaceChildren(icon(dark ? 'sun' : 'moon', 18))
   }
 
   renderStats()
-  subscribe(renderStats)
-  setInterval(renderStats, 30e3)
 
   onNavigate(path => {
     const active = sectionFor(path)

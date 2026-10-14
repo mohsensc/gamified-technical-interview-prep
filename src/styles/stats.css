@@ -95,7 +95,10 @@
 .readiness-explain { max-width: 440px; }
 
 .stats-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-.stats-tiles .stat { padding: 14px 16px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--border); }
+.stats-tiles .stat, .stats-key-numbers .stat { padding: 14px 16px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--border); }
+
+.stats-tabbar { margin: 2px 0 4px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.stats-tabbar::-webkit-scrollbar { display: none; }
 
 .co-readiness-row, .kind-row { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 10px; }
 .co-readiness-row:hover, .kind-row:hover { background: var(--surface-2); }

@@ -7,6 +7,7 @@ import { skills } from '../content/skills.js'
 import { rich, stripMarks } from '../ui/rich.js'
 import { companyChips, companyFilter } from '../ui/companies.js'
 import { companiesFor, matchesCompanies, companyCounts } from '../content/companies.js'
+import { subnav } from '../ui/subnav.js'
 
 const filters = { search: '', companies: [], difficulty: 'all', skill: 'all', pattern: 'all' }
 
@@ -137,6 +138,7 @@ function renderList(container) {
   }, 'Random diagnose')
 
   container.append(h('div', { class: 'page problems-page' },
+    subnav('learn', 'problems'),
     h('div', { class: 'page-header row' }, h('h1', null, 'Problems'), countEl, randomButton),
     companyRow,
     h('div', { class: 'row problem-filters' },
@@ -251,6 +253,7 @@ function renderDetail(container, problem) {
   const next = problems[index + 1]
 
   container.append(h('div', { class: 'page problem-detail' },
+    subnav('learn', 'problems'),
     h('div', { class: 'page-header row' },
       h('a', { class: 'btn btn-ghost', href: '#/problems' }, '←'),
       problem.lc ? h('span', { class: 'mono muted lc-num' }, `#${problem.lc}`) : null,

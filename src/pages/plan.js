@@ -4,6 +4,7 @@ import { weeks, totalPlanMinutes } from '../content/plan.js'
 import { findNode } from '../content/curriculum.js'
 import { skills } from '../content/skills.js'
 import { getInterviewAt } from '../engine/recommend.js'
+import { subnav } from '../ui/subnav.js'
 
 const coreBitesOf = block => {
   const mod = findNode(block.id)
@@ -84,20 +85,15 @@ export default function render(container) {
   const draw = () => {
     const weekInfos = weeks.map(weekStatus)
     const doneMinutes = weekInfos.reduce((total, info) => total + info.doneMinutes, 0)
-    const remainingMinutes = totalPlanMinutes - doneMinutes
-    const weeksDone = weekInfos.filter(info => info.done).length
     const current = weekInfos.find(info => !info.done)
     if (openWeek === null) openWeek = (current || weekInfos[weekInfos.length - 1])?.week.id || null
     const currentBite = current?.statuses.find(s => !s.done)
 
     const header = h('div', { class: 'page-header' },
       h('div', null,
-        h('h1', null, '4-week plan'),
-        h('p', null, `${formatMinutes(totalPlanMinutes)} · ${weeks.length} weeks · must-learn gaps first`)),
-      h('div', { class: 'row-wrap' },
-        h('span', { class: 'pill pill-teal' }, `${weeksDone}/${weeks.length} weeks done`),
-        h('span', { class: 'pill pill-amber' }, `${formatMinutes(remainingMinutes)} left`),
-        countdownPill(getInterviewAt())))
+        h('h1', null, 'Study plan'),
+        h('p', { class: 'muted small' }, `${formatMinutes(totalPlanMinutes)} · ${weeks.length} weeks, must-learn gaps first`)),
+      countdownPill(getInterviewAt()))
 
     const progressCard = h('div', { class: 'card stack-sm' },
       h('div', { class: 'spread' },
@@ -112,7 +108,7 @@ export default function render(container) {
 
     const weekCards = weekInfos.map(info => weekCard(info, openWeek === info.week.id, id => { openWeek = openWeek === id ? null : id; draw() }))
 
-    page.replaceChildren(header, progressCard, h('div', { class: 'stack' }, weekCards))
+    page.replaceChildren(subnav('handbook', 'plan'), header, progressCard, h('div', { class: 'stack' }, weekCards))
   }
 
   draw()

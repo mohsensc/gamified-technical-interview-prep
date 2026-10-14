@@ -25,13 +25,22 @@
 .practice-settings { align-items: flex-start; gap: 24px; }
 
 .practice-mode-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
-.practice-mode-card { position: relative; gap: 8px; min-height: 120px; }
+.practice-mode-card { position: relative; gap: 8px; min-height: 120px; width: 100%; text-align: left; border: 1px solid var(--border); cursor: pointer; }
 .practice-mode-card.is-empty { opacity: 0.55; }
+.practice-mode-card.active { border-color: var(--teal); background: var(--teal-soft); }
 .practice-mode-icon { font-size: 24px; line-height: 1; }
 .practice-mode-title { font-weight: 700; font-size: 15px; }
 .practice-mode-blurb { line-height: 1.3; }
 .practice-mode-count { margin-top: auto; font-size: 12px; font-weight: 600; color: var(--muted); font-family: var(--mono); }
-.practice-mode-actions { margin-top: auto; }
+
+.practice-start-wrap { align-items: flex-start; gap: 10px; }
+.practice-start { align-self: stretch; justify-content: center; }
+.practice-start.disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+.practice-rapid-seconds { align-items: center; }
+
+.practice-filters summary { cursor: pointer; list-style: none; color: var(--muted); font-weight: 600; }
+.practice-filters summary::-webkit-details-marker { display: none; }
+.practice-filters[open] summary { margin-bottom: 12px; }
 
 .practice-session-top { margin-bottom: 4px; }
 .practice-session-stage { display: flex; flex-direction: column; gap: 16px; }

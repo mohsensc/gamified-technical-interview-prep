@@ -4,11 +4,8 @@ import { makeQuestion as patternQuestion } from './pattern-radar.js'
 import { makeQuestion as dsQuestion } from './ds-match.js'
 import { makeQuestion as bigoQuestion } from './bigo-ladder.js'
 import { makeQuestion as graphQuestion } from './bfs-or-dfs.js'
-import { makeQuestion as heapQuestion } from './heap-builder.js'
-import { makeQuestion as stackQuestion } from './stack-sim.js'
-import { makeQuestion as raceQuestion } from './two-pointer-race.js'
 
-const sources = [constraintQuestion, patternQuestion, dsQuestion, bigoQuestion, graphQuestion, heapQuestion, stackQuestion, raceQuestion]
+const sources = [constraintQuestion, patternQuestion, dsQuestion, bigoQuestion, graphQuestion]
 
 export function makeQuestion(level = 1) {
   const question = pick(sources)(Math.min(6, level + 1))

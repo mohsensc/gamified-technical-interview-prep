@@ -5,6 +5,7 @@ import { flashcards } from '../content/index.js'
 import { skills, skillGroups } from '../content/skills.js'
 import { companyChips } from '../ui/companies.js'
 import { companiesFor } from '../content/companies.js'
+import { subnav } from '../ui/subnav.js'
 
 const companyBadge = card => { try { return companyChips(companiesFor(card), { size: 'xs' }) } catch { return null } }
 
@@ -83,6 +84,7 @@ export default function render(container) {
     const stage = h('div', { class: 'flash-stage' })
 
     container.append(h('div', { class: 'page flash-page' },
+      subnav('practice', 'flashcards'),
       h('div', { class: 'page-header row' }, h('h1', null, 'Flashcards'), countsEl),
       chips,
       h('div', { class: 'row flash-session' }, progressEl, sessionCount),
@@ -118,7 +120,7 @@ export default function render(container) {
         setTimeout(showNext, 180)
       })
       stage.replaceChildren(
-        h('div', { class: 'row flash-meta' },
+        h('div', { class: 'row-wrap flash-meta' },
           isNew ? h('span', { class: 'chip chip-new' }, 'new') : h('span', { class: 'chip' }, mode === 'cram' ? 'cram' : 'review'),
           companyBadge(card),
           ...(card.skills || []).slice(0, 3).map(skill => h('a', { class: 'chip chip-skill', href: `#/drill/${skill}` }, skills[skill]?.label || skill))),

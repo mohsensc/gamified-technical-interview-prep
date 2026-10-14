@@ -87,6 +87,7 @@
 .algo-variants { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
 
 .algo-trace-card .stepper { margin-top: 4px; }
+.algo-trace-host { max-width: 100%; overflow-x: auto; }
 .algo-actions .btn { min-width: 140px; }
 
 @media (max-width: 720px) {

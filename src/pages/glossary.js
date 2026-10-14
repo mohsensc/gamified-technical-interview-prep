@@ -3,6 +3,7 @@ import { renderMcq } from '../ui/items.js'
 import { recordAnswer } from '../store.js'
 import { lessons, traces, mcqs, clozes, parsons, flashcards, problems } from '../content/index.js'
 import { glossaryTerms, categoryOrder, categoryMeta, termId, findTerm, relatedEntries } from '../content/glossary.js'
+import { subnav } from '../ui/subnav.js'
 
 const decodeParam = value => {
   try { return decodeURIComponent(value) } catch { return value }
@@ -135,6 +136,7 @@ function renderList(container) {
   drawResults()
 
   container.append(h('div', { class: 'page gl-page' },
+    subnav('cheatsheet', 'glossary'),
     h('div', { class: 'page-header row' },
       h('h1', null, 'Glossary'),
       countEl,
@@ -203,6 +205,7 @@ function renderDetail(container, rawTerm) {
   const color = categoryMeta[entry.category]?.color || 'accent'
 
   container.append(h('div', { class: 'page gl-detail' },
+    subnav('cheatsheet', 'glossary'),
     h('div', { class: 'page-header row' },
       h('a', { class: 'btn btn-ghost', href: '#/glossary' }, '←'),
       h('h1', null, entry.term),

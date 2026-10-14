@@ -116,11 +116,7 @@ function loadingCard() {
 }
 
 function listHeader() {
-  return h('div', { class: 'page-header' },
-    h('div', null,
-      h('span', { class: 'eyebrow' }, 'Memory recall'),
-      h('h1', null, 'Thought Processes'),
-      h('p', { class: 'muted' }, 'Read it, pick the structure and method, predict the complexity, recall the key lines, say it out loud.')))
+  return h('div', { class: 'page-header' }, h('h1', null, 'Thought Processes'))
 }
 
 function progressRing(pct, { size = 48, stroke = 5 } = {}) {
@@ -221,17 +217,6 @@ function searchBox(value) {
     h('span', { class: 'kbd thought-search-kbd' }, '/'))
 }
 
-function mixedDrillCard(count, onStart) {
-  const startBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: !count }, count ? `Start — ${count} random problems` : 'Add more problems first')
-  startBtn.addEventListener('click', onStart)
-  return h('div', { class: 'card thought-mixed-card' },
-    h('div', { class: 'thought-mixed-icon', 'aria-hidden': 'true' }, '🎲'),
-    h('div', { class: 'thought-mixed-copy' },
-      h('h3', null, 'Mixed interview drill'),
-      h('p', { class: 'muted small' }, "Random problems pulled from every pattern, like a real interview where you don't know what's coming.", h('span', { class: 'kbd' }, 'M'))),
-    startBtn)
-}
-
 function renderList(container) {
   const page = h('div', { class: 'page thought-page' })
   container.append(page)
@@ -294,9 +279,9 @@ function renderList(container) {
     const categoryPool = itemsForCategory(data.categories, data.items, selectedCategory)
     const pool = filterPool(categoryPool, selectedCompanies, searchQuery)
     const queueIds = buildQueueIds(pool, selectedMode, statusMap)
-    const startBtn = h('button', {
-      class: 'btn btn-primary btn-lg thought-start', type: 'button', disabled: !queueIds.length,
-    }, queueIds.length ? `Start — ${queueIds.length} problem${queueIds.length > 1 ? 's' : ''}` : 'Nothing in this queue')
+    const isDefaultScope = selectedCategory === 'all' && selectedMode === 'priority' && !selectedCompanies.length && !searchQuery.trim()
+    const startLabel = !queueIds.length ? 'Nothing in this queue' : isDefaultScope ? 'Next problem →' : `Start — ${queueIds.length} problem${queueIds.length > 1 ? 's' : ''}`
+    const startBtn = h('button', { class: 'btn btn-primary btn-lg thought-start', type: 'button', disabled: !queueIds.length }, startLabel)
     startBtn.addEventListener('click', () => startQueue(selectedCategory, selectedMode, queueIds))
 
     const shown = selectedMode === 'priority' ? sortByPriority(pool) : pool
@@ -307,15 +292,20 @@ function renderList(container) {
     search.querySelector('.thought-search').addEventListener('input', event => { searchQuery = event.target.value; draw() })
     const filters = companyFilter({ selected: selectedCompanies, counts: companyCounts(categoryPool), onChange: next => { selectedCompanies = next; draw() } })
 
-    page.replaceChildren(
-      listHeader(),
-      mixedDrillCard(Math.min(mixedDrillSize, selectedCompanies.length ? data.items.filter(item => matchesCompanies(item, selectedCompanies)).length : data.items.length), startMixedDrill),
-      h('div', { class: 'thought-cat-grid' }, buildCategoryGrid(data.categories, data.items, statusMap, selectedCategory, cat => { selectedCategory = cat; draw() })),
-      h('div', { class: 'card thought-filters' },
+    const optionsOpen = selectedMode !== 'priority' || Boolean(selectedCompanies.length) || Boolean(searchQuery.trim())
+    const optionsDetails = h('details', { class: 'thought-options', open: optionsOpen || null },
+      h('summary', { class: 'muted small' }, 'Filters & other modes'),
+      h('div', { class: 'stack' },
         h('div', { class: 'thought-toolbar' }, search, filters),
         h('div', { class: 'row-wrap thought-chip-row' }, buildModeChips(selectedMode, mode => { selectedMode = mode; draw() })),
-        selectedMode === 'priority' ? h('p', { class: 'muted small' }, `Core list first: one problem per pattern across every category. ${coreLeft} core left. Yellow and green count as done.`) : null,
-        startBtn),
+        selectedMode === 'priority' ? h('p', { class: 'muted small' }, `${coreLeft} core left`) : null,
+        h('button', { class: 'btn btn-ghost btn-sm', type: 'button', disabled: !data.items.length, onclick: startMixedDrill }, '🎲 Random 10 ', h('span', { class: 'kbd' }, 'M'))))
+
+    page.replaceChildren(
+      listHeader(),
+      h('div', { class: 'thought-cat-grid' }, buildCategoryGrid(data.categories, data.items, statusMap, selectedCategory, cat => { selectedCategory = cat; draw() })),
+      startBtn,
+      optionsDetails,
       h('div', { class: 'stack-sm thought-list' }, rows.length ? rows : [h('p', { class: 'muted small' }, 'No problems match these filters.')]))
 
     if (restoreSearch) {
@@ -601,8 +591,7 @@ function buildRunner(page, item, data) {
     bodyEl.replaceChildren(
       h('div', { class: 'card thought-card' },
         miniHeader(),
-        h('h3', null, 'Before seeing the code: time and space complexity'),
-        h('p', { class: 'muted small' }, 'Predict it from the method alone — the code is next.'),
+        h('h3', null, 'Time and space complexity?'),
         h('div', { class: 'thought-complexity-grid' },
           h('div', { class: 'stack-sm' }, h('div', { class: 'section-title' }, 'Time'), timeSelect, timeFeedback),
           h('div', { class: 'stack-sm' }, h('div', { class: 'section-title' }, 'Space'), spaceSelect, spaceFeedback)),
@@ -623,7 +612,6 @@ function buildRunner(page, item, data) {
       h('div', { class: 'card thought-card' },
         miniHeader(),
         h('h3', null, 'Optimal solution'),
-        h('p', { class: 'muted small' }, 'Read it through. Notice the key lines — you will recall them next.'),
         codeBlock(item.code)),
       h('div', { class: 'thought-actions' }, hideBtn))
     setKeys(event => {
@@ -816,7 +804,6 @@ function buildRunner(page, item, data) {
     const sayItCard = h('div', { class: 'card thought-sayit' },
       h('div', { class: 'section-title' }, 'Say this out loud'),
       h('p', { class: 'thought-sayit-text' }, rich(item.sayIt || '')),
-      h('p', { class: 'muted small' }, 'How did narrating it feel?'),
       sayItRow)
 
     let pitfallRevealed = false
