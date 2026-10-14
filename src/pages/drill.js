@@ -1,5 +1,6 @@
 import { h, clear, confetti } from '../ui/h.js'
 import { renderItem, kindOf, kindLabel } from '../ui/items.js'
+import { overrideResult } from '../engine/session.js'
 import * as store from '../store.js'
 import { mcqs, clozes, parsons, flashcards, generators, topicById } from '../content/index.js'
 import { skills, skillGroups, skillIds } from '../content/skills.js'
@@ -135,6 +136,7 @@ export default function render(container, params = {}) {
     let index = 0
     let combo = 0
     let bestCombo = 0
+    let comboBeforeMiss = 0
     let xpTotal = 0
     let answered = false
     let readyAt = 0
@@ -191,7 +193,7 @@ export default function render(container, params = {}) {
         h('span', { class: `chip kind-chip kind-${kind}` }, kindLabel[kind] || kind),
         ...(item.skills || []).slice(0, 3).map(skill => h('span', { class: 'chip chip-skill' }, skills[skill]?.label || skill)),
         item.difficulty ? h('span', { class: 'muted diff-dots' }, '●'.repeat(item.difficulty) + '○'.repeat(Math.max(0, 3 - item.difficulty))) : null)
-      stage.replaceChildren(renderItem(item, result => onAnswered(item, kind, result)))
+      stage.replaceChildren(renderItem(item, result => onAnswered(item, kind, result), { onOverride: () => onOverridden(item, kind) }))
       updateHeader()
       if (kind !== 'cloze') stage.querySelector('button, .flash-card')?.focus?.({ preventScroll: true })
     }
@@ -207,6 +209,7 @@ export default function render(container, params = {}) {
       } catch {}
       const xpGained = outcome?.xpGained ?? (kind === 'card' ? 0 : result.correct ? 10 : 2)
       xpTotal += xpGained
+      comboBeforeMiss = combo
       combo = result.correct ? combo + 1 : 0
       bestCombo = Math.max(bestCombo, combo)
       results.push({ item, kind, correct: result.correct })
@@ -220,6 +223,17 @@ export default function render(container, params = {}) {
       }
       nextButton.hidden = false
       nextButton.focus({ preventScroll: true })
+    }
+
+    function onOverridden(item, kind) {
+      const { result } = overrideResult(results, entry => entry.item === item, { itemId: item.genId || item.id, kind, skills: item.skills || [] })
+      if (!result) return
+      const bonus = 8
+      xpTotal += bonus
+      combo = comboBeforeMiss + 1
+      bestCombo = Math.max(bestCombo, combo)
+      popXp(bonus, true)
+      updateHeader()
     }
 
     function next(skipped = false) {

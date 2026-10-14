@@ -1,5 +1,6 @@
 import { h, clear, confetti } from '../ui/h.js'
 import { codeBlock } from '../ui/code.js'
+import { persistOverride } from '../ui/override.js'
 
 export const rand = n => Math.floor(Math.random() * n)
 export const pick = list => list[rand(list.length)]
@@ -256,6 +257,7 @@ export function createArcade(container, api, config) {
       return points
     },
     miss() {
+      if (state.combo > 0) state.comboBeforeMiss = state.combo
       state.combo = 0
       if (mode === 'lives') {
         state.lives--
@@ -267,8 +269,10 @@ export function createArcade(container, api, config) {
     },
     resolve(correct, { skills = [], id, mistake } = {}) {
       api.record?.(correct, skills, id)
+      state.lastResolved = { correct, skills, id, mistake, levelBefore: state.level, streakBefore: state.streak }
       state.answered++
       if (correct) {
+        state.comboBeforeMiss = 0
         state.correct++
         state.streak++
         if (!boss && state.streak % 3 === 0 && state.level < maxLevel) {
@@ -281,6 +285,26 @@ export function createArcade(container, api, config) {
         if (mistake) state.mistakes.push(mistake)
       }
       renderHud()
+    },
+    overrule({ restoreLives = 1, dropMistakes, base = 100 } = {}) {
+      const last = state?.lastResolved
+      if (!last || last.correct || phase !== 'play') return false
+      last.correct = true
+      last.overridden = true
+      if (api.override) api.override(last.skills, last.id)
+      else persistOverride({ itemId: last.id, kind: 'game', skills: last.skills })
+      state.correct++
+      state.streak = (last.streakBefore || 0) + 1
+      if (!boss) state.level = Math.max(state.level, last.levelBefore)
+      const drop = dropMistakes ?? (last.mistake ? 1 : 0)
+      if (drop > 0) state.mistakes.splice(Math.max(0, state.mistakes.length - drop), drop)
+      if (mode === 'lives') state.lives = Math.min(lives, state.lives + restoreLives)
+      state.combo = state.comboBeforeMiss || 0
+      state.comboBeforeMiss = 0
+      if (base) ctx.hit(base)
+      else renderHud()
+      floatText('overruled', 'level')
+      return true
     },
     waitFor(fn, autoMs = 0) {
       const token = ++waitToken

@@ -1,5 +1,6 @@
-import { initStore } from './store.js'
-import { route, setNotFound, startRouter } from './router.js'
+import { initStore, onStateReplaced } from './store.js'
+import { route, setNotFound, startRouter, resolve } from './router.js'
+import { isLocalhost } from './auth/index.js'
 import { mountShell } from './ui/shell.js'
 import { h } from './ui/h.js'
 
@@ -41,6 +42,7 @@ const pages = {
   cheatsheet: lazyPage(() => import('./pages/cheatsheet.js')),
   dayof: lazyPage(() => import('./pages/dayof.js')),
   thought: lazyPage(() => import('./pages/thought.js')),
+  account: lazyPage(() => import('./pages/account.js')),
 }
 
 route('#/', pages.dashboard)
@@ -77,6 +79,8 @@ route('#/dayof/:stage', pages.dayof)
 route('#/dayof/:stage/:id', pages.dayof)
 route('#/thought', pages.thought)
 route('#/thought/:id', pages.thought)
+route('#/account', pages.account)
+route('#/login', pages.account)
 
 setNotFound(container => {
   container.replaceChildren(h('div', { class: 'page' },
@@ -94,11 +98,18 @@ const boot = async () => {
   }
   const view = mountShell(document.getElementById('app'))
   startRouter(view)
+  let pendingRender = null
+  onStateReplaced(() => {
+    if (/^#\/(login|account)/.test(location.hash)) return
+    cancelAnimationFrame(pendingRender)
+    pendingRender = requestAnimationFrame(() => resolve())
+  })
 }
 
 const fetchVersion = async () => {
   try {
     const res = await fetch('/api/version', { cache: 'no-store' })
+    if (!res.ok || !(res.headers.get('content-type') || '').includes('application/json')) return null
     return (await res.json()).version
   } catch {
     return null
@@ -106,6 +117,7 @@ const fetchVersion = async () => {
 }
 
 const watchForUpdates = async () => {
+  if (!isLocalhost()) return
   const loadedVersion = await fetchVersion()
   if (!loadedVersion) return
   let stale = false

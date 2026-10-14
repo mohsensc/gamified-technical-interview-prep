@@ -1,5 +1,6 @@
 import { h, svg, clear } from '../ui/h.js'
 import { createArcade, pick, shuffle, rand } from './_engine.js'
+import { overrideButton, applyOverrideVisuals } from '../ui/override.js'
 
 const modes = {
   preorder: { label: 'DFS preorder', why: 'Preorder: node, then left subtree, then right.', skills: ['tree-dfs'], d: 1 },
@@ -293,8 +294,8 @@ function mount(container, api) {
         nodeState[correctId] = { cls: 'hinted', order: picked.length }
         locked = false
         if (!alive) {
-          ctx.resolve(false, { skills: puzzle.mode.skills, id: `traversal-order:${puzzle.modeId}` })
-          ctx.end()
+          draw(ctx)
+          complete(ctx, { lost: true })
           return
         }
         draw(ctx)
@@ -306,14 +307,34 @@ function mount(container, api) {
     if (picked.length === puzzle.layout.nodes.length) complete(ctx)
   }
 
-  function complete(ctx) {
+  function complete(ctx, { lost = false } = {}) {
     locked = true
     const clean = mistakes === 0
     const seconds = (performance.now() - startTime) / 1000
     ctx.resolve(clean, { skills: puzzle.mode.skills, id: `traversal-order:${puzzle.modeId}` })
-    if (clean) ctx.hit(120, Math.max(0, 1 - seconds / 25))
-    feedback.append(h('div', { class: `game-why ${clean ? 'good' : 'bad'}` }, clean ? '✓ ' : '', puzzle.mode.why))
-    ctx.waitFor(() => nextPuzzle(ctx), clean ? 1300 : 2600)
+    if (clean) {
+      ctx.hit(120, Math.max(0, 1 - seconds / 25))
+      feedback.append(h('div', { class: 'game-why good' }, '✓ ', puzzle.mode.why))
+      ctx.waitFor(() => nextPuzzle(ctx), 1300)
+      return
+    }
+    let alive = !lost
+    const missedSteps = mistakes
+    const continueButton = h('button', { class: 'btn btn-primary game-continue', onclick: () => ctx.proceed() }, alive ? 'Continue ' : 'Results ', h('span', { class: 'kbd' }, 'Enter'))
+    const overrule = overrideButton({
+      title: 'My order was also a valid traversal. Count it.',
+      onOverride: () => {
+        if (!ctx.overrule({ restoreLives: missedSteps, dropMistakes: missedSteps, base: 120 })) return
+        alive = true
+        applyOverrideVisuals(feedback)
+        for (const slot of strip.querySelectorAll('.trav-slot.hinted')) slot.classList.replace('hinted', 'done')
+        continueButton.firstChild.textContent = 'Continue '
+      },
+    })
+    feedback.append(
+      h('div', { class: 'game-why bad' }, puzzle.mode.why),
+      h('div', { class: 'row row-wrap' }, continueButton, overrule))
+    ctx.waitFor(() => (alive ? nextPuzzle(ctx) : ctx.end()))
   }
 
   return createArcade(container, api, {

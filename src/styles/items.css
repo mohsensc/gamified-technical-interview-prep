@@ -1297,3 +1297,46 @@ a.chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
   .problem-table th:nth-child(n+3), .problem-table td:nth-child(n+3) { display: none; }
   .problem-title-cell { word-break: break-word; }
 }
+
+.override-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.override-btn {
+  border: 1px dashed var(--border-strong);
+  color: var(--muted);
+}
+
+.override-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.override-pill {
+  animation: itemFadeUp 0.25s ease-out;
+}
+
+.cloze-input.is-overridden,
+.parsons-line.is-overridden,
+.thought-fill-input.is-overridden {
+  border-style: dashed;
+}
+
+.cloze-answer.is-alt {
+  opacity: 0.55;
+  text-decoration: none;
+}
+
+.cloze-answer.is-alt::before {
+  content: 'ref ';
+  font-size: 0.85em;
+}
+
+.game-why.good.is-overridden {
+  background: var(--green-soft);
+}

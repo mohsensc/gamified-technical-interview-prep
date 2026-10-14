@@ -1,4 +1,10 @@
-const storageKey = 'google-cram-state'
+import { initAuth, getUser, onAuthChange, loadRemoteState, saveRemoteState, syncTiming, isLocalhost, signOut } from './auth/index.js'
+
+const guestStorageKey = 'codecram-state'
+const legacyStorageKey = 'google-cram-state'
+const themeStorageKey = 'codecram-theme'
+const userStorageKey = userId => `codecram-state:${userId}`
+const pendingMergeKey = userId => `codecram-pending-merge:${userId}`
 const boxIntervals = [0, 5 * 60e3, 30 * 60e3, 3 * 3600e3, 12 * 3600e3, 2 * 86400e3]
 const startMastery = 0.3
 const serverDebounceMs = 900
@@ -6,16 +12,31 @@ const idleLimitMs = 3 * 60e3
 const tickMs = 15e3
 const maxEvents = 20000
 const maxSessions = 300
+const cloudEventLimit = 3000
+const cloudSessionLimit = 150
+const cloudHistoryLimit = 150
+const cloudSkillHistoryDays = 120
+const keepaliveLimitBytes = 60000
 const masteryFloor = startMastery
 const masteryTarget = 0.85
 
 const listeners = new Set()
+const replaceListeners = new Set()
+const syncListeners = new Set()
 let state = null
+let activeUserId = null
 let serverTimer = null
 let localTimer = null
-let serverAvailable = true
+let cloudTimer = null
+let guestServerAvailable = false
 let lastInputAt = Date.now()
 let lastTickAt = Date.now()
+let lastCloudText = ''
+let lastCloudSaveAt = 0
+let cloudSaving = null
+let cloudReady = false
+let accountSwitch = Promise.resolve()
+let syncStatus = { status: 'local', at: 0, error: null }
 
 const dayKey = (time = Date.now()) => {
   const date = new Date(time)
@@ -64,18 +85,66 @@ const normalize = raw => {
   return merged
 }
 
-const readLocal = () => {
+const storageKeyFor = userId => userId ? userStorageKey(userId) : guestStorageKey
+
+const readStorage = key => {
   try {
-    const text = localStorage.getItem(storageKey)
+    const text = localStorage.getItem(key)
     return text ? JSON.parse(text) : null
   } catch {
     return null
   }
 }
 
-const writeLocal = () => {
+const migrateLegacyStorage = () => {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(state))
+    if (localStorage.getItem(guestStorageKey)) return
+    const legacy = localStorage.getItem(legacyStorageKey)
+    if (legacy) localStorage.setItem(guestStorageKey, legacy)
+  } catch {}
+}
+
+const readLocal = (userId = activeUserId) => readStorage(storageKeyFor(userId))
+
+const setPendingMerge = (userId, on) => {
+  try {
+    if (on) localStorage.setItem(pendingMergeKey(userId), '1')
+    else localStorage.removeItem(pendingMergeKey(userId))
+  } catch {}
+}
+
+const hasPendingMerge = userId => {
+  try {
+    return localStorage.getItem(pendingMergeKey(userId)) === '1'
+  } catch {
+    return false
+  }
+}
+
+const trimmedCopy = (source, { events, sessions, history, skillDays }) => {
+  const copy = { ...source }
+  copy.events = source.events.slice(-events)
+  copy.sessions = source.sessions.slice(-sessions)
+  copy.history = source.history.slice(-history)
+  const days = Object.keys(source.skillHistory).sort().slice(-skillDays)
+  copy.skillHistory = Object.fromEntries(days.map(day => [day, source.skillHistory[day]]))
+  return copy
+}
+
+const cloudCopy = source => trimmedCopy(source, { events: cloudEventLimit, sessions: cloudSessionLimit, history: cloudHistoryLimit, skillDays: cloudSkillHistoryDays })
+
+const writeLocal = () => {
+  if (!state) return
+  const key = storageKeyFor(activeUserId)
+  try {
+    localStorage.setItem(key, JSON.stringify(state))
+  } catch {
+    try {
+      localStorage.setItem(key, JSON.stringify(cloudCopy(state)))
+    } catch {}
+  }
+  try {
+    localStorage.setItem(themeStorageKey, state.settings.theme || 'dark')
   } catch {}
 }
 
@@ -89,23 +158,91 @@ const fetchWithTimeout = async (url, options = {}, ms = 2500) => {
   }
 }
 
+const setSyncStatus = (status, extra = {}) => {
+  syncStatus = { ...syncStatus, status, error: null, ...extra }
+  for (const listener of [...syncListeners]) {
+    try {
+      listener(syncStatus)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+}
+
+export function getSyncStatus() {
+  return { ...syncStatus, userId: activeUserId }
+}
+
+export function onSyncChange(fn) {
+  syncListeners.add(fn)
+  return () => syncListeners.delete(fn)
+}
+
+export function onStateReplaced(fn) {
+  replaceListeners.add(fn)
+  return () => replaceListeners.delete(fn)
+}
+
 const pushToServer = async () => {
-  if (!state) return
+  if (!state || activeUserId || !guestServerAvailable) return
   try {
     await fetchWithTimeout('/api/state', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state),
     }, 5000)
-    serverAvailable = true
-  } catch {
-    serverAvailable = false
+  } catch {}
+}
+
+const saveToCloud = async ({ force = false, keepalive = false } = {}) => {
+  if (!state || !activeUserId || !cloudReady) return false
+  if (cloudSaving) {
+    await cloudSaving
+    if (!force) return false
   }
+  const userId = activeUserId
+  const text = JSON.stringify(cloudCopy(state))
+  if (text === lastCloudText) {
+    setSyncStatus('synced', { at: syncStatus.at || Date.now() })
+    return false
+  }
+  setSyncStatus('saving')
+  cloudSaving = (async () => {
+    try {
+      await saveRemoteState(text, { keepalive: keepalive && text.length < keepaliveLimitBytes })
+      if (userId === activeUserId) {
+        lastCloudText = text
+        lastCloudSaveAt = Date.now()
+        setSyncStatus('synced', { at: lastCloudSaveAt })
+      }
+      return true
+    } catch (error) {
+      if (userId === activeUserId) setSyncStatus('error', { error: String(error?.message || error) })
+      return false
+    } finally {
+      cloudSaving = null
+    }
+  })()
+  return cloudSaving
+}
+
+const scheduleCloudSave = () => {
+  if (!activeUserId) return
+  clearTimeout(cloudTimer)
+  const { delayMs, minGapMs } = syncTiming()
+  const wait = Math.max(delayMs, lastCloudSaveAt + minGapMs - Date.now())
+  if (syncStatus.status !== 'saving') setSyncStatus('pending')
+  cloudTimer = setTimeout(() => saveToCloud(), wait)
 }
 
 const scheduleSave = () => {
   clearTimeout(localTimer)
   localTimer = setTimeout(writeLocal, 120)
+  if (activeUserId) {
+    scheduleCloudSave()
+    return
+  }
+  if (!guestServerAvailable) return
   clearTimeout(serverTimer)
   serverTimer = setTimeout(pushToServer, serverDebounceMs)
 }
@@ -114,6 +251,12 @@ const flushNow = () => {
   if (!state) return
   clearTimeout(localTimer)
   writeLocal()
+  if (activeUserId) {
+    clearTimeout(cloudTimer)
+    saveToCloud({ keepalive: true })
+    return
+  }
+  if (!guestServerAvailable) return
   clearTimeout(serverTimer)
   try {
     const body = new Blob([JSON.stringify(state)], { type: 'application/json' })
@@ -121,6 +264,13 @@ const flushNow = () => {
   } catch {
     pushToServer()
   }
+}
+
+export function syncNow() {
+  clearTimeout(cloudTimer)
+  writeLocal()
+  if (activeUserId) return saveToCloud({ force: true })
+  return pushToServer()
 }
 
 const notify = () => {
@@ -247,21 +397,188 @@ export function getEvents(filter = {}) {
   return result
 }
 
-export async function initStore() {
-  const local = readLocal()
+const answeredCount = source => Object.values(source?.items || {}).filter(item => item?.attempts > 0).length
+
+const isEmptyState = source => !source || (answeredCount(source) === 0 && !(source.xp > 0) && !Object.keys(source.bites || {}).length)
+
+const progressScore = source => answeredCount(source) * 1000 + (source?.xp || 0)
+
+const mergeStates = (guest, remote) => {
+  const winner = normalize(progressScore(guest) > progressScore(remote) ? guest : remote)
+  const loser = normalize(winner === guest ? remote : guest)
+  for (const [id, at] of Object.entries(loser.bookmarks)) if (!winner.bookmarks[id]) winner.bookmarks[id] = at
+  for (const [key, value] of Object.entries(loser.notes)) if (!winner.notes[key]) winner.notes[key] = value
+  return winner
+}
+
+const announce = message => {
+  if (typeof document === 'undefined') return
+  import('./ui/h.js').then(({ toast }) => toast(message, 'good')).catch(() => {})
+}
+
+const replaceState = next => {
+  state = normalize(next)
+  writeLocal()
+  applyTheme()
+  notify()
+  for (const listener of [...replaceListeners]) {
+    try {
+      listener(state)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+}
+
+const loadGuestState = async () => {
+  const local = readLocal(null)
   let remote = null
-  try {
-    const res = await fetchWithTimeout('/api/state')
-    if (res.ok) remote = await res.json()
-  } catch {
-    serverAvailable = false
+  guestServerAvailable = false
+  if (isLocalhost()) {
+    try {
+      const res = await fetchWithTimeout('/api/state')
+      if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+        remote = await res.json()
+        guestServerAvailable = true
+      }
+    } catch {}
   }
   const localTime = local?.updatedAt || 0
   const remoteTime = remote?.updatedAt || 0
-  state = normalize(remoteTime > localTime ? remote : local || remote)
+  const chosen = normalize(remoteTime > localTime ? remote : local || remote)
+  if (localTime > remoteTime) setTimeout(pushToServer, 0)
+  return chosen
+}
+
+const fetchRemote = async () => {
+  try {
+    const remote = await loadRemoteState()
+    return { ok: true, remote: remote && typeof remote === 'object' ? remote : null }
+  } catch (error) {
+    setSyncStatus('error', { error: String(error?.message || error) })
+    return { ok: false, remote: null }
+  }
+}
+
+const reconcileWithRemote = async (userId, fresh) => {
+  const { ok, remote } = await fetchRemote()
+  if (activeUserId !== userId) return
+  if (!ok) {
+    setTimeout(() => {
+      if (activeUserId === userId && !cloudReady) reconcileWithRemote(userId, fresh)
+    }, 30000)
+    return
+  }
+  const markSynced = () => {
+    lastCloudText = JSON.stringify(cloudCopy(state))
+    setSyncStatus('synced', { at: Date.now() })
+  }
+  if (!fresh) {
+    cloudReady = true
+    if (remote && remote.updatedAt === state.updatedAt) {
+      markSynced()
+      return
+    }
+    if (remote && (remote.updatedAt || 0) > (state.updatedAt || 0)) {
+      replaceState(remote)
+      markSynced()
+      return
+    }
+    await saveToCloud()
+    if (syncStatus.status !== 'error') setSyncStatus('synced', { at: Date.now() })
+    return
+  }
+  const local = state
+  cloudReady = true
+  setPendingMerge(userId, false)
+  if (isEmptyState(remote)) {
+    replaceState({ ...local, updatedAt: Date.now() })
+    await saveToCloud({ force: true })
+    if (!isEmptyState(local)) announce('Progress synced')
+    return
+  }
+  if (isEmptyState(local)) {
+    replaceState(remote)
+    markSynced()
+    return
+  }
+  const merged = mergeStates(local, remote)
+  merged.updatedAt = Date.now()
+  replaceState(merged)
+  await saveToCloud({ force: true })
+  announce('Progress synced')
+}
+
+const adoptUser = async user => {
+  const cached = readLocal(user.id)
+  const guestSnapshot = state && !activeUserId ? state : normalize(readLocal(null))
+  activeUserId = user.id
+  cloudReady = false
+  lastCloudText = ''
+  lastCloudSaveAt = 0
+  setSyncStatus('loading')
+  const fresh = !cached || hasPendingMerge(user.id)
+  if (fresh) setPendingMerge(user.id, true)
+  replaceState(cached || { ...guestSnapshot })
+  await reconcileWithRemote(user.id, fresh)
+}
+
+const dropToGuest = async () => {
+  clearTimeout(cloudTimer)
+  activeUserId = null
+  lastCloudText = ''
+  setSyncStatus('local', { at: 0 })
+  replaceState(await loadGuestState())
+}
+
+const handleAuthChange = user => {
+  accountSwitch = accountSwitch.then(() => user ? (user.id === activeUserId ? null : adoptUser(user)) : (activeUserId ? dropToGuest() : null)).catch(error => console.error('account switch failed', error))
+  return accountSwitch
+}
+
+export function whenAccountReady() {
+  return accountSwitch
+}
+
+export function getActiveUserId() {
+  return activeUserId
+}
+
+export async function signOutUser() {
+  await accountSwitch
+  if (activeUserId) {
+    clearTimeout(cloudTimer)
+    writeLocal()
+    await saveToCloud({ force: true })
+  }
+  await signOut()
+  await accountSwitch
+}
+
+export async function initStore() {
+  migrateLegacyStorage()
+  let user = null
+  try {
+    user = await initAuth()
+  } catch {}
   await loadCurriculum()
+  if (user) {
+    const cached = readLocal(user.id)
+    if (cached) {
+      activeUserId = user.id
+      cloudReady = false
+      state = normalize(cached)
+      setSyncStatus('loading')
+      accountSwitch = reconcileWithRemote(user.id, hasPendingMerge(user.id)).catch(error => console.error(error))
+    } else {
+      state = await loadGuestState()
+      accountSwitch = adoptUser(user).catch(error => console.error(error))
+    }
+  } else {
+    state = await loadGuestState()
+  }
+  onAuthChange(handleAuthChange)
   writeLocal()
-  if (localTime > remoteTime && serverAvailable) pushToServer()
   applyTheme()
   startActivityTracking()
   return state
@@ -296,6 +613,14 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms, mode, top
   const newMastery = {}
   update(draft => {
     const now = Date.now()
+    const undo = correct ? null : {
+      at: now,
+      streak: draft.answerStreak,
+      skills: Object.fromEntries(skills.map(skill => {
+        const record = draft.skills[skill]
+        return [skill, record ? { mastery: record.mastery, attempts: record.attempts, correct: record.correct } : null]
+      })),
+    }
     if (correct) {
       draft.answerStreak += 1
       draft.bestAnswerStreak = Math.max(draft.bestAnswerStreak, draft.answerStreak)
@@ -308,6 +633,12 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms, mode, top
     for (const skill of skills) newMastery[skill] = adjustMastery(skill, correct ? 1 : 0)
     if (itemId) {
       const item = ensureItem(itemId, kind, skills)
+      if (undo) {
+        undo.box = item.box
+        item.undo = undo
+      } else {
+        delete item.undo
+      }
       item.attempts += 1
       if (correct) item.correct += 1
       item.box = correct ? Math.min(5, item.box + 1) : 0
@@ -329,6 +660,92 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms, mode, top
     if (draft.history.length > 400) draft.history.splice(0, draft.history.length - 400)
   })
   return { xpGained, newMastery }
+}
+
+const findLastIndex = (list, predicate) => {
+  for (let i = list.length - 1; i >= 0; i--) if (predicate(list[i])) return i
+  return -1
+}
+
+export function overrideAnswer({ itemId, kind, skills = [], mode, topic, nodeId } = {}) {
+  if (!itemId) return false
+  const current = getState()
+  const eventIndex = findLastIndex(current.events, event => event.type === 'answer' && event.itemId === itemId)
+  const event = current.events[eventIndex]
+  const item = current.items[itemId]
+  const itemWrong = item && item.attempts > 0 && item.lastCorrect === false
+  if (event ? event.correct : !itemWrong) return false
+  let flipped = false
+  update(draft => {
+    const now = Date.now()
+    const target = eventIndex >= 0 ? draft.events[eventIndex] : null
+    const answeredAt = target?.ts || draft.items[itemId]?.lastAt || now
+    const skillIds = skills.length ? skills : target?.skills || draft.items[itemId]?.skills || []
+    const record = draft.items[itemId] || ensureItem(itemId, kind, skillIds)
+    const undo = record.undo && Math.abs((record.undo.at || 0) - answeredAt) < 5000 ? record.undo : null
+    const laterAnswers = draft.events.slice(eventIndex + 1).some(entry => entry.type === 'answer' || entry.type === 'card')
+    if (record.lastCorrect === false) {
+      record.correct = Math.min(record.attempts, (record.correct || 0) + 1)
+      record.box = Math.min(5, (undo ? undo.box : 0) + 1)
+      record.due = answeredAt + boxIntervals[record.box]
+      record.lastCorrect = true
+    }
+    delete record.undo
+    if (kind) record.kind = record.kind || kind
+    let xpGained
+    if (!laterAnswers && draft.answerStreak === 0) {
+      draft.answerStreak = (undo ? undo.streak : 0) + 1
+      draft.bestAnswerStreak = Math.max(draft.bestAnswerStreak, draft.answerStreak)
+      xpGained = 10 + Math.min(10, Math.floor(draft.answerStreak / 3) * 2)
+    } else {
+      xpGained = 10
+    }
+    const xpDelta = xpGained - 2
+    draft.xp += xpDelta
+    const day = draft.daily[dayKey(answeredAt)]
+    if (day) {
+      day.xp = (day.xp || 0) + xpDelta
+      day.correct = Math.min(day.answers || 0, (day.correct || 0) + 1)
+    } else {
+      today().xp += xpDelta
+    }
+    for (const skill of skillIds) {
+      const before = undo?.skills?.[skill]
+      const skillRecord = ensureSkill(skill)
+      if (before !== undefined && skillRecord.attempts === (before?.attempts || 0) + 1) {
+        if (before) Object.assign(skillRecord, before)
+        else Object.assign(skillRecord, { mastery: startMastery, attempts: 0, correct: 0 })
+        adjustMastery(skill, 1)
+      } else {
+        skillRecord.correct = Math.min(skillRecord.attempts, (skillRecord.correct || 0) + 1)
+        skillRecord.mastery = Math.min(1, skillRecord.mastery + Math.max(0.05, 0.16 / (1 + skillRecord.attempts * 0.02)) * (1 - skillRecord.mastery))
+        const key = dayKey()
+        if (!draft.skillHistory[key]) draft.skillHistory[key] = {}
+        draft.skillHistory[key][skill] = Math.round(skillRecord.mastery * 1000) / 1000
+      }
+    }
+    if (target) {
+      target.correct = true
+      target.overridden = true
+    } else {
+      pushEvent(draft, { type: 'answer', itemId, kind, skills: skillIds, correct: true, mode, topic, nodeId, ts: now })
+      draft.events[draft.events.length - 1].overridden = true
+    }
+    const historyIndex = findLastIndex(draft.history, entry => entry.id === itemId && entry.kind !== 'xp')
+    if (historyIndex >= 0) draft.history[historyIndex].ok = true
+    const sessionIndex = findLastIndex(draft.sessions, session => session.at >= answeredAt - 1000 && (session.results || []).some(result => result.itemId === itemId && !result.correct))
+    if (sessionIndex >= 0) {
+      const session = draft.sessions[sessionIndex]
+      const resultIndex = findLastIndex(session.results, result => result.itemId === itemId && !result.correct)
+      session.results[resultIndex] = { ...session.results[resultIndex], correct: true, overridden: true }
+      session.correct = Math.min(session.total, (session.correct || 0) + 1)
+      session.pct = session.total ? Math.round(session.correct / session.total * 100) : 0
+      const sessionEvent = draft.events.find(entry => entry.type === 'session' && entry.sessionId === session.id)
+      if (sessionEvent) sessionEvent.score = session.pct
+    }
+    flipped = true
+  })
+  return flipped
 }
 
 export function rateCard(itemId, skills = [], grade = 2, extra = {}) {
@@ -530,11 +947,21 @@ export function setNote(key, value) {
 }
 
 export function resetState() {
-  state = freshState()
-  state.updatedAt = Date.now()
-  writeLocal()
-  pushToServer()
-  notify()
+  const fresh = freshState()
+  fresh.updatedAt = Date.now()
+  replaceState(fresh)
+  syncNow()
+}
+
+export function exportState() {
+  return JSON.parse(JSON.stringify(getState()))
+}
+
+export function importState(raw) {
+  if (!raw || typeof raw !== 'object' || !raw.items || typeof raw.items !== 'object') return false
+  replaceState({ ...raw, updatedAt: Date.now() })
+  syncNow()
+  return true
 }
 
 export function applyTheme() {

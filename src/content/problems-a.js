@@ -1,3 +1,5 @@
+import { companiesFor } from './companies.js'
+
 const bank = [
   {
     lc: 1, title: 'Two Sum', difficulty: 'Easy', skills: ['arrays-hashing', 'ds-diagnosis'],
@@ -2200,7 +2202,7 @@ const problems = bank.map(({ wrong, ...item }) => ({
   lc: item.lc,
   title: item.title,
   difficulty: item.difficulty,
-  google: true,
+  companies: companiesFor(item),
   skills: item.skills,
   pattern: item.pattern,
   ds: item.ds,
@@ -2243,7 +2245,7 @@ const usedSkills = [...new Set([...bank.flatMap(item => item.skills), 'constrain
 
 export default {
   id: 'google-a',
-  title: 'Google list',
+  title: 'Interview list',
   icon: '🔎',
   skills: usedSkills,
   lessons: [],

@@ -1,0 +1,103 @@
+.account-control { position: relative; display: inline-flex; align-items: center; }
+.account-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: inline-grid; place-items: center;
+  background: var(--teal-soft); color: var(--teal);
+  border: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+  font-weight: 700; font-size: 14px; font-family: var(--font);
+  cursor: pointer; padding: 0; line-height: 1;
+}
+button.account-avatar:hover { border-color: var(--teal); }
+.account-avatar.lg { width: 40px; height: 40px; font-size: 17px; cursor: default; }
+.account-avatar.xl { width: 64px; height: 64px; font-size: 26px; cursor: default; }
+.account-sync-dot {
+  position: absolute; right: -1px; bottom: -1px;
+  width: 9px; height: 9px; border-radius: 50%;
+  border: 2px solid var(--surface); background: var(--gray);
+  pointer-events: none;
+}
+.account-sync-dot[data-tone="good"], .sync-badge[data-tone="good"] .sync-dot { background: var(--green); }
+.account-sync-dot[data-tone="busy"], .sync-badge[data-tone="busy"] .sync-dot { background: var(--amber); }
+.account-sync-dot[data-tone="bad"], .sync-badge[data-tone="bad"] .sync-dot { background: var(--red); }
+.account-signin { white-space: nowrap; }
+.account-guest { display: inline-grid; place-items: center; }
+
+.account-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 60;
+  width: 260px; padding: 8px;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius);
+  display: flex; flex-direction: column; gap: 2px;
+  animation: accountMenuIn 0.12s ease-out;
+}
+@keyframes accountMenuIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.account-menu-head { display: flex; align-items: center; gap: 10px; padding: 6px 6px 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.account-menu-id { display: flex; flex-direction: column; min-width: 0; }
+.account-menu-id b, .account-menu-id span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-menu-sync { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 6px 8px; }
+.account-menu-item {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  background: transparent; border: 0; color: var(--text);
+  font: inherit; font-size: 14px; cursor: pointer;
+}
+.account-menu-item:hover { background: var(--surface-2); text-decoration: none; }
+
+.sync-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray); display: inline-block; }
+.sync-badge[data-tone="busy"] .sync-dot { animation: syncPulse 1s ease-in-out infinite; }
+@keyframes syncPulse { 50% { opacity: 0.35; } }
+
+.account-page { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.auth-page { min-height: calc(100vh - 140px); justify-content: center; }
+.auth-card { max-width: 400px; width: 100%; margin: 0 auto; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+.auth-brand { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+.auth-brand h1 { margin: 6px 0 0; font-size: 22px; letter-spacing: -0.01em; }
+.auth-brand p { margin: 0; font-size: 14px; max-width: 300px; }
+.auth-mark {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: grid; place-items: center;
+  background: var(--teal); color: var(--accent-ink);
+}
+.auth-mark .icon, .auth-provider .icon { display: inline-flex; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; gap: 3px; background: var(--surface-2); border-radius: 10px; }
+.auth-tab {
+  padding: 7px 10px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--muted);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.auth-tab.active { background: var(--surface); color: var(--text); }
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.auth-field input {
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  font: inherit; font-size: 15px; font-weight: 400;
+}
+.auth-field input:focus { outline: none; border-color: var(--teal); }
+.auth-submit { width: 100%; justify-content: center; padding: 11px 16px; }
+.auth-oauth { display: flex; flex-direction: column; gap: 8px; }
+.auth-provider { width: 100%; justify-content: center; gap: 10px; }
+.auth-divider { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.auth-magic { align-self: center; }
+.auth-status { margin: 0; min-height: 1em; font-size: 13px; text-align: center; color: var(--red); }
+.auth-status:empty { display: none; }
+.auth-status[data-tone="good"] { color: var(--green); }
+.auth-guest { align-self: center; font-size: 14px; color: var(--muted); }
+.auth-guest:hover { color: var(--text); }
+.auth-note { margin: 0; text-align: center; }
+
+.account-profile { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 20px; }
+.account-profile-id { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.account-profile-id h2 { margin: 0; font-size: 20px; }
+.account-profile-id .pill { align-self: flex-start; }
+.account-profile-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.account-section { display: flex; flex-direction: column; gap: 10px; }
+.account-section p { margin: 0; }
+.account-danger:hover { color: var(--red); }
+
+@media (max-width: 560px) {
+  .auth-card { padding: 22px 18px; }
+  .account-profile-actions { width: 100%; }
+  .account-menu { width: min(260px, calc(100vw - 24px)); }
+}

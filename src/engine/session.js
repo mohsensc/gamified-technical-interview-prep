@@ -2,6 +2,7 @@ import { problems, traces } from '../content/index.js'
 import { allItems, findNode, itemsForNode, problemsForNode, tracesForNode } from '../content/curriculum.js'
 import { skillIds } from '../content/skills.js'
 import { pickAdaptive, weakestSkills, getMissed, getBookmarks, dueItems } from '../store.js'
+import { persistOverride } from '../ui/override.js'
 
 export const modes = [
   { id: 'rapid', title: 'Rapid fire', icon: '⚡', blurb: 'Beat the clock', seconds: 90 },
@@ -311,6 +312,18 @@ export function practiceHref(mode, scope = {}, { minutes, count } = {}) {
   if (count) params.set('n', String(count))
   const text = params.toString()
   return `#/practice/${mode}${text ? `?${text}` : ''}`
+}
+
+export function overrideResult(results, matches, record = {}) {
+  const flipped = persistOverride(record)
+  for (let i = results.length - 1; i >= 0; i--) {
+    const result = results[i]
+    if (result.correct || result.skipped || !matches(result)) continue
+    result.correct = true
+    result.overridden = true
+    return { flipped, result }
+  }
+  return { flipped, result: null }
 }
 
 export { allItems }

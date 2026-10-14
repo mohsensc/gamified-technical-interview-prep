@@ -4,6 +4,8 @@ import { rich } from '../ui/rich.js'
 import { getState, update, recordAnswer, subscribe } from '../store.js'
 import { navigate } from '../router.js'
 import { priorityIds } from '../content/thought/priority.js'
+import { codeMatches } from '../ui/codeMatch.js'
+import { overrideButton, applyOverrideVisuals, persistOverride } from '../ui/override.js'
 
 const queueKey = 'thought-queue'
 const stepLabels = ['Read', 'Data structure', 'Method', 'Code', 'Fill 3 lines', 'Complexity']
@@ -90,7 +92,7 @@ function lineMatches(userValue, lineIndex, rawLines, accept) {
   const candidates = [rawLines[lineIndex], ...alts]
   const normalizedUser = normalizeLine(userValue)
   if (!normalizedUser) return false
-  return candidates.some(candidate => normalizeLine(candidate) === normalizedUser)
+  return candidates.some(candidate => normalizeLine(candidate) === normalizedUser) || codeMatches(userValue, candidates)
 }
 
 function emptyCard(title, sub) {
@@ -528,6 +530,7 @@ function buildRunner(page, item, data) {
         const state = blankState[i]
         if (state.correct || state.revealed) continue
         const ok = lineMatches(inputs[i].value, i, rawLines, item.accept)
+        if (!ok && inputs[i].value.trim()) state.typedWrong = inputs[i].value
         if (ok) {
           state.correct = true
           inputs[i].disabled = true
@@ -560,6 +563,32 @@ function buildRunner(page, item, data) {
       try { recordAnswer({ itemId: `${item.id}:fill`, kind: 'thought', skills: item.skills, correct: allCorrect, ms: Date.now() - stepStartedAt }) } catch (error) { console.error(error) }
       feedback.replaceChildren(h('div', { class: `item-why show ${allCorrect ? 'good' : 'bad'}` },
         h('span', { class: 'verdict' }, allCorrect ? 'All 3 lines' : `${correctCount}/${total} lines`)))
+      const typedWrong = Object.entries(blankState).filter(([, state]) => !state.correct && state.typedWrong)
+      if (!allCorrect && typedWrong.length) {
+        feedback.append(h('div', { class: 'override-row' },
+          h('span', { class: 'muted small' }, typedWrong.map(([i, state]) => `L${Number(i) + 1}: ${state.typedWrong.trim()}`).join(' · ')),
+          overrideButton({
+            onOverride: () => {
+              for (const [i, state] of typedWrong) {
+                state.correct = true
+                inputs[i].classList.remove('is-wrong', 'is-revealed')
+                inputs[i].classList.add('is-correct', 'is-overridden')
+              }
+              applyOverrideVisuals(block)
+              const nowAllCorrect = Object.values(blankState).every(state => state.correct)
+              const verdict = feedback.querySelector('.item-why')
+              if (verdict && nowAllCorrect) {
+                verdict.classList.remove('bad')
+                verdict.classList.add('good')
+                verdict.querySelector('.verdict').textContent = 'Counted as correct'
+              }
+              if (!nowAllCorrect) return
+              stepState.fill = true
+              saveStatus(item.id, { fill: true })
+              persistOverride({ itemId: `${item.id}:fill`, kind: 'thought', skills: item.skills || [] })
+            },
+          })))
+      }
       nextBtn.style.display = ''
       nextBtn.focus()
     }

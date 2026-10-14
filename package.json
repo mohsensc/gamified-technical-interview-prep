@@ -1,6 +1,9 @@
 {
-  "name": "google-cram",
+  "name": "codecram",
   "private": true,
   "type": "module",
-  "scripts": { "start": "node server.js" }
+  "scripts": {
+    "start": "node server.js",
+    "build": "node scripts/build.mjs"
+  }
 }

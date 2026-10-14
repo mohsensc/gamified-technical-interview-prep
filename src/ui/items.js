@@ -2,6 +2,8 @@ import { h } from './h.js'
 import { codeBlock } from './code.js'
 import { rich } from './rich.js'
 import { isValidOrder } from './order.js'
+import { codeMatches } from './codeMatch.js'
+import { overrideButton, applyOverrideVisuals } from './override.js'
 
 const now = () => performance.now()
 
@@ -106,7 +108,8 @@ export function renderMcq(original, onDone) {
 }
 
 const blankPattern = /\[\[([^\n]+?)\]\](?!\])/g
-const normalize = text => String(text).replace(/\s+/g, '').replace(/"/g, "'").toLowerCase()
+const looseKey = text => String(text).replace(/\s+/g, '').replace(/"/g, "'").toLowerCase()
+export const blankMatches = (answers, value) => codeMatches(value, answers, { caseInsensitive: true }) || answers.some(answer => looseKey(answer) === looseKey(value) && looseKey(value) !== '')
 
 export function parseCloze(code) {
   const blanks = []
@@ -117,7 +120,7 @@ export function parseCloze(code) {
   return { source, blanks }
 }
 
-export function renderCloze(item, onDone) {
+export function renderCloze(item, onDone, { onOverride } = {}) {
   const started = now()
   const { source, blanks } = parseCloze(item.code)
   let checked = false
@@ -177,7 +180,7 @@ export function renderCloze(item, onDone) {
     if (checked) return
     checked = true
     const results = inputs.map((input, index) => {
-      const ok = !giveUp && blanks[index].some(answer => normalize(answer) === normalize(input.value))
+      const ok = !giveUp && blankMatches(blanks[index], input.value)
       input.disabled = true
       input.classList.add(ok ? 'is-correct' : 'is-wrong')
       if (!ok) {
@@ -191,15 +194,25 @@ export function renderCloze(item, onDone) {
     revealButton.disabled = true
     if (hintButton) hintButton.disabled = true
     const right = results.filter(Boolean).length
+    const ms = now() - started
     feedback.append(verdictEl(correct, giveUp ? 'Revealed' : `${right}/${results.length} blanks`))
-    onDone?.({ correct, ms: now() - started })
+    if (!correct && !giveUp && inputs.some(input => input.value.trim())) {
+      feedback.append(h('div', { class: 'override-row' }, overrideButton({
+        onOverride: () => {
+          applyOverrideVisuals(el)
+          for (const answerEl of el.querySelectorAll('.cloze-answer')) answerEl.classList.add('is-alt')
+          onOverride?.({ correct: true, overridden: true, ms })
+        },
+      })))
+    }
+    onDone?.({ correct, ms })
   }
 
   setTimeout(() => { if (el.isConnected) inputs[0]?.focus() }, 50)
   return el
 }
 
-export function renderParsons(item, onDone) {
+export function renderParsons(item, onDone, { onOverride } = {}) {
   const started = now()
   const correctLines = (item.lines || []).map(line => line.replace(/\s+$/, ''))
   const pieces = [
@@ -358,8 +371,18 @@ export function renderParsons(item, onDone) {
     const placed = answer.filter((piece, i) => !piece.distractor && piece.text === correctLines[i]).length
     const label = validReordered ? 'Accepted — independent lines can go in any order' : undefined
     feedback.append(verdictEl(correct, correct ? null : `${placed}/${correctLines.length} in place`, label))
-    if (!correct) feedback.append(h('div', { class: 'parsons-solution' }, h('div', { class: 'label muted' }, 'Answer'), codeBlock(correctLines.join('\n'))))
-    onDone?.({ correct, ms: now() - started })
+    const ms = now() - started
+    if (!correct) {
+      const solution = h('div', { class: 'parsons-solution' }, h('div', { class: 'label muted' }, 'Answer'), codeBlock(correctLines.join('\n')))
+      feedback.append(h('div', { class: 'override-row' }, overrideButton({
+        onOverride: () => {
+          applyOverrideVisuals(el)
+          solution.querySelector('.label').textContent = 'Reference answer'
+          onOverride?.({ correct: true, overridden: true, ms })
+        },
+      })), solution)
+    }
+    onDone?.({ correct, ms })
   }
 
   const el = h('div', { class: 'item item-parsons' },
@@ -433,10 +456,12 @@ export function renderCard(item, onGrade) {
   return el
 }
 
-export function renderItem(item, onDone) {
+export const overridableKinds = new Set(['cloze', 'parsons'])
+
+export function renderItem(item, onDone, options = {}) {
   const kind = kindOf(item)
-  if (kind === 'cloze') return renderCloze(item, onDone)
-  if (kind === 'parsons') return renderParsons(item, onDone)
+  if (kind === 'cloze') return renderCloze(item, onDone, options)
+  if (kind === 'parsons') return renderParsons(item, onDone, options)
   if (kind === 'card') return renderCard(item, (grade, { ms }) => onDone?.({ correct: grade >= 2, grade, ms }))
   return renderMcq(item, onDone)
 }

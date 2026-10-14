@@ -1,5 +1,6 @@
 import { h, svg, clear } from '../ui/h.js'
 import { createArcade, codeView, shuffle, sample, pickByLevel, rand } from './_engine.js'
+import { overrideButton, applyOverrideVisuals } from '../ui/override.js'
 
 const distinctValues = count => sample([1, 2, 3, 4, 5, 6, 7, 8, 9], count).sort((a, b) => a - b)
 
@@ -373,10 +374,19 @@ function mount(container, api) {
       id: `pointer-surgery:${puzzle.id}`,
       mistake: { summary: puzzle.title, yours: program.join('; '), answer: canonical, why: result.error || 'Order matters: save what you are about to overwrite first.' },
     })
-    const alive = ctx.miss()
+    let alive = ctx.miss()
+    const continueButton = h('button', { class: 'btn btn-primary game-continue', onclick: () => ctx.proceed() }, alive ? 'Continue ' : 'Results ', h('span', { class: 'kbd' }, 'Enter'))
+    const overrule = overrideButton({
+      onOverride: () => {
+        if (!ctx.overrule({ base: 200 })) return
+        alive = true
+        applyOverrideVisuals(feedback)
+        continueButton.firstChild.textContent = 'Continue '
+      },
+    })
     feedback.append(
       h('div', { class: 'game-why bad' }, h('strong', null, result.error ? 'Crash' : 'Wrong list'), h('span', null, why)),
-      h('button', { class: 'btn btn-primary game-continue', onclick: () => ctx.proceed() }, alive ? 'Continue ' : 'Results ', h('span', { class: 'kbd' }, 'Enter')))
+      h('div', { class: 'row row-wrap' }, continueButton, overrule))
     ctx.waitFor(() => (alive ? nextPuzzle(ctx) : ctx.end()))
   }
 

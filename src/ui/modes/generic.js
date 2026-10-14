@@ -2,6 +2,7 @@ import { h } from '../h.js'
 import { renderItem, kindOf, kindLabel } from '../items.js'
 import { recordAnswer, rateCard } from '../../store.js'
 import { bookmarkButton, itemLabel, resultItemId } from './shared.js'
+import { overrideResult } from '../../engine/session.js'
 
 export default function runGeneric(container, items, { onFinish } = {}) {
   let index = 0
@@ -38,7 +39,7 @@ export default function runGeneric(container, items, { onFinish } = {}) {
       h('div', { class: 'row spread practice-item-top' },
         h('span', { class: `chip kind-chip kind-${kind}` }, kindLabel[kind] || kind),
         bookmarkButton(item.id)),
-      renderItem(item, result => onAnswer(item, kind, result)))
+      renderItem(item, result => onAnswer(item, kind, result), { onOverride: () => onOverride(item, kind) }))
     updateHeader()
   }
 
@@ -59,6 +60,11 @@ export default function runGeneric(container, items, { onFinish } = {}) {
     }
     nextButton.hidden = false
     nextButton.focus({ preventScroll: true })
+  }
+
+  function onOverride(item, kind) {
+    const itemId = resultItemId(item)
+    overrideResult(results, result => result.itemId === itemId, { itemId, kind, skills: item.skills || [] })
   }
 
   function next(skipped = false) {
