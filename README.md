@@ -41,7 +41,8 @@ Guest mode needs no sign-in and works fully offline in localStorage. Signing in 
 3. Copy the project's URL and anon key into `supabaseUrl` and `supabaseAnonKey` in `src/config.js`.
 4. Push this repo to GitHub.
 5. Create a Cloudflare Pages project from that repo with build command `npm run build` and output directory `dist`.
-6. Deploy. The site is static and the only paid dependency is none — both Cloudflare Pages and the Supabase free tier cost $0.
+6. Deploy. Cloudflare Pages and the Supabase free tier both cost $0.
+7. Optionally set `siteUrl` in `src/config.js` to your deployed URL so sign-in emails link back to it.
 
 ## Progress data
 

@@ -103,7 +103,7 @@ const unitDefs = [
         { type: 'mock', ref: 'tips', title: 'Phrases that keep you talking', minutes: 4 },
       ] },
       { id: 'ic-narrate', title: 'Narrate the templates', skills: ['communication', 'graph-dfs', 'graph-bfs'], lessons: [], algos: [], narrate: true },
-      { id: 'ic-diagnose', title: 'Diagnose curated problems', skills: ['ds-diagnosis', 'constraints'], lessons: [], algos: [], googleDiagnose: true },
+      { id: 'ic-diagnose', title: 'Diagnose curated problems', skills: ['ds-diagnosis', 'constraints'], lessons: [], algos: [], curatedDiagnose: true },
       { id: 'ic-mock', title: 'Full mock', skills: ['communication'], lessons: [], algos: [], extraBites: [
         { type: 'mock', ref: 'sim', title: 'Timed mock interview', minutes: 20 },
       ] },
@@ -311,12 +311,12 @@ const buildModule = (mod, unit) => {
   const cards = items.filter(item => item.kind === 'card')
   const quizzable = items.filter(item => item.kind === 'mcq' || item.kind === 'generator')
   const buildable = items.filter(item => item.kind === 'cloze' || item.kind === 'parsons')
-  const probs = mod.googleDiagnose ? problems.filter(problem => (problem.companies || []).length) : moduleProblems(mod)
+  const probs = mod.curatedDiagnose ? problems.filter(problem => (problem.companies || []).length) : moduleProblems(mod)
   if (cards.length >= 3) add({ type: 'cards', slot: 'cards', title: 'Flash cards', minutes: biteMinutes.cards, skills: mod.skills, mode: 'cards', scope, rank: 4 })
   if (quizzable.length >= 3) add({ type: 'rapid', slot: 'rapid', title: 'Rapid fire', minutes: biteMinutes.rapid, skills: mod.skills, mode: 'rapid', scope, rank: 2 })
   if (buildable.length) add({ type: 'quiz', slot: 'build', title: 'Fill & order the code', minutes: biteMinutes.quiz, skills: mod.skills, mode: 'mixed', scope: { ...scope, kinds: ['cloze', 'parsons'] }, rank: 7 })
-  if (probs.length >= 2) add({ type: 'diagnose', slot: 'diagnose', title: mod.googleDiagnose ? 'Diagnose: curated set' : 'Diagnose the problem', minutes: mod.googleDiagnose ? 8 : biteMinutes.diagnose, skills: [...new Set(['ds-diagnosis', ...mod.skills])], mode: 'diagnose', scope: mod.googleDiagnose ? { googleOnly: true } : scope, rank: 3.5 })
-  if (mod.googleDiagnose) add({ type: 'rapid', slot: 'constraints', title: 'Constraint sprint', minutes: 3, skills: ['constraints', 'complexity'], mode: 'rapid', scope: { skills: ['constraints', 'complexity'] }, rank: 1 })
+  if (probs.length >= 2) add({ type: 'diagnose', slot: 'diagnose', title: mod.curatedDiagnose ? 'Diagnose: curated set' : 'Diagnose the problem', minutes: mod.curatedDiagnose ? 8 : biteMinutes.diagnose, skills: [...new Set(['ds-diagnosis', ...mod.skills])], mode: 'diagnose', scope: mod.curatedDiagnose ? { taggedOnly: true } : scope, rank: 3.5 })
+  if (mod.curatedDiagnose) add({ type: 'rapid', slot: 'constraints', title: 'Constraint sprint', minutes: 3, skills: ['constraints', 'complexity'], mode: 'rapid', scope: { skills: ['constraints', 'complexity'] }, rank: 1 })
   if (coreTraces.length) add({ type: 'predict', slot: 'predict', ref: coreTraces[0].id, title: 'Predict the next step', minutes: biteMinutes.predict, skills: coreTraces[0].skills, mode: 'predict', scope, rank: 8 })
 
   for (const trace of extraTraces) add(traceBite(trace, true))
@@ -461,7 +461,7 @@ export function problemsForNode(id) {
   const node = findNode(id)
   if (!node) return []
   if (node.kind === 'course') return problems
-  if (node.kind === 'module' && moduleDefById[id].mod.googleDiagnose) return problems.filter(problem => (problem.companies || []).length)
+  if (node.kind === 'module' && moduleDefById[id].mod.curatedDiagnose) return problems.filter(problem => (problem.companies || []).length)
   return uniqueById(modulesUnder(node).flatMap(mod => moduleProblems(moduleDefById[mod.id].mod)))
 }
 

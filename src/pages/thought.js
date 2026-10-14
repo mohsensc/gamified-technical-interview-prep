@@ -656,7 +656,7 @@ function buildRunner(page, item, data) {
         style: { width: `${Math.max(6, content.length + 2)}ch` }, 'aria-label': `blank line ${i + 1}`,
       })
       input.addEventListener('keydown', event => {
-        if (event.key === 'Enter') { event.preventDefault(); check() }
+        if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); check() }
       })
       const showBtn = h('button', { class: 'btn btn-ghost btn-sm thought-show-line', type: 'button' }, 'Show line')
       showBtn.addEventListener('click', () => revealOne(i))

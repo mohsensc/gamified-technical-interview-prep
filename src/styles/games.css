@@ -220,3 +220,7 @@
 .ptr-host { gap: 4px; }
 .ptr-line { padding-top: 5px; padding-bottom: 5px; }
 .ptr-program { min-height: 44px; padding: 6px; gap: 4px; }
+
+.game-pickline .code-block { cursor: pointer; }
+.game-pickline .code-line:hover:not(.mark-good):not(.mark-bad) { background: var(--sky-soft); border-left-color: var(--sky); }
+.game-pickline .code-line.mark-good, .game-pickline .code-line.mark-bad { cursor: default; }

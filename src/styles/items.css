@@ -1039,6 +1039,11 @@
   gap: 8px;
 }
 
+.problem-title-cell .co-chips {
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
 .mono {
   font-family: var(--mono, ui-monospace, 'JetBrains Mono', Menlo, monospace);
   font-size: 0.88em;
@@ -1075,10 +1080,6 @@
   color: var(--bad, #f87171);
 }
 
-.pill-google {
-  font-size: 0.7rem;
-  color: var(--sky, #38bdf8);
-}
 
 .seen-mark {
   color: var(--good, #4ade80);

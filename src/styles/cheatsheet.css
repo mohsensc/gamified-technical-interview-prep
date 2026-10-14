@@ -71,7 +71,7 @@ div.cheat-row:not([tabindex]):hover { background: none; }
 .cheat-con-note { color: var(--muted); }
 
 .cheat-ladder-list { display: flex; flex-direction: column; gap: 6px; }
-.cheat-ladder-row { display: grid; grid-template-columns: 110px 1fr 140px 140px; align-items: center; gap: 12px; padding: 8px 10px; }
+.cheat-ladder-row { display: grid; grid-template-columns: 110px 1fr 164px 164px; align-items: center; gap: 12px; padding: 8px 10px; }
 .cheat-ladder-label { font-weight: 700; }
 .cheat-ladder-bar-wrap { position: relative; height: 10px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
 .cheat-ladder-bar { height: 100%; border-radius: 99px; transition: width 0.3s ease; }
@@ -132,7 +132,7 @@ div.cheat-row:not([tabindex]):hover { background: none; }
 
 @media (max-width: 900px) {
   .cheat-con-row { grid-template-columns: 1fr; gap: 4px; }
-  .cheat-ladder-row { grid-template-columns: 90px 1fr; grid-template-areas: "label label" "bar bar" "ops5 ops6"; }
+  .cheat-ladder-row { grid-template-columns: 1fr 1fr; grid-template-areas: "label label" "bar bar" "ops5 ops6"; }
   .cheat-ladder-row .cheat-ladder-label { grid-area: label; }
   .cheat-ladder-row .cheat-ladder-bar-wrap { grid-area: bar; }
   .cheat-table-row { grid-template-columns: minmax(0, 1fr) !important; gap: 2px; }

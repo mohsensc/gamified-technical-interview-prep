@@ -46,7 +46,7 @@ const summary = [
   '==Space== = recursion depth + frontier width + memo + output.',
   'Nested loops → n². Halving → log n. Push/pop once → n. Graph → V+E.',
   '==Script==: clarify → examples → constraints → brute force → optimize → code → test → complexity → follow-ups.',
-  '==Google rubric==: communication, problem solving, coding, verification.',
+  '==The usual rubric==: communication, problem solving, coding, verification.',
   'Say something when stuck — silence reads as stuck, not thinking.',
   'Plain def is fine. No type hints needed.',
 ]
@@ -119,7 +119,7 @@ const sections = [
   },
   {
     kind: 'list',
-    title: 'Google rubric',
+    title: 'Interview rubric',
     items: [
       'Communication: think aloud, state assumptions, respond well to hints',
       'Problem solving: structured approach, weighs tradeoffs, reaches a working solution',
@@ -170,7 +170,7 @@ const recall = [
   { prompt: 'Memoized recursion with k unique states → complexity?', answer: 'O(k) × work per state' },
   { prompt: 'Sentence starter for the optimize phase?', answer: "'This smells like ___ — a ___ gets O(___) because ___.'" },
   { prompt: 'Best line to say when stuck?', answer: "'Let me try a smaller example' or 'let me think for 10 seconds.'" },
-  { prompt: "Google rubric's four pillars?", answer: 'Communication, problem solving, coding, verification' },
+  { prompt: "The four rubric pillars?", answer: 'Communication, problem solving, coding, verification' },
   { prompt: 'Do you need type hints while coding in the interview?', answer: 'No — plain def is fine' },
   { prompt: 'Fine interview-style function signature (no type hints)?', answer: 'def search(self, nums, target):' },
   { prompt: 'Two sequential loops over nums then other → complexity, and why not n·m?', answer: 'O(n + m) — they never nest, so costs add instead of multiply' },

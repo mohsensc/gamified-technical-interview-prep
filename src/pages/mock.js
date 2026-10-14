@@ -2,16 +2,19 @@ import { h, toast, confetti } from '../ui/h.js'
 import { codeBlock } from '../ui/code.js'
 import { getState, update, recordAnswer } from '../store.js'
 import { problems } from '../content/index.js'
-import { framework, phrases, rubric, googleTips, blockKinds, splitSolution, templates } from '../content/narration.js'
+import { framework, phrases, rubric, interviewTips, blockKinds, splitSolution, templates } from '../content/narration.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { companyChips } from '../ui/companies.js'
+import { overrideButton, persistOverride } from '../ui/override.js'
+import { companiesFor } from '../content/companies.js'
 
 const totalMs = 45 * 60 * 1000
 const sessionKey = 'mock:session'
 let mode = 'sim'
 
 const pool = () => {
-  const google = problems.filter(problem => problem.google)
-  return google.length ? google : problems
+  const tagged = problems.filter(problem => companiesFor(problem).length)
+  return tagged.length ? tagged : problems
 }
 
 const findProblem = id => problems.find(problem => problem.id === id)
@@ -61,7 +64,7 @@ const tabsBar = rerender => h('div', { class: 'row mk-tabs' },
 const problemMeta = problem => h('div', { class: 'row mk-meta' },
   problem.lc ? h('span', { class: 'pill' }, `#${problem.lc}`) : null,
   h('span', { class: `pill mk-diff-${(problem.difficulty || '').toLowerCase()}` }, problem.difficulty || '—'),
-  problem.google ? h('span', { class: 'pill mk-google' }, 'Google') : null)
+  companyChips(companiesFor(problem), { size: 'xs' }))
 
 const renderPicker = (root, rerender) => {
   const list = pool()
@@ -89,9 +92,9 @@ const renderPicker = (root, rerender) => {
   root.append(h('div', { class: 'mk-picker' },
     h('div', { class: 'card mk-hero' },
       h('div', { class: 'mk-hero-clock' }, '45:00'),
-      h('div', { class: 'muted' }, `${framework.length} phases · Google's 4 axes`),
+      h('div', { class: 'muted' }, `${framework.length} phases · 4 rubric axes`),
       h('div', { class: 'row mk-phase-dots' }, framework.map(step => h('span', { class: 'chip', title: step.title }, `${step.icon} ${step.minutes}m`))),
-      h('button', { class: 'btn btn-primary mk-big', onclick: () => start(randomOf(list)) }, 'Random Google problem')),
+      h('button', { class: 'btn btn-primary mk-big', onclick: () => start(randomOf(list)) }, 'Random problem')),
     h('div', { class: 'card stack' }, h('strong', null, 'Or choose'), search, listEl)))
 }
 
@@ -145,9 +148,23 @@ const phaseExtras = (phase, problem, session, persist) => {
       if (!session.answers.checked) return
       const timeOk = normalizeBigO(session.answers.time) === normalizeBigO(problem.time)
       const spaceOk = normalizeBigO(session.answers.space) === normalizeBigO(problem.space)
+      const overridden = Boolean(session.answers.overridden)
+      const tone = ok => ok || overridden ? 'good' : 'bad'
+      const overrideRow = !overridden && !(timeOk && spaceOk)
+        ? h('div', { class: 'row' }, overrideButton({
+          onOverride: () => {
+            session.answers.overridden = true
+            session.answers.complexityCorrect = true
+            persistOverride({ itemId: `mock:complexity:${problem.id}`, kind: 'mcq', skills: ['complexity', 'constraints'] })
+            persist()
+            drawResult()
+          },
+        }))
+        : overridden ? h('div', { class: 'row' }, h('span', { class: 'pill pill-green override-pill' }, '✓ Counted as correct')) : null
       result.replaceChildren(
-        h('div', { class: `mk-cmp ${timeOk ? 'good' : 'bad'}` }, h('span', null, 'Time'), h('span', null, session.answers.time || '—'), h('span', null, '→'), h('strong', null, problem.time || '?')),
-        h('div', { class: `mk-cmp ${spaceOk ? 'good' : 'bad'}` }, h('span', null, 'Space'), h('span', null, session.answers.space || '—'), h('span', null, '→'), h('strong', null, problem.space || '?')))
+        h('div', { class: `mk-cmp ${tone(timeOk)}` }, h('span', null, 'Time'), h('span', null, session.answers.time || '—'), h('span', null, '→'), h('strong', null, problem.time || '?')),
+        h('div', { class: `mk-cmp ${tone(spaceOk)}` }, h('span', null, 'Space'), h('span', null, session.answers.space || '—'), h('span', null, '→'), h('strong', null, problem.space || '?')),
+        overrideRow)
     }
     const check = () => {
       session.answers.time = time.value
@@ -396,7 +413,7 @@ const renderHistory = root => {
 
 const renderTips = root => {
   root.append(h('div', { class: 'grid mk-tips' },
-    googleTips.map(tip => h('div', { class: 'card' }, h('strong', null, stripMarks(tip.title)), h('div', { class: 'muted hb-small' }, rich(tip.text)))),
+    interviewTips.map(tip => h('div', { class: 'card' }, h('strong', null, stripMarks(tip.title)), h('div', { class: 'muted hb-small' }, rich(tip.text)))),
     Object.entries(phrases).map(([group, lines]) => h('div', { class: 'card stack' },
       h('strong', null, group.replace(/([A-Z])/g, ' $1').replace(/^./, char => char.toUpperCase())),
       lines.map(line => h('div', { class: 'hb-small' }, '“', rich(line), '”'))))))

@@ -100,7 +100,6 @@ export function makeDiagnoseQuestions(problem, pool = problems) {
       answer: choices.indexOf(correct),
       why: problem.insight || '',
       diagnose: { problemId: problem.id, part },
-      google: Boolean(problem.google),
       companies: companiesFor(problem),
     })
   }
@@ -162,7 +161,7 @@ const applyScope = (items, scope = {}, { isProblem = false } = {}) => {
   }
   if (scope.kinds?.length) pool = pool.filter(item => scope.kinds.includes(item.kind) || (item.kind === 'generator' && scope.kinds.includes('mcq')))
   if (scope.companies?.length) pool = pool.filter(item => matchesCompanies(item, scope.companies))
-  if (scope.googleOnly) pool = pool.filter(item => item.google || String(item.topic || '').startsWith('google'))
+  if (scope.taggedOnly) pool = pool.filter(item => companiesFor(item).length)
   if (scope.difficulty) pool = pool.filter(item => !item.difficulty || String(item.difficulty) === String(scope.difficulty))
   if (scope.missedOnly) {
     const missed = new Set(getMissed().map(entry => entry.id))
@@ -383,7 +382,7 @@ export function scopeFromQuery(query = {}) {
     topic: query.topic || undefined,
     skills: list(query.skill || query.skills),
     kinds: list(query.kinds),
-    googleOnly: flag(query.google) || undefined,
+    taggedOnly: flag(query.tagged || query.google) || undefined,
     difficulty: query.diff ? Number(query.diff) : undefined,
     missedOnly: flag(query.missed) || undefined,
     bookmarksOnly: flag(query.bookmarks) || undefined,
@@ -408,7 +407,7 @@ export function practiceHref(mode, scope = {}, { minutes, count, endless, timer 
   if (scope.topic) params.set('topic', scope.topic)
   if (scope.skills?.length) params.set('skill', scope.skills.join(','))
   if (scope.kinds?.length) params.set('kinds', scope.kinds.join(','))
-  if (scope.googleOnly) params.set('google', '1')
+  if (scope.taggedOnly) params.set('tagged', '1')
   if (scope.difficulty) params.set('diff', String(scope.difficulty))
   if (scope.missedOnly) params.set('missed', '1')
   if (scope.bookmarksOnly) params.set('bookmarks', '1')

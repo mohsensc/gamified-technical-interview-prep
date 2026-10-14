@@ -1,4 +1,4 @@
-import { framework, googleTips, whereToLook, templates } from './narration.js'
+import { framework, interviewTips, whereToLook, templates } from './narration.js'
 
 const bigO = {
   id: 'big-o', title: 'Big-O & constraints', icon: '📏', blurb: 'Read n, know the budget.',
@@ -455,10 +455,10 @@ const dayOf = {
   id: 'day-of', title: 'Interview day', icon: '🎯', blurb: 'Checklist + narration framework.',
   sections: [
     { type: 'steps', title: 'The 45-minute flow', items: framework },
-    { type: 'tips', title: 'Google signals', items: googleTips },
+    { type: 'tips', title: 'What interviewers look for', items: interviewTips },
     {
       type: 'list', title: 'Day-of checklist',
-      items: ['Laptop charged, camera + mic tested', 'Google Doc / editor open, font readable', 'Water, paper, pen', 'Say hello, smile, short intro (30 sec)', 'Clarify before coding, every time', 'Narrate each block as you write it', 'Trace one example through your code', 'State time + space with reasons', 'Ask one real question at the end'],
+      items: ['Laptop charged, camera + mic tested', 'Shared doc / editor open, font readable', 'Water, paper, pen', 'Say hello, smile, short intro (30 sec)', 'Clarify before coding, every time', 'Narrate each block as you write it', 'Trace one example through your code', 'State time + space with reasons', 'Ask one real question at the end'],
     },
     { type: 'narration', title: 'DFS / BFS lines to say', items: templates.filter(template => ['dfs', 'bfs'].includes(template.id)) },
   ],

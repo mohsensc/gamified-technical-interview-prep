@@ -7,7 +7,7 @@ import { mountStepper } from '../viz/stepper.js'
 import { findNode, hrefFor, pathTo, nextBite, algorithmById } from '../content/curriculum.js'
 import { lessons, traceById, problems } from '../content/index.js'
 import { companyChips } from '../ui/companies.js'
-import { framework, phrases, googleTips, templates } from '../content/narration.js'
+import { framework, phrases, interviewTips, templates } from '../content/narration.js'
 import { buildSession } from '../engine/session.js'
 import { recordAnswer, completeBite, saveSession, setEventContext, clearEventContext } from '../store.js'
 import runRapid from '../ui/modes/rapid.js'
@@ -201,7 +201,7 @@ function renderFrameworkRef(stage, markDone) {
 
 function renderTipsRef(stage, markDone) {
   stage.replaceChildren(
-    h('div', { class: 'grid' }, googleTips.map(tip => h('div', { class: 'card' }, h('strong', null, tip.title), h('div', { class: 'muted small' }, tip.text)))),
+    h('div', { class: 'grid' }, interviewTips.map(tip => h('div', { class: 'card' }, h('strong', null, tip.title), h('div', { class: 'muted small' }, tip.text)))),
     h('div', { class: 'stack' }, Object.entries(phrases).map(([group, lines]) => h('div', { class: 'card stack-sm' },
       h('strong', null, group.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase())),
       lines.map(line => h('div', { class: 'small' }, `"${line}"`))))),

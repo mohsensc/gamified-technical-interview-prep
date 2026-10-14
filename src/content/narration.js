@@ -157,10 +157,10 @@ export const whereToLook = [
   { signal: 'matching brackets / undo', think: 'Last in, first out', pattern: 'Stack', ds: 'list', skill: 'stack' },
 ]
 
-export const googleTips = [
+export const interviewTips = [
   { title: 'Think aloud', text: 'Silence reads as stuck. Narrate even half-ideas.' },
   { title: 'Clarify first', text: 'Two or three questions before any code. Interviewers grade this.' },
-  { title: 'Googleyness', text: 'Collaborative, humble, curious. Treat hints as teamwork.' },
+  { title: 'Be a teammate', text: 'Collaborative, humble, curious. Treat hints as teamwork.' },
   { title: 'Charm + substance', text: 'Friendly tone, but every sentence moves the solution forward.' },
   { title: 'Drive', text: 'Propose the next step yourself: "Shall I code this?"' },
   { title: 'Own bugs', text: 'Say "found a bug", fix it, move on. Calm beats perfect.' },

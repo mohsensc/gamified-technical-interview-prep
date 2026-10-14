@@ -1,5 +1,6 @@
 import { h } from './h.js'
 import { codeBlock } from './code.js'
+import { overrideButton } from './override.js'
 
 const openBrackets = new Set(['(', '[', '{'])
 const closeBrackets = new Set([')', ']', '}'])
@@ -308,9 +309,10 @@ export function expectedSignatureText(spec) {
   return lines.join('\n')
 }
 
-export function createSignatureEditor(spec, { onCheck, revealAfter = 2, placeholder } = {}) {
+export function createSignatureEditor(spec, { onCheck, onOverride, revealAfter = 2, placeholder } = {}) {
   let attempts = 0
   let revealed = false
+  let overridden = false
 
   const textarea = h('textarea', {
     class: 'sig-editor mono',
@@ -335,6 +337,7 @@ export function createSignatureEditor(spec, { onCheck, revealAfter = 2, placehol
 
   const issuesEl = h('div', { class: 'sig-issues' })
   const revealEl = h('div', { class: 'sig-reveal' })
+  const overrideSlot = h('span', { class: 'sig-override' })
   const statusEl = h('span', { class: 'muted small' }, `Tab inserts 4 spaces · ⌘⏎ to check`)
   const checkButton = h('button', { class: 'btn btn-primary', onclick: () => check() }, 'Check signature')
   const giveUpButton = h('button', { class: 'btn btn-ghost', onclick: () => reveal() }, 'Show answer')
@@ -359,7 +362,19 @@ export function createSignatureEditor(spec, { onCheck, revealAfter = 2, placehol
     else statusEl.textContent = `Not quite — ${revealAfter - attempts} ${revealAfter - attempts === 1 ? 'try' : 'tries'} left before the answer shows.`
     if (!result.ok && attempts >= revealAfter) reveal()
     onCheck?.(result, attempts)
+    if (result.ok || overridden) overrideSlot.replaceChildren()
+    else overrideSlot.replaceChildren(overrideButton({ onOverride: () => markOverridden(result) }))
     return result
+  }
+
+  function markOverridden(result) {
+    if (overridden) return
+    overridden = true
+    textarea.classList.remove('is-wrong')
+    textarea.classList.add('is-correct', 'is-overridden')
+    issuesEl.replaceChildren()
+    statusEl.textContent = ''
+    onOverride?.(result, attempts)
   }
 
   function reveal() {
@@ -373,9 +388,9 @@ export function createSignatureEditor(spec, { onCheck, revealAfter = 2, placehol
 
   const el = h('div', { class: 'sig-box stack-sm' },
     textarea,
-    h('div', { class: 'row sig-actions' }, checkButton, giveUpButton, statusEl),
+    h('div', { class: 'row sig-actions' }, checkButton, giveUpButton, overrideSlot, statusEl),
     issuesEl,
     revealEl)
 
-  return { el, textarea, check, reveal, getAttempts: () => attempts, isRevealed: () => revealed }
+  return { el, textarea, check, reveal, getAttempts: () => attempts, isRevealed: () => revealed, isOverridden: () => overridden }
 }

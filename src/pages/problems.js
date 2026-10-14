@@ -5,8 +5,10 @@ import * as store from '../store.js'
 import { problems, problemById, traceById } from '../content/index.js'
 import { skills } from '../content/skills.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { companyChips, companyFilter } from '../ui/companies.js'
+import { companiesFor, matchesCompanies, companyCounts } from '../content/companies.js'
 
-const filters = { search: '', googleOnly: false, difficulty: 'all', skill: 'all', pattern: 'all' }
+const filters = { search: '', companies: [], difficulty: 'all', skill: 'all', pattern: 'all' }
 
 const commonTimes = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n^2)', 'O(n^3)', 'O(2^n)', 'O(n!)', 'O(V+E)', 'O(m·n)', 'O(n·k)', 'O(E log V)', 'O(n log k)', 'O(√n)']
 const commonDs = ['hashmap', 'set', 'array', 'stack', 'queue', 'deque', 'heap', 'linked list', 'trie', 'union-find', 'adjacency list', 'sorted array', '2-D table']
@@ -49,7 +51,7 @@ const dsLabel = problem => (problem.ds || []).join(' + ')
 const difficultyClass = difficulty => `diff-${String(difficulty || '').toLowerCase()}`
 
 function matches(problem) {
-  if (filters.googleOnly && !problem.google) return false
+  if (!matchesCompanies(problem, filters.companies)) return false
   if (filters.difficulty !== 'all' && problem.difficulty !== filters.difficulty) return false
   if (filters.skill !== 'all' && !(problem.skills || []).includes(filters.skill)) return false
   if (filters.pattern !== 'all' && problem.pattern !== filters.pattern) return false
@@ -78,7 +80,7 @@ function renderList(container) {
     h('td', { class: 'problem-title-cell' },
       h('span', { class: `diff-dot ${difficultyClass(problem.difficulty)}`, title: problem.difficulty || '' }),
       stripMarks(problem.title),
-      problem.google ? h('span', { class: 'pill pill-google' }, 'G') : null,
+      companyChips(companiesFor(problem), { size: 'xs', labels: false, max: 3 }),
       seen(problem.id) ? h('span', { class: 'seen-mark' }, '✓') : null),
     h('td', null, problem.pattern ? h('span', { class: 'chip chip-pattern' }, problem.pattern) : null),
     h('td', { class: 'mono' }, problem.time || ''),
@@ -104,14 +106,14 @@ function renderList(container) {
     },
   }, level === 'all' ? 'Any' : level)))
 
-  const googleChip = h('button', {
-    class: `chip${filters.googleOnly ? ' active' : ''}`,
-    onclick: () => {
-      filters.googleOnly = !filters.googleOnly
-      googleChip.classList.toggle('active', filters.googleOnly)
+  const companyRow = companyFilter({
+    selected: filters.companies,
+    counts: companyCounts(problems),
+    onChange: next => {
+      filters.companies = next
       drawRows()
     },
-  }, 'Google only')
+  })
 
   const searchInput = h('input', {
     class: 'filter-search',
@@ -136,9 +138,9 @@ function renderList(container) {
 
   container.append(h('div', { class: 'page problems-page' },
     h('div', { class: 'page-header row' }, h('h1', null, 'Problems'), countEl, randomButton),
+    companyRow,
     h('div', { class: 'row problem-filters' },
       searchInput,
-      googleChip,
       difficultyChips,
       select('skill', usedSkills.map(skill => [skill, skills[skill].label]), 'All skills'),
       select('pattern', patterns.map(pattern => [pattern, pattern]), 'All patterns')),
@@ -254,7 +256,7 @@ function renderDetail(container, problem) {
       problem.lc ? h('span', { class: 'mono muted lc-num' }, `#${problem.lc}`) : null,
       h('h1', null, stripMarks(problem.title)),
       problem.difficulty ? h('span', { class: `pill ${difficultyClass(problem.difficulty)}` }, problem.difficulty) : null,
-      problem.google ? h('span', { class: 'pill pill-google' }, 'Google') : null),
+      companyChips(companiesFor(problem), { size: 'sm' })),
     h('div', { class: 'card statement-card' },
       problem.constraints ? h('div', { class: 'constraints mono' }, problem.constraints) : null,
       problem.signals?.length ? h('div', { class: 'row signals' }, problem.signals.map(signal => h('span', { class: 'chip chip-signal' }, rich(signal)))) : null,

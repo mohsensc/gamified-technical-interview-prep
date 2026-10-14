@@ -2,6 +2,7 @@ import { h, clear, confetti } from '../ui/h.js'
 import { codeBlock } from '../ui/code.js'
 import { renderMcq } from '../ui/items.js'
 import { createSignatureEditor } from '../ui/signature.js'
+import { persistOverride } from '../ui/override.js'
 import { rich, stripMarks } from '../ui/rich.js'
 import { recordAnswer, markSeen, isSeen } from '../store.js'
 
@@ -319,6 +320,15 @@ function renderSignStep(stage, statement, onDone) {
         continueBtn.disabled = false
       }
     },
+    onOverride: () => {
+      const skills = [...(statement.skills || []), 'communication']
+      if (logged) persistOverride({ itemId: `${statement.id}:sign`, kind: 'sign', skills })
+      else {
+        logged = true
+        try { recordAnswer({ itemId: `${statement.id}:sign`, kind: 'sign', skills, correct: true }) } catch {}
+      }
+      continueBtn.disabled = false
+    },
   })
 
   stage.append(h('div', { class: 'rd-sign-split' },
@@ -586,6 +596,12 @@ function renderDrill(container, statements) {
         if (result.ok) score.right++
         try { recordAnswer({ itemId: `${statement.id}:drill`, kind: 'sign', skills: [...(statement.skills || []), 'communication'], correct: result.ok }) } catch {}
         nextBtn.disabled = false
+        drawHud()
+      },
+      onOverride: () => {
+        if (!answered) return
+        score.right++
+        persistOverride({ itemId: `${statement.id}:drill`, kind: 'sign', skills: [...(statement.skills || []), 'communication'] })
         drawHud()
       },
     })

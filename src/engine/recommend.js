@@ -217,7 +217,7 @@ export function recommendNext({ limit = 3 } = {}) {
     add({
       title: 'Rapid warm-up',
       reason: `${hoursText}: quick confident reps, nothing new`,
-      href: practiceHref('rapid', { googleOnly: false }),
+      href: practiceHref('rapid', {}),
       minutes: 3,
       kind: 'warmup',
       skills: [],
@@ -226,7 +226,7 @@ export function recommendNext({ limit = 3 } = {}) {
   }
 
   if (!candidates.length) {
-    add({ title: 'Diagnose curated problems', reason: 'Everything on track, keep diagnosis sharp', href: practiceHref('diagnose', { googleOnly: true }), minutes: 5, kind: 'drill', skills: ['ds-diagnosis'], score: 1 })
+    add({ title: 'Diagnose curated problems', reason: 'Everything on track, keep diagnosis sharp', href: practiceHref('diagnose', { taggedOnly: true }), minutes: 5, kind: 'drill', skills: ['ds-diagnosis'], score: 1 })
   }
 
   for (const candidate of candidates) {

@@ -16,7 +16,7 @@ const decode = value => {
 const topicMeta = id => {
   const topic = topics.find(item => item.id === id)
   if (topic) return { title: topic.title, icon: topic.icon || '•' }
-  if (String(id).startsWith('google')) return { title: 'Google bank', icon: '🔎' }
+  if (String(id).startsWith('google')) return { title: 'Problem bank', icon: '🔎' }
   return { title: id || 'Other', icon: '•' }
 }
 

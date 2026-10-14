@@ -39,6 +39,8 @@ const keyHints = {
   quiz: [['1-4', 'answer'], ['Enter', 'next']],
   'traversal-order': [['0-9', 'pick node'], ['Enter', 'next']],
   'pointer-surgery': [['1-6', 'add line'], ['⌫', 'undo'], ['Enter', 'run']],
+  'bug-spotter': [['1-9', 'pick line'], ['1-4', 'pick fix'], ['Enter', 'continue']],
+  'line-up': [['1-9', 'add line'], ['⌫', 'undo'], ['Enter', 'check']],
 }
 
 const bestOf = gameId => {
