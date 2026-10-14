@@ -570,6 +570,7 @@ body.drawer-lock, body.cmdk-open { overflow: hidden; }
 .co-chips-xs .co-chip { padding: 2px 6px 2px 2px; font-size: 11px; }
 .co-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 3px; border-radius: 99px; background: color-mix(in srgb, var(--co) 12%, var(--surface-2)); border: 1px solid color-mix(in srgb, var(--co) 28%, var(--border)); font-size: 12px; font-weight: 600; color: var(--text); }
 .co-label { white-space: nowrap; }
+.co-chips .co-chip.co-chip-bare { padding: 2px; gap: 0; }
 .co-more { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 99px; background: var(--surface-3); color: var(--muted); font-size: 12px; font-weight: 600; }
 .co-mark { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 50%; font-weight: 800; line-height: 1; background: color-mix(in srgb, var(--co) 20%, transparent); color: var(--co); overflow: hidden; }
 .co-mark svg { display: block; width: 68%; height: 68%; }
@@ -579,3 +580,7 @@ body.drawer-lock, body.cmdk-open { overflow: hidden; }
 button.co-filter-chip.co-on { background: color-mix(in srgb, var(--co) 16%, var(--surface-2)); border-color: var(--co); color: var(--text); }
 .co-count { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 button.co-filter-chip.co-on .co-count { color: var(--co); }
+.subnav { display: flex; gap: 4px; padding: 4px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); width: fit-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.subnav-tab { padding: 7px 14px; border-radius: 9px; color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.subnav-tab:hover { color: var(--text); background: var(--surface-2); }
+.subnav-tab.active { color: var(--text); background: var(--surface-3); }

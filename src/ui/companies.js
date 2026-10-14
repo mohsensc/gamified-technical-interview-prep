@@ -25,7 +25,7 @@ export function companyChips(companies = [], { size = 'sm', labels = size !== 'x
   const shown = known.slice(0, max)
   const markSize = size === 'lg' ? 20 : size === 'xs' ? 14 : 16
   const row = h('span', { class: `co-chips co-chips-${size}`, title: known.map(company => company.label).join(', ') },
-    shown.map(company => h('span', { class: 'co-chip', style: { '--co': company.color }, title: `Asked at ${company.label}` },
+    shown.map(company => h('span', { class: labels ? 'co-chip' : 'co-chip co-chip-bare', style: { '--co': company.color }, title: `Asked at ${company.label}` },
       companyMark(company.id, markSize),
       labels ? h('span', { class: 'co-label' }, company.label) : null)),
     known.length > shown.length ? h('span', { class: 'co-more' }, `+${known.length - shown.length}`) : null)

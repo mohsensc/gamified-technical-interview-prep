@@ -53,12 +53,8 @@ export const navGroups = [
     id: 'reference',
     label: 'Reference',
     items: [
-      { id: 'algorithms', label: 'Algorithms', href: '#/algorithms', key: 'a' },
       { id: 'learn', label: 'Learn', href: '#/learn', key: 'l' },
-      { id: 'problems', label: 'Problems', href: '#/problems', key: 'b' },
-      { id: 'read', label: 'Read', href: '#/read', key: 'd' },
       { id: 'cheatsheet', label: 'Cheat sheet', href: '#/cheatsheet', key: 'q' },
-      { id: 'glossary', label: 'Glossary', href: '#/glossary', key: 'y' },
       { id: 'handbook', label: 'Handbook', href: '#/handbook', key: 'k' },
     ],
   },
@@ -67,8 +63,6 @@ export const navGroups = [
     label: 'Track',
     items: [
       { id: 'stats', label: 'Stats', href: '#/stats', key: 's' },
-      { id: 'mock', label: 'Mock', href: '#/mock', key: 'm' },
-      { id: 'dayof', label: 'Interview day', href: '#/dayof', key: 'z', amber: true },
     ],
   },
 ]
@@ -79,9 +73,11 @@ const bottomNavIds = ['dashboard', 'thought', 'practice', 'games']
 
 const sectionFor = path => {
   const first = path.split('/')[1] || ''
-  if (first === 'trace') return 'learn'
-  if (first === 'bite' || first === 'plan') return 'course'
-  if (first === 'drill' || first === 'flashcards') return 'practice'
+  if (['trace', 'algorithms', 'problems', 'read'].includes(first)) return 'learn'
+  if (first === 'glossary') return 'cheatsheet'
+  if (['dayof', 'plan'].includes(first)) return 'handbook'
+  if (first === 'bite') return 'course'
+  if (['drill', 'flashcards', 'mock'].includes(first)) return 'practice'
   return navItems.find(item => item.href === `#/${first}`)?.id || 'dashboard'
 }
 
