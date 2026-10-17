@@ -1,7 +1,7 @@
 export default {
   id: 'graphs-weighted',
   title: 'Graphs: ordering & weighted',
-  icon: '🧭',
+  icon: 'compass',
   items: [
     {
       id: 'thought:graphs-weighted:course-schedule',

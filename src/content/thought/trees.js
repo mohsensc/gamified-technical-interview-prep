@@ -1082,4 +1082,4 @@ A perfect subtree (every level completely full) has exactly 2^height - 1 nodes, 
   },
 ]
 
-export default { id: 'trees', title: 'Trees & BST', icon: '🌳', items }
+export default { id: 'trees', title: 'Trees & BST', icon: 'tree', items }

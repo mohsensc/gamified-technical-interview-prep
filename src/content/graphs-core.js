@@ -3193,7 +3193,7 @@ const generators = [
 export default {
   id: 'graphs-core',
   title: 'Graphs: DFS, BFS, Grids, Topo',
-  icon: '🕸️',
+  icon: 'web',
   skills: ['graph-modeling', 'graph-dfs', 'graph-bfs', 'grid', 'topo-sort'],
   lessons,
   traces,

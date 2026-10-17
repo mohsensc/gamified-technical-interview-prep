@@ -1,7 +1,7 @@
 export default {
   id: 'trees-design',
   title: 'Trees, heaps & OOP design',
-  icon: '🌳',
+  icon: 'tree',
   minutes: 25,
 
   summary: [

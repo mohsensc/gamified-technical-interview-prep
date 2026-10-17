@@ -1,4 +1,5 @@
 import { h, toast } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { chapters, chapterById } from '../content/handbook.js'
 import { rich, stripMarks } from '../ui/rich.js'
@@ -96,7 +97,7 @@ export const flowSection = section => {
 
 const stepsSection = section => h('div', { class: 'hb-steps' },
   section.items.map((step, index) => h('div', { class: 'hb-step card' },
-    h('div', { class: 'hb-step-head' }, h('span', { class: 'hb-step-num' }, index + 1), h('span', null, `${step.icon} ${stripMarks(step.title)}`), h('span', { class: 'pill' }, `${step.minutes}m`)),
+    h('div', { class: 'hb-step-head' }, h('span', { class: 'hb-step-num' }, index + 1), h('span', null, icon(step.icon, 15), ` ${stripMarks(step.title)}`), h('span', { class: 'pill' }, `${step.minutes}m`)),
     h('div', { class: 'muted hb-small' }, rich(step.goal)),
     h('div', { class: 'hb-starter' }, '“', rich(step.starters[0]), '”'))))
 
@@ -141,7 +142,7 @@ const renderList = container => {
     h('div', { class: 'page-header' }, h('h1', null, 'Handbook')),
     h('div', { class: 'grid hb-grid' },
       chapters.map(chapter => h('a', { class: 'card hb-chapter', href: `#/handbook/${chapter.id}` },
-        h('div', { class: 'hb-chapter-icon' }, chapter.icon),
+        h('div', { class: 'hb-chapter-icon' }, icon(chapter.icon, 24)),
         h('div', { class: 'hb-chapter-title' }, stripMarks(chapter.title)),
         h('div', { class: 'muted hb-small' }, stripMarks(chapter.blurb)))))))
 }
@@ -159,7 +160,7 @@ export default function render(container, params = {}) {
     subnav('handbook', 'handbook'),
     h('div', { class: 'page-header' },
       h('a', { class: 'btn btn-ghost', href: '#/handbook' }, '← Handbook'),
-      h('h1', null, `${chapter.icon} ${stripMarks(chapter.title)}`)),
+      h('h1', { class: 'row' }, icon(chapter.icon, 24), ` ${stripMarks(chapter.title)}`)),
     h('div', { class: 'row hb-tabs' }, chapters.map(other => h('a', { class: `chip ${other.id === chapter.id ? 'active' : ''}`, href: `#/handbook/${other.id}` }, stripMarks(other.title)))),
     h('div', { class: 'hb-sections' }, chapter.sections.map(renderSection)),
     h('div', { class: 'row hb-pager' },

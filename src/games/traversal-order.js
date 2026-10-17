@@ -1,4 +1,5 @@
 import { h, svg, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { createArcade, pick, shuffle, rand } from './_engine.js'
 import { overrideButton, applyOverrideVisuals } from '../ui/override.js'
 
@@ -298,7 +299,7 @@ function mount(container, api) {
       : null
     ctx.stage.append(h('div', { class: 'card game-card fade-in' },
       h('div', { class: 'row row-wrap game-tags' },
-        h('span', { class: 'pill pill-teal' }, `🧭 ${puzzle.mode.label}`),
+        h('span', { class: 'pill pill-teal' }, icon('compass', 13), ` ${puzzle.mode.label}`),
         puzzle.adjacency ? h('span', { class: 'chip' }, 'neighbors ascending') : null,
         puzzle.modeId === 'topo' ? h('span', { class: 'chip' }, 'any valid order') : null,
         puzzle.sources ? h('span', { class: 'chip mono' }, `sources: ${puzzle.sources.join(', ')}`) : null),
@@ -366,7 +367,7 @@ function mount(container, api) {
     ctx.resolve(clean, { skills: puzzle.mode.skills, id: `traversal-order:${puzzle.modeId}` })
     if (clean) {
       ctx.hit(120, Math.max(0, 1 - seconds / 25))
-      feedback.append(h('div', { class: 'game-why good' }, '✓ ', puzzle.mode.why))
+      feedback.append(h('div', { class: 'game-why good' }, icon('check', 14), ' ', puzzle.mode.why))
       ctx.waitFor(() => nextPuzzle(ctx), 1300)
       return
     }
@@ -391,7 +392,7 @@ function mount(container, api) {
 
   return createArcade(container, api, {
     title: 'Traversal Order',
-    icon: '🧭',
+    icon: 'compass',
     rules: ['tap nodes in order', 'digits pick nodes'],
     mode: 'lives',
     lives: 3,
@@ -411,7 +412,7 @@ function mount(container, api) {
 export default {
   id: 'traversal-order',
   title: 'Traversal Order',
-  icon: '🧭',
+  icon: 'compass',
   blurb: 'Click nodes exactly as DFS or BFS would.',
   skills: ['tree-dfs', 'tree-bfs', 'graph-dfs', 'graph-bfs', 'topo-sort'],
   difficulty: 'Trees → graphs → forests → DAGs',

@@ -1,4 +1,5 @@
 import { h } from './h.js'
+import { icon } from './icons.js'
 import * as store from '../store.js'
 
 export function persistOverride({ itemId, kind, skills = [], mode, topic, nodeId } = {}) {
@@ -13,7 +14,7 @@ export function persistOverride({ itemId, kind, skills = [], mode, topic, nodeId
 
 export function overrideButton({ onOverride, label = 'I was right', title = 'My answer is also valid. Count it.' } = {}) {
   let used = false
-  const pill = h('span', { class: 'pill pill-green override-pill' }, '✓ Counted as correct')
+  const pill = h('span', { class: 'pill pill-green override-pill' }, icon('check', 13), ' Counted as correct')
   const button = h('button', {
     class: 'btn btn-ghost btn-sm override-btn',
     type: 'button',

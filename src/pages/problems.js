@@ -1,4 +1,5 @@
 import { h, clear, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { renderMcq } from '../ui/items.js'
 import * as store from '../store.js'
@@ -82,7 +83,7 @@ function renderList(container) {
       h('span', { class: `diff-dot ${difficultyClass(problem.difficulty)}`, title: problem.difficulty || '' }),
       stripMarks(problem.title),
       companyChips(companiesFor(problem), { size: 'xs', labels: false, max: 3 }),
-      seen(problem.id) ? h('span', { class: 'seen-mark' }, '✓') : null),
+      seen(problem.id) ? h('span', { class: 'seen-mark' }, icon('check', 13)) : null),
     h('td', null, problem.pattern ? h('span', { class: 'chip chip-pattern' }, problem.pattern) : null),
     h('td', { class: 'mono' }, problem.time || ''),
     h('td', { class: 'mono muted' }, problem.space || ''))))
@@ -230,7 +231,7 @@ function renderDetail(container, problem) {
           ...(problem.ds || []).map(ds => h('span', { class: 'chip' }, ds)),
           problem.time ? h('span', { class: 'pill' }, `T ${problem.time}`) : null,
           problem.space ? h('span', { class: 'pill' }, `S ${problem.space}`) : null,
-          trace ? h('a', { class: 'btn btn-primary', href: `#/trace/${encodeURIComponent(trace.id)}` }, '▶ Step through') : null)),
+          trace ? h('a', { class: 'btn btn-primary', href: `#/trace/${encodeURIComponent(trace.id)}` }, icon('play', 14), ' Step through') : null)),
       problem.narration?.length ? h('div', { class: 'card narration-card' },
         h('div', { class: 'label muted' }, 'Say it'),
         h('ol', { class: 'narration' }, problem.narration.map(line => h('li', null, rich(line))))) : null,

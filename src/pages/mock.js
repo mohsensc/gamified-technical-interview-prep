@@ -1,4 +1,5 @@
 import { h, toast, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { getState, update, recordAnswer } from '../store.js'
 import { problems } from '../content/index.js'
@@ -94,7 +95,7 @@ const renderPicker = (root, rerender) => {
     h('div', { class: 'card mk-hero' },
       h('div', { class: 'mk-hero-clock' }, '45:00'),
       h('div', { class: 'muted' }, `${framework.length} phases · 4 rubric axes`),
-      h('div', { class: 'row mk-phase-dots' }, framework.map(step => h('span', { class: 'chip', title: step.title }, `${step.icon} ${step.minutes}m`))),
+      h('div', { class: 'row mk-phase-dots' }, framework.map(step => h('span', { class: 'chip', title: step.title }, icon(step.icon, 13), ` ${step.minutes}m`))),
       h('button', { class: 'btn btn-primary mk-big', onclick: () => start(randomOf(list)) }, 'Random problem')),
     h('div', { class: 'card stack' }, h('strong', null, 'Or choose'), search, listEl)))
 }
@@ -161,7 +162,7 @@ const phaseExtras = (phase, problem, session, persist) => {
             drawResult()
           },
         }))
-        : overridden ? h('div', { class: 'row' }, h('span', { class: 'pill pill-green override-pill' }, '✓ Counted as correct')) : null
+        : overridden ? h('div', { class: 'row' }, h('span', { class: 'pill pill-green override-pill' }, icon('check', 13), ' Counted as correct')) : null
       result.replaceChildren(
         h('div', { class: `mk-cmp ${tone(timeOk)}` }, h('span', null, 'Time'), h('span', null, session.answers.time || '—'), h('span', null, '→'), h('strong', null, problem.time || '?')),
         h('div', { class: `mk-cmp ${tone(spaceOk)}` }, h('span', null, 'Space'), h('span', null, session.answers.space || '—'), h('span', null, '→'), h('strong', null, problem.space || '?')),
@@ -263,7 +264,7 @@ const renderSession = (root, session, rerender, timers) => {
   const tracker = h('div', { class: 'mk-tracker' }, framework.map((step, index) => h('button', {
     class: `mk-phase ${index === session.phaseIndex ? 'current' : ''} ${index < session.phaseIndex ? 'done' : ''}`,
     onclick: () => { session.phaseIndex = index; session.rating = false; persist(true) },
-  }, h('span', { class: 'mk-phase-icon' }, step.icon), h('span', { class: 'mk-phase-label' }, step.title))))
+  }, h('span', { class: 'mk-phase-icon' }, icon(step.icon, 16)), h('span', { class: 'mk-phase-label' }, step.title))))
 
   const header = h('div', { class: 'card mk-head' },
     h('div', { class: 'mk-head-main' },
@@ -308,7 +309,7 @@ const renderSession = (root, session, rerender, timers) => {
   const isLast = session.phaseIndex === framework.length - 1
   const phaseCard = h('div', { class: 'card mk-phase-card stack' },
     h('div', { class: 'mk-phase-top' },
-      h('span', { class: 'mk-phase-big' }, phase.icon),
+      h('span', { class: 'mk-phase-big' }, icon(phase.icon, 28)),
       h('div', null, h('div', { class: 'muted hb-small' }, `Phase ${session.phaseIndex + 1}/${framework.length} · ${phase.minutes} min`), h('h3', { class: 'mk-phase-title' }, phase.title))),
     h('div', { class: 'mk-goal' }, phase.goal),
     checklist,

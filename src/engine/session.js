@@ -6,19 +6,19 @@ import { pickAdaptive, weakestSkills, getMissed, getBookmarks, dueItems } from '
 import { persistOverride } from '../ui/override.js'
 
 export const modes = [
-  { id: 'rapid', title: 'Rapid fire', icon: '⚡', blurb: 'Beat the clock', seconds: 90 },
-  { id: 'speed', title: 'Speed round', icon: '🏃', blurb: '60 seconds, one tap', seconds: 60 },
-  { id: 'diagnose', title: 'Diagnose', icon: '🩺', blurb: 'Pattern, DS, time, space' },
-  { id: 'weakest', title: 'Weak spots', icon: '🎯', blurb: 'Aimed at your lowest skills' },
-  { id: 'mixed', title: 'Mixed', icon: '🎲', blurb: 'A bit of everything' },
-  { id: 'review', title: 'Mixed review', icon: '🔁', blurb: 'Spaced repetition, every kind' },
-  { id: 'companyMix', title: 'Company mix', icon: '🏢', blurb: 'One company, every format' },
-  { id: 'mcq', title: 'Quiz', icon: '❓', blurb: 'Multiple choice' },
-  { id: 'cards', title: 'Cards', icon: '🃏', blurb: 'Flip and rate' },
-  { id: 'cloze', title: 'Fill in', icon: '🧩', blurb: 'Complete the code' },
-  { id: 'parsons', title: 'Reorder', icon: '🔀', blurb: 'Put lines in order' },
-  { id: 'predict', title: 'Predict', icon: '🔮', blurb: 'Guess the next step' },
-  { id: 'checkpoint', title: 'Checkpoint', icon: '🏁', blurb: '80% to pass' },
+  { id: 'rapid', title: 'Rapid fire', icon: 'bolt', blurb: 'Beat the clock', seconds: 90 },
+  { id: 'speed', title: 'Speed round', icon: 'bolt', blurb: '60 seconds, one tap', seconds: 60 },
+  { id: 'diagnose', title: 'Diagnose', icon: 'pulse', blurb: 'Pattern, DS, time, space' },
+  { id: 'weakest', title: 'Weak spots', icon: 'target', blurb: 'Aimed at your lowest skills' },
+  { id: 'mixed', title: 'Mixed', icon: 'dice', blurb: 'A bit of everything' },
+  { id: 'review', title: 'Mixed review', icon: 'repeat', blurb: 'Spaced repetition, every kind' },
+  { id: 'companyMix', title: 'Company mix', icon: 'building', blurb: 'One company, every format' },
+  { id: 'mcq', title: 'Quiz', icon: 'question', blurb: 'Multiple choice' },
+  { id: 'cards', title: 'Cards', icon: 'card', blurb: 'Flip and rate' },
+  { id: 'cloze', title: 'Fill in', icon: 'puzzle', blurb: 'Complete the code' },
+  { id: 'parsons', title: 'Reorder', icon: 'shuffle', blurb: 'Put lines in order' },
+  { id: 'predict', title: 'Predict', icon: 'sparkle', blurb: 'Guess the next step' },
+  { id: 'checkpoint', title: 'Checkpoint', icon: 'flag', blurb: '80% to pass' },
 ]
 
 export const modeById = Object.fromEntries(modes.map(mode => [mode.id, mode]))

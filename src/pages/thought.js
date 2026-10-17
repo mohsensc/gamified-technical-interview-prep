@@ -1,4 +1,5 @@
 import { h, svg } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock, highlightPython } from '../ui/code.js'
 import { rich } from '../ui/rich.js'
 import { getState, update, recordAnswer, subscribe } from '../store.js'
@@ -20,9 +21,9 @@ const modeDefs = [
 ]
 const mixedDrillSize = 10
 const sayItRatings = [
-  { id: 'good', label: 'Nailed it', icon: '✓' },
-  { id: 'shaky', label: 'Shaky', icon: '~' },
-  { id: 'blank', label: 'Blanked', icon: '✗' },
+  { id: 'good', label: 'Nailed it', icon: 'check' },
+  { id: 'shaky', label: 'Shaky', icon: 'wave' },
+  { id: 'blank', label: 'Blanked', icon: 'x' },
 ]
 
 let contentPromise = null
@@ -105,14 +106,14 @@ function lineMatches(userValue, lineIndex, rawLines, accept) {
 
 function emptyCard(title, sub) {
   return h('div', { class: 'card empty' },
-    h('div', { class: 'empty-icon' }, '🧠'),
+    h('div', { class: 'empty-icon' }, icon('brain', 32)),
     h('h3', null, title),
     sub ? h('p', { class: 'muted' }, sub) : null,
     h('a', { class: 'btn', href: '#/thought' }, 'Back to list'))
 }
 
 function loadingCard() {
-  return h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, '⏳'), h('h3', null, 'Loading…'))
+  return h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, icon('clock', 32)), h('h3', null, 'Loading…'))
 }
 
 function listHeader() {
@@ -142,11 +143,11 @@ function categoryStats(ids, statusMap) {
   return { total, green, pct: total ? Math.round((green / total) * 100) : 0 }
 }
 
-function categoryCard(title, icon, stats, active, onClick) {
+function categoryCard(title, iconName, stats, active, onClick) {
   const card = h('button', { class: `thought-cat-card${active ? ' active' : ''}`, type: 'button' },
     progressRing(stats.total ? stats.green / stats.total : 0, { size: 46, stroke: 4 }),
     h('div', { class: 'thought-cat-info' },
-      h('span', { class: 'thought-cat-icon' }, icon),
+      h('span', { class: 'thought-cat-icon' }, icon(iconName, 20)),
       h('h3', null, title),
       h('span', { class: 'muted small' }, stats.total ? `${stats.green}/${stats.total} mastered` : 'Coming soon')))
   card.addEventListener('click', onClick)
@@ -154,8 +155,8 @@ function categoryCard(title, icon, stats, active, onClick) {
 }
 
 function buildCategoryGrid(categories, items, statusMap, selected, onPick) {
-  const cards = [categoryCard('All patterns', '🧠', categoryStats(items.map(i => i.id), statusMap), selected === 'all', () => onPick('all'))]
-  for (const cat of categories) cards.push(categoryCard(cat.title, cat.icon || '•', categoryStats(cat.items.map(i => i.id), statusMap), selected === cat.id, () => onPick(cat.id)))
+  const cards = [categoryCard('All patterns', 'brain', categoryStats(items.map(i => i.id), statusMap), selected === 'all', () => onPick('all'))]
+  for (const cat of categories) cards.push(categoryCard(cat.title, cat.icon || 'layers', categoryStats(cat.items.map(i => i.id), statusMap), selected === cat.id, () => onPick(cat.id)))
   return cards
 }
 
@@ -194,7 +195,7 @@ function listRow(item, categories, statusMap, onClick, rank) {
   const done = isDone(statusMap[item.id])
   const catTitle = categories.find(cat => cat.id === item.category)?.title || item.category
   const row = h('button', { class: `thought-row${done ? ' is-done' : ''}`, type: 'button' },
-    rank != null ? h('span', { class: 'thought-row-rank mono small' }, done ? '✓' : String(rank)) : null,
+    rank != null ? h('span', { class: 'thought-row-rank mono small' }, done ? icon('check', 13) : String(rank)) : null,
     h('span', { class: `dot ${toneDot[tone]}` }),
     h('span', { class: 'thought-row-lc mono muted small' }, item.lc != null ? `#${item.lc}` : ''),
     h('span', { class: 'thought-row-title' }, item.title),
@@ -212,7 +213,7 @@ function searchBox(value) {
     value, 'aria-label': 'Search thought process problems',
   })
   return h('div', { class: 'thought-search-wrap' },
-    h('span', { class: 'thought-search-icon', 'aria-hidden': 'true' }, '🔎'),
+    h('span', { class: 'thought-search-icon', 'aria-hidden': 'true' }, icon('search', 16)),
     input,
     h('span', { class: 'kbd thought-search-kbd' }, '/'))
 }
@@ -299,7 +300,7 @@ function renderList(container) {
         h('div', { class: 'thought-toolbar' }, search, filters),
         h('div', { class: 'row-wrap thought-chip-row' }, buildModeChips(selectedMode, mode => { selectedMode = mode; draw() })),
         selectedMode === 'priority' ? h('p', { class: 'muted small' }, `${coreLeft} core left`) : null,
-        h('button', { class: 'btn btn-ghost btn-sm', type: 'button', disabled: !data.items.length, onclick: startMixedDrill }, '🎲 Random 10 ', h('span', { class: 'kbd' }, 'M'))))
+        h('button', { class: 'btn btn-ghost btn-sm', type: 'button', disabled: !data.items.length, onclick: startMixedDrill }, icon('dice', 14), ' Random 10 ', h('span', { class: 'kbd' }, 'M'))))
 
     page.replaceChildren(
       listHeader(),
@@ -343,7 +344,7 @@ function stepperHeader(current) {
     const n = i + 1
     const cls = n === current ? 'current' : n < current ? 'done' : ''
     return h('div', { class: `thought-step ${cls}` },
-      h('span', { class: 'thought-step-num' }, n < current ? '✓' : String(n)),
+      h('span', { class: 'thought-step-num' }, n < current ? icon('check', 13) : String(n)),
       h('span', { class: 'thought-step-label' }, label))
   }))
 }
@@ -781,7 +782,7 @@ function buildRunner(page, item, data) {
     const checklist = h('div', { class: 'thought-checklist' }, rows.map(([label, ok]) =>
       h('div', { class: `thought-check-row ${ok === true ? 'good' : ok === false ? 'bad' : ''}` },
         h('span', null, label),
-        h('span', { class: 'thought-check-mark' }, ok === true ? '✓' : ok === false ? '✗' : '–'))))
+        h('span', { class: 'thought-check-mark' }, ok === true ? icon('check', 14) : ok === false ? icon('x', 14) : '–'))))
 
     let sayItStartedAt = Date.now()
     const sayItRow = h('div', { class: 'thought-sayit-rate' })
@@ -789,7 +790,7 @@ function buildRunner(page, item, data) {
       sayItRow.replaceChildren(sayItRatings.map(rating => {
         const active = stepState.sayIt === rating.id
         const btn = h('button', { class: `thought-sayit-btn thought-sayit-${rating.id}${active ? ' active' : ''}`, type: 'button' },
-          h('span', null, rating.icon), ` ${rating.label}`)
+          h('span', null, icon(rating.icon, 14)), ` ${rating.label}`)
         btn.addEventListener('click', () => {
           stepState.sayIt = rating.id
           saveStatus(item.id, { sayIt: rating.id })

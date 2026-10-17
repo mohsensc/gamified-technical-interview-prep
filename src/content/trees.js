@@ -2410,7 +2410,7 @@ const generators = [
 export default {
   id: 'trees',
   title: 'Trees, Heaps & Tries',
-  icon: '🌳',
+  icon: 'tree',
   skills: ['tree-dfs', 'tree-bfs', 'bst', 'heap', 'trie'],
   lessons,
   traces,

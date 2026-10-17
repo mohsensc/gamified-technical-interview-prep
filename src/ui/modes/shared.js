@@ -1,4 +1,5 @@
 import { h } from '../h.js'
+import { icon } from '../icons.js'
 import { toggleBookmark, isBookmarked } from '../../store.js'
 import { rich } from '../rich.js'
 import { companyChips } from '../companies.js'
@@ -17,7 +18,7 @@ export function bookmarkButton(itemId) {
       try { active = toggleBookmark(itemId) } catch {}
       star.classList.toggle('active', active)
     },
-  }, '★')
+  }, icon('star', 16))
   return star
 }
 

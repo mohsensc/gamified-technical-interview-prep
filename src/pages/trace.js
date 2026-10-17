@@ -1,4 +1,5 @@
 import { h } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { traces, traceById, topics } from '../content/index.js'
 import { skills } from '../content/skills.js'
 import { mountStepper } from '../viz/stepper.js'
@@ -16,9 +17,9 @@ const decode = value => {
 
 const topicMeta = id => {
   const topic = topics.find(item => item.id === id)
-  if (topic) return { title: topic.title, icon: topic.icon || '•' }
-  if (String(id).startsWith('google')) return { title: 'Problem bank', icon: '🔎' }
-  return { title: id || 'Other', icon: '•' }
+  if (topic) return { title: topic.title, icon: topic.icon || 'layers' }
+  if (String(id).startsWith('google')) return { title: 'Problem bank', icon: 'search' }
+  return { title: id || 'Other', icon: 'layers' }
 }
 
 const skillLabel = id => skills[id]?.label || id
@@ -42,7 +43,7 @@ function renderTrace(container, trace) {
     subnav('learn', null),
     h('div', { class: 'trace-nav' },
       h('a', { class: 'btn btn-ghost btn-sm', href: '#/trace/all' }, '← Traces'),
-      h('span', { class: 'trace-crumb muted small' }, `${topicMeta(trace.topic).icon} ${topicMeta(trace.topic).title}`)),
+      h('span', { class: 'trace-crumb muted small' }, icon(topicMeta(trace.topic).icon, 13), ` ${topicMeta(trace.topic).title}`)),
     host,
     siblings.length > 1 ? h('div', { class: 'trace-pager' },
       previous ? h('a', { class: 'btn btn-sm', href: `#/trace/${previous.id}` }, `← ${previous.title}`) : h('span'),
@@ -78,11 +79,11 @@ function renderGallery(container, missingId) {
     })
     count.textContent = `${matches.length} trace${matches.length === 1 ? '' : 's'}`
     if (!traces.length) {
-      results.replaceChildren(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, '🧪'), h('p', { class: 'muted' }, 'No traces yet.')))
+      results.replaceChildren(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, icon('flask', 32)), h('p', { class: 'muted' }, 'No traces yet.')))
       return
     }
     if (!matches.length) {
-      results.replaceChildren(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, '🔍'), h('p', { class: 'muted' }, 'Nothing matches.')))
+      results.replaceChildren(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, icon('search', 32)), h('p', { class: 'muted' }, 'Nothing matches.')))
       return
     }
     results.replaceChildren(...order.map(topicId => {
@@ -90,7 +91,7 @@ function renderGallery(container, missingId) {
       if (!group.length) return null
       const meta = topicMeta(topicId)
       return h('section', { class: 'trace-group' },
-        h('h3', { class: 'section-title' }, `${meta.icon} ${meta.title}`, h('span', { class: 'muted small' }, ` ${group.length}`)),
+        h('h3', { class: 'section-title' }, icon(meta.icon, 15), ` ${meta.title}`, h('span', { class: 'muted small' }, ` ${group.length}`)),
         h('div', { class: 'trace-cards' }, group.map(traceCard)))
     }).filter(Boolean))
   }

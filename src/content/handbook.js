@@ -1,7 +1,7 @@
 import { framework, interviewTips, whereToLook, templates } from './narration.js'
 
 const bigO = {
-  id: 'big-o', title: 'Big-O & constraints', icon: '📏', blurb: 'Read n, know the budget.',
+  id: 'big-o', title: 'Big-O & constraints', icon: 'ruler', blurb: 'Read n, know the budget.',
   sections: [
     {
       type: 'bars', title: 'n → allowed complexity (≈10^8 ops/sec)',
@@ -21,7 +21,7 @@ const bigO = {
 }
 
 const pythonOps = {
-  id: 'python-ds', title: 'Python DS ops', icon: '🐍', blurb: 'Full cost tables live in the cheat sheet.',
+  id: 'python-ds', title: 'Python DS ops', icon: 'code', blurb: 'Full cost tables live in the cheat sheet.',
   sections: [
     {
       type: 'code', title: 'Imports I use',
@@ -31,7 +31,7 @@ const pythonOps = {
 }
 
 const decisionTree = {
-  id: 'decision-tree', title: 'Pattern decision tree', icon: '🧭', blurb: 'Answer yes/no, land on a pattern.',
+  id: 'decision-tree', title: 'Pattern decision tree', icon: 'compass', blurb: 'Answer yes/no, land on a pattern.',
   sections: [
     {
       type: 'flow', title: 'Which pattern?', start: 'graph',
@@ -86,7 +86,7 @@ const sampleGraph = {
 }
 
 const graphs = {
-  id: 'graphs', title: 'Graph toolkit', icon: '🕸️', blurb: 'Representations + how to talk through them. Templates are in the cheat sheet.',
+  id: 'graphs', title: 'Graph toolkit', icon: 'web', blurb: 'Representations + how to talk through them. Templates are in the cheat sheet.',
   sections: [
     { type: 'panels', title: 'BFS mid-run', panels: [sampleGraph, { kind: 'queue', label: 'queue', items: [4] }, { kind: 'set', label: 'seen', items: [0, 1, 2, 3, 4] }] },
     {
@@ -112,7 +112,7 @@ const sampleTree = {
 }
 
 const trees = {
-  id: 'trees', title: 'Trees', icon: '🌳', blurb: 'Recursion contract + level order.',
+  id: 'trees', title: 'Trees', icon: 'tree', blurb: 'Recursion contract + level order.',
   sections: [
     { type: 'panels', title: 'Post-order: children answer first', panels: [sampleTree, { kind: 'callstack', label: 'call stack', frames: ['dfs(4)', 'dfs(2)', 'dfs(3)'] }] },
     {
@@ -154,7 +154,7 @@ return dfs(root, float("-inf"), float("inf"))`,
 }
 
 const linear = {
-  id: 'linear', title: 'Stacks, queues, lists', icon: '🔗', blurb: 'LIFO, FIFO, pointer surgery. Templates are in the cheat sheet.',
+  id: 'linear', title: 'Stacks, queues, lists', icon: 'link', blurb: 'LIFO, FIFO, pointer surgery. Templates are in the cheat sheet.',
   sections: [
     {
       type: 'panels', title: 'Shapes',
@@ -173,7 +173,7 @@ const linear = {
 }
 
 const dp = {
-  id: 'dp', title: 'Dynamic programming', icon: '🧮', blurb: 'State, transition, base, order.',
+  id: 'dp', title: 'Dynamic programming', icon: 'calculator', blurb: 'State, transition, base, order.',
   sections: [
     {
       type: 'panels', title: 'LCS table: cell = max(up, left) or diag + 1',
@@ -204,7 +204,7 @@ return dp(0)`,
 }
 
 const dayOf = {
-  id: 'day-of', title: 'Interview day', icon: '🎯', blurb: 'Checklist + narration framework.',
+  id: 'day-of', title: 'Interview day', icon: 'target', blurb: 'Checklist + narration framework.',
   sections: [
     { type: 'steps', title: 'The 45-minute flow', items: framework },
     { type: 'tips', title: 'What interviewers look for', items: interviewTips },

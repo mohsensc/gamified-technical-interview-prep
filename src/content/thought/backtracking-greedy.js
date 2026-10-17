@@ -1065,6 +1065,6 @@ Python integers aren't fixed-width, so negative numbers need a 32-bit mask to si
 export default {
   id: 'backtracking-greedy',
   title: 'Backtracking, greedy & bits',
-  icon: '🧩',
+  icon: 'puzzle',
   items,
 }

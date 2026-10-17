@@ -22,7 +22,7 @@ const iconSpan = markup => {
 }
 
 const brandBlock = (title, subtitle) => h('div', { class: 'auth-brand' },
-  h('span', { class: 'auth-mark' }, iconSpan('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>')),
+  h('span', { class: 'brand-mark auth-mark' }, '</>'),
   h('h1', null, title),
   subtitle ? h('p', { class: 'muted' }, subtitle) : null)
 

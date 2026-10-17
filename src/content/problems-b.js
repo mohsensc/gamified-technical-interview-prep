@@ -2402,7 +2402,7 @@ const flashcards = [
 export default {
   id: 'google-b',
   title: 'Interview list',
-  icon: '🔎',
+  icon: 'search',
   skills: ["arrays-hashing", "grid", "constraints", "stack", "ds-diagnosis", "two-pointers", "math", "bst", "tree-dfs", "linked-list", "prefix-sum", "backtracking", "sliding-window", "topo-sort", "graph-modeling", "graph-bfs", "dp-2d", "greedy", "intervals", "bit", "dp-1d", "binary-search", "union-find", "graph-dfs", "dijkstra", "heap", "complexity"],
   lessons: [],
   traces: [],

@@ -2521,7 +2521,7 @@ const generators = [
 export default {
   id: 'paradigms',
   title: 'Backtracking, DP, Intervals, Greedy',
-  icon: '🧩',
+  icon: 'puzzle',
   skills: ['backtracking', 'dp-1d', 'dp-2d', 'greedy', 'intervals', 'bit', 'math'],
   lessons,
   traces,

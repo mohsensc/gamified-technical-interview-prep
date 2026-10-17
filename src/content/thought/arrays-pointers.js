@@ -988,6 +988,6 @@ A hashmap from value to its most recent index lets you check this in one pass: w
 export default {
   id: 'arrays-pointers',
   title: 'Arrays, hashing & two pointers',
-  icon: '🔢',
+  icon: 'array',
   items,
 }

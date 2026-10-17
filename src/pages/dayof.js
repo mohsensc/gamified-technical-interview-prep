@@ -1,4 +1,5 @@
 import { h, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { rich } from '../ui/rich.js'
 import { renderMcq } from '../ui/items.js'
@@ -146,14 +147,14 @@ function isCodeLike(text) {
 
 function emptyCard(title, sub) {
   return h('div', { class: 'card empty' },
-    h('div', { class: 'empty-icon' }, '🧩'),
+    h('div', { class: 'empty-icon' }, icon('puzzle', 32)),
     h('h3', null, title),
     sub ? h('p', { class: 'muted' }, sub) : null,
     h('a', { class: 'btn', href: '#/dayof' }, 'Back to DAYOF'))
 }
 
 function loadingCard() {
-  return h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, '⏳'), h('h3', null, 'Loading…'))
+  return h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, icon('clock', 32)), h('h3', null, 'Loading…'))
 }
 
 function secHead(tag, tone, title) {
@@ -168,7 +169,7 @@ function stageHead(title, metaText, pct) {
 
 function reviewCard(sheet, status) {
   return h('a', { class: `card card-hover dayof-sheet-card${status.reviewed ? ' is-done' : ''}`, href: `#/dayof/review/${encodeURIComponent(sheet.id)}` },
-    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'), status.reviewed ? h('span', { class: 'dayof-check' }, '✓') : null),
+    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)), status.reviewed ? h('span', { class: 'dayof-check' }, icon('check', 14)) : null),
     h('div', { class: 'dayof-sheet-title' }, sheet.title),
     h('div', { class: 'muted small' }, `${sheet.minutes || 10} min`))
 }
@@ -177,7 +178,7 @@ function testCard(sheet, status) {
   const label = status.best === null ? 'not tested' : `${status.best}%`
   const tone = status.best === null ? '' : status.passed ? 'pill-green' : 'pill-amber'
   return h('a', { class: `card card-hover dayof-sheet-card${status.passed ? ' is-done' : ''}`, href: `#/dayof/test/${encodeURIComponent(sheet.id)}` },
-    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'), h('span', { class: `pill ${tone}` }, label)),
+    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)), h('span', { class: `pill ${tone}` }, label)),
     h('div', { class: 'dayof-sheet-title' }, sheet.title),
     h('div', { class: 'muted small' }, `${(sheet.quiz || []).length} questions`))
 }
@@ -186,14 +187,14 @@ function finalExamCard(best, passed) {
   const label = best === null ? 'not tried' : `${best}%`
   const tone = best === null ? '' : passed ? 'pill-green' : 'pill-amber'
   return h('a', { class: `card card-hover dayof-sheet-card dayof-final-exam${passed ? ' is-done' : ''}`, href: '#/dayof/test/final' },
-    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, '🏁'), h('span', { class: `pill ${tone}` }, label)),
+    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, icon('flag', 18)), h('span', { class: `pill ${tone}` }, label)),
     h('div', { class: 'dayof-sheet-title' }, 'Final exam'),
     h('div', { class: 'muted small' }, '25 mixed questions'))
 }
 
 function finalCard(sheet, ready) {
   return h('a', { class: `card card-hover dayof-sheet-card dayof-final-card${ready ? ' is-ready' : ''}`, href: `#/dayof/final/${encodeURIComponent(sheet.id)}` },
-    h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'),
+    h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)),
     h('div', { class: 'dayof-sheet-title' }, sheet.title),
     h('div', { class: 'muted small' }, 'One-screen summary'))
 }
@@ -249,8 +250,8 @@ function renderHome(container) {
       h('a', { class: 'btn dayof-final-all', href: '#/dayof/final' }, 'Open the full final page →'))
 
     const timeline = h('div', { class: 'timeline dayof-path' },
-      h('div', { class: `plan-block${allReviewed ? ' done' : ' current'}` }, h('div', { class: 'plan-dot' }, allReviewed ? '✓' : '1'), reviewStage),
-      h('div', { class: `plan-block${allTestsPassed ? ' done' : allReviewed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, allTestsPassed ? '✓' : '2'), testStage),
+      h('div', { class: `plan-block${allReviewed ? ' done' : ' current'}` }, h('div', { class: 'plan-dot' }, allReviewed ? icon('check', 13) : '1'), reviewStage),
+      h('div', { class: `plan-block${allTestsPassed ? ' done' : allReviewed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, allTestsPassed ? icon('check', 13) : '2'), testStage),
       h('div', { class: `plan-block${allTestsPassed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, '3'), finalStage))
 
     page.replaceChildren(subnav('handbook', 'dayof'), header, nextBtn, timeline)
@@ -520,7 +521,7 @@ function buildReview(page, sheet, sheets) {
 
   const header = h('div', { class: 'page-header' },
     h('div', null,
-      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, sheet.icon || '📄'), h('h1', null, sheet.title)),
+      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, icon(sheet.icon || 'file', 26)), h('h1', null, sheet.title)),
       h('p', { class: 'muted' }, `${sheet.minutes || 10} min budget · ${sheet.sections.length} sections`)),
     h('a', { class: 'btn btn-primary', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, 'Skip to test →'))
 
@@ -686,7 +687,7 @@ function findSection(sheets, predicate) {
 
 function summaryCard(sheet) {
   return h('div', { class: 'card dayof-summary-card' },
-    h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'), h('h3', null, sheet.title)),
+    h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)), h('h3', null, sheet.title)),
     h('ul', { class: 'dayof-list dayof-summary-list' }, (sheet.summary || []).map(line => h('li', null, rich(line)))),
     h('a', { class: 'btn btn-sm btn-ghost', href: `#/dayof/final/${encodeURIComponent(sheet.id)}` }, 'Full sheet →'))
 }
@@ -732,7 +733,7 @@ function compactBoilerplate(section) {
 function buildSheetFinal(sheet) {
   const header = h('div', { class: 'page-header' },
     h('div', null,
-      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, sheet.icon || '📄'), h('h1', null, sheet.title)),
+      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, icon(sheet.icon || 'file', 26)), h('h1', null, sheet.title)),
       h('p', { class: 'muted' }, 'Final sheet — one screen')),
     h('a', { class: 'btn btn-ghost', href: '#/dayof/final' }, '← All sheets'))
 

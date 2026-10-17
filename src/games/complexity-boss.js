@@ -9,13 +9,14 @@ const sources = [constraintQuestion, patternQuestion, dsQuestion, bigoQuestion, 
 
 export function makeQuestion(level = 1) {
   const question = pick(sources)(Math.min(6, level + 1))
-  return { ...question, tag: `⚔️ ${question.tag || 'Boss'}`, tagClass: 'pill-red' }
+  const sourceText = typeof question.tag === 'object' ? question.tag.text : (question.tag || 'Boss')
+  return { ...question, tag: { icon: 'swords', text: sourceText }, tagClass: 'pill-red' }
 }
 
 export default {
   id: 'complexity-boss',
   title: 'Complexity Boss',
-  icon: '🐉',
+  icon: 'crown',
   blurb: 'Everything mixed. Three lives. Beat bosses.',
   skills: ['complexity', 'constraints', 'ds-diagnosis', 'graph-bfs', 'graph-dfs', 'heap', 'stack', 'two-pointers'],
   difficulty: 'Everything mixed',
@@ -23,7 +24,7 @@ export default {
   supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'Complexity Boss',
-    icon: '🐉',
+    icon: 'crown',
     rules: ['all games mixed', 'combos hit harder'],
     mode: 'lives',
     lives: 3,

@@ -1065,6 +1065,6 @@ Duplicates break the "one half is always sorted" guarantee when nums[left] == nu
 export default {
   id: 'windows-search',
   title: 'Sliding window & binary search',
-  icon: '🪟',
+  icon: 'window',
   items,
 }

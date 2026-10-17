@@ -5973,7 +5973,7 @@ const paths = [
 export default {
   id: 'algorithms',
   title: 'Algorithm Tree',
-  icon: '🌳',
+  icon: 'tree',
   skills: [...new Set(specs.flatMap(spec => spec.skills))],
   tree,
   branches,

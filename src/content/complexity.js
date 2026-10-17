@@ -1465,7 +1465,7 @@ const generators = [
 export default {
   id: topicId,
   title: 'Complexity & Constraints',
-  icon: '⏱️',
+  icon: 'clock',
   skills: ['complexity', 'constraints', 'ds-diagnosis'],
   lessons,
   traces,

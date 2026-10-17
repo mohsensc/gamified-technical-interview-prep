@@ -396,7 +396,7 @@ def dfs(i, remain):
 export default {
   id: 'interview',
   title: 'Constraints, complexity & interview script',
-  icon: '🎤',
+  icon: 'mic',
   minutes: 20,
   summary,
   sections,

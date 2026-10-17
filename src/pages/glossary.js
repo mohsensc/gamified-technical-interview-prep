@@ -1,4 +1,5 @@
 import { h, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { renderMcq } from '../ui/items.js'
 import { recordAnswer } from '../store.js'
 import { lessons, traces, mcqs, clozes, parsons, flashcards, problems } from '../content/index.js'
@@ -79,16 +80,17 @@ function renderList(container) {
   const rapidHost = h('div')
   let rapidOpen = false
 
+  const paintRapidButton = () => rapidButton.replaceChildren(...(rapidOpen ? ['Close rapid fire'] : [icon('bolt', 14), ' Glossary rapid fire']))
   const rapidButton = h('button', { class: 'btn btn-primary gl-rapid-btn', onclick: () => {
     rapidOpen = !rapidOpen
-    rapidButton.textContent = rapidOpen ? 'Close rapid fire' : '⚡ Glossary rapid fire'
+    paintRapidButton()
     rapidHost.replaceChildren()
     if (rapidOpen) renderRapid(rapidHost, () => {
       rapidOpen = false
-      rapidButton.textContent = '⚡ Glossary rapid fire'
+      paintRapidButton()
       rapidHost.replaceChildren()
     })
-  } }, '⚡ Glossary rapid fire')
+  } }, icon('bolt', 14), ' Glossary rapid fire')
 
   const searchInput = h('input', {
     class: 'filter-search gl-search', type: 'search', placeholder: 'Search terms, aliases, definitions…',

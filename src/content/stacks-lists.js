@@ -1501,7 +1501,7 @@ const generators = [
 export default {
   id: topicId,
   title: 'Stacks, Queues & Linked Lists',
-  icon: '🥞',
+  icon: 'layers',
   skills: ['stack', 'monotonic-stack', 'queue-deque', 'linked-list'],
   lessons,
   traces,

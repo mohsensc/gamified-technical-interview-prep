@@ -1,4 +1,5 @@
 import { h } from './h.js'
+import { icon } from './icons.js'
 import { codeBlock } from './code.js'
 import { overrideButton } from './override.js'
 
@@ -345,7 +346,7 @@ export function createSignatureEditor(spec, { onCheck, onOverride, revealAfter =
   function paintIssues(result) {
     issuesEl.replaceChildren()
     if (result.ok) {
-      issuesEl.append(h('div', { class: 'sig-issue sig-ok' }, '✓ Matches, clean signature.'))
+      issuesEl.append(h('div', { class: 'sig-issue sig-ok' }, icon('check', 14), ' Matches, clean signature.'))
       return
     }
     issuesEl.append(...result.issues.map(issue => h('div', { class: `sig-issue sig-${issue.severity}` }, issue.message)))

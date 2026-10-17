@@ -1,3 +1,5 @@
+import { iconPaths } from './ui/icons.js'
+
 const routes = []
 let notFound = null
 let cleanup = null
@@ -128,7 +130,7 @@ export async function resolve() {
     stage.replaceChildren()
     const box = document.createElement('div')
     box.className = 'page'
-    box.innerHTML = `<div class="card empty"><div class="empty-icon">⚠️</div><h3>This page hit an error</h3><p class="muted"></p><a class="btn" href="#/">Back to dashboard</a></div>`
+    box.innerHTML = `<div class="card empty"><div class="empty-icon"><span class="icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPaths.warning}</svg></span></div><h3>This page hit an error</h3><p class="muted"></p><a class="btn" href="#/">Back to dashboard</a></div>`
     box.querySelector('p').textContent = String(error?.message || error)
     stage.appendChild(box)
   }

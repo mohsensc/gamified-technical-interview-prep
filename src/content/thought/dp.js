@@ -1245,6 +1245,6 @@ Return the area (side length squared), not the side length itself.`,
 export default {
   id: 'dp',
   title: 'Dynamic programming',
-  icon: '🧮',
+  icon: 'calculator',
   items,
 }

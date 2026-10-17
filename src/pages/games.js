@@ -1,4 +1,5 @@
 import { h } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import * as store from '../store.js'
 import { dailySeed, dailyLabel, hashString } from '../games/_engine.js'
 import constraintSniper from '../games/constraint-sniper.js'
@@ -59,8 +60,8 @@ function renderTile(game, i) {
   const best = bestOf(game.id)
   return h('a', { class: `tile game-tile${game.id === 'complexity-boss' ? ' boss-tile' : ''}`, href: `#/games/${game.id}`, style: { '--tile-color': tileColors[i % tileColors.length] } },
     h('div', { class: 'row spread' },
-      h('span', { class: 'tile-icon' }, game.icon),
-      best ? h('span', { class: 'pill pill-amber' }, `★ ${best}`) : h('span', { class: 'pill' }, 'new')),
+      h('span', { class: 'tile-icon' }, icon(game.icon, 26)),
+      best ? h('span', { class: 'pill pill-amber' }, icon('star', 12), ` ${best}`) : h('span', { class: 'pill' }, 'new')),
     h('span', { class: 'tile-title' }, game.title),
     h('span', { class: 'tile-sub' }, game.blurb))
 }
@@ -70,7 +71,7 @@ function renderArcade(container) {
   container.append(h('div', { class: 'page games-page' },
     h('div', { class: 'page-header' },
       h('div', null, h('h1', null, 'Arcade'), h('p', null, 'Fast reps. Real interview reflexes.')),
-      h('a', { class: 'btn btn-primary btn-lg', href: `#/games/${daily.id}?daily=1` }, '▶ Play daily challenge')),
+      h('a', { class: 'btn btn-primary btn-lg', href: `#/games/${daily.id}?daily=1` }, icon('play', 16), ' Play daily challenge')),
     h('div', { class: 'grid games-grid' }, games.map((game, i) => renderTile(game, i)))))
 }
 
@@ -80,8 +81,8 @@ function renderGame(container, game, isDaily) {
     h('div', { class: 'page-header' },
       h('div', { class: 'row row-wrap' },
         h('a', { class: 'btn btn-ghost btn-sm', href: '#/games' }, '← Arcade'),
-        h('h1', { class: 'game-title' }, `${game.icon} ${game.title}`),
-        isDaily ? h('span', { class: 'pill pill-sky' }, `📅 Daily · ${dailyLabel()}`) : null),
+        h('h1', { class: 'game-title' }, icon(game.icon, 22), ` ${game.title}`),
+        isDaily ? h('span', { class: 'pill pill-sky' }, icon('calendar', 13), ` Daily · ${dailyLabel()}`) : null),
       h('span', { class: 'muted small' }, ...(keyHints[game.id] || keyHints.quiz).flatMap(([key, label]) => [h('span', { class: 'kbd' }, key), ` ${label}  `]))),
     host))
   return game.mount(host, makeApi(game, isDaily))
@@ -91,7 +92,7 @@ export default function render(container, params = {}) {
   const game = params.id ? gameById[params.id] : null
   if (params.id && !game) {
     container.append(h('div', { class: 'page' }, h('div', { class: 'empty' },
-      h('div', { class: 'empty-icon' }, '🕹️'), 'No such game. ', h('a', { href: '#/games' }, 'Back to the arcade'))))
+      h('div', { class: 'empty-icon' }, icon('joystick', 32)), 'No such game. ', h('a', { href: '#/games' }, 'Back to the arcade'))))
     return
   }
   if (game) return renderGame(container, game, Boolean(params.query?.daily))

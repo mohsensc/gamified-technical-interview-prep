@@ -1,4 +1,5 @@
 import { h, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { lineChart, barChart, heatmapCalendar, heatmapRow, beforeAfterBars, radarChart } from '../ui/charts.js'
 import {
   getState, subscribe, getEvents, getDailyRollups, getSkillHistory,
@@ -20,12 +21,12 @@ const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const dayMs = 86400e3
 
 const kindGroups = [
-  { id: 'mcq', label: 'Quiz', icon: '❓' },
-  { id: 'cloze', label: 'Fill-in', icon: '🧩' },
-  { id: 'parsons', label: 'Reorder', icon: '🔀' },
-  { id: 'card', label: 'Cards', icon: '🃏' },
-  { id: 'game', label: 'Games', icon: '🎮' },
-  { id: 'thought', label: 'Thought process', icon: '🧠' },
+  { id: 'mcq', label: 'Quiz', icon: 'question' },
+  { id: 'cloze', label: 'Fill-in', icon: 'puzzle' },
+  { id: 'parsons', label: 'Reorder', icon: 'shuffle' },
+  { id: 'card', label: 'Cards', icon: 'card' },
+  { id: 'game', label: 'Games', icon: 'joystick' },
+  { id: 'thought', label: 'Thought process', icon: 'brain' },
 ]
 
 const clamp01 = v => Math.max(0, Math.min(1, v))
@@ -168,7 +169,7 @@ function edgePicks(points) {
 
 function renderAccuracySection(state) {
   const card = h('div', { class: 'card stack' })
-  const select = h('select', { class: 'filter-select' }, h('option', { value: '' }, 'Overall'), units.map(unit => h('option', { value: unit.id }, `${unit.icon} ${unit.title}`)))
+  const select = h('select', { class: 'filter-select' }, h('option', { value: '' }, 'Overall'), units.map(unit => h('option', { value: unit.id }, unit.title)))
   select.value = state.accuracyUnit || ''
   const chartHost = h('div')
   const draw = () => {
@@ -255,7 +256,7 @@ function renderCourseSection(state) {
   for (const unit of units) {
     const prog = getNodeProgress(unit.id)
     card.append(h('details', { class: 'course-unit', open: open.has(unit.id) || null, ontoggle: event => { if (event.currentTarget.open) open.add(unit.id); else open.delete(unit.id) } },
-      h('summary', { class: 'spread' }, h('span', null, `${unit.icon} ${unit.title}`), h('span', { class: 'mono small' }, `${Math.round(prog * 100)}%`)),
+      h('summary', { class: 'spread' }, h('span', { class: 'row' }, icon(unit.icon, 16), unit.title), h('span', { class: 'mono small' }, `${Math.round(prog * 100)}%`)),
       h('div', { class: 'progress' }, h('div', { style: { width: `${prog * 100}%` } })),
       h('div', { class: 'stack-sm module-list' }, unit.modules.map(mod => {
         const mp = getNodeProgress(mod.id)
@@ -372,7 +373,7 @@ function renderKindSection() {
     return card
   }
   card.append(...rows.map(r => h('div', { class: 'kind-row' },
-    h('span', { class: 'kind-row-icon' }, r.icon),
+    h('span', { class: 'kind-row-icon' }, icon(r.icon, 18)),
     h('div', { class: 'grow stack-sm' },
       h('div', { class: 'spread small' }, h('b', null, r.label), h('span', { class: 'mono muted' }, r.total ? `${Math.round(r.accuracy * 100)}% · ${r.total}` : '—')),
       h('div', { class: 'heat-bar', style: { '--heat': heatColor(r.accuracy ?? 0) } }, h('div', { style: { width: `${r.total ? Math.round(r.accuracy * 100) : 0}%` } }))))))
@@ -523,7 +524,7 @@ function renderSessionsSection() {
       const d = new Date(s.at)
       return h('tr', null,
         h('td', { class: 'small muted' }, `${dateLabel(dayKeyLocal(s.at))} · ${d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`),
-        h('td', null, h('span', { class: 'session-mode-cell' }, mode?.icon || '•', mode?.title || s.mode)),
+        h('td', null, h('span', { class: 'session-mode-cell' }, mode?.icon ? icon(mode.icon, 14) : null, mode?.title || s.mode)),
         h('td', null,
           h('span', { class: `session-score ${scoreClass(s.pct)}` }, `${s.pct}%`),
           h('span', { class: 'muted small' }, ` ${s.correct}/${s.total}`),
@@ -646,7 +647,7 @@ function renderGhostPreview() {
           h('div', { class: 'grow' }, h('div', { class: 'heat-bar', style: { '--heat': 'var(--green-bright)' } }, h('div', { style: { width: `${row.value * 100}%` } }))))))))
   return h('div', { class: 'card ghost-panel' }, content,
     h('div', { class: 'ghost-overlay' },
-      h('div', { class: 'empty-icon' }, '📊'),
+      h('div', { class: 'empty-icon' }, icon('chart', 32)),
       h('h3', null, 'This is what your dashboard will look like'),
       h('p', { class: 'muted small' }, 'Answer a few questions and this fills in with your real readiness, streaks, and trends.'),
       h('a', { class: 'btn btn-primary', href: continueTarget() }, 'Start studying')))
@@ -655,7 +656,7 @@ function renderGhostPreview() {
 function renderEmpty() {
   return h('div', { class: 'stack-lg' },
     h('div', { class: 'card empty' },
-      h('div', { class: 'empty-icon' }, '📊'),
+      h('div', { class: 'empty-icon' }, icon('chart', 32)),
       h('h3', null, 'Nothing tracked yet'),
       h('p', { class: 'muted' }, 'Study a bit and your readiness, mastery and goals will show up here.'),
       h('a', { class: 'btn btn-primary', href: continueTarget() }, 'Start studying')),
@@ -678,7 +679,7 @@ function renderKeyStats(data) {
   const tile = (value, label, color) => h('div', { class: 'stat' }, h('span', { class: 'stat-value', style: color ? `color:${color}` : null }, value), h('span', { class: 'stat-label' }, label))
   return h('div', { class: 'card grid-4 stats-key-numbers' },
     tile(String(data.score), 'Readiness', scoreColor),
-    tile(`${getStreak()}🔥`, 'Day streak'),
+    tile([String(getStreak()), ' ', icon('flame', 18)], 'Day streak'),
     tile(`${coverage?.pct ?? 0}%`, 'Course coverage'),
     tile(accuracy?.pct == null ? '–' : `${accuracy.pct}%`, '7d accuracy'))
 }

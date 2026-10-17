@@ -1,7 +1,7 @@
 export default {
   id: 'stack-trie',
   title: 'Stacks & tries',
-  icon: '📚',
+  icon: 'layers',
   items: [
     {
       id: 'thought:stack-trie:valid-parentheses',

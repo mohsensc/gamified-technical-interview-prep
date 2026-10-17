@@ -1,4 +1,5 @@
 import { h, svg, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { parseCloze } from '../ui/items.js'
 import { mountStepper } from '../viz/stepper.js'
@@ -116,7 +117,7 @@ function pathProgress(pathId) {
 
 function notFoundCard() {
   return h('div', { class: 'page' }, h('div', { class: 'card empty' },
-    h('div', { class: 'empty-icon' }, '🌳'),
+    h('div', { class: 'empty-icon' }, icon('tree', 32)),
     h('h3', null, 'Algorithm not found'),
     h('a', { class: 'btn', href: '#/algorithms' }, 'Back to the tree')))
 }
@@ -243,8 +244,8 @@ function renderTree(container, query) {
   }, `${path.title} · ${path.minutes}m`))
   const pathRow = h('div', { class: 'row-wrap path-row' }, pathChipEls)
 
-  const viewTreeChip = h('button', { class: `chip${view === 'tree' ? ' active' : ''}` }, '🌳 Tree')
-  const viewListChip = h('button', { class: `chip${view === 'list' ? ' active' : ''}` }, '▤ List')
+  const viewTreeChip = h('button', { class: `chip${view === 'tree' ? ' active' : ''}` }, icon('tree', 14), ' Tree')
+  const viewListChip = h('button', { class: `chip${view === 'list' ? ' active' : ''}` }, icon('list', 14), ' List')
   viewTreeChip.onclick = () => { view = 'tree'; writePref('cram.algoView', view); viewTreeChip.classList.add('active'); viewListChip.classList.remove('active'); redrawBody() }
   viewListChip.onclick = () => { view = 'list'; writePref('cram.algoView', view); viewListChip.classList.add('active'); viewTreeChip.classList.remove('active'); redrawBody() }
 
@@ -314,7 +315,7 @@ function renderListView(host, { matches, activePath }) {
   })).filter(group => group.nodes.length)
 
   if (!groups.length) {
-    host.append(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, '🔍'), h('h3', null, 'No matches'), h('p', { class: 'muted' }, 'Try a different search or filter.')))
+    host.append(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, icon('search', 32)), h('h3', null, 'No matches'), h('p', { class: 'muted' }, 'Try a different search or filter.')))
     return
   }
 
@@ -520,7 +521,7 @@ function renderDetail(container, algo, query) {
       recallPanel.style.display = showing ? 'none' : ''
       templateBlock.style.display = showing ? '' : 'none'
       recallToggle.classList.toggle('active', !showing)
-    } }, '🧠 Recall mode')
+    } }, icon('brain', 14), ' Recall mode')
   }
 
   const templateCard = h('div', { class: 'card' },
@@ -529,8 +530,8 @@ function renderDetail(container, algo, query) {
 
   const complexityCard = h('div', { class: 'card algo-complexity' },
     h('div', { class: 'row' },
-      algo.time ? h('span', { class: 'pill pill-amber' }, `⏱ ${algo.time}`) : null,
-      algo.space ? h('span', { class: 'pill pill-sky' }, `▦ ${algo.space}`) : null),
+      algo.time ? h('span', { class: 'pill pill-amber' }, icon('clock', 12), ` ${algo.time}`) : null,
+      algo.space ? h('span', { class: 'pill pill-sky' }, icon('grid', 12), ` ${algo.space}`) : null),
     algo.whyComplexity ? h('p', { class: 'muted' }, rich(algo.whyComplexity)) : null)
 
   const compareCard = algo.compare?.length ? h('div', { class: 'card' },

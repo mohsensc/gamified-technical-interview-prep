@@ -1170,6 +1170,6 @@ Process queries in sorted order: as the query value grows, activate every interv
 export default {
   id: 'lists-heaps',
   title: 'Linked lists, heaps & intervals',
-  icon: '🔗',
+  icon: 'link',
   items,
 }

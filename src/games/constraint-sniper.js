@@ -80,7 +80,7 @@ function maxComplexityQuestion(level) {
   return {
     id: `constraint-sniper:max:${bound.n}`,
     skills: ['constraints', 'complexity'],
-    tag: '🎯 Max complexity',
+    tag: { icon: 'target', text: 'Max complexity' },
     chips: [bound.text],
     summary: `${bound.text}: slowest complexity that fits?`,
     prompt: pick(scenarios),
@@ -226,7 +226,7 @@ function approachQuestion(level) {
   return {
     id: `constraint-sniper:approach:${index}`,
     skills: item.skills,
-    tag: '🧪 Which passes?',
+    tag: { icon: 'flask', text: 'Which passes?' },
     tagClass: 'pill-sky',
     chips: item.c,
     summary: `${item.s} (${item.c.join(', ')})`,
@@ -430,7 +430,7 @@ function edgeCaseQuestion(level) {
   return {
     id: `constraint-sniper:edge:${index}`,
     skills: item.skills,
-    tag: '🧨 Breaking input',
+    tag: { icon: 'bolt', text: 'Breaking input' },
     tagClass: 'pill-red',
     summary: item.title,
     prompt: item.problem,
@@ -449,7 +449,7 @@ export function makeQuestion(level = 1) {
 export default {
   id: 'constraint-sniper',
   title: 'Constraint Sniper',
-  icon: '🎯',
+  icon: 'target',
   blurb: 'Read the limits, snipe the complexity.',
   skills: ['constraints', 'complexity', 'ds-diagnosis'],
   difficulty: 'Escalates with streak',
@@ -457,7 +457,7 @@ export default {
   supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'Constraint Sniper',
-    icon: '🎯',
+    icon: 'target',
     rules: ['10⁸ ops ≈ 1s', 'spot the breaking input'],
     mode: 'timed',
     seconds: 60,

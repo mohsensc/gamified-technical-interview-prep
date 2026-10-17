@@ -159,7 +159,7 @@ function diagnosisQuestion() {
   return {
     id: entry.id,
     skills: skillsFor(entry),
-    tag: entry.signals ? '📡 Signals' : '📡 Problem',
+    tag: { icon: 'radar', text: entry.signals ? 'Signals' : 'Problem' },
     chips: entry.constraints ? [entry.constraints] : null,
     summary: entry.title || entry.text,
     prompt,
@@ -310,7 +310,7 @@ function recurrenceQuestion(level = 1) {
   return {
     id: `pattern-radar:recurrence:${index}`,
     skills: item.skills,
-    tag: '📐 DP recurrence',
+    tag: { icon: 'ruler', text: 'DP recurrence' },
     tagClass: 'pill-amber',
     summary: item.name,
     prompt: `${item.name} — define dp[i]${item.dim === 2 ? '[j]' : ''}.`,
@@ -368,7 +368,7 @@ function twoPointerQuestion(level = 1) {
   return {
     id: `pattern-radar:race:${arr.join('-')}:${target}`,
     skills: ['two-pointers'],
-    tag: '🏁 Two-pointer race',
+    tag: { icon: 'flag', text: 'Two-pointer race' },
     tagClass: 'pill-green',
     summary: `Sorted array, target ${target}`,
     prompt: `Target sum = ${target}. Which move closes the gap?`,
@@ -386,7 +386,7 @@ export function makeQuestion(level = 1) {
 export default {
   id: 'pattern-radar',
   title: 'Pattern Radar',
-  icon: '📡',
+  icon: 'radar',
   blurb: 'Spot the pattern before the clock does.',
   skills: ['ds-diagnosis', 'sliding-window', 'two-pointers', 'graph-bfs', 'dp-1d', 'dp-2d'],
   difficulty: 'Escalates with streak',
@@ -394,7 +394,7 @@ export default {
   supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'Pattern Radar',
-    icon: '📡',
+    icon: 'radar',
     rules: ['faster = more points', '1-4 to answer'],
     mode: 'timed',
     seconds: 75,

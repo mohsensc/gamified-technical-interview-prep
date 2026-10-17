@@ -1,4 +1,5 @@
 import { h, clear, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { persistOverride } from '../ui/override.js'
 
@@ -101,10 +102,9 @@ export function relativeTime(ts) {
 const multiplierFor = combo => combo >= 10 ? 4 : combo >= 6 ? 3 : combo >= 3 ? 2 : 1
 
 const bossNames = ['Brute Force Golem', 'Quadratic Hydra', 'Stack Overflow Wraith', 'TLE Titan', 'Exponential Lich', 'The Hiring Committee']
-const bossIcons = ['🗿', '🐉', '👻', '🦾', '💀', '🧑‍⚖️']
 
 export function createArcade(container, api, config) {
-  const { title, icon = '🎮', rules = [], mode = 'lives', seconds = 60, lives = 3, boss = false, maxLevel = 6, seed = null, onStart, onKey } = config
+  const { title, icon: iconName = 'joystick', rules = [], mode = 'lives', seconds = 60, lives = 3, boss = false, maxLevel = 6, seed = null, onStart, onKey } = config
   const root = h('div', { class: 'game' })
   container.append(root)
   const timers = new Set()
@@ -133,10 +133,10 @@ export function createArcade(container, api, config) {
     phase = 'intro'
     clear(root)
     const best = api.best?.() || 0
-    const modeChip = mode === 'timed' ? `⏱ ${seconds}s` : `${'♥'.repeat(lives)} lives`
+    const modeChip = mode === 'timed' ? [icon('clock', 14), ` ${seconds}s`] : [icon('heart', 14), ` x${lives} lives`]
     root.append(h('div', { class: 'card game-intro' },
-      seed ? h('span', { class: 'pill pill-sky' }, `📅 Daily · ${dailyLabel()}`) : null,
-      h('div', { class: 'game-intro-icon' }, icon),
+      seed ? h('span', { class: 'pill pill-sky' }, icon('calendar', 14), ` Daily · ${dailyLabel()}`) : null,
+      h('div', { class: 'game-intro-icon' }, icon(iconName, 44)),
       h('h2', null, title),
       h('div', { class: 'row row-wrap game-rules' },
         h('span', { class: 'chip' }, modeChip),
@@ -157,7 +157,7 @@ export function createArcade(container, api, config) {
     hud.bossName = h('div', { class: 'game-boss-name' })
     hud.bossFill = h('div', { class: 'game-boss-fill' })
     return h('div', { class: 'game-hud' },
-      seed ? h('span', { class: 'pill pill-sky game-daily-chip' }, '📅 Daily') : null,
+      seed ? h('span', { class: 'pill pill-sky game-daily-chip' }, icon('calendar', 13), ' Daily') : null,
       h('div', { class: 'game-hud-top' },
         h('div', { class: 'game-score-wrap' }, hud.score, hud.floats),
         h('div', { class: 'row game-hud-right' },
@@ -171,7 +171,8 @@ export function createArcade(container, api, config) {
     if (!state) return
     hud.score.textContent = String(state.score)
     const multiplier = multiplierFor(state.combo)
-    hud.combo.textContent = state.combo ? `🔥 ${state.combo}${multiplier > 1 ? ` · x${multiplier}` : ''}` : 'x1'
+    clear(hud.combo)
+    hud.combo.append(...(state.combo ? [icon('flame', 13), ` ${state.combo}${multiplier > 1 ? ` · x${multiplier}` : ''}`] : ['x1']))
     hud.combo.className = `pill game-combo${multiplier > 1 ? ' hot' : ''}${multiplier >= 3 ? ' blazing' : ''}`
     const tiers = [0, 3, 6, 10]
     let tier = 0
@@ -180,10 +181,12 @@ export function createArcade(container, api, config) {
     hud.comboFill.style.width = `${Math.min(100, Math.round(((state.combo - lo) / (hi - lo)) * 100))}%`
     hud.level.textContent = `Lv ${state.level}`
     clear(hud.lives)
-    for (let i = 0; i < lives; i++) hud.lives.append(h('span', { class: i < state.lives ? 'heart' : 'heart lost' }, '♥'))
+    for (let i = 0; i < lives; i++) hud.lives.append(h('span', { class: i < state.lives ? 'heart' : 'heart lost' }, icon('heart', 18)))
     hud.lives.classList.toggle('critical', mode === 'lives' && state.lives === 1)
     if (boss) {
-      hud.bossName.textContent = `${bossIcons[state.bossIndex % bossIcons.length]} ${bossNames[state.bossIndex % bossNames.length]}${state.bossIndex >= bossNames.length ? ` +${Math.floor(state.bossIndex / bossNames.length)}` : ''}`
+      clear(hud.bossName)
+      const bossSuffix = state.bossIndex >= bossNames.length ? ` +${Math.floor(state.bossIndex / bossNames.length)}` : ''
+      hud.bossName.append(icon('crown', 14), ` ${bossNames[state.bossIndex % bossNames.length]}${bossSuffix}`)
       hud.bossFill.style.width = `${Math.max(0, (state.bossHp / state.bossMax) * 100)}%`
     }
     renderTimer()
@@ -195,7 +198,8 @@ export function createArcade(container, api, config) {
     hud.timerFill.style.width = `${fraction * 100}%`
     hud.timerFill.classList.toggle('low', fraction < 0.2)
     hud.timerFill.classList.toggle('critical', state.timeLeft < 10e3)
-    hud.timerText.textContent = `⏱ ${Math.ceil(state.timeLeft / 1000)}s`
+    clear(hud.timerText)
+    hud.timerText.append(icon('clock', 13), ` ${Math.ceil(state.timeLeft / 1000)}s`)
   }
 
   function floatText(text, kind = 'good') {
@@ -275,15 +279,16 @@ export function createArcade(container, api, config) {
     const best = Math.max(result.best ?? 0, state.score)
     const label = seed ? `Daily Challenge · ${dailyLabel()}` : title
     const link = `${location.origin}${location.pathname}${location.hash}`
-    return `CodeCram ${icon} ${label} — scored ${state.score} (best ${best}). Beat me: ${link}`
+    return `CodeCram · ${label} — scored ${state.score} (best ${best}). Beat me: ${link}`
   }
 
   function copyShare(button, result) {
     const text = shareText(result)
-    const original = button.textContent
+    const label = button.querySelector('.share-label')
+    const original = label.textContent
     const done = () => {
-      button.textContent = 'Copied ✓'
-      setTimeout(() => { button.textContent = original }, 1600)
+      label.textContent = ' Copied'
+      setTimeout(() => { label.textContent = original }, 1600)
     }
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done))
@@ -319,18 +324,18 @@ export function createArcade(container, api, config) {
     const shortBy = !result.isBest && bestNow > state.score ? bestNow - state.score : 0
     root.append(h('div', { class: 'stack game-summary' },
       h('div', { class: 'card game-result' },
-        seed ? h('span', { class: 'pill pill-sky' }, `📅 Daily · ${dailyLabel()}`) : null,
-        h('div', { class: 'game-intro-icon' }, icon),
+        seed ? h('span', { class: 'pill pill-sky' }, icon('calendar', 14), ` Daily · ${dailyLabel()}`) : null,
+        h('div', { class: 'game-intro-icon' }, icon(iconName, 44)),
         h('div', { class: 'game-final-score' }, String(state.score)),
         result.isBest && state.score > 0
-          ? h('span', { class: 'pill pill-amber' }, '🏆 New best')
+          ? h('span', { class: 'pill pill-amber' }, icon('trophy', 14), ' New best')
           : h('span', { class: 'pill' }, `Best ${bestNow}`),
         shortBy ? h('div', { class: 'muted small' }, `${shortBy} short of your best`) : null,
         h('div', { class: 'row row-wrap game-stats' }, stats.map(([label, value]) =>
           h('div', { class: 'stat' }, h('div', { class: 'stat-value' }, String(value)), h('div', { class: 'stat-label' }, label)))),
         h('div', { class: 'row row-wrap' },
           h('button', { class: 'btn btn-primary', onclick: start }, 'Play again ', h('span', { class: 'kbd' }, 'Enter')),
-          h('button', { class: 'btn btn-ghost', onclick: event => copyShare(event.currentTarget, result) }, '📋 Share score'),
+          h('button', { class: 'btn btn-ghost', onclick: event => copyShare(event.currentTarget, result) }, icon('copy', 16), h('span', { class: 'share-label' }, ' Share score')),
           h('a', { class: 'btn btn-ghost', href: '#/games' }, 'Arcade'))),
       mistakes.length
         ? h('div', { class: 'stack' },
@@ -339,10 +344,10 @@ export function createArcade(container, api, config) {
             h('div', { class: 'game-mistake-q' }, mistake.summary),
             mistake.ask ? h('div', { class: 'muted small' }, mistake.ask) : null,
             h('div', { class: 'row row-wrap' },
-              mistake.yours ? h('span', { class: 'pill pill-red' }, `✗ ${mistake.yours}`) : null,
-              h('span', { class: 'pill pill-green' }, `✓ ${mistake.answer}`)),
+              mistake.yours ? h('span', { class: 'pill pill-red' }, icon('x', 12), ` ${mistake.yours}`) : null,
+              h('span', { class: 'pill pill-green' }, icon('check', 12), ` ${mistake.answer}`)),
             h('div', { class: 'muted small' }, mistake.why))))
-        : h('div', { class: 'empty' }, h('div', { class: 'empty-icon' }, '✨'), 'Flawless run.')))
+        : h('div', { class: 'empty' }, h('div', { class: 'empty-icon' }, icon('sparkle', 32)), 'Flawless run.')))
   }
 
   const ctx = {
@@ -381,7 +386,7 @@ export function createArcade(container, api, config) {
         state.lives--
         pulse(hud.lives, 'shake')
       }
-      floatText(mode === 'lives' ? '−♥' : 'miss', 'bad')
+      floatText(mode === 'lives' ? [icon('heart', 13), '-1'] : 'miss', 'bad')
       renderHud()
       return ctx.alive()
     },
@@ -517,7 +522,8 @@ export function runQuiz(container, api, config) {
     const speedBar = speedMs ? h('div', { class: 'game-speed' }, h('div', { class: 'game-speed-fill', style: { animationDuration: `${speedMs}ms` } })) : null
     card = h('div', { class: 'card game-card fade-in' },
       h('div', { class: 'row row-wrap game-tags' },
-        question.tag ? h('span', { class: `pill ${question.tagClass || 'pill-teal'}` }, question.tag) : null,
+        question.tag ? h('span', { class: `pill ${question.tagClass || 'pill-teal'}` },
+          typeof question.tag === 'object' ? [icon(question.tag.icon, 13), ` ${question.tag.text}`] : question.tag) : null,
         question.parts.length > 1 ? h('span', { class: 'pill' }, `${partIndex + 1} / ${question.parts.length}`) : null,
         question.chips ? question.chips.map(chip => h('span', { class: 'chip mono' }, chip)) : null),
       prompt ? (typeof prompt === 'string' ? h('div', { class: 'game-prompt' }, prompt) : prompt) : null,
@@ -547,7 +553,7 @@ export function runQuiz(container, api, config) {
       ctx.hit(100, speedMs ? Math.max(0, 1 - elapsed / speedMs) : 0)
       ctx.pulse(card, 'flash-good')
       const isLast = partIndex === question.parts.length - 1
-      feedback.append(h('div', { class: 'game-why good' }, '✓ ', current.why))
+      feedback.append(h('div', { class: 'game-why good' }, icon('check', 14), ' ', current.why))
       if (!isLast) {
         ctx.waitFor(() => {
           partIndex++

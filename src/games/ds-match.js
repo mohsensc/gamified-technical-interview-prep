@@ -112,7 +112,7 @@ function structureQuestion(level) {
   return {
     id: `ds-match:${index}`,
     skills: ['ds-diagnosis', ...item.skills],
-    tag: '🧩 Pick the structure',
+    tag: { icon: 'puzzle', text: 'Pick the structure' },
     summary: item.s,
     prompt: item.s,
     parts: [
@@ -208,7 +208,7 @@ function heapPushQuestion(level) {
   return {
     id: `ds-match:heap:push:${size}:${value}`,
     skills: ['ds-diagnosis', 'heap'],
-    tag: '🧱 Sift up',
+    tag: { icon: 'layers', text: 'Sift up' },
     tagClass: 'pill-sky',
     summary: `Push ${value} into a size-${size} min-heap`,
     prompt: `Push ${value} onto the heap — where does it settle?`,
@@ -238,7 +238,7 @@ function heapPopQuestion(level) {
   return {
     id: `ds-match:heap:pop:${size}`,
     skills: ['ds-diagnosis', 'heap'],
-    tag: '🧱 Sift down',
+    tag: { icon: 'layers', text: 'Sift down' },
     tagClass: 'pill-sky',
     summary: `Pop the min from a size-${size} heap (removed ${popped})`,
     prompt: `Pop the min (${popped}) — sift the replacement down`,
@@ -310,7 +310,7 @@ function stackQuestion(level) {
   return {
     id: `ds-match:stack:${ops.length}:${finalStack.join('-')}`,
     skills: ['ds-diagnosis', 'stack'],
-    tag: '🥞 Predict the stack',
+    tag: { icon: 'layers', text: 'Predict the stack' },
     tagClass: 'pill-teal',
     summary: `Stack after ${ops.length} ops`,
     code,
@@ -331,7 +331,7 @@ export function makeQuestion(level = 1) {
 export default {
   id: 'ds-match',
   title: 'DS Match',
-  icon: '🧩',
+  icon: 'puzzle',
   blurb: 'Scenario, heap sifts, and stack traces.',
   skills: ['ds-diagnosis', 'heap', 'stack', 'queue-deque'],
   difficulty: 'Up to Lv 6',
@@ -339,7 +339,7 @@ export default {
   supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'DS Match',
-    icon: '🧩',
+    icon: 'puzzle',
     rules: ['structure, heap, or stack', 'combos multiply'],
     mode: 'lives',
     lives: 3,

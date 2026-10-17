@@ -2246,7 +2246,7 @@ const usedSkills = [...new Set([...bank.flatMap(item => item.skills), 'constrain
 export default {
   id: 'google-a',
   title: 'Interview list',
-  icon: '🔎',
+  icon: 'search',
   skills: usedSkills,
   lessons: [],
   traces: [],

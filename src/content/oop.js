@@ -1862,7 +1862,7 @@ const problems = [
 export default {
   id: topicId,
   title: 'OOP & Design',
-  icon: '🧱',
+  icon: 'layers',
   skills: ['arrays-hashing', 'linked-list', 'heap', 'stack', 'queue-deque', 'trie', 'bst', 'ds-diagnosis', 'complexity', 'communication'],
   lessons,
   traces,

@@ -5,7 +5,7 @@ import { templates as narrationTemplates } from './narration.js'
 
 const unitDefs = [
   {
-    id: 'u-complexity', title: 'Constraints & Complexity', icon: '⏱️', topics: ['complexity'],
+    id: 'u-complexity', title: 'Constraints & Complexity', icon: 'clock', topics: ['complexity'],
     modules: [
       { id: 'cx-constraints', title: 'Constraints → Big-O', mustLearn: true, skills: ['constraints', 'complexity'], lessons: ['complexity:lesson:constraints', 'complexity:lesson:big-o'], algos: [] },
       { id: 'cx-recursion', title: 'Recursion, amortized & space', skills: ['complexity'], lessons: ['complexity:lesson:recursion-amortized', 'complexity:lesson:space'], algos: ['merge-sort', 'quicksort-partition'] },
@@ -13,7 +13,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-graphs1', title: 'Graphs I: DFS/BFS/Grids', icon: '🕸️', topics: ['graphs-core'],
+    id: 'u-graphs1', title: 'Graphs I: DFS/BFS/Grids', icon: 'web', topics: ['graphs-core'],
     modules: [
       { id: 'g1-bfs-levels', title: 'BFS by levels', mustLearn: true, gap: 'bfs-levels', skills: ['graph-bfs', 'tree-bfs', 'grid', 'queue-deque'], lessons: ['gaps:bfs-levels:lesson'], algos: ['graph-bfs', 'multi-source-bfs'] },
       { id: 'g1-model', title: 'Spot & build the graph', skills: ['graph-modeling'], lessons: ['graphs-core:lesson:spot-the-graph', 'graphs-core:lesson:representations'], algos: [] },
@@ -24,7 +24,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-graphs2', title: 'Graphs II: Topo, Union-Find, Weighted', icon: '🧭', topics: ['graphs-advanced'],
+    id: 'u-graphs2', title: 'Graphs II: Topo, Union-Find, Weighted', icon: 'compass', topics: ['graphs-advanced'],
     modules: [
       { id: 'g2-kahn', title: 'Topological sort (Kahn)', mustLearn: true, gap: 'kahn', skills: ['topo-sort', 'graph-modeling'], lessons: ['gaps:kahn:lesson'], algos: ['topo-kahn'] },
       { id: 'g2-cycles', title: 'Cycles & DFS topo', skills: ['topo-sort', 'graph-dfs'], lessons: ['graphs-core:lesson:cycles', 'graphs-core:lesson:topo'], algos: ['cycle-directed', 'topo-dfs', 'cycle-undirected'], topics: ['graphs-core'] },
@@ -35,7 +35,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-trees', title: 'Trees & Heaps', icon: '🌳', topics: ['trees'],
+    id: 'u-trees', title: 'Trees & Heaps', icon: 'tree', topics: ['trees'],
     modules: [
       { id: 't-dfs', title: 'Tree DFS contract', skills: ['tree-dfs'], lessons: ['trees:lesson:dfs-contract', 'trees:lesson:orders'], algos: ['tree-dfs', 'tree-dfs-iterative', 'lca'] },
       { id: 't-bfs', title: 'Tree BFS by level', skills: ['tree-bfs', 'queue-deque'], lessons: ['trees:lesson:bfs-levels'], algos: ['tree-bfs'] },
@@ -45,7 +45,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-stacks', title: 'Stacks, Queues & Linked Lists', icon: '📚', topics: ['stacks-lists'],
+    id: 'u-stacks', title: 'Stacks, Queues & Linked Lists', icon: 'layers', topics: ['stacks-lists'],
     modules: [
       { id: 's-mono', title: 'Monotonic stack', mustLearn: true, gap: 'mono-stack', skills: ['monotonic-stack', 'stack'], lessons: ['gaps:mono-stack:lesson', 'stacks-lists:lesson:monotonic'], algos: ['monotonic-stack'] },
       { id: 's-lists', title: 'Linked list surgery', mustLearn: true, gap: 'list-surgery', skills: ['linked-list', 'two-pointers'], lessons: ['gaps:list-surgery:lesson', 'stacks-lists:lesson:linked-list'], algos: ['reverse-linked-list', 'fast-slow-pointers', 'lru-cache'] },
@@ -54,7 +54,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-oop', title: 'OOP & Design', icon: '🧱', topics: ['oop'],
+    id: 'u-oop', title: 'OOP & Design', icon: 'layers', topics: ['oop'],
     modules: [
       { id: 'oop-classes', title: 'Classes & self', skills: ['communication', 'ds-diagnosis'], lessons: ['oop:lesson:classes-101', 'oop:lesson:pitfalls'], algos: [] },
       { id: 'oop-lru', title: 'LRU Cache', skills: ['linked-list', 'ds-diagnosis'], lessons: ['oop:lesson:building-blocks', 'oop:lesson:ordereddict-shortcut'], algos: [],
@@ -66,7 +66,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-arrays', title: 'Arrays, Windows, Prefix & Binary Search', icon: '📏', topics: ['linear'],
+    id: 'u-arrays', title: 'Arrays, Windows, Prefix & Binary Search', icon: 'ruler', topics: ['linear'],
     modules: [
       { id: 'a-prefix', title: 'Prefix sum + hashmap', mustLearn: true, gap: 'prefix-hash', skills: ['prefix-sum', 'arrays-hashing'], lessons: ['gaps:prefix-hash:lesson', 'linear:lesson:prefix-sum'], algos: ['prefix-sum', 'prefix-sum-hashmap'] },
       { id: 'a-bs', title: 'Binary search & search on answer', mustLearn: true, gap: 'bs-answer', skills: ['binary-search', 'constraints'], lessons: ['gaps:bs-answer:lesson', 'linear:lesson:binary-search-answer'], algos: ['binary-search', 'bounds', 'bs-on-answer'] },
@@ -77,7 +77,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-paradigms', title: 'Backtracking & DP', icon: '🧩', topics: ['paradigms'],
+    id: 'u-paradigms', title: 'Backtracking & DP', icon: 'puzzle', topics: ['paradigms'],
     modules: [
       { id: 'p-backtrack', title: 'Choose / explore / unchoose', mustLearn: true, gap: 'choose-skip', skills: ['backtracking'], lessons: ['gaps:choose-skip:lesson', 'paradigms:lesson:backtracking'], algos: ['subsets', 'permutations', 'combination-sum'] },
       { id: 'p-dp1', title: '1-D DP recipe', skills: ['dp-1d'], lessons: ['paradigms:lesson:dp-recipe', 'paradigms:lesson:recognize-dp'], algos: ['dp-1d', 'knapsack-unbounded', 'lis-n2'] },
@@ -88,7 +88,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-craft', title: 'Interview Craft (narration + mock)', icon: '🎤', topics: [],
+    id: 'u-craft', title: 'Interview Craft (narration + mock)', icon: 'mic', topics: [],
     modules: [
       { id: 'ic-read', title: 'Read & Sign', skills: ['communication', 'ds-diagnosis'], lessons: [], algos: [], extraBites: [
         { type: 'read', ref: 'drill', title: 'Signature drill: rapid-fire', minutes: 4 },

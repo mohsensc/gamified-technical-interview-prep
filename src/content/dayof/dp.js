@@ -78,7 +78,7 @@ const dpDecisionTree = {
 export default {
   id: 'dp',
   title: 'DP from zero to 2-D',
-  icon: '🧮',
+  icon: 'calculator',
   minutes: 35,
 
   summary: [

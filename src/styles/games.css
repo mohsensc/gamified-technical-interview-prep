@@ -2,7 +2,7 @@
 .game-tile { min-height: 104px; justify-content: flex-start; }
 .game-tile .tile-icon { font-size: 30px; line-height: 1; height: 34px; display: flex; align-items: center; }
 .boss-tile { border-color: color-mix(in srgb, var(--red) 40%, var(--border)); }
-.game-title { font-size: 22px; }
+.game-title { font-size: 22px; display: flex; align-items: center; gap: 8px; }
 
 .game-host { max-width: 760px; width: 100%; margin: 0 auto; }
 .game { display: flex; flex-direction: column; gap: 14px; }

@@ -74,7 +74,7 @@ export function makeQuestion(level = 1) {
   return {
     id: `bfs-or-dfs:${index}`,
     skills: ['graph-modeling', ...item.skills],
-    tag: '🕸️ Pick the traversal',
+    tag: { icon: 'web', text: 'Pick the traversal' },
     summary: item.s,
     prompt: item.s,
     parts: [
@@ -87,7 +87,7 @@ export function makeQuestion(level = 1) {
 export default {
   id: 'bfs-or-dfs',
   title: 'BFS or DFS?',
-  icon: '🕸️',
+  icon: 'web',
   blurb: 'Choose the traversal, defend the choice.',
   skills: ['graph-bfs', 'graph-dfs', 'dijkstra', 'topo-sort', 'union-find'],
   difficulty: 'Escalates with streak',
@@ -95,7 +95,7 @@ export default {
   supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'BFS or DFS?',
-    icon: '🕸️',
+    icon: 'web',
     rules: ['algorithm, then reason', 'say it out loud'],
     mode: 'timed',
     seconds: 90,

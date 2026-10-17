@@ -4,6 +4,7 @@ import { recordAnswer, markSeen } from '../store.js'
 import { renderPanels, prepareLayouts } from './render.js'
 import { deepClone, formatValue, flash, setText } from './util.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { icon } from '../ui/icons.js'
 
 const maxSteps = 2000
 const baseDelay = 1000
@@ -45,7 +46,7 @@ export function mountStepper(container, trace, options = {}) {
   const diagram = h('div', { class: 'st-diagram' })
   const noteEl = h('div', { class: 'st-note' })
   const sayText = h('div', { class: 'st-say-text' })
-  const sayEl = h('div', { class: 'st-say' }, h('span', { class: 'st-say-tag' }, '🎙 Say it'), sayText)
+  const sayEl = h('div', { class: 'st-say' }, h('span', { class: 'st-say-tag' }, icon('mic', 13), ' Say it'), sayText)
   const varsBody = h('div', { class: 'st-vars-body' })
   const varsEl = h('div', { class: 'st-vars' }, varsBody)
   const errorEl = h('div', { class: 'st-error' })
@@ -53,7 +54,7 @@ export function mountStepper(container, trace, options = {}) {
   const counter = h('span', { class: 'st-counter mono' })
   const prevButton = h('button', { class: 'btn btn-icon st-prev', title: 'Back (←)', onclick: () => go(index - 1) }, '⟵')
   const nextButton = h('button', { class: 'btn btn-primary st-next', title: 'Next (→)', onclick: () => advance() }, '⟶')
-  const playButton = h('button', { class: 'btn btn-icon st-play', title: 'Autoplay (space)', onclick: () => togglePlay() }, '▶')
+  const playButton = h('button', { class: 'btn btn-icon st-play', title: 'Autoplay (space)', onclick: () => togglePlay() }, icon('play', 16))
   const scrub = h('input', { type: 'range', class: 'st-scrub', min: 0, max: 0, value: 0, oninput: event => go(Number(event.target.value)) })
   const ticks = h('div', { class: 'st-ticks' })
   const speedLabel = h('span', { class: 'st-speed-label mono' })
@@ -67,7 +68,7 @@ export function mountStepper(container, trace, options = {}) {
   })
   speedLabel.textContent = `${speed}×`
   const scoreEl = h('span', { class: 'st-score mono' })
-  const predictButton = h('button', { class: 'chip st-predict-toggle', onclick: () => togglePredict() }, '🎯 Predict')
+  const predictButton = h('button', { class: 'chip st-predict-toggle', onclick: () => togglePredict() }, icon('target', 14), ' Predict')
   const predictBanner = h('div', { class: 'st-predict-banner' })
 
   const presetChips = h('div', { class: 'st-presets' })
@@ -81,8 +82,8 @@ export function mountStepper(container, trace, options = {}) {
   const why = h('div', { class: 'st-why' }, rich(complexity.why || ''))
   why.style.display = 'none'
   const badge = h('button', { class: 'st-badge', title: 'Why?', onclick: () => { why.style.display = why.style.display === 'none' ? '' : 'none' } },
-    complexity.time ? h('span', { class: 'pill pill-amber' }, `⏱ ${complexity.time}`) : null,
-    complexity.space ? h('span', { class: 'pill pill-sky' }, `▦ ${complexity.space}`) : null)
+    complexity.time ? h('span', { class: 'pill pill-amber' }, icon('clock', 12), ` ${complexity.time}`) : null,
+    complexity.space ? h('span', { class: 'pill pill-sky' }, icon('grid', 12), ` ${complexity.space}`) : null)
 
   const codePane = h('div', { class: 'st-code' }, code)
   let hintSeen = false
@@ -133,7 +134,7 @@ export function mountStepper(container, trace, options = {}) {
             editor.focus()
           }
         },
-      }, '✎ Custom'))
+      }, icon('edit', 14), ' Custom'))
   }
 
   const runCustom = () => {
@@ -166,7 +167,9 @@ export function mountStepper(container, trace, options = {}) {
     scrub.max = Math.max(0, run.steps.length - 1)
     renderTicks()
     renderPresets()
-    errorEl.textContent = run.error ? `⚠ ${run.error}` : run.capped ? `Capped at ${maxSteps} steps` : ''
+    if (run.error) errorEl.replaceChildren(icon('warning', 14), ` ${run.error}`)
+    else if (run.capped) errorEl.replaceChildren(`Capped at ${maxSteps} steps`)
+    else errorEl.replaceChildren()
     errorEl.style.display = errorEl.textContent ? '' : 'none'
     show()
   }
@@ -236,14 +239,14 @@ export function mountStepper(container, trace, options = {}) {
     const total = run.steps.length
     prevButton.disabled = index <= 0
     nextButton.disabled = index >= total - 1
-    playButton.textContent = playing ? '❚❚' : index >= total - 1 && total ? '↺' : '▶'
+    playButton.replaceChildren(icon(playing ? 'pause' : (index >= total - 1 && total ? 'replay' : 'play'), 16))
     playButton.disabled = predicting
     root.classList.toggle('is-predicting', predicting)
     root.classList.toggle('is-awaiting', awaiting)
     predictButton.classList.toggle('active', predicting)
     scoreEl.textContent = predicting || score.total ? `${score.hits}/${score.total}` : ''
     predictBanner.style.display = predicting ? '' : 'none'
-    if (predicting && !predictBanner.dataset.result) predictBanner.textContent = awaiting ? '👆 Click the line that runs next' : 'Press ⟶ then guess the next line'
+    if (predicting && !predictBanner.dataset.result) predictBanner.replaceChildren(...(awaiting ? [icon('tap', 14), ' Click the line that runs next'] : ['Press ⟶ then guess the next line']))
   }
 
   const go = target => {
@@ -291,7 +294,7 @@ export function mountStepper(container, trace, options = {}) {
     code.setMarks(correct ? { [line]: 'good' } : { [line]: 'bad', [next.line]: 'good' })
     predictBanner.dataset.result = correct ? 'good' : 'bad'
     predictBanner.className = `st-predict-banner is-${correct ? 'good' : 'bad'}`
-    predictBanner.textContent = correct ? `✓ Line ${line}` : `✗ It was line ${next.line}`
+    predictBanner.replaceChildren(icon(correct ? 'check' : 'x', 13), correct ? ` Line ${line}` : ` It was line ${next.line}`)
     index += 1
     show()
     setTimeout(() => {

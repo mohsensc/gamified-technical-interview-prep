@@ -1424,6 +1424,6 @@ Islands that are identical in shape but located in different parts of the grid s
 export default {
   id: 'graphs',
   title: 'Graphs: traversal',
-  icon: '🕸️',
+  icon: 'web',
   items,
 }

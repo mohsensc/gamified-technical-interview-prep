@@ -550,7 +550,7 @@ const quiz = [
 export default {
   id: 'graphs',
   title: 'Graph boilerplates',
-  icon: '🕸️',
+  icon: 'web',
   minutes: 35,
   summary,
   sections,

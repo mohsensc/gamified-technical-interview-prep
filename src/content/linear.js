@@ -1574,7 +1574,7 @@ class Solution:
 export default {
   id: 'linear',
   title: 'Arrays, Hashing, Pointers & Binary Search',
-  icon: '🎯',
+  icon: 'target',
   skills: ['arrays-hashing', 'two-pointers', 'sliding-window', 'prefix-sum', 'binary-search', 'greedy'],
   lessons,
   traces,

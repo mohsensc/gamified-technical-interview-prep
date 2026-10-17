@@ -180,7 +180,7 @@ export function makeQuestion(level = 1) {
   return {
     id: `bigo-ladder:${index}`,
     skills: ['complexity'],
-    tag: '🪜 Time + space',
+    tag: { icon: 'ladder', text: 'Time + space' },
     summary: built.code.split('\n').find(line => line.startsWith('def ')) || 'Snippet',
     code: built.code,
     parts: [
@@ -193,7 +193,7 @@ export function makeQuestion(level = 1) {
 export default {
   id: 'bigo-ladder',
   title: 'Big-O Ladder',
-  icon: '🪜',
+  icon: 'ladder',
   blurb: 'Read Python, call time and space.',
   skills: ['complexity'],
   difficulty: 'Up to Lv 6',
@@ -201,7 +201,7 @@ export default {
   supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'Big-O Ladder',
-    icon: '🪜',
+    icon: 'ladder',
     rules: ['time, then space', 'climbs as you streak'],
     mode: 'lives',
     lives: 3,

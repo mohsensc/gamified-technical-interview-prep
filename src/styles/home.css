@@ -42,7 +42,7 @@ body.daily-modal-open { overflow: hidden; }
 
 .game-title-block { display: flex; flex-direction: column; gap: 4px; }
 .game-logo { display: flex; align-items: center; gap: 10px; font-size: 38px; margin: 0; }
-.game-logo-mark { font-size: 32px; line-height: 1; }
+.game-logo .brand-mark { width: 40px; height: 40px; border-radius: 13px; font-size: 18px; }
 .game-tagline { margin: 0; color: var(--muted); font-size: 14px; font-weight: 650; }
 
 .player-card { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-lg); background: var(--pink-fill); border: 1px solid var(--pink); box-shadow: var(--shadow); }
@@ -156,7 +156,7 @@ body.daily-modal-open { overflow: hidden; }
 
 @media (max-width: 760px) {
   .game-logo { font-size: 29px; }
-  .game-logo-mark { font-size: 25px; }
+  .game-logo .brand-mark { width: 34px; height: 34px; font-size: 15px; }
   .play-btn { padding: 16px 18px; }
   .play-btn-icon { width: 40px; height: 40px; font-size: 20px; }
   .play-btn-copy b { font-size: 16px; }

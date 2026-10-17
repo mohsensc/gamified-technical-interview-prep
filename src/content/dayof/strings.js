@@ -1,7 +1,7 @@
 export default {
   id: 'strings',
   title: 'Strings, collections & hashing',
-  icon: '🔤',
+  icon: 'read',
   minutes: 25,
 
   summary: [

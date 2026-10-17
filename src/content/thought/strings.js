@@ -1318,6 +1318,6 @@ Overlapping occurrences still count as repeats; two windows starting one charact
 export default {
   id: 'strings',
   title: 'Strings & hashing',
-  icon: '🔤',
+  icon: 'read',
   items,
 }

@@ -53,12 +53,8 @@ button.account-avatar:hover { border-color: var(--pink); filter: brightness(0.96
 .auth-brand { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
 .auth-brand h1 { margin: 6px 0 0; font-size: 22px; letter-spacing: -0.01em; }
 .auth-brand p { margin: 0; font-size: 14px; max-width: 300px; }
-.auth-mark {
-  width: 44px; height: 44px; border-radius: 12px;
-  display: grid; place-items: center;
-  background: var(--pink-fill); color: var(--accent-ink);
-}
-.auth-mark .icon, .auth-provider .icon { display: inline-flex; }
+.auth-mark { width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
+.auth-provider .icon { display: inline-flex; }
 .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; gap: 3px; background: var(--surface-2); border-radius: 10px; }
 .auth-tab {
   padding: 7px 10px; border: 0; border-radius: 8px;

@@ -1953,7 +1953,7 @@ const generators = [
 export default {
   id: 'graphs-advanced',
   title: 'Graphs: Weighted, Union-Find, MST',
-  icon: '🧭',
+  icon: 'compass',
   skills: ['union-find', 'dijkstra', 'mst', 'graph-modeling', 'graph-bfs'],
   lessons,
   traces,

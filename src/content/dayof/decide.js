@@ -252,7 +252,7 @@ const quiz = [
 export default {
   id: 'decide',
   title: 'Decide: problem → pattern → algorithm → DS',
-  icon: '🧭',
+  icon: 'compass',
   minutes: 30,
   summary,
   sections,

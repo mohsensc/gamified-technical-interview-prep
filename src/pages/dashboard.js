@@ -1,4 +1,5 @@
 import { h } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { getState, subscribe, getLevelInfo, getStreak, getStudyMinutes, getNodeProgress, getEvents, dueItems, recordAnswer } from '../store.js'
 import { allItems, hrefFor, course } from '../content/curriculum.js'
 import { recommendNext, nextIncompleteBite, getInterviewAt, setInterviewAt } from '../engine/recommend.js'
@@ -94,10 +95,10 @@ const computeBadges = () => {
   const bestStreak = computeBestStreak()
   const masteredSkill = Object.values(getState().skills).some(record => record.attempts >= 3 && record.mastery >= 0.85)
   return [
-    { id: 'first10', icon: '🔰', label: 'First 10 answers', unlocked: totalAnswered >= 10 },
-    { id: 'weekstreak', icon: '🔥', label: '7-day streak', unlocked: bestStreak >= 7 },
-    { id: 'century', icon: '💯', label: '100 answers', unlocked: totalAnswered >= 100 },
-    { id: 'mastery', icon: '🏆', label: 'Mastered a skill', unlocked: masteredSkill },
+    { id: 'first10', icon: 'star', label: 'First 10 answers', unlocked: totalAnswered >= 10 },
+    { id: 'weekstreak', icon: 'flame', label: '7-day streak', unlocked: bestStreak >= 7 },
+    { id: 'century', icon: 'trophy', label: '100 answers', unlocked: totalAnswered >= 100 },
+    { id: 'mastery', icon: 'crown', label: 'Mastered a skill', unlocked: masteredSkill },
   ]
 }
 
@@ -141,7 +142,7 @@ function buildInterviewControl() {
 
 function buildTitleBlock() {
   return h('div', { class: 'game-title-block' },
-    h('h1', { class: 'game-logo' }, h('span', { class: 'game-logo-mark', 'aria-hidden': 'true' }, '🎮'), 'CodeCram'),
+    h('h1', { class: 'game-logo' }, h('span', { class: 'brand-mark' }, '</>'), 'CodeCram'),
     h('p', { class: 'game-tagline' }, 'Your coding interview training arcade'))
 }
 
@@ -160,13 +161,13 @@ function buildPlayerCard(user, levelInfo) {
 function buildPlayButton(bite, newVisitor) {
   if (bite) {
     return h('a', { class: 'btn btn-primary play-btn', href: hrefFor(bite.id) },
-      h('span', { class: 'play-btn-icon' }, '▶'),
+      h('span', { class: 'play-btn-icon' }, icon('play', 22)),
       h('span', { class: 'play-btn-copy' },
         h('small', null, newVisitor ? 'Press play to start' : 'Continue practicing'),
         h('b', null, `${bite.title} · ${bite.minutes}m`)))
   }
   return h('a', { class: 'btn btn-primary play-btn', href: '#/course' },
-    h('span', { class: 'play-btn-icon' }, '🎉'),
+    h('span', { class: 'play-btn-icon' }, icon('sparkle', 22)),
     h('span', { class: 'play-btn-copy' }, h('small', null, 'Core course complete'), h('b', null, 'Review the tree')))
 }
 
@@ -182,7 +183,7 @@ function buildGameMenu(items) {
       style: { '--tile-color': tileColor },
     }
     const inner = [
-      h('span', { class: 'game-menu-icon' }, item.icon),
+      h('span', { class: 'game-menu-icon' }, icon(item.icon, 20)),
       h('span', { class: 'game-menu-copy' },
         h('span', { class: 'game-menu-title' }, item.title),
         h('span', { class: 'game-menu-sub' }, item.sub)),
@@ -227,7 +228,7 @@ function dailyQuestionStepper(questionItems, onFinish) {
   }
   const showDone = () => {
     stage.replaceChildren(h('div', { class: 'stack center daily-question-done' },
-      h('span', { class: 'daily-question-done-icon' }, '✅'),
+      h('span', { class: 'daily-question-done-icon' }, icon('check', 28)),
       h('b', null, 'Daily questions done'),
       h('span', { class: 'small muted' }, 'Nice work, see you tomorrow for a fresh set.'),
       h('div', { class: 'row-wrap daily-question-done-actions' },
@@ -239,7 +240,7 @@ function dailyQuestionStepper(questionItems, onFinish) {
 }
 
 function buildDailyModal(thoughtItem, stepperNode, onAfterClose) {
-  const closeBtn = h('button', { class: 'btn-icon daily-modal-close', type: 'button', 'aria-label': 'Close daily challenge' }, '✕')
+  const closeBtn = h('button', { class: 'btn-icon daily-modal-close', type: 'button', 'aria-label': 'Close daily challenge' }, icon('close', 18))
   const panel = h('div', { class: 'daily-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'daily-modal-title' },
     h('div', { class: 'daily-modal-head' },
       h('div', { class: 'stack-sm' },
@@ -339,8 +340,8 @@ function buildStreakCard() {
   return h('div', { class: 'card stack' },
     h('span', { class: 'section-title' }, 'Streak'),
     h('div', { class: 'row-wrap streak-row' },
-      h('div', { class: 'stat' }, h('span', { class: 'row streak-flame-row' }, h('span', { class: 'stat-value' }, String(current)), h('span', { class: 'pill pill-pink' }, '🔥')), h('span', { class: 'stat-label' }, 'current')),
-      h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${best}🏅`), h('span', { class: 'stat-label' }, 'best'))))
+      h('div', { class: 'stat' }, h('span', { class: 'row streak-flame-row' }, h('span', { class: 'stat-value' }, String(current)), h('span', { class: 'pill pill-pink' }, icon('flame', 14))), h('span', { class: 'stat-label' }, 'current')),
+      h('div', { class: 'stat' }, h('span', { class: 'row streak-flame-row' }, h('span', { class: 'stat-value' }, String(best)), icon('medal', 18)), h('span', { class: 'stat-label' }, 'best'))))
 }
 
 function buildHeatmapCard() {
@@ -374,15 +375,15 @@ function buildGoalRingCard() {
 
 function buildKindStatsCard(kindCounts) {
   const rows = [
-    { label: 'Questions', value: kindCounts.mcq + kindCounts.cloze + kindCounts.parsons, icon: '❓' },
-    { label: 'Cards', value: kindCounts.card, icon: '🃏' },
-    { label: 'Thought walks', value: kindCounts.thought, icon: '🧠' },
-    { label: 'Games', value: kindCounts.game, icon: '🎮' },
+    { label: 'Questions', value: kindCounts.mcq + kindCounts.cloze + kindCounts.parsons, icon: 'question' },
+    { label: 'Cards', value: kindCounts.card, icon: 'card' },
+    { label: 'Thought walks', value: kindCounts.thought, icon: 'brain' },
+    { label: 'Games', value: kindCounts.game, icon: 'joystick' },
   ]
   return h('div', { class: 'card stack' },
     h('span', { class: 'section-title' }, 'Solved by kind'),
     h('div', { class: 'kind-stats-row' }, rows.map(row => h('div', { class: 'row' },
-      h('span', { class: 'kind-stat-icon' }, row.icon),
+      h('span', { class: 'kind-stat-icon' }, icon(row.icon, 18)),
       h('div', { class: 'stack-sm' }, h('b', null, String(row.value)), h('span', { class: 'small muted' }, row.label))))))
 }
 
@@ -390,7 +391,7 @@ function buildBadgesCard(badges) {
   return h('div', { class: 'card stack' },
     h('span', { class: 'section-title' }, 'Badges'),
     h('div', { class: 'badge-row' }, badges.map(badge => h('div', { class: `badge${badge.unlocked ? ' unlocked' : ' locked'}`, title: badge.label },
-      h('span', { class: 'badge-icon' }, badge.unlocked ? badge.icon : '🔒'),
+      h('span', { class: 'badge-icon' }, icon(badge.unlocked ? badge.icon : 'lock', 20)),
       h('span', { class: 'badge-label' }, badge.label)))))
 }
 
@@ -428,7 +429,7 @@ export default async function render(container) {
     const kindCounts = getKindCounts()
     const badges = computeBadges()
 
-    const dailySub = `${getStreak()}🔥 streak · ${dailyQuestionItems.length} quick qs`
+    const dailySub = `${getStreak()} day streak · ${dailyQuestionItems.length} quick qs`
     const thoughtSub = thoughtItem ? `${thoughtItem.difficulty} · ${thoughtItem.title}` : 'Fresh pick tomorrow'
     const courseSub = `${Math.round(getNodeProgress(course.id) * 100)}% through the course`
     const dueCount = dueItems().length
@@ -437,11 +438,11 @@ export default async function render(container) {
     const arcadeSub = gamesPlayed ? `${gamesPlayed} games played` : 'Mini-games & boss fights'
 
     const menuItems = [
-      { id: 'daily', icon: '📅', title: 'Daily challenge', sub: dailySub, expanded: dailyModalOpen, onActivate: openDailyModal },
-      { id: 'thought', icon: '🧠', title: 'Thought Processes', sub: thoughtSub, href: '#/thought' },
-      { id: 'course', icon: '📘', title: 'Course', sub: courseSub, href: '#/course' },
-      { id: 'practice', icon: '🎯', title: 'Practice', sub: practiceSub, href: '#/practice' },
-      { id: 'arcade', icon: '🕹️', title: 'Arcade', sub: arcadeSub, href: '#/games' },
+      { id: 'daily', icon: 'calendar', title: 'Daily challenge', sub: dailySub, expanded: dailyModalOpen, onActivate: openDailyModal },
+      { id: 'thought', icon: 'brain', title: 'Thought Processes', sub: thoughtSub, href: '#/thought' },
+      { id: 'course', icon: 'book', title: 'Course', sub: courseSub, href: '#/course' },
+      { id: 'practice', icon: 'target', title: 'Practice', sub: practiceSub, href: '#/practice' },
+      { id: 'arcade', icon: 'joystick', title: 'Arcade', sub: arcadeSub, href: '#/games' },
     ]
 
     const main = h('div', { class: 'home-main' },

@@ -1,4 +1,5 @@
 import { h, clear, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { renderMcq } from '../ui/items.js'
 import { createSignatureEditor } from '../ui/signature.js'
@@ -213,7 +214,7 @@ function renderReadStep(stage, statement, onDone) {
   stage.append(h('div', { class: 'stack' },
     h('div', { class: 'row spread rd-read-head' },
       h('span', { class: 'muted small' }, 'Click phrases you think matter, or drag to select a few words'),
-      h('span', { class: 'row' }, h('span', { class: 'icon' }, '⏱'), timerEl)),
+      h('span', { class: 'row' }, icon('clock', 15), timerEl)),
     h('div', { class: 'card rd-statement-card' }, chunkHost),
     statement.examples?.length ? h('div', { class: 'grid-2 rd-examples' }, statement.examples.map(renderExample)) : null,
     statement.constraints?.length ? h('div', { class: 'card constraints' },
@@ -407,7 +408,7 @@ function renderSummary(stage, statement, allStatements, { onAnother, onBack }) {
   const unseen = pool.filter(other => !seen(`read:${other.id}`))
   const nextPool = unseen.length ? unseen : pool
   stage.append(h('div', { class: 'card stack rd-summary' },
-    h('div', { class: 'row' }, h('div', { class: 'empty-icon' }, '✅'), h('h3', null, 'Statement complete')),
+    h('div', { class: 'row' }, h('div', { class: 'empty-icon' }, icon('check', 28)), h('h3', null, 'Statement complete')),
     h('p', { class: 'muted' }, 'Logged to your skill mastery and SRS queue.'),
     h('div', { class: 'row' },
       nextPool.length ? h('button', { class: 'btn btn-primary', onclick: () => onAnother(nextPool[Math.floor(Math.random() * nextPool.length)]) }, 'Another statement →') : null,
@@ -492,7 +493,7 @@ function renderList(container, statements) {
       h('span', { class: `diff-dot ${difficultyClass(statement.difficulty)}`, title: statement.difficulty || '' }),
       stripMarks(statement.title),
       statement.signature?.kind === 'class' ? h('span', { class: 'pill pill-sky' }, 'OOP') : null,
-      seen(`read:${statement.id}`) ? h('span', { class: 'seen-mark' }, '✓') : null),
+      seen(`read:${statement.id}`) ? h('span', { class: 'seen-mark' }, icon('check', 13)) : null),
     h('td', null, statement.pattern ? h('span', { class: 'chip chip-pattern' }, statement.pattern) : null),
     h('td', { class: 'mono' }, statement.time || ''))))
     if (!list.length) body.append(h('tr', null, h('td', { colspan: '3', class: 'empty' }, 'No matches')))
@@ -557,7 +558,7 @@ function renderList(container, statements) {
         h('thead', null, h('tr', null, h('th', null, '#'), h('th', null, 'Statement'), h('th', null, 'Pattern'), h('th', null, 'Time'))),
         body))
       : h('div', { class: 'empty card' },
-        h('div', { class: 'empty-icon' }, '📄'),
+        h('div', { class: 'empty-icon' }, icon('file', 32)),
         h('p', null, 'No statements loaded yet.'))))
   drawRows()
 }
@@ -566,7 +567,7 @@ function renderDrill(container, statements) {
   clear(container)
   if (!statements.length) {
     container.append(h('div', { class: 'page rd-page' },
-      h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, '📄'), h('p', null, 'No statements loaded yet.'))))
+      h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, icon('file', 32)), h('p', null, 'No statements loaded yet.'))))
     return
   }
   const queue = shuffle(statements).slice(0, Math.min(drillSize, statements.length))
@@ -645,7 +646,7 @@ function renderDrill(container, statements) {
 
 export default function render(container, params = {}) {
   clear(container)
-  container.append(h('div', { class: 'page' }, h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, '⏳'), h('p', null, 'Loading statements…'))))
+  container.append(h('div', { class: 'page' }, h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, icon('clock', 32)), h('p', null, 'Loading statements…'))))
 
   return loadStatements().then(statements => {
     if (!container.isConnected) return
@@ -670,7 +671,7 @@ export default function render(container, params = {}) {
     if (!container.isConnected) return
     clear(container)
     container.append(h('div', { class: 'page' }, h('div', { class: 'card empty' },
-      h('div', { class: 'empty-icon' }, '🚧'),
+      h('div', { class: 'empty-icon' }, icon('warning', 32)),
       h('h3', null, 'Read & sign hit an error'),
       h('p', { class: 'muted' }, String(error?.message || error)),
       h('a', { class: 'btn', href: '#/' }, 'Dashboard'))))

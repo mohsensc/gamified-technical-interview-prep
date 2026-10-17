@@ -3,6 +3,7 @@ import { route, setNotFound, startRouter, resolve } from './router.js'
 import { isLocalhost } from './auth/index.js'
 import { mountShell } from './ui/shell.js'
 import { h } from './ui/h.js'
+import { icon } from './ui/icons.js'
 
 const lazyPage = loader => async (container, params) => {
   let mod
@@ -12,7 +13,7 @@ const lazyPage = loader => async (container, params) => {
     console.error(error)
     container.replaceChildren(h('div', { class: 'page' },
       h('div', { class: 'card empty' },
-        h('div', { class: 'empty-icon' }, '🚧'),
+        h('div', { class: 'empty-icon' }, icon('warning', 32)),
         h('h3', null, 'This section is still being built'),
         h('p', { class: 'muted' }, String(error?.message || error)),
         h('a', { class: 'btn', href: '#/' }, 'Dashboard'))))
@@ -85,7 +86,7 @@ route('#/login', pages.account)
 setNotFound(container => {
   container.replaceChildren(h('div', { class: 'page' },
     h('div', { class: 'card empty' },
-      h('div', { class: 'empty-icon' }, '🧭'),
+      h('div', { class: 'empty-icon' }, icon('compass', 32)),
       h('h3', null, 'Nothing here'),
       h('a', { class: 'btn btn-primary', href: '#/' }, 'Go to dashboard'))))
 })

@@ -1,4 +1,5 @@
 import { h, clear, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { units, allModules } from '../content/curriculum.js'
 import { topics, problems } from '../content/index.js'
 import { skillGroups, skills } from '../content/skills.js'
@@ -129,9 +130,9 @@ function renderHub(container) {
     }, label, count ? h('span', { class: 'chip-count' }, String(count)) : null)
 
     const scopeToggles = h('div', { class: 'row-wrap' },
-      toggleChip('dueOnly', '⏰ Due', dueCount),
-      toggleChip('missedOnly', '↩ Missed', missedCount),
-      toggleChip('bookmarksOnly', '★ Bookmarked', bookmarkCount))
+      toggleChip('dueOnly', [icon('clock', 13), ' Due'], dueCount),
+      toggleChip('missedOnly', [icon('repeat', 13), ' Missed'], missedCount),
+      toggleChip('bookmarksOnly', [icon('star', 13), ' Bookmarked'], bookmarkCount))
 
     const skillGroupsEl = skillGroups.map(group => h('div', { class: 'practice-skill-group' },
       h('span', { class: 'muted small' }, group.label),
@@ -192,7 +193,7 @@ function renderHub(container) {
         type: 'button',
         class: `tile practice-mode-card${count ? '' : ' is-empty'}${active ? ' active' : ''}`,
       },
-        h('div', { class: 'practice-mode-icon' }, mode.icon),
+        h('div', { class: 'practice-mode-icon' }, icon(mode.icon, 22)),
         h('div', { class: 'practice-mode-title' }, mode.title),
         h('div', { class: 'practice-mode-blurb muted small' }, mode.blurb),
         countLabel)
@@ -295,7 +296,7 @@ function renderSession(container, params) {
   const topRow = h('div', { class: 'row spread practice-session-top' },
     h('div', { class: 'row' },
       h('a', { class: 'btn btn-ghost btn-sm', href: '#/practice' }, '← Practice'),
-      h('span', { class: 'chip' }, modeInfo ? `${modeInfo.icon} ${modeInfo.title}` : mode)),
+      h('span', { class: 'chip' }, modeInfo ? [icon(modeInfo.icon, 13), ` ${modeInfo.title}`] : mode)),
     h('div', { class: 'row' }, timerOn ? timerPill : null, endButton))
   const stage = h('div', { class: 'practice-session-stage' })
   const page = h('div', { class: 'page practice-session' }, topRow, stage)
@@ -362,7 +363,7 @@ function renderSession(container, params) {
       clearEventContext()
       clearInterval(timerInterval)
       stage.replaceChildren(h('div', { class: 'empty card' },
-        h('div', { class: 'empty-icon' }, '🗂'),
+        h('div', { class: 'empty-icon' }, icon('folder', 32)),
         h('h3', null, 'Nothing matches this scope'),
         h('a', { class: 'btn btn-primary', href: '#/practice' }, 'Change scope')))
       return

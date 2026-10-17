@@ -2865,7 +2865,7 @@ const gapSkills = [...new Set(priority.flatMap(item => item.skills))].filter(ski
 export default {
   id: topicId,
   title: 'Must-Learn Gaps',
-  icon: '🎯',
+  icon: 'target',
   skills: gapSkills,
   priority,
   lessons: collect('lessons'),

@@ -1,4 +1,5 @@
 import { h, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { breadcrumb } from '../ui/breadcrumb.js'
 import { shuffleMcq } from '../ui/items.js'
@@ -23,7 +24,7 @@ const decodeParam = value => {
 }
 
 function emptyCard(message) {
-  return h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, '🧩'), h('p', { class: 'muted' }, message))
+  return h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, icon('puzzle', 32)), h('p', { class: 'muted' }, message))
 }
 
 function askBlock(originalAsk, askId, skillsList) {
@@ -149,7 +150,7 @@ function renderAlgoBite(stage, bite, markDone) {
         algo.time ? h('span', { class: 'pill pill-amber mono' }, algo.time) : null,
         algo.space ? h('span', { class: 'pill pill-sky mono' }, algo.space) : null)),
     algo.oneLiner ? h('p', null, richText(algo.oneLiner)) : null,
-    algo.mnemonic ? h('div', { class: 'algo-mnemonic' }, '💡 ', richText(algo.mnemonic)) : null,
+    algo.mnemonic ? h('div', { class: 'algo-mnemonic' }, icon('idea', 14), ' ', richText(algo.mnemonic)) : null,
     algo.whenToUse?.length ? h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'When'), h('ul', { class: 'slide-points' }, algo.whenToUse.map(line => h('li', null, richText(line))))) : null,
     algo.notWhen?.length ? h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Not when'), h('ul', { class: 'slide-points' }, algo.notWhen.map(line => h('li', null, richText(line))))) : null,
     algo.steps?.length ? h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Steps'), h('ol', { class: 'algo-steps' }, algo.steps.map(step => h('li', null, richText(step))))) : null,
@@ -193,7 +194,7 @@ function renderSessionBite(stage, bite, markDone) {
 function renderFrameworkRef(stage, markDone) {
   stage.replaceChildren(
     h('div', { class: 'stack' }, framework.map(step => h('div', { class: 'card bite-phase-card stack-sm' },
-      h('div', { class: 'row' }, h('span', null, step.icon), h('strong', null, step.title), h('span', { class: 'muted small' }, `${step.minutes}m`)),
+      h('div', { class: 'row' }, h('span', null, icon(step.icon, 16)), h('strong', null, step.title), h('span', { class: 'muted small' }, `${step.minutes}m`)),
       h('p', { class: 'muted small' }, step.goal),
       h('ul', { class: 'slide-points' }, step.checklist.map(item => h('li', null, item)))))),
     doneButton(markDone))
@@ -319,7 +320,7 @@ export default function render(container, params = {}) {
   const node = findNode(id)
   if (!node || node.kind !== 'bite') {
     container.append(h('div', { class: 'page' }, h('div', { class: 'empty card' },
-      h('div', { class: 'empty-icon' }, '🧩'),
+      h('div', { class: 'empty-icon' }, icon('puzzle', 32)),
       h('p', { class: 'muted' }, `No bite "${id}".`),
       h('a', { class: 'btn btn-primary', href: '#/course' }, 'Back to course'))))
     return null

@@ -1,4 +1,5 @@
 import { h, svg, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { createArcade, codeView, shuffle, sample, pickByLevel, rand, choiceSet, pick } from './_engine.js'
 import { overrideButton, applyOverrideVisuals } from '../ui/override.js'
@@ -694,7 +695,7 @@ function mount(container, api) {
     runButton = h('button', { class: 'btn btn-primary', onclick: () => runSurgery(ctx) }, 'Run ', h('span', { class: 'kbd' }, 'Enter'))
     ctx.stage.append(h('div', { class: 'card game-card fade-in' },
       h('div', { class: 'row row-wrap game-tags' },
-        h('span', { class: 'pill pill-pink' }, `🔗 ${puzzle.title}`),
+        h('span', { class: 'pill pill-pink' }, icon('link', 13), ` ${puzzle.title}`),
         h('span', { class: 'chip mono' }, `→ ${spec.expected.join(' → ')}`)),
       diagramHost,
       h('div', { class: 'ptr-columns' },
@@ -751,7 +752,7 @@ function mount(container, api) {
       clear(diagramHost)
       const target = frame.line ? frame.env[frame.line.split(' = ')[0].split('.')[0]] : null
       diagramHost.append(drawList(spec, frame, target ? [target] : []))
-      if (frame.line) diagramHost.append(h('div', { class: 'ptr-running mono small' }, `▶ ${frame.line}`))
+      if (frame.line) diagramHost.append(h('div', { class: 'ptr-running mono small row' }, icon('play', 12), ` ${frame.line}`))
       i++
       if (i < frames.length) ctx.later(playFrame, 380)
       else finishSurgery(ctx, result)
@@ -768,7 +769,7 @@ function mount(container, api) {
     if (result.ok) {
       ctx.hit(200, Math.max(0, 1 - seconds / 40))
       ctx.resolve(true, { skills: puzzle.skills, id: `pointer-surgery:${puzzle.id}` })
-      feedback.append(h('div', { class: 'game-why good' }, `✓ ${why}`))
+      feedback.append(h('div', { class: 'game-why good' }, icon('check', 14), ` ${why}`))
       ctx.waitFor(() => nextRound(ctx), 1500)
       return
     }
@@ -810,7 +811,7 @@ function mount(container, api) {
     feedback = h('div', { class: 'game-feedback' })
     ctx.stage.append(h('div', { class: 'card game-card fade-in' },
       h('div', { class: 'row row-wrap game-tags' },
-        h('span', { class: 'pill pill-red' }, `🐛 ${bugRound.title}`),
+        h('span', { class: 'pill pill-red' }, icon('bug', 13), ` ${bugRound.title}`),
         h('span', { class: 'chip' }, 'click the buggy line')),
       pickHost,
       bugFixHost,
@@ -862,7 +863,7 @@ function mount(container, api) {
     if (correct) {
       ctx.hit(160, Math.max(0, 1 - seconds / 20))
       ctx.resolve(true, { skills: bugRound.skills, id: `pointer-surgery:bugfix:fix:${bugRound.title}` })
-      feedback.append(h('div', { class: 'game-why good' }, '✓ ', bugRound.fixWhy))
+      feedback.append(h('div', { class: 'game-why good' }, icon('check', 14), ' ', bugRound.fixWhy))
       ctx.waitFor(() => nextRound(ctx), 1300)
       return
     }
@@ -900,7 +901,7 @@ function mount(container, api) {
     lineupCheckButton = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => checkLineup(ctx) }, 'Check ', h('span', { class: 'kbd' }, 'Enter'))
     ctx.stage.append(h('div', { class: 'card game-card fade-in' },
       h('div', { class: 'row row-wrap game-tags' },
-        h('span', { class: 'pill pill-teal' }, `🧵 ${lineupSnippet.title}`),
+        h('span', { class: 'pill pill-teal' }, icon('link', 13), ` ${lineupSnippet.title}`),
         h('span', { class: 'chip' }, `${lineupSnippet.lines.length} lines`)),
       h('div', { class: 'section-title' }, 'Your order'),
       lineupProgramHost,
@@ -951,7 +952,7 @@ function mount(container, api) {
     if (correct) {
       ctx.hit(180, Math.max(0, 1 - seconds / 35))
       ctx.resolve(true, { skills: lineupSnippet.skills, id: `pointer-surgery:lineup:${lineupSnippet.title}` })
-      feedback.append(h('div', { class: 'game-why good' }, '✓ ', 'That order runs correctly.'))
+      feedback.append(h('div', { class: 'game-why good' }, icon('check', 14), ' ', 'That order runs correctly.'))
       ctx.waitFor(() => nextRound(ctx), 1300)
       return
     }
@@ -979,7 +980,7 @@ function mount(container, api) {
 
   return createArcade(container, api, {
     title: 'Pointer Surgery',
-    icon: '🔗',
+    icon: 'link',
     rules: ['rewire, fix, or reorder', 'digits pick lines'],
     mode: 'lives',
     lives: 3,
@@ -1051,7 +1052,7 @@ function mount(container, api) {
 export default {
   id: 'pointer-surgery',
   title: 'Pointer Surgery',
-  icon: '🔗',
+  icon: 'link',
   blurb: 'Rewire pointers, squash bugs, reorder code.',
   skills: ['linked-list', 'communication', 'ds-diagnosis'],
   difficulty: 'Escalates with streak',
