@@ -45,20 +45,20 @@ body.daily-modal-open { overflow: hidden; }
 .game-logo-mark { font-size: 32px; line-height: 1; }
 .game-tagline { margin: 0; color: var(--muted); font-size: 14px; font-weight: 650; }
 
-.player-card { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.player-card { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-lg); background: var(--pink-fill); border: 1px solid var(--pink); box-shadow: var(--shadow); }
 .player-avatar {
   width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
   display: grid; place-items: center;
   font-family: var(--font-display); font-weight: 800; font-size: 19px;
-  background: var(--coral); color: var(--accent-ink);
-  box-shadow: 0 3px 0 0 color-mix(in srgb, var(--coral) 70%, black 25%);
+  background: var(--green-bright); color: var(--accent-ink);
+  box-shadow: 0 3px 0 0 color-mix(in srgb, var(--green-bright) 70%, black 25%);
 }
 .player-meta { display: flex; flex-direction: column; gap: 7px; min-width: 0; flex: 1; }
 .player-meta-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .player-level-badge {
   font-family: var(--font-display); font-size: 11px; font-weight: 800;
   padding: 3px 10px; border-radius: 99px;
-  background: var(--pink-soft); color: var(--pink);
+  background: var(--green-bright); color: var(--accent-ink);
   text-transform: uppercase; letter-spacing: 0.04em;
 }
 .player-xp-text { font-size: 12px; color: var(--muted); font-weight: 700; }
@@ -89,6 +89,15 @@ body.daily-modal-open { overflow: hidden; }
 }
 .game-menu-item:hover { background: var(--surface-2); border-color: var(--border-strong); text-decoration: none; }
 .game-menu-item:active { transform: translateY(3px); box-shadow: 0 0 0 0 var(--border-strong); }
+.game-menu-item-daily {
+  background-color: var(--surface);
+  background-image:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--pink) 18%, transparent) 0 7px, transparent 7px 22px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--pink) 18%, transparent) 0 7px, transparent 7px 22px);
+  background-blend-mode: multiply;
+  border-color: var(--pink);
+}
+.game-menu-item-daily:hover { background-color: var(--surface-2); border-color: var(--pink); }
 .game-menu-icon {
   width: 42px; height: 42px; border-radius: var(--radius); flex-shrink: 0;
   display: grid; place-items: center; font-size: 20px;
@@ -116,6 +125,7 @@ body.daily-modal-open { overflow: hidden; }
 .cal-day.is-today { outline: 2px solid var(--pink); outline-offset: 1px; }
 
 .streak-row { gap: 30px; }
+.streak-flame-row { gap: 6px; align-items: baseline; }
 
 .goal-ring-card { gap: 16px; }
 
@@ -131,9 +141,9 @@ body.daily-modal-open { overflow: hidden; }
   box-shadow: 0 2px 0 0 var(--border);
 }
 .badge.unlocked .badge-icon {
-  background: color-mix(in srgb, var(--coral) 28%, var(--surface-2));
-  border-color: var(--coral);
-  box-shadow: 0 2px 0 0 color-mix(in srgb, var(--coral) 60%, black 20%);
+  background: color-mix(in srgb, var(--pink) 28%, var(--surface-2));
+  border-color: var(--pink);
+  box-shadow: 0 2px 0 0 color-mix(in srgb, var(--pink) 60%, black 20%);
 }
 .badge.locked { opacity: 0.5; }
 .badge.locked .badge-icon { filter: grayscale(0.6); }

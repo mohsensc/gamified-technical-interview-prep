@@ -158,7 +158,7 @@
 }
 .ptr-line:not(:disabled):hover { border-color: var(--accent); transform: translateY(-1px); }
 .ptr-line.used, .ptr-line:disabled { opacity: 0.35; cursor: default; }
-.ptr-line.chosen { background: var(--teal-soft); border-color: color-mix(in srgb, var(--teal) 50%, transparent); animation: game-pop 0.2s ease; }
+.ptr-line.chosen { background: var(--pink-soft); border-color: color-mix(in srgb, var(--pink) 50%, transparent); animation: game-pop 0.2s ease; }
 .ptr-step { font-size: 11px; color: var(--teal); font-weight: 700; min-width: 14px; }
 
 @keyframes game-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }

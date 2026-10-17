@@ -111,7 +111,7 @@
   width: 64px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-strong);
   background: var(--surface-2); color: var(--text); font: inherit; font-variant-numeric: tabular-nums;
 }
-.goal-num-input:focus-visible { outline: 2px solid var(--sky); outline-offset: 1px; }
+.goal-num-input:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
 .daily-goal-row { display: flex; flex-direction: column; gap: 6px; }
 
 .stats-table { width: 100%; border-collapse: collapse; font-size: 13px; }

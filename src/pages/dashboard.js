@@ -173,9 +173,10 @@ function buildPlayButton(bite, newVisitor) {
 function buildGameMenu(items) {
   const nav = h('div', { class: 'game-menu', role: 'menu', 'aria-label': 'Game menu' })
   const els = items.map((item, i) => {
-    const tileColor = i % 2 === 0 ? 'var(--pink)' : 'var(--teal)'
+    const isDaily = item.id === 'daily'
+    const tileColor = isDaily ? 'var(--pink)' : i % 2 === 0 ? 'var(--green-bright)' : 'var(--teal)'
     const attrs = {
-      class: 'game-menu-item',
+      class: `game-menu-item${isDaily ? ' game-menu-item-daily' : ''}`,
       role: 'menuitem',
       tabindex: i === 0 ? '0' : '-1',
       style: { '--tile-color': tileColor },
@@ -320,7 +321,7 @@ function buildCalendarCard(monthCursor, onPrevMonth, onNextMonth) {
     cells.push(h('span', {
       class: `cal-day${isToday ? ' is-today' : ''}`,
       title: `${key}${value ? ` · ${value} answered` : ''}`,
-      style: value ? { background: `color-mix(in srgb, var(--coral) ${Math.round(20 + t * 70)}%, var(--surface-3))` } : null,
+      style: value ? { background: `color-mix(in srgb, var(--green-bright) ${Math.round(20 + t * 70)}%, var(--surface-3))` } : null,
     }, String(d)))
   }
 
@@ -338,7 +339,7 @@ function buildStreakCard() {
   return h('div', { class: 'card stack' },
     h('span', { class: 'section-title' }, 'Streak'),
     h('div', { class: 'row-wrap streak-row' },
-      h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${current}🔥`), h('span', { class: 'stat-label' }, 'current')),
+      h('div', { class: 'stat' }, h('span', { class: 'row streak-flame-row' }, h('span', { class: 'stat-value' }, String(current)), h('span', { class: 'pill pill-pink' }, '🔥')), h('span', { class: 'stat-label' }, 'current')),
       h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${best}🏅`), h('span', { class: 'stat-label' }, 'best'))))
 }
 
@@ -346,7 +347,7 @@ function buildHeatmapCard() {
   const days = getDailyRollupsForHeatmap()
   return h('div', { class: 'card stack' },
     h('span', { class: 'section-title' }, 'Last 26 weeks'),
-    heatmapCalendar(days, { cell: 8, gap: 2, colorVar: 'var(--coral)', ariaLabel: 'Answers per day over the last 26 weeks' }))
+    heatmapCalendar(days, { cell: 8, gap: 2, colorVar: 'var(--green-bright)', ariaLabel: 'Answers per day over the last 26 weeks' }))
 }
 
 function getDailyRollupsForHeatmap() {
@@ -367,7 +368,7 @@ function buildGoalRingCard() {
   const todayMinutes = getStudyMinutes({ todayOnly: true })
   const goalPct = Math.min(100, Math.round((todayMinutes / dailyGoalMinutes) * 100))
   return h('div', { class: 'card row goal-ring-card' },
-    h('div', { class: 'ring', style: { '--pct': goalPct, '--ring-color': goalPct >= 100 ? 'var(--green)' : 'var(--coral)' } }, h('span', null, `${todayMinutes}m`)),
+    h('div', { class: 'ring', style: { '--pct': goalPct, '--ring-color': goalPct >= 100 ? 'var(--green)' : 'var(--green-bright)' } }, h('span', null, `${todayMinutes}m`)),
     h('div', { class: 'stack-sm' }, h('b', null, "Today's goal"), h('span', { class: 'small muted' }, `${dailyGoalMinutes} min target`)))
 }
 

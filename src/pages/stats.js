@@ -175,7 +175,7 @@ function renderAccuracySection(state) {
     const unit = units.find(u => u.id === select.value)
     const points = accuracyPoints(unit ? new Set(unit.skills) : null)
     chartHost.replaceChildren(points.length >= 2
-      ? lineChart([{ name: '', color: 'var(--coral)', points }], { yFormat: v => `${Math.round(v)}%`, yMin: 0, yMax: 100, area: true, xLabels: edgePicks(points), ariaLabel: `Accuracy percent over the last ${points.length} active study days` })
+      ? lineChart([{ name: '', color: 'var(--green)', points }], { yFormat: v => `${Math.round(v)}%`, yMin: 0, yMax: 100, area: true, xLabels: edgePicks(points), ariaLabel: `Accuracy percent over the last ${points.length} active study days` })
       : h('div', { class: 'empty small muted' }, 'Answer a few more items to chart this.'))
   }
   select.addEventListener('change', () => {
@@ -227,7 +227,7 @@ function renderMasteryRadarSection() {
   })
   return h('div', { class: 'card stack' }, h('span', { class: 'section-title' }, 'Mastery by area'),
     h('p', { class: 'small muted' }, 'Progress toward the 85% readiness target for each skill group.'),
-    radarChart(axes, { color: 'var(--coral)', ariaLabel: 'Mastery by skill group, as percent of the readiness target' }))
+    radarChart(axes, { color: 'var(--green)', ariaLabel: 'Mastery by skill group, as percent of the readiness target' }))
 }
 
 function renderMasterySection() {
@@ -272,7 +272,7 @@ function renderActivitySection() {
   return h('div', { class: 'card stack' },
     h('span', { class: 'section-title' }, 'Activity'),
     h('div', { class: 'small muted' }, 'Last 26 weeks'),
-    heatmapCalendar(daily, { colorVar: 'var(--coral)', legend: true, ariaLabel: 'Minutes studied per day over the last 26 weeks, darker means more studying' }))
+    heatmapCalendar(daily, { colorVar: 'var(--green-bright)', legend: true, ariaLabel: 'Minutes studied per day over the last 26 weeks, darker means more studying' }))
 }
 
 function renderTimeOfDaySection() {
@@ -614,7 +614,7 @@ function renderGoalsSection() {
       const done = goal.now >= goal.target
       return h('a', { class: 'goal-row', href: goal.href },
         h('div', { class: 'spread small' }, h('span', null, goal.label), h('span', { class: 'mono' }, done ? 'Done' : etaText(goal.history, goal.target))),
-        h('div', { class: 'progress' }, h('div', { style: { width: `${pct * 100}%`, background: done ? 'var(--green)' : 'var(--coral)' } })),
+        h('div', { class: 'progress' }, h('div', { style: { width: `${pct * 100}%`, background: 'var(--green-bright)' } })),
         h('div', { class: 'muted small' }, goal.fmt(goal.now, goal.target)))
     }))
 }
@@ -634,7 +634,7 @@ function sampleGhostData() {
 
 function renderGhostPreview() {
   const data = sampleGhostData()
-  const heat = heatmapCalendar(data.days, { colorVar: 'var(--coral)', legend: true, ghost: true })
+  const heat = heatmapCalendar(data.days, { colorVar: 'var(--green-bright)', legend: true, ghost: true })
   const radar = radarChart(data.radarAxes, { color: 'var(--sky)', ghost: true })
   const content = h('div', { class: 'ghost-content stack-lg', 'aria-hidden': 'true' },
     h('div', { class: 'stack-sm' }, h('div', { class: 'small muted' }, '26-week activity'), heat),
@@ -643,7 +643,7 @@ function renderGhostPreview() {
       h('div', { class: 'stack-sm' }, h('div', { class: 'small muted' }, 'Readiness by company'),
         data.companyRows.map(row => h('div', { class: 'co-readiness-row' },
           companyMark(row.id, 18),
-          h('div', { class: 'grow' }, h('div', { class: 'heat-bar', style: { '--heat': 'var(--coral)' } }, h('div', { style: { width: `${row.value * 100}%` } }))))))))
+          h('div', { class: 'grow' }, h('div', { class: 'heat-bar', style: { '--heat': 'var(--green-bright)' } }, h('div', { style: { width: `${row.value * 100}%` } }))))))))
   return h('div', { class: 'card ghost-panel' }, content,
     h('div', { class: 'ghost-overlay' },
       h('div', { class: 'empty-icon' }, '📊'),

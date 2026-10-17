@@ -2,12 +2,12 @@
 .account-avatar {
   width: 32px; height: 32px; border-radius: 50%;
   display: inline-grid; place-items: center;
-  background: var(--coral-soft); color: var(--pink);
-  border: 1px solid color-mix(in srgb, var(--coral) 45%, transparent);
+  background: var(--pink-fill); color: var(--accent-ink);
+  border: 1px solid var(--pink);
   font-weight: 700; font-size: 14px; font-family: var(--font);
   cursor: pointer; padding: 0; line-height: 1;
 }
-button.account-avatar:hover { border-color: var(--coral); }
+button.account-avatar:hover { border-color: var(--pink); filter: brightness(0.96); }
 .account-avatar.lg { width: 40px; height: 40px; font-size: 17px; cursor: default; }
 .account-avatar.xl { width: 64px; height: 64px; font-size: 26px; cursor: default; }
 .account-sync-dot {
@@ -56,7 +56,7 @@ button.account-avatar:hover { border-color: var(--coral); }
 .auth-mark {
   width: 44px; height: 44px; border-radius: 12px;
   display: grid; place-items: center;
-  background: var(--coral); color: var(--accent-ink);
+  background: var(--pink-fill); color: var(--accent-ink);
 }
 .auth-mark .icon, .auth-provider .icon { display: inline-flex; }
 .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; gap: 3px; background: var(--surface-2); border-radius: 10px; }
@@ -73,7 +73,7 @@ button.account-avatar:hover { border-color: var(--coral); }
   border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
   font: inherit; font-size: 15px; font-weight: 400;
 }
-.auth-field input:focus { outline: none; border-color: var(--teal); }
+.auth-field input:focus { outline: none; border-color: var(--green); }
 .auth-submit { width: 100%; justify-content: center; padding: 11px 16px; }
 .auth-oauth { display: flex; flex-direction: column; gap: 8px; }
 .auth-provider { width: 100%; justify-content: center; gap: 10px; }
