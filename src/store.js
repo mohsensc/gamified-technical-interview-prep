@@ -33,7 +33,9 @@ let lastInputAt = Date.now()
 let lastTickAt = Date.now()
 let lastCloudText = ''
 let lastCloudSaveAt = 0
+let lastSyncedRemoteUpdatedAt = 0
 let cloudSaving = null
+let remoteMergeInFlight = null
 let cloudReady = false
 let accountSwitch = Promise.resolve()
 let syncStatus = { status: 'local', at: 0, error: null }
@@ -205,7 +207,10 @@ const saveToCloud = async ({ force = false, keepalive = false } = {}) => {
     if (!force) return false
   }
   const userId = activeUserId
+  if (!keepalive) await mergeRemoteIfNewer(userId)
+  if (activeUserId !== userId || !state) return false
   const text = JSON.stringify(cloudCopy(state))
+  const savedUpdatedAt = state.updatedAt || 0
   if (text === lastCloudText) {
     setSyncStatus('synced', { at: syncStatus.at || Date.now() })
     return false
@@ -217,6 +222,7 @@ const saveToCloud = async ({ force = false, keepalive = false } = {}) => {
       if (userId === activeUserId) {
         lastCloudText = text
         lastCloudSaveAt = Date.now()
+        lastSyncedRemoteUpdatedAt = savedUpdatedAt
         setSyncStatus('synced', { at: lastCloudSaveAt })
       }
       return true
@@ -610,6 +616,31 @@ const fetchRemote = async () => {
   }
 }
 
+const mergeRemoteIfNewer = userId => {
+  if (remoteMergeInFlight) return remoteMergeInFlight
+  remoteMergeInFlight = (async () => {
+    try {
+      if (!state || activeUserId !== userId || !cloudReady) return false
+      const { ok, remote } = await fetchRemote()
+      if (!ok || !remote || activeUserId !== userId) return false
+      const remoteUpdatedAt = remote.updatedAt || 0
+      if (remoteUpdatedAt <= lastSyncedRemoteUpdatedAt) return false
+      if (remoteUpdatedAt === (state.updatedAt || 0)) {
+        lastSyncedRemoteUpdatedAt = remoteUpdatedAt
+        return false
+      }
+      const merged = mergeStates(state, remote)
+      merged.updatedAt = Date.now()
+      lastSyncedRemoteUpdatedAt = remoteUpdatedAt
+      replaceState(merged)
+      return true
+    } finally {
+      remoteMergeInFlight = null
+    }
+  })()
+  return remoteMergeInFlight
+}
+
 const reconcileWithRemote = async (userId, fresh) => {
   const { ok, remote } = await fetchRemote()
   if (activeUserId !== userId) return
@@ -621,6 +652,7 @@ const reconcileWithRemote = async (userId, fresh) => {
   }
   const markSynced = () => {
     lastCloudText = JSON.stringify(cloudCopy(state))
+    lastSyncedRemoteUpdatedAt = state.updatedAt || 0
     setSyncStatus('synced', { at: Date.now() })
   }
   if (!fresh) {
@@ -666,6 +698,7 @@ const adoptUser = async user => {
   cloudReady = false
   lastCloudText = ''
   lastCloudSaveAt = 0
+  lastSyncedRemoteUpdatedAt = 0
   setSyncStatus('loading')
   const fresh = !cached || hasPendingMerge(user.id)
   if (fresh) setPendingMerge(user.id, true)
@@ -677,6 +710,7 @@ const dropToGuest = async () => {
   clearTimeout(cloudTimer)
   activeUserId = null
   lastCloudText = ''
+  lastSyncedRemoteUpdatedAt = 0
   setSyncStatus('local', { at: 0 })
   replaceState(await loadGuestState())
 }
@@ -1145,6 +1179,7 @@ function startActivityTracking() {
     } else {
       lastTickAt = Date.now()
       lastInputAt = Date.now()
+      if (activeUserId && cloudReady) mergeRemoteIfNewer(activeUserId).catch(error => console.error(error))
     }
   })
   window.addEventListener('pagehide', flushNow)
