@@ -153,12 +153,12 @@ div.cheat-row:not([tabindex]):hover { background: none; }
 
 @media print {
   :root, :root[data-theme="dark"], :root[data-theme="light"] {
-    --bg: #ffffff; --surface: #ffffff; --surface-2: #f4f6f8; --surface-3: #e9edf1;
-    --border: #d7dde4; --border-strong: #b7c0cb; --text: #0f172a; --muted: #4b5a6b; --faint: #8795a5;
-    --teal: #0d9488; --amber: #b45309; --sky: #0284c7; --pink: #db2777; --green: #16a34a; --red: #dc2626;
-    --code-bg: #f8fafc;
-    --tok-keyword: #be185d; --tok-string: #15803d; --tok-number: #b45309; --tok-comment: #64748b;
-    --tok-builtin: #0369a1; --tok-def: #0f766e; --tok-op: #475569;
+    --bg: #ffffff; --surface: #ffffff; --surface-2: #f4f6ee; --surface-3: #e9ecdb;
+    --border: #d7decb; --border-strong: #9eaf8b; --text: #15302e; --muted: #5b7b74; --faint: #8aa39b;
+    --teal: #2e6a68; --amber: #b5752e; --sky: #2e7986; --pink: #c2504c; --green: #5b7f3e; --red: #c8504c;
+    --code-bg: #f8f3e8;
+    --tok-keyword: #c2504c; --tok-string: #5b7f3e; --tok-number: #b5752e; --tok-comment: #64748b;
+    --tok-builtin: #2e7986; --tok-def: #1f4e4c; --tok-op: #475569;
   }
   html, body { background: #fff; }
   .app-shell { grid-template-columns: 1fr; background: none; }

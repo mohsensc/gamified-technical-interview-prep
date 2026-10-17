@@ -1,15 +1,19 @@
 import { h } from '../ui/h.js'
-import { getState, subscribe, getLevelInfo, getStreak, getStudyMinutes, getNodeProgress, recordAnswer } from '../store.js'
+import { getState, subscribe, getLevelInfo, getStreak, getStudyMinutes, getNodeProgress, getEvents, dueItems, recordAnswer } from '../store.js'
 import { allItems, hrefFor, course } from '../content/curriculum.js'
 import { recommendNext, nextIncompleteBite, getInterviewAt, setInterviewAt } from '../engine/recommend.js'
-import { getUser, accountsAvailable } from '../auth/index.js'
+import { getUser } from '../auth/index.js'
+import { userInitial } from '../ui/account.js'
 import { companyChips } from '../ui/companies.js'
 import { renderItem, kindOf } from '../ui/items.js'
 import { persistOverride } from '../ui/override.js'
+import { heatmapCalendar } from '../ui/charts.js'
 
 const dailyGoalMinutes = 20
 
 const kindColor = { continue: 'teal', 'must-learn': 'amber', drill: 'sky', review: 'pink', checkpoint: 'green', mock: 'amber', warmup: 'teal', oop: 'amber', read: 'sky' }
+
+const weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 const formatMinutes = minutes => {
   const hours = Math.floor(minutes / 60)
@@ -19,6 +23,12 @@ const formatMinutes = minutes => {
 }
 
 const dateKey = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
+const monthLabel = date => date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+
+const startOfMonth = date => new Date(date.getFullYear(), date.getMonth(), 1)
+
+const isActiveDay = day => Boolean(day) && (day.answers > 0 || day.ms >= 60e3)
 
 const hashString = text => {
   let hash = 2166136261
@@ -50,6 +60,47 @@ const isNewVisitor = () => {
   return !Object.keys(state.items).length && !Object.keys(state.bites).length && !state.xp
 }
 
+const getDailyQuestionItems = () => {
+  const dailySeed = hashString(dateKey())
+  const pool = allItems.filter(item => ['mcq', 'cloze', 'parsons'].includes(item.kind) && item.skills?.length && (item.lines?.length || 0) <= 12)
+  return seededPick(pool, dailySeed, 3)
+}
+
+const getKindCounts = () => {
+  const counts = { mcq: 0, cloze: 0, parsons: 0, card: 0, game: 0, thought: 0 }
+  for (const item of Object.values(getState().items)) {
+    if (item.attempts > 0 && counts[item.kind] !== undefined) counts[item.kind] += 1
+  }
+  return counts
+}
+
+const computeBestStreak = () => {
+  const daily = getState().daily
+  const activeDays = Object.keys(daily).filter(key => isActiveDay(daily[key])).sort()
+  let best = 0
+  let run = 0
+  let prevTime = null
+  for (const key of activeDays) {
+    const time = new Date(`${key}T00:00:00`).getTime()
+    run = prevTime !== null && time - prevTime === 86400000 ? run + 1 : 1
+    if (run > best) best = run
+    prevTime = time
+  }
+  return best
+}
+
+const computeBadges = () => {
+  const totalAnswered = getEvents({ type: 'answer' }).length
+  const bestStreak = computeBestStreak()
+  const masteredSkill = Object.values(getState().skills).some(record => record.attempts >= 3 && record.mastery >= 0.85)
+  return [
+    { id: 'first10', icon: '🔰', label: 'First 10 answers', unlocked: totalAnswered >= 10 },
+    { id: 'weekstreak', icon: '🔥', label: '7-day streak', unlocked: bestStreak >= 7 },
+    { id: 'century', icon: '💯', label: '100 answers', unlocked: totalAnswered >= 100 },
+    { id: 'mastery', icon: '🏆', label: 'Mastered a skill', unlocked: masteredSkill },
+  ]
+}
+
 async function loadTodaysThought() {
   try {
     const mod = await import('../content/thought/index.js')
@@ -60,16 +111,6 @@ async function loadTodaysThought() {
     console.error(error)
     return null
   }
-}
-
-function welcomeHero() {
-  const canSignIn = accountsAvailable() && !getUser()
-  return h('div', { class: 'welcome-hero' },
-    h('span', { class: 'eyebrow' }, 'Free coding interview prep'),
-    h('h1', null, 'Learn the patterns behind every coding interview question.'),
-    h('div', { class: 'row-wrap' },
-      h('a', { class: 'btn btn-primary btn-lg', href: '#/course' }, 'Start learning'),
-      canSignIn ? h('a', { class: 'btn btn-lg btn-ghost', href: '#/login' }, 'Sign in to sync') : null))
 }
 
 function buildInterviewControl() {
@@ -98,23 +139,73 @@ function buildInterviewControl() {
   return el
 }
 
-function returningHero(interviewEl) {
-  const bite = nextIncompleteBite()
-  const todayMinutes = getStudyMinutes({ todayOnly: true })
-  const goalPct = Math.min(100, Math.round((todayMinutes / dailyGoalMinutes) * 100))
+function buildTitleBlock() {
+  return h('div', { class: 'game-title-block' },
+    h('h1', { class: 'game-logo' }, h('span', { class: 'game-logo-mark', 'aria-hidden': 'true' }, '🎮'), 'CodeCram'),
+    h('p', { class: 'game-tagline' }, 'Your coding interview training arcade'))
+}
 
-  return h('div', { class: 'hero-main' },
-    bite
-      ? h('a', { class: 'btn btn-primary hero-cta', href: hrefFor(bite.id) },
-        h('span', { class: 'hero-cta-play' }, '▶'),
-        h('span', { class: 'hero-cta-text' }, h('small', null, `Continue · ${bite.minutes}m`), h('b', null, bite.title)))
-      : h('a', { class: 'btn btn-primary hero-cta', href: '#/course' },
-        h('span', { class: 'hero-cta-play' }, '🎉'), h('span', { class: 'hero-cta-text' }, h('small', null, 'Core course complete'), h('b', null, 'Review the tree'))),
-    h('div', { class: 'row-wrap hero-sub' },
-      h('div', { class: 'goal-ring-wrap' },
-        h('div', { class: 'ring', style: { '--pct': goalPct, '--ring-color': goalPct >= 100 ? 'var(--green)' : 'var(--teal)' } }, h('span', null, `${todayMinutes}m`)),
-        h('span', { class: 'small muted' }, `Today's goal · ${dailyGoalMinutes}m`)),
-      interviewEl))
+function buildPlayerCard(user, levelInfo) {
+  const initial = user ? userInitial(user) : 'P'
+  const pct = Math.max(4, Math.round((levelInfo.progress || 0) * 100))
+  return h('div', { class: 'player-card' },
+    h('span', { class: 'player-avatar' }, initial),
+    h('div', { class: 'player-meta' },
+      h('div', { class: 'player-meta-top' },
+        h('span', { class: 'player-level-badge' }, `Lv ${levelInfo.level}`),
+        h('span', { class: 'player-xp-text' }, `${levelInfo.into} / ${levelInfo.needed} XP`)),
+      h('div', { class: 'progress xp-bar' }, h('div', { style: { width: `${pct}%` } }))))
+}
+
+function buildPlayButton(bite, newVisitor) {
+  if (bite) {
+    return h('a', { class: 'btn btn-primary play-btn', href: hrefFor(bite.id) },
+      h('span', { class: 'play-btn-icon' }, '▶'),
+      h('span', { class: 'play-btn-copy' },
+        h('small', null, newVisitor ? 'Press play to start' : 'Continue practicing'),
+        h('b', null, `${bite.title} · ${bite.minutes}m`)))
+  }
+  return h('a', { class: 'btn btn-primary play-btn', href: '#/course' },
+    h('span', { class: 'play-btn-icon' }, '🎉'),
+    h('span', { class: 'play-btn-copy' }, h('small', null, 'Core course complete'), h('b', null, 'Review the tree')))
+}
+
+function buildGameMenu(items) {
+  const nav = h('div', { class: 'game-menu', role: 'menu', 'aria-label': 'Game menu' })
+  const els = items.map((item, i) => {
+    const tileColor = i % 2 === 0 ? 'var(--pink)' : 'var(--teal)'
+    const attrs = {
+      class: 'game-menu-item',
+      role: 'menuitem',
+      tabindex: i === 0 ? '0' : '-1',
+      style: { '--tile-color': tileColor },
+    }
+    const inner = [
+      h('span', { class: 'game-menu-icon' }, item.icon),
+      h('span', { class: 'game-menu-copy' },
+        h('span', { class: 'game-menu-title' }, item.title),
+        h('span', { class: 'game-menu-sub' }, item.sub)),
+      h('span', { class: 'game-menu-chevron', 'aria-hidden': 'true' }, '›'),
+    ]
+    if (item.href) return h('a', { ...attrs, href: item.href }, ...inner)
+    return h('button', { ...attrs, type: 'button', 'aria-expanded': String(Boolean(item.expanded)), onclick: item.onActivate }, ...inner)
+  })
+  nav.append(...els)
+  nav.addEventListener('keydown', event => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return
+    event.preventDefault()
+    const focusable = Array.from(nav.querySelectorAll('.game-menu-item'))
+    if (!focusable.length) return
+    const current = focusable.indexOf(document.activeElement)
+    let next = current
+    if (event.key === 'ArrowDown') next = (current + 1 + focusable.length) % focusable.length
+    else if (event.key === 'ArrowUp') next = (current - 1 + focusable.length) % focusable.length
+    else if (event.key === 'Home') next = 0
+    else if (event.key === 'End') next = focusable.length - 1
+    focusable.forEach((el, i) => el.setAttribute('tabindex', i === next ? '0' : '-1'))
+    focusable[next]?.focus()
+  })
+  return nav
 }
 
 function dailyQuestionStepper(questionItems) {
@@ -133,18 +224,17 @@ function dailyQuestionStepper(questionItems) {
       h('div', { class: 'spread' }, h('span', { class: 'small muted' }, `Question ${index + 1} of ${questionItems.length}`), nextButton),
       renderItem(item, onAnswer, { onOverride }))
   }
-  const showDone = () => stage.replaceChildren(h('div', { class: 'spread' }, h('b', null, 'Daily questions done'), h('a', { class: 'btn btn-sm', href: '#/practice' }, 'Keep practicing →')))
+  const showDone = () => {
+    stage.replaceChildren(h('div', { class: 'spread' }, h('b', null, 'Daily questions done'), h('a', { class: 'btn btn-sm', href: '#/practice' }, 'Keep practicing →')))
+  }
   showQuestion(0)
   return stage
 }
 
-function buildTodaySection(thoughtItem) {
-  const dailySeed = hashString(dateKey())
-  const questionPool = allItems.filter(item => ['mcq', 'cloze', 'parsons'].includes(item.kind) && item.skills?.length && (item.lines?.length || 0) <= 12)
-  const questionItems = seededPick(questionPool, dailySeed, 3)
+function buildTodaySection(thoughtItem, stepperNode) {
   return h('div', { class: 'stack' },
     h('div', { class: 'spread' },
-      h('span', { class: 'section-title' }, 'Today'),
+      h('span', { class: 'section-title' }, 'Daily challenge'),
       h('span', { class: 'pill pill-amber' }, `${getStreak()}🔥 streak`)),
     h('div', { class: 'stack daily-challenge-card card' },
       thoughtItem
@@ -156,9 +246,7 @@ function buildTodaySection(thoughtItem) {
             companyChips(thoughtItem.companies, { size: 'xs' })),
           h('span', { class: 'btn btn-sm btn-primary' }, 'Walk through it →'))
         : null,
-      questionItems.length
-        ? dailyQuestionStepper(questionItems)
-        : h('p', { class: 'muted small' }, 'No drill questions available yet.')))
+      stepperNode))
 }
 
 function buildNextUpSection() {
@@ -173,28 +261,172 @@ function buildNextUpSection() {
       h('span', { class: 'small muted' }, rec.reason)))))
 }
 
-function buildProgressGlanceSection() {
-  const levelInfo = getLevelInfo()
-  const overall = getNodeProgress(course.id)
-  return h('div', { class: 'stack' },
-    h('div', { class: 'spread' }, h('span', { class: 'section-title' }, 'Progress'), h('a', { class: 'small', href: '#/stats' }, 'Full stats ▸')),
-    h('div', { class: 'grid-3 card' },
-      h('div', { class: 'stat' }, h('span', { class: 'stat-value', style: 'color:var(--amber)' }, `Lv ${levelInfo.level}`), h('span', { class: 'stat-label' }, `${levelInfo.xp} XP`)),
-      h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${getStreak()}🔥`), h('span', { class: 'stat-label' }, 'day streak')),
-      h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${Math.round(overall * 100)}%`), h('span', { class: 'stat-label' }, 'course done'))))
+function buildCalendarCard(monthCursor, onPrevMonth, onNextMonth) {
+  const daily = getState().daily
+  const year = monthCursor.getFullYear()
+  const month = monthCursor.getMonth()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const startWeekday = new Date(year, month, 1).getDay()
+  const now = new Date()
+  const todayKey = dateKey(now)
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth()
+  const values = []
+  for (let d = 1; d <= daysInMonth; d++) values.push(daily[dateKey(new Date(year, month, d))]?.answers || 0)
+  const maxVal = Math.max(1, ...values)
+
+  const cells = []
+  for (let i = 0; i < startWeekday; i++) cells.push(h('span', { class: 'cal-day is-empty' }))
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = dateKey(new Date(year, month, d))
+    const value = daily[key]?.answers || 0
+    const t = value / maxVal
+    const isToday = key === todayKey
+    cells.push(h('span', {
+      class: `cal-day${isToday ? ' is-today' : ''}`,
+      title: `${key}${value ? ` · ${value} answered` : ''}`,
+      style: value ? { background: `color-mix(in srgb, var(--teal) ${Math.round(20 + t * 70)}%, var(--surface-3))` } : null,
+    }, String(d)))
+  }
+
+  return h('div', { class: 'card stack cal-card' },
+    h('div', { class: 'cal-head' },
+      h('button', { class: 'btn-icon cal-nav-btn', type: 'button', onclick: onPrevMonth, 'aria-label': 'Previous month' }, '‹'),
+      h('span', { class: 'cal-month-label' }, monthLabel(monthCursor)),
+      h('button', { class: 'btn-icon cal-nav-btn', type: 'button', disabled: isCurrentMonth, onclick: onNextMonth, 'aria-label': 'Next month' }, '›')),
+    h('div', { class: 'cal-grid' }, weekdayLabels.map(label => h('span', { class: 'cal-weekday' }, label)), cells))
+}
+
+function buildStreakCard() {
+  const current = getStreak()
+  const best = computeBestStreak()
+  return h('div', { class: 'card stack' },
+    h('span', { class: 'section-title' }, 'Streak'),
+    h('div', { class: 'row-wrap streak-row' },
+      h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${current}🔥`), h('span', { class: 'stat-label' }, 'current')),
+      h('div', { class: 'stat' }, h('span', { class: 'stat-value' }, `${best}🏅`), h('span', { class: 'stat-label' }, 'best'))))
+}
+
+function buildHeatmapCard() {
+  const days = getDailyRollupsForHeatmap()
+  return h('div', { class: 'card stack' },
+    h('span', { class: 'section-title' }, 'Last 26 weeks'),
+    heatmapCalendar(days, { cell: 8, gap: 2, colorVar: 'var(--teal)', ariaLabel: 'Answers per day over the last 26 weeks' }))
+}
+
+function getDailyRollupsForHeatmap() {
+  const daily = getState().daily
+  const days = []
+  const cursor = new Date()
+  cursor.setDate(cursor.getDate() - 181)
+  for (let i = 0; i < 182; i++) {
+    const key = dateKey(cursor)
+    const count = daily[key]?.answers || 0
+    days.push({ date: key, value: count, label: `${key} · ${count} answered` })
+    cursor.setDate(cursor.getDate() + 1)
+  }
+  return days
+}
+
+function buildGoalRingCard() {
+  const todayMinutes = getStudyMinutes({ todayOnly: true })
+  const goalPct = Math.min(100, Math.round((todayMinutes / dailyGoalMinutes) * 100))
+  return h('div', { class: 'card row goal-ring-card' },
+    h('div', { class: 'ring', style: { '--pct': goalPct, '--ring-color': goalPct >= 100 ? 'var(--green)' : 'var(--teal)' } }, h('span', null, `${todayMinutes}m`)),
+    h('div', { class: 'stack-sm' }, h('b', null, "Today's goal"), h('span', { class: 'small muted' }, `${dailyGoalMinutes} min target`)))
+}
+
+function buildKindStatsCard(kindCounts) {
+  const rows = [
+    { label: 'Questions', value: kindCounts.mcq + kindCounts.cloze + kindCounts.parsons, icon: '❓' },
+    { label: 'Cards', value: kindCounts.card, icon: '🃏' },
+    { label: 'Thought walks', value: kindCounts.thought, icon: '🧠' },
+    { label: 'Games', value: kindCounts.game, icon: '🎮' },
+  ]
+  return h('div', { class: 'card stack' },
+    h('span', { class: 'section-title' }, 'Solved by kind'),
+    h('div', { class: 'kind-stats-row' }, rows.map(row => h('div', { class: 'row' },
+      h('span', { class: 'kind-stat-icon' }, row.icon),
+      h('div', { class: 'stack-sm' }, h('b', null, String(row.value)), h('span', { class: 'small muted' }, row.label))))))
+}
+
+function buildBadgesCard(badges) {
+  return h('div', { class: 'card stack' },
+    h('span', { class: 'section-title' }, 'Badges'),
+    h('div', { class: 'badge-row' }, badges.map(badge => h('div', { class: `badge${badge.unlocked ? ' unlocked' : ' locked'}`, title: badge.label },
+      h('span', { class: 'badge-icon' }, badge.unlocked ? badge.icon : '🔒'),
+      h('span', { class: 'badge-label' }, badge.label)))))
 }
 
 export default async function render(container) {
-  const page = h('div', { class: 'page' })
+  const page = h('div', { class: 'page home-page' })
   container.appendChild(page)
 
   const thoughtItem = await loadTodaysThought()
   const interviewEl = buildInterviewControl()
+  const dailyQuestionItems = getDailyQuestionItems()
+  const dailyStepperNode = dailyQuestionItems.length
+    ? dailyQuestionStepper(dailyQuestionItems)
+    : h('p', { class: 'muted small' }, 'No drill questions available yet.')
+
+  let dailyOpen = true
+  let monthCursor = startOfMonth(new Date())
+
+  const toggleDaily = () => { dailyOpen = !dailyOpen; draw() }
+  const prevMonth = () => { monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() - 1, 1); draw() }
+  const nextMonth = () => {
+    const now = new Date()
+    if (monthCursor.getFullYear() === now.getFullYear() && monthCursor.getMonth() === now.getMonth()) return
+    monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 1)
+    draw()
+  }
 
   const draw = () => {
     const newVisitor = isNewVisitor()
-    const heroEl = newVisitor ? welcomeHero() : returningHero(interviewEl)
-    page.replaceChildren(heroEl, buildTodaySection(thoughtItem), buildNextUpSection(), buildProgressGlanceSection())
+    const user = getUser()
+    const levelInfo = getLevelInfo()
+    const bite = nextIncompleteBite()
+    const kindCounts = getKindCounts()
+    const badges = computeBadges()
+
+    const dailySub = `${getStreak()}🔥 streak · ${dailyQuestionItems.length} quick qs`
+    const thoughtSub = thoughtItem ? `${thoughtItem.difficulty} · ${thoughtItem.title}` : 'Fresh pick tomorrow'
+    const courseSub = `${Math.round(getNodeProgress(course.id) * 100)}% through the course`
+    const dueCount = dueItems().length
+    const practiceSub = dueCount ? `${dueCount} due for review` : 'Nothing due yet'
+    const gamesPlayed = kindCounts.game || 0
+    const arcadeSub = gamesPlayed ? `${gamesPlayed} games played` : 'Mini-games & boss fights'
+
+    const menuItems = [
+      { id: 'daily', icon: '📅', title: 'Daily challenge', sub: dailySub, expanded: dailyOpen, onActivate: toggleDaily },
+      { id: 'thought', icon: '🧠', title: 'Thought Processes', sub: thoughtSub, href: '#/thought' },
+      { id: 'course', icon: '📘', title: 'Course', sub: courseSub, href: '#/course' },
+      { id: 'practice', icon: '🎯', title: 'Practice', sub: practiceSub, href: '#/practice' },
+      { id: 'arcade', icon: '🕹️', title: 'Arcade', sub: arcadeSub, href: '#/games' },
+    ]
+
+    const dailyPanel = dailyOpen
+      ? h('div', { class: 'daily-panel fade-in' }, buildTodaySection(thoughtItem, dailyStepperNode))
+      : null
+
+    const main = h('div', { class: 'home-main' },
+      buildTitleBlock(),
+      buildPlayerCard(user, levelInfo),
+      h('div', { class: 'play-stack' },
+        buildPlayButton(bite, newVisitor),
+        h('div', { class: 'row-wrap play-sub-row' }, interviewEl)),
+      buildGameMenu(menuItems),
+      dailyPanel,
+      buildNextUpSection())
+
+    const sidebar = h('div', { class: 'home-sidebar' },
+      buildCalendarCard(monthCursor, prevMonth, nextMonth),
+      buildStreakCard(),
+      buildHeatmapCard(),
+      buildGoalRingCard(),
+      buildKindStatsCard(kindCounts),
+      buildBadgesCard(badges))
+
+    page.replaceChildren(h('div', { class: 'home-grid' }, main, sidebar))
   }
 
   draw()

@@ -88,8 +88,8 @@
 .game-choice-text { flex: 1; }
 .game-choice:not(:disabled):hover { border-color: var(--accent); transform: translateY(-1px); }
 .game-choice:disabled { opacity: 0.55; cursor: default; }
-.game-choice.is-correct { opacity: 1; border-color: var(--green); background: var(--green-soft); color: var(--text); }
-.game-choice.is-wrong { opacity: 1; border-color: var(--red); background: var(--red-soft); }
+.game-choice.is-correct { opacity: 1; border-color: var(--green); background: var(--green-soft); color: var(--text); animation: game-pop 0.25s ease; }
+.game-choice.is-wrong { opacity: 1; border-color: var(--red); background: var(--red-soft); animation: game-shake 0.4s ease; }
 
 .game-feedback { display: flex; flex-direction: column; gap: 10px; }
 .game-feedback:empty { display: none; }

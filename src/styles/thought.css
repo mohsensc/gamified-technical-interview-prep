@@ -139,7 +139,7 @@
   background: var(--surface-3); font-size: 10.5px; flex-shrink: 0;
 }
 .thought-step.current { color: var(--text); border-color: var(--amber); background: var(--amber-soft); }
-.thought-step.current .thought-step-num { background: var(--amber); color: #1f1300; }
+.thought-step.current .thought-step-num { background: var(--amber); color: var(--viz-ink); }
 .thought-step.done { color: var(--muted); }
 .thought-step.done .thought-step-num { background: var(--green-soft); color: var(--green); }
 

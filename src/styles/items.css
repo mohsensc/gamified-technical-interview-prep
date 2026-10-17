@@ -70,6 +70,7 @@
 .choice.is-correct {
   border-color: var(--it-good);
   background: color-mix(in srgb, var(--it-good) 16%, transparent);
+  animation: itemPop 0.3s ease;
 }
 
 .choice.is-wrong {
@@ -1245,6 +1246,12 @@
   0%, 100% { transform: none; }
   25% { transform: translateX(-4px); }
   75% { transform: translateX(4px); }
+}
+
+@keyframes itemPop {
+  0% { transform: scale(0.94); }
+  55% { transform: scale(1.035); }
+  100% { transform: scale(1); }
 }
 
 @keyframes itemPulse {
