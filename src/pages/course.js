@@ -24,7 +24,7 @@ function ring(pct, { size = 52, stroke = 5 } = {}) {
   const circumference = 2 * Math.PI * radius
   const clamped = Math.min(1, Math.max(0, pct || 0))
   const offset = circumference * (1 - clamped)
-  const color = clamped >= 0.999 ? 'var(--green)' : clamped > 0 ? 'var(--teal)' : 'var(--faint)'
+  const color = clamped >= 0.999 ? 'var(--green)' : clamped > 0 ? 'var(--coral)' : 'var(--faint)'
   return h('div', { class: 'crs-ring', style: `width:${size}px;height:${size}px` },
     svg('svg', { viewBox: `0 0 ${size} ${size}`, width: size, height: size },
       svg('circle', { cx: size / 2, cy: size / 2, r: radius, fill: 'none', stroke: 'var(--surface-3)', 'stroke-width': stroke }),

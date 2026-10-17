@@ -12,7 +12,29 @@
 .daily-thought-row:hover { text-decoration: none; }
 .daily-question { padding: 14px; border-radius: var(--radius); }
 .daily-question .item { gap: 8px; }
-.daily-panel { margin-top: -2px; }
+
+.daily-modal-overlay {
+  position: fixed; inset: 0; z-index: 120;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: color-mix(in srgb, var(--viz-ink, #15302e) 55%, transparent);
+  backdrop-filter: blur(3px);
+}
+.daily-modal-overlay[hidden] { display: none; }
+.daily-modal {
+  width: 100%; max-width: 560px; max-height: 86vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 16px;
+  padding: 22px; border-radius: var(--radius-lg);
+  background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow);
+  animation: dailyModalIn 0.16s ease-out;
+}
+@keyframes dailyModalIn { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: none; } }
+.daily-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.daily-modal-head h2 { font-size: 18px; margin-top: 2px; }
+.daily-modal-close { flex-shrink: 0; }
+.daily-question-done { padding: 20px 10px; }
+.daily-question-done-icon { font-size: 28px; }
+.daily-question-done-actions { justify-content: center; margin-top: 4px; }
+body.daily-modal-open { overflow: hidden; }
 
 .home-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
 .home-main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
@@ -28,8 +50,8 @@
   width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
   display: grid; place-items: center;
   font-family: var(--font-display); font-weight: 800; font-size: 19px;
-  background: var(--teal); color: var(--accent-ink);
-  box-shadow: 0 3px 0 0 color-mix(in srgb, var(--teal) 70%, black 25%);
+  background: var(--coral); color: var(--accent-ink);
+  box-shadow: 0 3px 0 0 color-mix(in srgb, var(--coral) 70%, black 25%);
 }
 .player-meta { display: flex; flex-direction: column; gap: 7px; min-width: 0; flex: 1; }
 .player-meta-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -77,7 +99,7 @@
 .game-menu-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
 .game-menu-sub { font-size: 12px; color: var(--muted); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .game-menu-chevron { color: var(--faint); font-size: 18px; flex-shrink: 0; transition: transform 0.15s, color 0.15s; }
-.game-menu-item[aria-expanded="true"] .game-menu-chevron { transform: rotate(90deg); color: var(--teal); }
+.game-menu-item[aria-expanded="true"] .game-menu-chevron { transform: rotate(90deg); color: var(--pink); }
 
 .cal-card { gap: 12px; }
 .cal-head { display: flex; align-items: center; justify-content: space-between; }
@@ -109,9 +131,9 @@
   box-shadow: 0 2px 0 0 var(--border);
 }
 .badge.unlocked .badge-icon {
-  background: color-mix(in srgb, var(--teal) 22%, var(--surface-2));
-  border-color: var(--teal);
-  box-shadow: 0 2px 0 0 color-mix(in srgb, var(--teal) 60%, black 20%);
+  background: color-mix(in srgb, var(--coral) 28%, var(--surface-2));
+  border-color: var(--coral);
+  box-shadow: 0 2px 0 0 color-mix(in srgb, var(--coral) 60%, black 20%);
 }
 .badge.locked { opacity: 0.5; }
 .badge.locked .badge-icon { filter: grayscale(0.6); }

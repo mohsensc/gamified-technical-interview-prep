@@ -208,7 +208,7 @@ function buildGameMenu(items) {
   return nav
 }
 
-function dailyQuestionStepper(questionItems) {
+function dailyQuestionStepper(questionItems, onFinish) {
   const stage = h('div', { class: 'card tight daily-question' })
   const showQuestion = index => {
     const item = questionItems[index]
@@ -225,18 +225,27 @@ function dailyQuestionStepper(questionItems) {
       renderItem(item, onAnswer, { onOverride }))
   }
   const showDone = () => {
-    stage.replaceChildren(h('div', { class: 'spread' }, h('b', null, 'Daily questions done'), h('a', { class: 'btn btn-sm', href: '#/practice' }, 'Keep practicing →')))
+    stage.replaceChildren(h('div', { class: 'stack center daily-question-done' },
+      h('span', { class: 'daily-question-done-icon' }, '✅'),
+      h('b', null, 'Daily questions done'),
+      h('span', { class: 'small muted' }, 'Nice work, see you tomorrow for a fresh set.'),
+      h('div', { class: 'row-wrap daily-question-done-actions' },
+        h('a', { class: 'btn btn-sm', href: '#/practice' }, 'Keep practicing →'),
+        h('button', { class: 'btn btn-sm btn-ghost', type: 'button', onclick: () => onFinish?.() }, 'Close'))))
   }
   showQuestion(0)
   return stage
 }
 
-function buildTodaySection(thoughtItem, stepperNode) {
-  return h('div', { class: 'stack' },
-    h('div', { class: 'spread' },
-      h('span', { class: 'section-title' }, 'Daily challenge'),
-      h('span', { class: 'pill pill-amber' }, `${getStreak()}🔥 streak`)),
-    h('div', { class: 'stack daily-challenge-card card' },
+function buildDailyModal(thoughtItem, stepperNode, onAfterClose) {
+  const closeBtn = h('button', { class: 'btn-icon daily-modal-close', type: 'button', 'aria-label': 'Close daily challenge' }, '✕')
+  const panel = h('div', { class: 'daily-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'daily-modal-title' },
+    h('div', { class: 'daily-modal-head' },
+      h('div', { class: 'stack-sm' },
+        h('span', { class: 'section-title' }, 'Daily challenge'),
+        h('h2', { id: 'daily-modal-title' }, "Today's 3 questions")),
+      closeBtn),
+    h('div', { class: 'daily-modal-body stack' },
       thoughtItem
         ? h('a', { class: 'daily-thought-row', href: `#/thought/${encodeURIComponent(thoughtItem.id)}` },
           h('div', { class: 'row-wrap' },
@@ -247,6 +256,33 @@ function buildTodaySection(thoughtItem, stepperNode) {
           h('span', { class: 'btn btn-sm btn-primary' }, 'Walk through it →'))
         : null,
       stepperNode))
+
+  let lastFocus = null
+  const overlay = h('div', { class: 'daily-modal-overlay', hidden: true, onclick: event => { if (event.target === overlay) close() } }, panel)
+
+  const open = () => {
+    if (!overlay.hidden) return
+    lastFocus = document.activeElement
+    overlay.hidden = false
+    document.body.classList.add('daily-modal-open')
+    requestAnimationFrame(() => {
+      panel.querySelector('.item button, .item input, .daily-thought-row, button, a')?.focus()
+    })
+  }
+  const close = () => {
+    if (overlay.hidden) return
+    overlay.hidden = true
+    document.body.classList.remove('daily-modal-open')
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus?.()
+    onAfterClose?.()
+  }
+  closeBtn.addEventListener('click', close)
+  const onKeydown = event => {
+    if (event.key === 'Escape' && !overlay.hidden) close()
+  }
+  document.addEventListener('keydown', onKeydown)
+
+  return { overlay, open, close, destroy: () => document.removeEventListener('keydown', onKeydown) }
 }
 
 function buildNextUpSection() {
@@ -284,7 +320,7 @@ function buildCalendarCard(monthCursor, onPrevMonth, onNextMonth) {
     cells.push(h('span', {
       class: `cal-day${isToday ? ' is-today' : ''}`,
       title: `${key}${value ? ` · ${value} answered` : ''}`,
-      style: value ? { background: `color-mix(in srgb, var(--teal) ${Math.round(20 + t * 70)}%, var(--surface-3))` } : null,
+      style: value ? { background: `color-mix(in srgb, var(--coral) ${Math.round(20 + t * 70)}%, var(--surface-3))` } : null,
     }, String(d)))
   }
 
@@ -310,7 +346,7 @@ function buildHeatmapCard() {
   const days = getDailyRollupsForHeatmap()
   return h('div', { class: 'card stack' },
     h('span', { class: 'section-title' }, 'Last 26 weeks'),
-    heatmapCalendar(days, { cell: 8, gap: 2, colorVar: 'var(--teal)', ariaLabel: 'Answers per day over the last 26 weeks' }))
+    heatmapCalendar(days, { cell: 8, gap: 2, colorVar: 'var(--coral)', ariaLabel: 'Answers per day over the last 26 weeks' }))
 }
 
 function getDailyRollupsForHeatmap() {
@@ -331,7 +367,7 @@ function buildGoalRingCard() {
   const todayMinutes = getStudyMinutes({ todayOnly: true })
   const goalPct = Math.min(100, Math.round((todayMinutes / dailyGoalMinutes) * 100))
   return h('div', { class: 'card row goal-ring-card' },
-    h('div', { class: 'ring', style: { '--pct': goalPct, '--ring-color': goalPct >= 100 ? 'var(--green)' : 'var(--teal)' } }, h('span', null, `${todayMinutes}m`)),
+    h('div', { class: 'ring', style: { '--pct': goalPct, '--ring-color': goalPct >= 100 ? 'var(--green)' : 'var(--coral)' } }, h('span', null, `${todayMinutes}m`)),
     h('div', { class: 'stack-sm' }, h('b', null, "Today's goal"), h('span', { class: 'small muted' }, `${dailyGoalMinutes} min target`)))
 }
 
@@ -365,13 +401,16 @@ export default async function render(container) {
   const interviewEl = buildInterviewControl()
   const dailyQuestionItems = getDailyQuestionItems()
   const dailyStepperNode = dailyQuestionItems.length
-    ? dailyQuestionStepper(dailyQuestionItems)
+    ? dailyQuestionStepper(dailyQuestionItems, () => dailyModal.close())
     : h('p', { class: 'muted small' }, 'No drill questions available yet.')
 
-  let dailyOpen = true
+  let dailyModalOpen = false
   let monthCursor = startOfMonth(new Date())
 
-  const toggleDaily = () => { dailyOpen = !dailyOpen; draw() }
+  const dailyModal = buildDailyModal(thoughtItem, dailyStepperNode, () => { dailyModalOpen = false; draw() })
+  container.appendChild(dailyModal.overlay)
+
+  const openDailyModal = () => { dailyModalOpen = true; dailyModal.open(); draw() }
   const prevMonth = () => { monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() - 1, 1); draw() }
   const nextMonth = () => {
     const now = new Date()
@@ -397,16 +436,12 @@ export default async function render(container) {
     const arcadeSub = gamesPlayed ? `${gamesPlayed} games played` : 'Mini-games & boss fights'
 
     const menuItems = [
-      { id: 'daily', icon: '📅', title: 'Daily challenge', sub: dailySub, expanded: dailyOpen, onActivate: toggleDaily },
+      { id: 'daily', icon: '📅', title: 'Daily challenge', sub: dailySub, expanded: dailyModalOpen, onActivate: openDailyModal },
       { id: 'thought', icon: '🧠', title: 'Thought Processes', sub: thoughtSub, href: '#/thought' },
       { id: 'course', icon: '📘', title: 'Course', sub: courseSub, href: '#/course' },
       { id: 'practice', icon: '🎯', title: 'Practice', sub: practiceSub, href: '#/practice' },
       { id: 'arcade', icon: '🕹️', title: 'Arcade', sub: arcadeSub, href: '#/games' },
     ]
-
-    const dailyPanel = dailyOpen
-      ? h('div', { class: 'daily-panel fade-in' }, buildTodaySection(thoughtItem, dailyStepperNode))
-      : null
 
     const main = h('div', { class: 'home-main' },
       buildTitleBlock(),
@@ -415,7 +450,6 @@ export default async function render(container) {
         buildPlayButton(bite, newVisitor),
         h('div', { class: 'row-wrap play-sub-row' }, interviewEl)),
       buildGameMenu(menuItems),
-      dailyPanel,
       buildNextUpSection())
 
     const sidebar = h('div', { class: 'home-sidebar' },
@@ -442,5 +476,6 @@ export default async function render(container) {
   })
   return () => {
     unsubscribe()
+    dailyModal.destroy()
   }
 }

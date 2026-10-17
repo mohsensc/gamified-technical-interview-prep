@@ -356,7 +356,7 @@ export function mountShell(root) {
     icon('search', 16), h('span', { class: 'search-trigger-text' }, 'Search'), h('span', { class: 'kbd search-trigger-kbd' }, shortcutLabel))
 
   const themeButton = h('button', { class: 'btn-icon', type: 'button', title: 'Toggle theme', 'aria-label': 'Toggle theme', onclick: () => {
-    setSetting('theme', getSetting('theme', 'dark') === 'dark' ? 'light' : 'dark')
+    setSetting('theme', getSetting('theme', 'light') === 'dark' ? 'light' : 'dark')
     renderStats()
   } })
 
@@ -433,7 +433,7 @@ export function mountShell(root) {
     .catch(() => {})
 
   function renderStats() {
-    const dark = getSetting('theme', 'dark') === 'dark'
+    const dark = getSetting('theme', 'light') === 'dark'
     themeButton.replaceChildren(icon(dark ? 'sun' : 'moon', 18))
   }
 

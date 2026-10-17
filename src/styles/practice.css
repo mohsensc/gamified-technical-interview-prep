@@ -27,7 +27,7 @@
 .practice-mode-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
 .practice-mode-card { position: relative; gap: 8px; min-height: 120px; width: 100%; text-align: left; border: 1px solid var(--border); cursor: pointer; }
 .practice-mode-card.is-empty { opacity: 0.55; }
-.practice-mode-card.active { border-color: var(--teal); background: var(--teal-soft); }
+.practice-mode-card.active { border-color: var(--coral); background: var(--coral-soft); }
 .practice-mode-icon { font-size: 24px; line-height: 1; }
 .practice-mode-title { font-weight: 700; font-size: 15px; }
 .practice-mode-blurb { line-height: 1.3; }

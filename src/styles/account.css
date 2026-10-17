@@ -2,12 +2,12 @@
 .account-avatar {
   width: 32px; height: 32px; border-radius: 50%;
   display: inline-grid; place-items: center;
-  background: var(--teal-soft); color: var(--teal);
-  border: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+  background: var(--coral-soft); color: var(--pink);
+  border: 1px solid color-mix(in srgb, var(--coral) 45%, transparent);
   font-weight: 700; font-size: 14px; font-family: var(--font);
   cursor: pointer; padding: 0; line-height: 1;
 }
-button.account-avatar:hover { border-color: var(--teal); }
+button.account-avatar:hover { border-color: var(--coral); }
 .account-avatar.lg { width: 40px; height: 40px; font-size: 17px; cursor: default; }
 .account-avatar.xl { width: 64px; height: 64px; font-size: 26px; cursor: default; }
 .account-sync-dot {
@@ -56,7 +56,7 @@ button.account-avatar:hover { border-color: var(--teal); }
 .auth-mark {
   width: 44px; height: 44px; border-radius: 12px;
   display: grid; place-items: center;
-  background: var(--teal); color: var(--accent-ink);
+  background: var(--coral); color: var(--accent-ink);
 }
 .auth-mark .icon, .auth-provider .icon { display: inline-flex; }
 .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; gap: 3px; background: var(--surface-2); border-radius: 10px; }

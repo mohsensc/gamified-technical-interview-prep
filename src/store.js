@@ -56,7 +56,7 @@ const freshState = () => ({
   seen: {},
   daily: {},
   plan: {},
-  settings: { theme: 'dark' },
+  settings: { theme: 'light' },
   gameScores: {},
   notes: {},
   history: [],
@@ -79,6 +79,10 @@ const normalize = raw => {
   if (!Array.isArray(merged.events)) merged.events = []
   if (!Array.isArray(merged.sessions)) merged.sessions = []
   merged.settings = { ...base.settings, ...merged.settings }
+  if (merged.settings.theme === 'dark' && !merged.settings.themeMigratedLight) {
+    merged.settings.theme = 'light'
+    merged.settings.themeMigratedLight = true
+  }
   for (const key of ['xp', 'answerStreak', 'bestAnswerStreak', 'studyMs', 'updatedAt']) {
     if (!Number.isFinite(merged[key])) merged[key] = 0
   }
@@ -144,7 +148,7 @@ const writeLocal = () => {
     } catch {}
   }
   try {
-    localStorage.setItem(themeStorageKey, state.settings.theme || 'dark')
+    localStorage.setItem(themeStorageKey, state.settings.theme || 'light')
   } catch {}
 }
 
@@ -966,7 +970,7 @@ export function importState(raw) {
 
 export function applyTheme() {
   try {
-    document.documentElement.dataset.theme = getState().settings.theme || 'dark'
+    document.documentElement.dataset.theme = getState().settings.theme || 'light'
   } catch {}
 }
 

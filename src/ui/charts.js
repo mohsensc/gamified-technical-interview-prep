@@ -206,7 +206,7 @@ const weekdayShort = ['', 'Mon', '', 'Wed', '', 'Fri', '']
 
 export function heatmapCalendar(days = [], opts = {}) {
   const {
-    cell = 11, gap = 3, colorVar = 'var(--teal)', emptyText = 'No activity yet',
+    cell = 11, gap = 3, colorVar = 'var(--accent)', emptyText = 'No activity yet',
     axisLabels = true, legend = false, ghost = false, ariaLabel,
   } = opts
   const wrap = h('div', { class: `chart-wrap chart-cal${ghost ? ' chart-ghost' : ''}` })
@@ -359,7 +359,7 @@ export function beforeAfterBars(items = [], opts = {}) {
 
 export function radarChart(axes = [], opts = {}) {
   const {
-    size = 230, levels = 4, max = 1, color = 'var(--teal)', ghost = false,
+    size = 230, levels = 4, max = 1, color = 'var(--accent)', ghost = false,
     formatValue = v => `${Math.round(v * 100)}%`, emptyText = 'No data yet', ariaLabel,
   } = opts
   const wrap = h('div', { class: `chart-wrap chart-radar${ghost ? ' chart-ghost' : ''}` })
