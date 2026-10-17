@@ -405,14 +405,160 @@ const answeredCount = source => Object.values(source?.items || {}).filter(item =
 
 const isEmptyState = source => !source || (answeredCount(source) === 0 && !(source.xp > 0) && !Object.keys(source.bites || {}).length)
 
-const progressScore = source => answeredCount(source) * 1000 + (source?.xp || 0)
+const unionKeys = (a = {}, b = {}) => [...new Set([...Object.keys(a), ...Object.keys(b)])]
 
-const mergeStates = (guest, remote) => {
-  const winner = normalize(progressScore(guest) > progressScore(remote) ? guest : remote)
-  const loser = normalize(winner === guest ? remote : guest)
-  for (const [id, at] of Object.entries(loser.bookmarks)) if (!winner.bookmarks[id]) winner.bookmarks[id] = at
-  for (const [key, value] of Object.entries(loser.notes)) if (!winner.notes[key]) winner.notes[key] = value
-  return winner
+const mergeByStrength = (a = {}, b = {}, { countField, tsField, maxFields = [] }) => {
+  const result = {}
+  for (const id of unionKeys(a, b)) {
+    const av = a[id]
+    const bv = b[id]
+    if (!av) { result[id] = bv; continue }
+    if (!bv) { result[id] = av; continue }
+    const aCount = av[countField] || 0
+    const bCount = bv[countField] || 0
+    const useA = aCount !== bCount ? aCount > bCount : (av[tsField] || 0) >= (bv[tsField] || 0)
+    const winner = useA ? av : bv
+    const merged = { ...winner }
+    for (const field of maxFields) merged[field] = Math.max(av[field] || 0, bv[field] || 0)
+    result[id] = merged
+  }
+  return result
+}
+
+const mergeEarliestTimestamp = (a = {}, b = {}) => {
+  const result = {}
+  for (const id of unionKeys(a, b)) {
+    const av = a[id]
+    const bv = b[id]
+    result[id] = av === undefined ? bv : bv === undefined ? av : Math.min(av, bv)
+  }
+  return result
+}
+
+const mergeMaxValue = (a = {}, b = {}) => {
+  const result = {}
+  for (const id of unionKeys(a, b)) {
+    const av = a[id]
+    const bv = b[id]
+    result[id] = av === undefined ? bv : bv === undefined ? av : Math.max(av, bv)
+  }
+  return result
+}
+
+const mergeDaily = (a = {}, b = {}) => {
+  const result = {}
+  for (const day of unionKeys(a, b)) {
+    const av = a[day]
+    const bv = b[day]
+    if (!av) { result[day] = bv; continue }
+    if (!bv) { result[day] = av; continue }
+    const merged = {
+      xp: Math.max(av.xp || 0, bv.xp || 0),
+      answers: Math.max(av.answers || 0, bv.answers || 0),
+      correct: Math.max(av.correct || 0, bv.correct || 0),
+      ms: Math.max(av.ms || 0, bv.ms || 0),
+    }
+    if (av.answerMs !== undefined || bv.answerMs !== undefined) merged.answerMs = Math.max(av.answerMs || 0, bv.answerMs || 0)
+    result[day] = merged
+  }
+  return result
+}
+
+const mergeCheckpoints = (a = {}, b = {}) => {
+  const merged = mergeByStrength(a, b, { countField: 'attempts', tsField: 'at', maxFields: ['best'] })
+  for (const record of Object.values(merged)) record.passed = record.best >= 80
+  return merged
+}
+
+const mergeSkills = (a = {}, b = {}) => {
+  const winners = {}
+  const skills = {}
+  for (const skill of unionKeys(a, b)) {
+    const av = a[skill]
+    const bv = b[skill]
+    if (!av) { skills[skill] = bv; winners[skill] = 'b'; continue }
+    if (!bv) { skills[skill] = av; winners[skill] = 'a'; continue }
+    const aAttempts = av.attempts || 0
+    const bAttempts = bv.attempts || 0
+    const useA = aAttempts !== bAttempts ? aAttempts > bAttempts : (av.lastAt || 0) >= (bv.lastAt || 0)
+    winners[skill] = useA ? 'a' : 'b'
+    skills[skill] = useA ? av : bv
+  }
+  return { skills, winners }
+}
+
+const mergeSkillHistory = (a = {}, b = {}, winners = {}) => {
+  const result = {}
+  for (const day of unionKeys(a, b)) {
+    const ad = a[day] || {}
+    const bd = b[day] || {}
+    const dayMerged = {}
+    for (const skill of unionKeys(ad, bd)) {
+      const hasA = ad[skill] !== undefined
+      const hasB = bd[skill] !== undefined
+      dayMerged[skill] = hasA && hasB ? (winners[skill] === 'b' ? bd[skill] : ad[skill]) : hasA ? ad[skill] : bd[skill]
+    }
+    result[day] = dayMerged
+  }
+  return result
+}
+
+const dedupeByKey = (list, keyFn) => [...new Map(list.map(entry => [keyFn(entry), entry])).values()]
+
+const mergeEvents = (a = [], b = []) => {
+  const merged = dedupeByKey([...a, ...b], event => JSON.stringify(event)).sort((x, y) => x.ts - y.ts)
+  return merged.length > maxEvents ? merged.slice(-maxEvents) : merged
+}
+
+const mergeSessions = (a = [], b = []) => {
+  const merged = dedupeByKey([...a, ...b], session => session.id).sort((x, y) => x.at - y.at)
+  return merged.length > maxSessions ? merged.slice(-maxSessions) : merged
+}
+
+const mergeHistory = (a = [], b = []) => {
+  const merged = dedupeByKey([...a, ...b], entry => JSON.stringify(entry)).sort((x, y) => x.t - y.t)
+  return merged.length > 400 ? merged.slice(-400) : merged
+}
+
+const mergePreferSide = (a = {}, b = {}, preferB) => {
+  const result = {}
+  for (const key of unionKeys(a, b)) {
+    const hasA = a[key] !== undefined
+    const hasB = b[key] !== undefined
+    result[key] = hasA && hasB ? (preferB ? b[key] : a[key]) : hasA ? a[key] : b[key]
+  }
+  return result
+}
+
+const mergeStates = (guestRaw, remoteRaw) => {
+  const a = normalize(guestRaw)
+  const b = normalize(remoteRaw)
+  const preferB = (b.updatedAt || 0) > (a.updatedAt || 0)
+  const { skills, winners } = mergeSkills(a.skills, b.skills)
+  return normalize({
+    version: Math.max(a.version || 1, b.version || 1),
+    createdAt: Math.min(a.createdAt || Date.now(), b.createdAt || Date.now()),
+    updatedAt: Math.max(a.updatedAt || 0, b.updatedAt || 0),
+    xp: Math.max(a.xp || 0, b.xp || 0),
+    answerStreak: Math.max(a.answerStreak || 0, b.answerStreak || 0),
+    bestAnswerStreak: Math.max(a.bestAnswerStreak || 0, b.bestAnswerStreak || 0),
+    studyMs: Math.max(a.studyMs || 0, b.studyMs || 0),
+    skills,
+    items: mergeByStrength(a.items, b.items, { countField: 'attempts', tsField: 'lastAt' }),
+    seen: mergeEarliestTimestamp(a.seen, b.seen),
+    daily: mergeDaily(a.daily, b.daily),
+    plan: mergePreferSide(a.plan, b.plan, preferB),
+    settings: preferB ? b.settings : a.settings,
+    gameScores: mergeMaxValue(a.gameScores, b.gameScores),
+    notes: mergePreferSide(a.notes, b.notes, preferB),
+    history: mergeHistory(a.history, b.history),
+    events: mergeEvents(a.events, b.events),
+    bites: mergeByStrength(a.bites, b.bites, { countField: 'count', tsField: 'at', maxFields: ['best'] }),
+    checkpoints: mergeCheckpoints(a.checkpoints, b.checkpoints),
+    bookmarks: mergeEarliestTimestamp(a.bookmarks, b.bookmarks),
+    sessions: mergeSessions(a.sessions, b.sessions),
+    skillHistory: mergeSkillHistory(a.skillHistory, b.skillHistory, winners),
+  })
 }
 
 const announce = message => {
