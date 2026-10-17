@@ -257,7 +257,7 @@ const flushNow = () => {
   writeLocal()
   if (activeUserId) {
     clearTimeout(cloudTimer)
-    saveToCloud({ keepalive: true })
+    saveToCloud({ force: true, keepalive: true })
     return
   }
   if (!guestServerAvailable) return

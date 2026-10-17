@@ -41,6 +41,7 @@ export function createSupabaseAdapter({ supabaseUrl, supabaseAnonKey, siteUrl })
   let client = null
   let clientPromise = null
   let user = null
+  let cachedSession = null
   const listeners = new Set()
 
   const setUser = next => {
@@ -67,6 +68,7 @@ export function createSupabaseAdapter({ supabaseUrl, supabaseAnonKey, siteUrl })
           },
         })
         client.auth.onAuthStateChange((event, session) => {
+          cachedSession = session || null
           setUser(session?.user || null)
         })
         return client
@@ -90,6 +92,7 @@ export function createSupabaseAdapter({ supabaseUrl, supabaseAnonKey, siteUrl })
       try {
         const supabase = await getClient()
         const { data } = await supabase.auth.getSession()
+        cachedSession = data?.session || null
         user = toUser(data?.session?.user)
       } catch (error) {
         console.error('auth init failed', error)
@@ -106,6 +109,7 @@ export function createSupabaseAdapter({ supabaseUrl, supabaseAnonKey, siteUrl })
       const supabase = await getClient()
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
+      cachedSession = data.session || cachedSession
       setUser(data.user)
       return user
     },
@@ -118,6 +122,7 @@ export function createSupabaseAdapter({ supabaseUrl, supabaseAnonKey, siteUrl })
       })
       if (error) throw error
       if (!data.session) return { pendingConfirmation: true }
+      cachedSession = data.session
       setUser(data.user)
       return user
     },
@@ -138,6 +143,7 @@ export function createSupabaseAdapter({ supabaseUrl, supabaseAnonKey, siteUrl })
         const supabase = await getClient()
         await supabase.auth.signOut()
       } finally {
+        cachedSession = null
         setUser(null)
       }
     },
@@ -148,10 +154,26 @@ export function createSupabaseAdapter({ supabaseUrl, supabaseAnonKey, siteUrl })
       if (error) throw error
       return data?.state || null
     },
-    async saveRemoteState(text) {
+    async saveRemoteState(text, { keepalive = false } = {}) {
       const { id } = requireUser()
+      const row = { user_id: id, state: JSON.parse(text), updated_at: new Date().toISOString() }
+      if (keepalive && cachedSession?.access_token) {
+        const res = await fetch(`${supabaseUrl}/rest/v1/progress?on_conflict=user_id`, {
+          method: 'POST',
+          keepalive: true,
+          headers: {
+            apikey: supabaseAnonKey,
+            Authorization: `Bearer ${cachedSession.access_token}`,
+            'Content-Type': 'application/json',
+            Prefer: 'resolution=merge-duplicates,return=minimal',
+          },
+          body: JSON.stringify(row),
+        })
+        if (!res.ok) throw new Error(`Save failed (${res.status})`)
+        return true
+      }
       const supabase = await getClient()
-      const { error } = await supabase.from(progressTable).upsert({ user_id: id, state: JSON.parse(text), updated_at: new Date().toISOString() })
+      const { error } = await supabase.from(progressTable).upsert(row)
       if (error) throw error
       return true
     },
