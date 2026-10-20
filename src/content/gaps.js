@@ -1063,7 +1063,7 @@ class Solution:
         if (cur) state[key(cur[0], cur[1])] = 'current'
         if (newCell) state[key(newCell[0], newCell[1])] = 'path'
         return [
-          { kind: 'grid', label: `grid · minute ${minutes}`, cells: grid.map(row => row.map(v => (v === 0 ? '' : v === 1 ? '🍊' : '🤢'))), state, values: { ...rotAt } },
+          { kind: 'grid', label: `grid · 1 fresh · 2 rotten · minute ${minutes}`, cells: grid.map(row => row.map(v => (v === 0 ? '' : String(v)))), state, values: { ...rotAt } },
           { kind: 'queue', label: 'queue · front → back', items: queue.map(([r, c]) => `(${r},${c})`), highlight: [] },
           { kind: 'hashmap', label: 'counters', entries: [['fresh', fresh], ['minutes', minutes]], highlight: [] },
         ]
@@ -1423,7 +1423,7 @@ class Solution:
         },
         {
           title: '==Multi-source==: seed every start',
-          panels: [{ kind: 'grid', label: 'two rotten oranges', cells: [['🤢', '🍊', '🍊', '🍊'], ['🍊', '🍊', '', '🍊'], ['🍊', '🍊', '🍊', '🤢']], state: { '0,0': 'current', '2,3': 'current', '0,1': 'frontier', '1,0': 'frontier', '1,3': 'frontier', '2,2': 'frontier', '1,2': 'wall' } }],
+          panels: [{ kind: 'grid', label: '1 fresh · 2 rotten', cells: [['2', '1', '1', '1'], ['1', '1', '', '1'], ['1', '1', '1', '2']], state: { '0,0': 'current', '2,3': 'current', '0,1': 'frontier', '1,0': 'frontier', '1,3': 'frontier', '2,2': 'frontier', '1,2': 'wall' } }],
           points: ['All sources in queue at time 0', 'Ripples grow ==together==, one minute per level'],
         },
         {

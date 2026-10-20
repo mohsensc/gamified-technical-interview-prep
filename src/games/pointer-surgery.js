@@ -2,6 +2,7 @@ import { h, svg, clear } from '../ui/h.js'
 import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { createArcade, codeView, shuffle, sample, pickByLevel, rand, choiceSet, pick } from './_engine.js'
+import { isValidOrder } from '../ui/order.js'
 import { overrideButton, applyOverrideVisuals } from '../ui/override.js'
 
 const distinctValues = count => sample([1, 2, 3, 4, 5, 6, 7, 8, 9], count).sort((a, b) => a - b)
@@ -646,6 +647,8 @@ const lineupSnippets = [
   { d: 1, title: 'Greatest Common Divisor', skills: ['math'], lines: ['def gcd(a, b):', '    while b:', '        a, b = b, a % b', '    return a'] },
 ]
 
+const keyLineIndex = key => (key === '0' ? 9 : Number(key) - 1)
+
 export const _test = { puzzles, execute }
 
 function mount(container, api) {
@@ -947,7 +950,7 @@ function mount(container, api) {
     if (locked || lineupProgram.length !== lineupSnippet.lines.length) return
     locked = true
     renderLineup()
-    const correct = lineupProgram.every((item, pos) => item.i === pos)
+    const correct = isValidOrder(lineupSnippet.lines, lineupProgram.map(item => item.text))
     const seconds = (performance.now() - startTime) / 1000
     if (correct) {
       ctx.hit(180, Math.max(0, 1 - seconds / 35))
@@ -999,7 +1002,7 @@ function mount(container, api) {
           undoSurgery()
           return
         }
-        const index = Number(event.key) - 1
+        const index = keyLineIndex(event.key)
         if (Number.isInteger(index) && index >= 0 && index < bank.length) {
           event.preventDefault()
           addSurgery(bank[index])
@@ -1018,7 +1021,7 @@ function mount(container, api) {
           }
           return
         }
-        const index = Number(event.key) - 1
+        const index = keyLineIndex(event.key)
         if (!Number.isInteger(index) || index < 0) return
         const lineEl = bugBlock?.querySelector(`[data-line="${index + 1}"]`)
         if (lineEl) {
@@ -1039,7 +1042,7 @@ function mount(container, api) {
           undoLineup()
           return
         }
-        const index = Number(event.key) - 1
+        const index = keyLineIndex(event.key)
         if (Number.isInteger(index) && index >= 0 && index < lineupBank.length) {
           event.preventDefault()
           addLineup(lineupBank[index])

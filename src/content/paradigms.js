@@ -250,7 +250,7 @@ const traceCombinationSum = {
   skills: ['backtracking'],
   problem: 'Find all unique combinations of nums summing to target; each number reusable.',
   code: combinationCode,
-  complexity: { time: 'O(2^(t/m))', space: 'O(t/m)', why: 'Depth up to target/min(nums); each level branches take vs skip.' },
+  complexity: { time: 'O(n^(t/m))', space: 'O(t/m)', why: 'Depth up to target/min(nums); each level can branch into any of the n candidates.' },
   inputs: [
     { label: '[2,3] → 6', value: { nums: [2, 3], target: 6 } },
     { label: '[2,3,5] → 8', value: { nums: [2, 3, 5], target: 8 } },
@@ -2089,7 +2089,7 @@ const problems = [
     pattern: 'Backtracking with reuse',
     ds: ['list', 'recursion'],
     constraints: '1 ≤ n ≤ 30, 2 ≤ nums[i] ≤ 40, target ≤ 40',
-    time: 'O(2^(t/m))',
+    time: 'O(n^(t/m))',
     space: 'O(t/m)',
     insight: 'Take nums[i] and stay at i, or skip to i+1. Forward-only kills duplicate orderings.',
     signals: ['all unique combinations', 'same number unlimited times', 'sum to target'],

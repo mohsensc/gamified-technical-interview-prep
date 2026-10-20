@@ -1599,7 +1599,7 @@ class MedianFinder:
         if len(self.small) > len(self.large):
             return -self.small[0]
         return (-self.small[0] + self.large[0]) / 2`,
-  time: 'O(n log n)',
+  time: 'O(log n) per add, O(1) median',
   space: 'O(n)',
   whyComplexity: 'Each add does a constant number of O(log n) heap ops; findMedian peeks in O(1).',
   variants: ['Sliding window median (LC 480)', 'IPO (LC 502)', 'Find median from data stream (LC 295)'],

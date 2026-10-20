@@ -659,10 +659,10 @@ class Solution:
     ds: ["hashmap", "tree"],
     constraints: "0 ≤ nodes ≤ 1000, values ±10^9",
     time: "O(n)",
-    space: "O(h)",
+    space: "O(n)",
     insight: "Subarray-sum-equals-k on the current root path; undo the prefix count when backtracking.",
     signals: ["downward paths", "number of paths", "sum equals target"],
-    narration: ["Paths go downward only but can start and end anywhere?", "Brute force from every node is O(n²), fine for 1000 but we can do O(n).", "Treat the root-to-node path like an array: count prefixes equal to curr - target.", "Add the prefix before recursing, remove it after, like backtracking.", "O(n) time, O(h) for the map and recursion."],
+    narration: ["Paths go downward only but can start and end anywhere?", "Brute force from every node is O(n²), fine for 1000 but we can do O(n).", "Treat the root-to-node path like an array: count prefixes equal to curr - target.", "Add the prefix before recursing, remove it after, like backtracking.", "O(n) time, O(n) for the map plus O(h) recursion."],
     pitfalls: ["Seed {0: 1}", "Forgetting to decrement leaks sums across branches"],
     solution: `from collections import defaultdict as dd
 

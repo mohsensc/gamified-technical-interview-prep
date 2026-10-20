@@ -484,7 +484,7 @@ export const cheatSheets = [
         snippets: [
           {
             label: 'BFS — shortest number of steps',
-            code: `def bfsShortestSteps(grid, startRow, startCol):
+            code: `def bfsShortestSteps(grid, startRow, startCol, targetRow, targetCol):
     rows, cols = len(grid), len(grid[0])
     seen = {(startRow, startCol)}
     queue = deque([(startRow, startCol)])
@@ -492,13 +492,15 @@ export const cheatSheets = [
     while queue:
         for _ in range(len(queue)):
             row, col = queue.popleft()
+            if (row, col) == (targetRow, targetCol):
+                return steps
             for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                 nr, nc = row + dr, col + dc
                 if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in seen and grid[nr][nc] != '#':
                     seen.add((nr, nc))
                     queue.append((nr, nc))
         steps += 1
-    return steps`,
+    return -1`,
           },
           {
             label: 'DFS — flood fill / mark connected region',

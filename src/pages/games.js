@@ -19,7 +19,7 @@ const tileColors = ['var(--amber)', 'var(--sky)', 'var(--teal)', 'var(--green)',
 const keyHints = {
   quiz: [['1-4', 'answer'], ['Enter', 'next']],
   'traversal-order': [['0-9', 'pick node'], ['Enter', 'next']],
-  'pointer-surgery': [['1-9', 'pick line'], ['⌫', 'undo'], ['Enter', 'run']],
+  'pointer-surgery': [['1-9, 0', 'pick line'], ['⌫', 'undo'], ['Enter', 'run']],
 }
 
 const bestOf = gameId => {

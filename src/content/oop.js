@@ -1350,10 +1350,10 @@ const flashcards = [
 const mcqData = [
   ['ds-diagnosis', 1, 'When does __init__ run?', null, ['Every time you call a method', 'Once, when the object is created', 'Only if you call it manually', 'Never, it is just documentation'], 1, 'ClassName(...) calls __init__ exactly once to set up that instance.'],
   ['ds-diagnosis', 1, 'self.x inside a method refers to...', null, ['A brand-new local variable', 'A field stored on the current instance', 'A global variable', 'The class name'], 1, 'self is the instance; self.x persists on it across calls.'],
-  ['ds-diagnosis', 2, 'class Bag:\n    items = []\n\n    def add(self, x):\n        self.items.append(x)\nTwo Bag() objects both call add(). Their .items lists are...', 'class Bag:\n    items = []\n\n    def add(self, x):\n        self.items.append(x)', ['Separate, as expected', 'The SAME list, shared by both objects', 'Both empty', 'Error at the second add'], 1, 'items is a class attribute: one object shared by every instance unless set in __init__.'],
+  ['ds-diagnosis', 2, 'Two Bag() objects both call add(). Their .items lists are...', 'class Bag:\n    items = []\n\n    def add(self, x):\n        self.items.append(x)', ['Separate, as expected', 'The SAME list, shared by both objects', 'Both empty', 'Error at the second add'], 1, 'items is a class attribute: one object shared by every instance unless set in __init__.'],
   ['ds-diagnosis', 2, 'Fix for the shared-list bug above?', null, ['Rename items to _items', 'Set self.items = [] inside __init__', 'Make add() a static method', 'Use a tuple instead'], 1, 'Assigning in __init__ creates one list PER instance.'],
   ['ds-diagnosis', 1, 'A method that only reads self.* fields should still take...', null, ['No parameters', 'self as the first parameter', 'cls as the first parameter', 'The class name as a parameter'], 1, 'Every instance method takes self first, even read-only ones.'],
-  ['ds-diagnosis', 2, 'def __init__(self, items=[]):\n    self.items = items\nWhat is the bug?', "def __init__(self, items=[]):\n    self.items = items", ['None, this is correct', 'The default list is created once and shared across every call missing that arg', 'items should be a set', 'self.items should always be items.copy()'], 1, 'Mutable defaults are created once at function-definition time, not per call.'],
+  ['ds-diagnosis', 2, 'What is the bug?', "def __init__(self, items=[]):\n    self.items = items", ['None, this is correct', 'The default list is created once and shared across every call missing that arg', 'items should be a set', 'self.items should always be items.copy()'], 1, 'Mutable defaults are created once at function-definition time, not per call.'],
   ['ds-diagnosis', 2, 'A method calls self.remove(x) then self.insert(x). This is an example of...', null, ['A syntax error', 'One method reusing another method on the same object', 'Multiple inheritance', 'A static method call'], 1, 'self.method() calls route through the same instance, letting methods compose.'],
   ['communication', 2, 'Interviewer: "you may use any built-in." They expect you to...', null, ['Just call the built-in and move on', 'Name the built-in, then still build the structure by hand', 'Ignore the hint', 'Ask for a different problem'], 1, 'Naming it shows awareness; building it shows you understand the mechanism.'],
   ['communication', 1, 'Before writing any method body in a design problem, you should first...', null, ['Write the hardest method', 'Clarify every method\'s signature and behavior', 'Pick variable names', 'Write test cases only'], 1, 'Clarifying the API prevents building the wrong thing.'],
@@ -1516,7 +1516,7 @@ const parsons = [
       '    self.insert(self.cache[key])',
       '    return self.cache[key].val',
     ],
-    distractors: ['    return self.cache[key]', '    self.insert(self.cache[key])'],
+    distractors: ['    return self.cache[key]', '    self.insert(key)'],
   },
   {
     title: 'LRU Cache: put()', skills: ['linked-list'],

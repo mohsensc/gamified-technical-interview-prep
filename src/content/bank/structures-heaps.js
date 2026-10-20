@@ -159,7 +159,7 @@ const parsons = [
 const cardData = [
   ['heap', 'heapq default behavior', "Min-heap only. Push -value for a max-heap, remembering to negate again on pop."],
   ['heap', 'Bounded heap of size k pattern', 'Push every element, pop whenever size exceeds k. Leftover k elements are exactly the "best k" by whichever order you negate.'],
-  ['heap', 'heapify vs k pushes', 'heapify(list) is O(n); k individual heappush calls cost O(n log k). Heapify wins when building from an existing list.'],
+  ['heap', 'heapify vs n pushes', 'heapify(list) is O(n); n individual heappush calls cost O(n log n). Heapify wins when building from an existing list.'],
   ['heap', 'Merge K Sorted Lists tie-breaker', "Push (value, listIndex, node), not (value, node): ListNode objects aren't comparable, and ties need a fallback field."],
   ['heap', 'Top K Frequent Words tie-break', 'Push (-frequency, word): equal frequency falls through to compare the word strings directly, picking lexicographically smaller first.'],
   ['heap', 'Meeting Rooms II heap trick', 'Heap of end times in progress. Room count needed = max heap size reached. Pop first if its end time already passed.'],

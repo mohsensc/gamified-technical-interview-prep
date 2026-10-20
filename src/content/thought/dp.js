@@ -1051,7 +1051,7 @@ Despite the name "Combination Sum", this is secretly counting permutations, not 
 An interleaving means every character of s3 comes from s1 or s2, consumed left to right, and both s1 and s2 must be fully used up exactly once.`,
     examples: [
       { input: 's1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"', output: 'true', explanation: 's3 can be built by weaving characters from s1 and s2 without reordering either' },
-      { input: 's1 = "ab", s2 = "cd", s3 = "acbd"', output: 'false', explanation: "the suffix 'd' breaks s1's required order partway through" },
+      { input: 's1 = "ab", s2 = "cd", s3 = "adbc"', output: 'false', explanation: "d comes before c, which breaks s2's required order" },
     ],
     constraints: ['0 <= s1.length, s2.length <= 100', 's1.length + s2.length == s3.length'],
     ds: {

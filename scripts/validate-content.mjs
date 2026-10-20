@@ -54,6 +54,10 @@ function checkParsonsShape(tag, item) {
   if (!Array.isArray(item.lines) || item.lines.length < 3) {
     fail(`${tag}: parsons needs >=3 lines (got ${(item.lines || []).length})`)
   }
+  const realLines = new Set((item.lines || []).map(line => String(line).replace(/\s+$/, '')))
+  for (const decoy of item.distractors || []) {
+    if (realLines.has(String(decoy).replace(/\s+$/, ''))) fail(`${tag}: distractor "${String(decoy).trim()}" equals a real line`)
+  }
 }
 
 function checkFlashcardShape(tag, item) {
