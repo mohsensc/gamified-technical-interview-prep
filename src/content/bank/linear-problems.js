@@ -249,7 +249,7 @@ const problems = [
             running += diff[i]
             result.append(running)
         return result`,
-    companies: ['amazon'],
+    companies: ['google'],
     pitfalls: ['Flights are 1-indexed, so shift by one and size diff n + 1 so diff[last] is always in range', 'Looping each booking over its whole range is O(n · bookings)'],
   },
 ]
