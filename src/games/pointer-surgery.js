@@ -822,6 +822,26 @@ function mount(container, api) {
     clear(ctx.stage)
     bugBlock = codeBlock(bugRound.code, { lineNumbers: true })
     const pickHost = h('div', { class: 'game-pickline' }, bugBlock)
+    bugBlock.querySelectorAll('.code-line').forEach(lineEl => {
+      lineEl.tabIndex = 0
+      lineEl.setAttribute('role', 'button')
+      lineEl.setAttribute('aria-label', `Line ${lineEl.dataset.line}`)
+    })
+    pickHost.addEventListener('keydown', event => {
+      const lineEl = event.target.closest?.('.code-line')
+      if (!lineEl || bugPhase !== 'pickLine' || locked) return
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        event.stopPropagation()
+        onBugLineClick(ctx, Number(lineEl.dataset.line))
+        return
+      }
+      const step = event.key === 'ArrowDown' ? 1 : event.key === 'ArrowUp' ? -1 : 0
+      if (!step) return
+      event.preventDefault()
+      event.stopPropagation()
+      bugBlock.querySelector(`[data-line="${Number(lineEl.dataset.line) + step}"]`)?.focus()
+    })
     pickHost.addEventListener('click', event => {
       const lineEl = event.target.closest('.code-line')
       if (!lineEl) return
@@ -843,6 +863,7 @@ function mount(container, api) {
     if (lineNo === bugRound.buggyLine) {
       bugPhase = 'pickFix'
       bugBlock.setMarks({ [lineNo]: 'good' })
+      bugBlock.querySelectorAll('.code-line').forEach(lineEl => lineEl.removeAttribute('tabindex'))
       renderBugFixChoices(ctx)
       return
     }

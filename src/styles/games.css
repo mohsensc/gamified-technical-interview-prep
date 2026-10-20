@@ -211,3 +211,4 @@
 .game-pickline .code-block { cursor: pointer; }
 .game-pickline .code-line:hover:not(.mark-good):not(.mark-bad) { background: var(--sky-soft); border-left-color: var(--sky); }
 .game-pickline .code-line.mark-good, .game-pickline .code-line.mark-bad { cursor: default; }
+.game-pickline .code-line:focus-visible { outline: 2px solid var(--sky); outline-offset: -2px; background: var(--sky-soft); }
