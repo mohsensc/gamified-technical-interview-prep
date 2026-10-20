@@ -20,15 +20,8 @@ const cheatGroupSet = new Set(cheatSheetGroups.map(g => g.id))
 const errors = []
 const fail = message => errors.push(message)
 
-const blankPattern = /\[\[([^\n]+?)\]\](?!\])/g
-function parseClozeBlanks(code) {
-  const blanks = []
-  String(code).replace(blankPattern, (_, inner) => {
-    blanks.push(inner.split('|').map(part => part.trim()).filter(Boolean))
-    return ''
-  })
-  return blanks
-}
+const { splitCloze } = await import(contentPath('src/ui/clozeParse.js'))
+const parseClozeBlanks = code => splitCloze(code, () => '').blanks
 
 function checkSkills(tag, skills) {
   for (const s of skills || []) if (!skillSet.has(s)) fail(`${tag}: invalid skill id "${s}"`)
@@ -49,7 +42,12 @@ function checkMcqShape(tag, item) {
 function checkClozeShape(tag, item) {
   const blanks = parseClozeBlanks(item.code)
   if (blanks.length < 1) fail(`${tag}: cloze has 0 parsable [[blanks]]`)
-  for (const alts of blanks) if (!alts.length) fail(`${tag}: cloze blank has no non-empty answer`)
+  for (const alts of blanks) {
+    if (!alts.length) fail(`${tag}: cloze blank has no non-empty answer`)
+    for (const answer of alts) {
+      if (answer.split('[').length !== answer.split(']').length) fail(`${tag}: cloze answer "${answer}" has unbalanced square brackets`)
+    }
+  }
 }
 
 function checkParsonsShape(tag, item) {

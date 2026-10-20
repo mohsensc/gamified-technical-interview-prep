@@ -243,7 +243,7 @@ while heap:
 
 return max(dist.values()) if len(dist) == n else [[-1]]`],
   [['dijkstra', 'grid'], 'Minimax relaxation (Path With Minimum Effort)', `heap = [(0, 0, 0)]
-effort = [[[0] * cols for _ in range(rows)]]
+effort = [ [0] * cols for _ in [[range(rows)]] ]
 effort[0][0] = 0
 
 while heap:

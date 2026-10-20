@@ -2,6 +2,7 @@ import { h } from './h.js'
 import { codeBlock } from './code.js'
 import { rich } from './rich.js'
 import { isValidOrder } from './order.js'
+import { splitCloze } from './clozeParse.js'
 import { codeMatches } from './codeMatch.js'
 import { overrideButton, applyOverrideVisuals } from './override.js'
 
@@ -75,7 +76,7 @@ export function renderMcq(original, onDone) {
   const choices = item.choices || []
   const buttons = choices.map((choice, index) => h('button', { class: 'choice', onclick: () => pick(index) },
     h('span', { class: 'kbd choice-key' }, String(index + 1)),
-    h('span', { class: 'choice-text' }, rich(choice))))
+    h('span', { class: 'choice-text' }, rich(choice, { autoLink: false }))))
 
   const el = h('div', { class: 'item item-mcq' },
     h('div', { class: 'item-q' }, rich(item.q)),
@@ -107,18 +108,10 @@ export function renderMcq(original, onDone) {
   return el
 }
 
-const blankPattern = /\[\[([^\n]+?)\]\](?!\])/g
 const looseKey = text => String(text).replace(/\s+/g, '').replace(/"/g, "'").toLowerCase()
 export const blankMatches = (answers, value) => codeMatches(value, answers, { caseInsensitive: true }) || answers.some(answer => looseKey(answer) === looseKey(value) && looseKey(value) !== '')
 
-export function parseCloze(code) {
-  const blanks = []
-  const source = String(code).replace(blankPattern, (_, inner) => {
-    blanks.push(inner.split('|').map(part => part.trim()).filter(Boolean))
-    return `ZQBLANK${blanks.length - 1}ZQ`
-  })
-  return { source, blanks }
-}
+export const parseCloze = code => splitCloze(code, index => `ZQBLANK${index}ZQ`)
 
 export function renderCloze(item, onDone, { onOverride } = {}) {
   const started = now()

@@ -763,7 +763,7 @@ class Solution:
             if len(heap) > k:
                 heapq.heappop(heap)
 
-        return [[[p[1], p[2]] for p in heap]]`,
+        return [ [p[1], p[2]] for p in [[heap]] ]`,
     hint: 'Negate the distance so a min-heap behaves like a max-heap on distance.',
   },
   {

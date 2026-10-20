@@ -47,6 +47,10 @@ function markNode(text) {
 
 function appendAuto(frag, text, used) {
   if (!text) return
+  if (!used) {
+    frag.append(document.createTextNode(text))
+    return
+  }
   const lower = text.toLowerCase()
   let i = 0
   let start = 0
@@ -67,11 +71,11 @@ function appendAuto(frag, text, used) {
   if (start < text.length) frag.append(document.createTextNode(text.slice(start)))
 }
 
-export function rich(text) {
+export function rich(text, { autoLink = true } = {}) {
   const frag = document.createDocumentFragment()
   const source = String(text ?? '')
   if (!source) return frag
-  const used = new Set()
+  const used = autoLink ? new Set() : null
   const parts = source.split(/`([^`\n]+)`/)
   parts.forEach((part, i) => {
     if (i % 2) {
@@ -94,7 +98,7 @@ function richMarks(source, used) {
   while ((match = markPattern.exec(source))) {
     appendAuto(frag, source.slice(lastIndex, match.index), used)
     const inner = match[1].trim()
-    const entry = findTerm(inner)
+    const entry = used ? findTerm(inner) : null
     if (entry) {
       used.add(termId(entry.term))
       frag.append(keywordNode(inner, entry))
