@@ -1308,5 +1308,240 @@ Find the maximum probability of success along any path from start to end, or ret
       sayIt: "Max-heap via ==negated probabilities==, relax neighbors by ==multiplying probabilities== (not adding), same lazy-deletion Dijkstra pattern, stop early the moment end is popped, O(E log V) time.",
       pitfall: 'Forgetting to negate probabilities breaks everything, since heapq only pops the smallest — must negate going in and negate again coming out.',
     },
+
+    {
+      id: 'thought:graphs-weighted:min-cost-valid-path-grid',
+      lc: 1368,
+      title: 'Minimum Cost to Make at Least One Valid Path in a Grid',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['graph-bfs', 'queue-deque', 'grid'],
+      companies: ['google', 'amazon'],
+      statement: `Each cell of a grid holds an arrow: 1 right, 2 left, 3 down, 4 up. You start at the top-left and want to reach the bottom-right by following arrows.
+
+You may change any cell's arrow once at a cost of 1. Return the minimum total cost so that at least one valid path exists.`,
+      examples: [
+        { input: 'grid = [[1,1,3],[3,2,2],[1,1,4]]', output: '0' },
+        { input: 'grid = [[1,2],[4,3]]', output: '1' },
+      ],
+      constraints: ['1 <= m, n <= 100', '1 <= grid[i][j] <= 4'],
+      ds: {
+        answer: 'deque of cells + 2-D cost grid initialised to infinity',
+        choices: [
+          'deque of cells + 2-D cost grid initialised to infinity',
+          'min-heap of cells keyed by Manhattan distance',
+          'stack of cells + visited set',
+          'union-find over the cells',
+        ],
+      },
+      method: {
+        answer: '==0-1 BFS==: moving along the arrow costs 0 so push that cell to the ==front== of the deque, any other move costs 1 so push it to the back',
+        choices: [
+          '==0-1 BFS==: moving along the arrow costs 0 so push that cell to the ==front== of the deque, any other move costs 1 so push it to the back',
+          'Plain BFS counting each step as cost 1, ignoring the arrows',
+          'DFS to the corner, then count the cells whose arrow points the wrong way',
+          'Sort all cells by arrow value and relax them in that order',
+        ],
+      },
+      code: `class Solution:
+    def minCost(self, grid):
+        rows, cols = len(grid), len(grid[0])
+        moves = ((0, 1), (0, -1), (1, 0), (-1, 0))
+        cost = [[float('inf')] * cols for _ in range(rows)]
+        cost[0][0] = 0
+        queue = deque([(0, 0)])
+        while queue:
+            r, c = queue.popleft()
+            for arrow, (dr, dc) in enumerate(moves, 1):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    step = 0 if grid[r][c] == arrow else 1
+                    if cost[r][c] + step < cost[nr][nc]:
+                        cost[nr][nc] = cost[r][c] + step
+                        if step == 0:
+                            queue.appendleft((nr, nc))
+                        else:
+                            queue.append((nr, nc))
+        return cost[rows - 1][cols - 1]`,
+      blanks: [5, 12, 13, 16],
+      time: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(m * n * log(m * n))', 'O((m * n)^2)', 'O(m + n)'], why: 'each cell is relaxed a constant number of times because only 0 and 1 weights exist' },
+      space: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(1)', 'O(m + n)', 'O((m * n)^2)'], why: 'cost grid plus the deque' },
+      sayIt: 'Edge weights are only 0 or 1, so ==0-1 BFS==: free moves go to the ==front== of the deque, paid moves to the back, relax only on strict improvement. O(m * n).',
+      pitfall: 'Pushing without checking for a strict improvement lets cells re-enter the deque forever.',
+    },
+
+    {
+      id: 'thought:graphs-weighted:shortest-path-obstacles-elimination',
+      lc: 1293,
+      title: 'Shortest Path in a Grid with Obstacles Elimination',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['graph-bfs', 'grid'],
+      companies: ['google'],
+      statement: `You are given an m x n grid of 0 (empty) and 1 (obstacle). You start at the top-left and want the fewest steps to reach the bottom-right, moving in four directions.
+
+You may walk through at most k obstacles. Return the minimum steps, or -1 if impossible.`,
+      examples: [
+        { input: 'grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1', output: '6' },
+      ],
+      constraints: ['1 <= m, n <= 40', '1 <= k <= m * n'],
+      ds: {
+        answer: 'deque of (r, c, eliminations left, steps) + seen set of (r, c, left)',
+        choices: [
+          'deque of (r, c, eliminations left, steps) + seen set of (r, c, left)',
+          'min-heap keyed by distance to the corner',
+          'union-find over free cells',
+          '2-D visited grid of booleans only',
+        ],
+      },
+      method: {
+        answer: '==BFS== over states (row, col, ==eliminations left==); stepping onto an obstacle spends one, and the first time the corner pops gives the minimum steps',
+        choices: [
+          '==BFS== over states (row, col, ==eliminations left==); stepping onto an obstacle spends one, and the first time the corner pops gives the minimum steps',
+          'Plain BFS on (row, col) and stop at the first visit of each cell',
+          'DFS that tries all paths and keeps the shortest',
+          'Dijkstra on cell values, treating obstacles as weight k',
+        ],
+      },
+      code: `class Solution:
+    def shortestPath(self, grid, k):
+        rows, cols = len(grid), len(grid[0])
+        if k >= rows + cols - 2:
+            return rows + cols - 2
+        queue = deque([(0, 0, k, 0)])
+        seen = {(0, 0, k)}
+        while queue:
+            r, c, left, steps = queue.popleft()
+            if r == rows - 1 and c == cols - 1:
+                return steps
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    nextLeft = left - grid[nr][nc]
+                    if nextLeft >= 0 and (nr, nc, nextLeft) not in seen:
+                        seen.add((nr, nc, nextLeft))
+                        queue.append((nr, nc, nextLeft, steps + 1))
+        return -1`,
+      blanks: [3, 5, 14, 15],
+      time: { answer: 'O(m * n * k)', choices: ['O(m * n * k)', 'O(m * n)', 'O(4^(m * n))', 'O(m * n * log k)'], why: 'each (cell, eliminations left) state is enqueued once' },
+      space: { answer: 'O(m * n * k)', choices: ['O(m * n * k)', 'O(m * n)', 'O(k)', 'O(1)'], why: 'the seen set holds every state' },
+      sayIt: 'Unit steps, so ==BFS==, but the state is ==(row, col, eliminations left)==. Stepping on a wall costs one elimination. First pop of the corner is the answer. O(m * n * k).',
+      pitfall: 'A visited set keyed only by (row, col) blocks a later arrival that has more eliminations left.',
+    },
+
+    {
+      id: 'thought:graphs-weighted:parallel-courses-iii',
+      lc: 2050,
+      title: 'Parallel Courses III',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['topo-sort', 'dp-1d'],
+      companies: ['google', 'amazon'],
+      statement: `There are n courses numbered 1..n, a list of prerequisite relations [prev, next], and time[i] months to finish course i+1. You can take any number of courses at once as long as their prerequisites are done.
+
+Return the minimum number of months to finish every course.`,
+      examples: [
+        { input: 'n = 3, relations = [[1,3],[2,3]], time = [3,2,5]', output: '8', explanation: 'Courses 1 and 2 run together (3 months), then course 3 takes 5.' },
+      ],
+      constraints: ['1 <= n <= 5 * 10^4', 'relations form a DAG'],
+      ds: {
+        answer: 'adjacency list + indegree array + finish-time array + deque',
+        choices: [
+          'adjacency list + indegree array + finish-time array + deque',
+          'min-heap of courses keyed by duration',
+          'union-find over the courses',
+          'recursion stack with a visited set only',
+        ],
+      },
+      method: {
+        answer: "==Topological sort== (Kahn); when popping a course set each dependent's finish to ==max(its finish, this finish + its time)==, answer is the max finish",
+        choices: [
+          "==Topological sort== (Kahn); when popping a course set each dependent's finish to ==max(its finish, this finish + its time)==, answer is the max finish",
+          'Sum every course time because they all must be taken',
+          'Dijkstra from course 1 using durations as edge weights',
+          'Sort courses by time and take them shortest first',
+        ],
+      },
+      code: `class Solution:
+    def minimumTime(self, n, relations, time):
+        graph = [[] for _ in range(n)]
+        indegree = [0] * n
+        for prev, nxt in relations:
+            graph[prev - 1].append(nxt - 1)
+            indegree[nxt - 1] += 1
+        finish = time[:]
+        queue = deque(i for i in range(n) if indegree[i] == 0)
+        while queue:
+            course = queue.popleft()
+            for nxt in graph[course]:
+                finish[nxt] = max(finish[nxt], finish[course] + time[nxt])
+                indegree[nxt] -= 1
+                if indegree[nxt] == 0:
+                    queue.append(nxt)
+        return max(finish)`,
+      blanks: [7, 8, 12, 16],
+      time: { answer: 'O(n + E)', choices: ['O(n + E)', 'O(n^2)', 'O(E log n)', 'O(n * E)'], why: 'Kahn visits each course and each relation once' },
+      space: { answer: 'O(n + E)', choices: ['O(n + E)', 'O(n)', 'O(E)', 'O(1)'], why: 'adjacency list, in-degrees, finish times and the queue' },
+      sayIt: "Kahn's ==topological sort== with a DP: ==finish[next] = max(finish[next], finish[course] + time[next])== for every edge, answer is the max finish. O(n + E).",
+      pitfall: 'Adding durations along one path instead of taking the max over all prerequisites.',
+    },
+
+    {
+      id: 'thought:graphs-weighted:equality-equations',
+      lc: 990,
+      title: 'Satisfiability of Equality Equations',
+      difficulty: 'Medium',
+      category: 'graphs-weighted',
+      skills: ['union-find', 'graph-modeling'],
+      companies: ['google'],
+      statement: `You are given equations like 'a==b' and 'b!=c' over single lowercase letters. Return true if you can assign integers to the letters so every equation holds.
+
+Equality is transitive, which is the key to checking all of them together.`,
+      examples: [
+        { input: "['a==b','b!=a']", output: 'false' },
+        { input: "['b==a','a==b']", output: 'true' },
+      ],
+      constraints: ['1 <= equations.length <= 500', "each equation is 'x==y' or 'x!=y'"],
+      ds: {
+        answer: 'parent array of size 26 for union-find',
+        choices: [
+          'parent array of size 26 for union-find',
+          'min-heap of equations',
+          'adjacency list + indegree array',
+          'dict of letter -> assigned integer only',
+        ],
+      },
+      method: {
+        answer: "==Union== the two letters of every '==' first, then for every '!=' check the letters are ==not in the same set==",
+        choices: [
+          "==Union== the two letters of every '==' first, then for every '!=' check the letters are ==not in the same set==",
+          'Process equations in the given order and union or split as you read them',
+          'Topologically sort the letters by the equations',
+          'Run BFS from each letter along the != equations',
+        ],
+      },
+      code: `class Solution:
+    def equationsPossible(self, equations):
+        parent = list(range(26))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for eq in equations:
+            if eq[1] == '=':
+                parent[find(ord(eq[0]) - 97)] = find(ord(eq[3]) - 97)
+        for eq in equations:
+            if eq[1] == '!' and find(ord(eq[0]) - 97) == find(ord(eq[3]) - 97):
+                return False
+        return True`,
+      blanks: [11, 12, 14, 15],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(26^n)'], why: 'two passes with near-constant find on 26 letters' },
+      space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(log n)', 'O(26^2)'], why: 'a fixed parent array of 26' },
+      sayIt: "Equality is transitive, so ==union all '=='== first, then a '!=' whose letters share a root is a contradiction. Two passes, O(n).",
+      pitfall: 'Checking != equations while still reading == ones misses contradictions created by a later equality.',
+    },
   ],
 }

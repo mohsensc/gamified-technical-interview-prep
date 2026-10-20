@@ -1264,5 +1264,226 @@ Think about where to store partial sums so sum(prefix) doesn't have to rescan ev
       sayIt: "Every node on a key's path carries a running sum; re-inserting a key applies ==delta = newVal - oldVal== instead of double counting, sum(prefix) is just one node lookup, O(L) per call.",
       pitfall: 'Re-inserting an existing key must ADJUST every node\'s sum by the delta, not add the new value on top of the old one.',
     },
+
+    {
+      id: 'thought:stack-trie:sum-of-subarray-minimums',
+      lc: 907,
+      title: 'Sum of Subarray Minimums',
+      difficulty: 'Medium',
+      category: 'stack-trie',
+      skills: ['monotonic-stack', 'math'],
+      companies: ['amazon'],
+      statement: `Given an integer array arr, add up the minimum of every contiguous subarray and return the total modulo 10^9 + 7.
+
+There are O(n^2) subarrays, so you cannot list them. Ask instead: for each element, in how many subarrays is it the minimum?`,
+      examples: [
+        { input: 'arr = [3,1,2,4]', output: '17', explanation: 'Minimums are 3,1,2,4,1,1,2,1,1,1 which add to 17.' },
+        { input: 'arr = [11,81,94,43,3]', output: '444' },
+      ],
+      constraints: ['1 <= arr.length <= 3 * 10^4', '1 <= arr[i] <= 3 * 10^4'],
+      ds: {
+        answer: 'monotonic stack of indices + left/right span arrays',
+        choices: [
+          'monotonic stack of indices + left/right span arrays',
+          'deque queue of values + prefix sum array',
+          'min-heap of (value, index) pairs',
+          'hashmap of value -> count of occurrences',
+        ],
+      },
+      method: {
+        answer: 'Find how far each element reaches left (previous smaller) and right (next smaller-or-equal) with a ==monotonic stack==, then add arr[i] * left * right',
+        choices: [
+          'Find how far each element reaches left (previous smaller) and right (next smaller-or-equal) with a ==monotonic stack==, then add arr[i] * left * right',
+          'Enumerate every subarray and take its min with a running min, summing all of them',
+          'Sort the array and add each value times its rank',
+          'Sliding window of fixed size k, summing each window minimum',
+        ],
+      },
+      code: `class Solution:
+    def sumSubarrayMins(self, arr):
+        mod = 10**9 + 7
+        n = len(arr)
+        left = [0] * n
+        right = [0] * n
+        stack = []
+        for i in range(n):
+            while stack and arr[stack[-1]] >= arr[i]:
+                stack.pop()
+            left[i] = i - (stack[-1] if stack else -1)
+            stack.append(i)
+        stack = []
+        for i in range(n - 1, -1, -1):
+            while stack and arr[stack[-1]] > arr[i]:
+                stack.pop()
+            right[i] = (stack[-1] if stack else n) - i
+            stack.append(i)
+        return sum(arr[i] * left[i] * right[i] for i in range(n)) % mod`,
+      blanks: [8, 10, 14],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(n^3)'], why: 'each index is pushed and popped at most once per pass' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(log n)', 'O(n^2)'], why: 'left, right and the stack each hold up to n entries' },
+      sayIt: 'For each element count the subarrays where it is the min: ==distance to previous smaller== times ==distance to next smaller-or-equal==, both from a monotonic stack, sum value times count mod 10^9+7. O(n).',
+      pitfall: 'Using the same strictness on both sides counts subarrays with equal minimums twice.',
+    },
+
+    {
+      id: 'thought:stack-trie:remove-duplicate-letters',
+      lc: 316,
+      title: 'Remove Duplicate Letters',
+      difficulty: 'Medium',
+      category: 'stack-trie',
+      skills: ['monotonic-stack', 'greedy'],
+      companies: ['google', 'amazon'],
+      statement: `Given a string s of lowercase letters, remove duplicate letters so each letter appears exactly once, and return the smallest string in lexicographic order among all possible results.
+
+You may not reorder the letters you keep, only drop extra copies.`,
+      examples: [
+        { input: "s = 'bcabc'", output: "'abc'" },
+        { input: "s = 'cbacdcbc'", output: "'acdb'" },
+      ],
+      constraints: ['1 <= s.length <= 10^4', 's consists of lowercase English letters'],
+      ds: {
+        answer: 'stack of kept letters + last-index dict + in-stack set',
+        choices: [
+          'stack of kept letters + last-index dict + in-stack set',
+          'min-heap of letters + frequency Counter',
+          'queue (deque) of letters + visited array',
+          'sorted set of the distinct letters only',
+        ],
+      },
+      method: {
+        answer: 'Scan once; for each unseen letter ==pop larger letters== off the stack while they occur again later, then push it',
+        choices: [
+          'Scan once; for each unseen letter ==pop larger letters== off the stack while they occur again later, then push it',
+          'Sort the distinct letters alphabetically and join them',
+          'Remove the first duplicate you find and repeat until none are left',
+          'Keep the first occurrence of every letter with a set',
+        ],
+      },
+      code: `class Solution:
+    def removeDuplicateLetters(self, s: str) -> str:
+        lastIndex = {ch: i for i, ch in enumerate(s)}
+        stack = []
+        inStack = set()
+        for i, ch in enumerate(s):
+            if ch in inStack:
+                continue
+            while stack and stack[-1] > ch and lastIndex[stack[-1]] > i:
+                inStack.remove(stack.pop())
+            stack.append(ch)
+            inStack.add(ch)
+        return ''.join(stack)`,
+      blanks: [2, 6, 8, 9],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(26^n)'], why: 'each character is pushed and popped at most once' },
+      space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(log n)', 'O(n^2)'], why: 'the stack, set and last-index map are all bounded by 26 letters' },
+      sayIt: 'Keep an increasing ==monotonic stack==; for a new letter ==pop a bigger top only if it appears again later== (last-index), skip letters already in the stack. O(n).',
+      pitfall: 'Popping a larger letter that never appears again drops it from the answer for good.',
+    },
+
+    {
+      id: 'thought:stack-trie:search-suggestions-system',
+      lc: 1268,
+      title: 'Search Suggestions System',
+      difficulty: 'Medium',
+      category: 'stack-trie',
+      skills: ['trie', 'binary-search'],
+      companies: ['amazon'],
+      statement: `You have a list of product names and a searchWord. After each character of searchWord is typed, suggest up to three products that start with what has been typed so far, in lexicographic order.
+
+Return the list of suggestions after each typed character.`,
+      examples: [
+        { input: "products = ['mobile','mouse','moneypot','monitor','mousepad'], searchWord = 'mouse'", output: "[['mobile','moneypot','monitor'],['mobile','moneypot','monitor'],['mouse','mousepad'],['mouse','mousepad'],['mouse','mousepad']]" },
+      ],
+      constraints: ['1 <= products.length <= 1000', '1 <= searchWord.length <= 1000', 'products are lowercase and unique'],
+      ds: {
+        answer: 'sorted list of products + bisect_left on the typed prefix',
+        choices: [
+          'sorted list of products + bisect_left on the typed prefix',
+          'hashmap of full word -> count',
+          'max-heap of all products by length',
+          'stack of products with a pointer per letter',
+        ],
+      },
+      method: {
+        answer: '==Sort== the products once; for each typed prefix ==binary search== its first match and take the next three that still start with the prefix',
+        choices: [
+          '==Sort== the products once; for each typed prefix ==binary search== its first match and take the next three that still start with the prefix',
+          'For each prefix, scan every product and sort the matches before taking three',
+          'Insert each product into a hash set and look the prefix up directly',
+          'Use a stack and pop products that do not match the next typed letter',
+        ],
+      },
+      code: `class Solution:
+    def suggestedProducts(self, products, searchWord):
+        products.sort()
+        result = []
+        prefix = ''
+        for ch in searchWord:
+            prefix += ch
+            i = bisect_left(products, prefix)
+            result.append([word for word in products[i:i + 3] if word.startswith(prefix)])
+        return result`,
+      blanks: [2, 7, 8],
+      time: { answer: 'O(n log n + L^2)', choices: ['O(n log n + L^2)', 'O(n * L)', 'O(n^2)', 'O(L)'], why: 'sorting once, then per typed letter a log n bisect plus up to three prefix comparisons of length L' },
+      space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(n * L)', 'O(L^2)'], why: 'beyond the output and the in-place sort, only the growing prefix is held' },
+      sayIt: '==Sort once==; each typed prefix is a contiguous block, so ==bisect_left== to its start and take up to three that match. A trie with three words per node works too.',
+      pitfall: 'The three words after the bisect point may not all share the prefix, so filter with startswith.',
+    },
+
+    {
+      id: 'thought:stack-trie:maximum-frequency-stack',
+      lc: 895,
+      title: 'Maximum Frequency Stack',
+      difficulty: 'Hard',
+      category: 'stack-trie',
+      skills: ['stack', 'arrays-hashing', 'ds-diagnosis'],
+      companies: ['amazon'],
+      statement: `Design a stack-like structure with push(val) and pop(). pop() removes and returns the most frequent element in the stack; if several tie, remove the one closest to the top.
+
+Both operations should run in O(1).`,
+      examples: [
+        { input: 'push 5,7,5,7,4,5 then pop four times', output: '5, 7, 5, 4', explanation: '5 is most frequent (3), then 5 and 7 tie at 2 so the most recent 7 goes, then 5, then 4.' },
+      ],
+      constraints: ['0 <= val <= 10^9', 'At most 2 * 10^4 calls'],
+      ds: {
+        answer: 'dict of counts + dict of frequency -> stack of values + maxCount',
+        choices: [
+          'dict of counts + dict of frequency -> stack of values + maxCount',
+          'max-heap of (count, value) pairs',
+          'one list sorted by value on every push',
+          'deque with the most frequent value kept at the left',
+        ],
+      },
+      method: {
+        answer: 'Give each frequency its own ==stack==; push appends to the stack for the new count, pop takes from the ==highest-count stack== and lowers maxCount when it empties',
+        choices: [
+          'Give each frequency its own ==stack==; push appends to the stack for the new count, pop takes from the ==highest-count stack== and lowers maxCount when it empties',
+          'Keep a heap keyed by (-count, -time) and rebuild it after each pop',
+          'Scan the stack from the top on every pop to find the most frequent value',
+          'Sort all values by count whenever pop is called',
+        ],
+      },
+      code: `class FreqStack:
+    def __init__(self):
+        self.count = defaultdict(int)
+        self.stacks = defaultdict(list)
+        self.maxCount = 0
+
+    def push(self, val: int) -> None:
+        self.count[val] += 1
+        self.maxCount = max(self.maxCount, self.count[val])
+        self.stacks[self.count[val]].append(val)
+
+    def pop(self) -> int:
+        val = self.stacks[self.maxCount].pop()
+        self.count[val] -= 1
+        if not self.stacks[self.maxCount]:
+            self.maxCount -= 1
+        return val`,
+      blanks: [7, 9, 12, 14],
+      time: { answer: 'O(1)', choices: ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)'], why: 'each push and pop touches one count and one stack' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(log n)', 'O(n^2)'], why: 'every pushed value sits in one stack per level it has reached' },
+      sayIt: 'A ==stack per frequency level==: push to the stack for its new count, pop from the ==stack at maxCount==, so ties fall to the most recent. O(1) each.',
+      pitfall: 'Forgetting to decrement maxCount when the top level empties makes the next pop read an empty stack.',
+    },
   ],
 }

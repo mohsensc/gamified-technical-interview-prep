@@ -65,6 +65,12 @@ const scenarios = [
   { x: ['DFS'], d: 2, s: 'Shortest ladder of word transformations using only dictionary words, equal-cost steps.', a: 'BFS', r: 'Equal-cost transformations: BFS layers give the minimum ladder length', skills: ['graph-bfs', 'graph-modeling'] },
   { x: ['Dijkstra', 'Union-Find'], d: 1, s: 'Print every cell of a maze grid layer by layer outward from the entrance.', a: 'BFS', r: 'A queue naturally expands outward one ring of distance at a time', skills: ['graph-bfs', 'grid'] },
   { x: ['BFS', 'Union-Find'], d: 3, s: 'Find every critical connection whose removal disconnects the network.', a: 'DFS', r: 'Discovery and low-link times from one DFS pass reveal every cut edge', skills: ['graph-dfs'] },
+  { x: ['Dijkstra', 'BFS'], d: 3, s: 'Follow the arrows in a grid for free; changing an arrow costs 1. Cheapest route to the corner.', a: '0-1 BFS', r: 'Only two edge weights: free moves go to the deque front, paid moves to the back', skills: ['graph-bfs', 'queue-deque', 'grid'] },
+  { x: ['Dijkstra', 'DFS'], d: 3, s: 'Fewest buses to reach a stop when every route loops through its own list of stops.', a: 'BFS', r: 'Each boarding costs 1, so BFS over routes finds the fewest', skills: ['graph-bfs', 'graph-modeling'] },
+  { x: ['0-1 BFS', 'DFS'], d: 3, s: 'Fewest steps to the exit when you hold k wall-smash tokens and each smash uses one.', a: 'BFS', r: 'Unit steps, with the tokens left as part of the state', skills: ['graph-bfs', 'grid'] },
+  { x: ['DFS', 'Dijkstra'], d: 3, s: 'Fewest months to finish all courses when independent courses run in parallel and each has a duration.', a: 'Topological sort', r: 'Process courses in dependency order and keep the latest finish time of each prerequisite', skills: ['topo-sort', 'dp-1d'] },
+  { x: ['BFS', 'DFS'], d: 2, s: 'Decide if equations like a == b and b != c can all be true at once.', a: 'Union-Find', r: 'Union every equality, then check no inequality joins one set', skills: ['union-find', 'graph-modeling'] },
+  { x: ['DFS', 'BFS'], d: 2, s: 'Choose the cheapest connections so every city is reachable, or report that one cannot be linked.', a: 'Union-Find', r: 'Sort edges by cost and union only when two cities are in different sets', skills: ['union-find', 'mst'] },
 ]
 
 export function makeQuestion(level = 1) {

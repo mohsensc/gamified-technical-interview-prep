@@ -1165,6 +1165,61 @@ Process queries in sorted order: as the query value grows, activate every interv
     sayIt: "Sort queries, sweep forward: ==push every interval whose start we've reached as (size, end)==, ==pop stale entries whose end is behind the query==, heap top is the smallest covering interval. O((n+q) log n).",
     pitfall: 'Mapping answers back to the original query order via `result` since queries were processed sorted, not in input order.',
   },
+
+  {
+    id: 'thought:lists-heaps:smallest-range-k-lists',
+    lc: 632,
+    title: 'Smallest Range Covering Elements from K Lists',
+    difficulty: 'Hard',
+    category: 'lists-heaps',
+    skills: ['heap', 'sliding-window'],
+    companies: ['google', 'amazon'],
+    statement: `You have k sorted lists of integers. Find the smallest range [a, b] that contains at least one number from each list.
+
+A range [a, b] is smaller than [c, d] if b - a < d - c, or a < c when the lengths tie.`,
+    examples: [
+      { input: 'nums = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]', output: '[20, 24]' },
+    ],
+    constraints: ['k == nums.length, 1 <= k <= 3500', 'each list sorted non-decreasing', 'total elements <= 10^5'],
+    ds: {
+      answer: 'min-heap of (value, list index, element index) + a running current max',
+      choices: [
+        'min-heap of (value, list index, element index) + a running current max',
+        'max-heap of all values',
+        'hashmap of value -> list index only',
+        'sorted set of all values with two pointers into it',
+      ],
+    },
+    method: {
+      answer: 'Keep one element per list in a ==min-heap== and track the ==current max==; [heap min, current max] is a valid range, then advance the list that gave the min',
+      choices: [
+        'Keep one element per list in a ==min-heap== and track the ==current max==; [heap min, current max] is a valid range, then advance the list that gave the min',
+        'Merge all lists into one array and take the first and last element',
+        'Binary search on the range width and verify with a hashmap',
+        'For each list, pick its smallest element and take the overall range',
+      ],
+    },
+    code: `class Solution:
+    def smallestRange(self, nums):
+        heap = [(row[0], i, 0) for i, row in enumerate(nums)]
+        heapq.heapify(heap)
+        currentMax = max(row[0] for row in nums)
+        best = [heap[0][0], currentMax]
+        while True:
+            value, i, j = heapq.heappop(heap)
+            if currentMax - value < best[1] - best[0]:
+                best = [value, currentMax]
+            if j + 1 == len(nums[i]):
+                return best
+            nextValue = nums[i][j + 1]
+            currentMax = max(currentMax, nextValue)
+            heapq.heappush(heap, (nextValue, i, j + 1))`,
+    blanks: [4, 8, 10, 13],
+    time: { answer: 'O(N log k)', choices: ['O(N log k)', 'O(N log N)', 'O(N * k)', 'O(N)'], why: 'N total elements, each pushed once on a heap of size k' },
+    space: { answer: 'O(k)', choices: ['O(k)', 'O(N)', 'O(1)', 'O(N * k)'], why: 'the heap holds one element per list' },
+    sayIt: "k-way merge: a ==min-heap== with one item per list plus a tracked ==current max== always forms a covering range. Update the best, advance the min's list, stop when it runs out. O(N log k).",
+    pitfall: 'Once any list is exhausted no later range can cover it, so return immediately instead of continuing.',
+  },
 ]
 
 export default {

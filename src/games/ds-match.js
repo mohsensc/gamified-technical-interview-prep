@@ -100,6 +100,18 @@ const scenarios = [
     why: 'Only start counting from a value with no predecessor in the set.', op: ['Cost for n values?', 'O(n)', 'Each value is visited by a run at most once.'], skills: ['arrays-hashing'] },
   { d: 2, s: 'Find the first non-repeating character in a stream of characters.', ds: 'Hash map (Counter) + queue', alts: ['Stack', 'Min-heap', 'Trie'],
     why: 'Counts track frequency; the queue holds candidates, dropping ones that became repeated.', op: ['Amortized cost per character?', 'O(1)', 'Each character enters and leaves the queue at most once.'], skills: ['arrays-hashing', 'queue-deque'] },
+  { d: 3, s: 'Range sums over an array where individual values keep changing.', ds: 'Fenwick tree', alts: ['Prefix-sum array', 'Hash map: prefix sum → count', 'Stack'],
+    why: 'A plain prefix array makes every update O(n); a Fenwick tree keeps update and query both logarithmic.', op: ['Cost of one update or prefix query?', 'O(log n)', 'Each step jumps by the lowest set bit, so at most log n cells are touched.'], skills: ['prefix-sum', 'ds-diagnosis'] },
+  { d: 3, s: 'Stock prices that can be corrected later, with current, max and min asked at any time.', ds: 'Two heaps with lazy deletion', alts: ['Sorted list + bisect', 'Min-heap of size k', 'Stack'],
+    why: 'A min-heap and a max-heap give the extremes; stale entries are discarded only when they reach the top.', op: ['Cost per update, max or min?', 'O(log n)', 'Each push is log n and each stale entry is popped once.'], skills: ['heap', 'ds-diagnosis'] },
+  { d: 3, s: 'Stack whose pop returns the most frequent element, newest first on ties.', ds: 'Hash map of frequency → stack', alts: ['Max-heap', 'Hash map (Counter)', 'Monotonic stack'],
+    why: 'One stack per frequency level means the top of the highest level is always the answer.', op: ['Cost of push or pop?', 'O(1)', 'One count update and one stack operation.'], skills: ['stack', 'arrays-hashing', 'ds-diagnosis'] },
+  { d: 3, s: 'Pick the pair of numbers whose XOR is largest.', ds: 'Trie of bits', alts: ['Hash set', 'Sorted list + bisect', 'Max-heap'],
+    why: 'Walking the opposite bit at each level greedily builds the largest XOR for each number.', op: ['Cost per number with L-bit values?', 'O(L)', 'One trie step per bit.'], skills: ['trie', 'bit'] },
+  { d: 2, s: 'Accept a booking only if it does not overlap any earlier booking.', ds: 'Sorted list + bisect', alts: ['Min-heap', 'Hash set', 'Stack'],
+    why: 'Only the neighbors of the insertion point can overlap, and bisect finds that point.', op: ['Cost of the overlap search?', 'O(log n)', 'Bisect finds the two neighbors; only the list insert shifts elements.'], skills: ['intervals', 'binary-search'] },
+  { d: 2, s: 'Count hits in the last 5 minutes when timestamps only move forward.', ds: 'Deque of (timestamp, count)', alts: ['Min-heap', 'Sorted list + bisect', 'Hash set'],
+    why: 'Expired hits are always at the front, so pop them as time advances.', op: ['Amortized cost per call?', 'O(1)', 'Each bucket is appended once and popped once.'], skills: ['queue-deque', 'ds-diagnosis'] },
 ]
 
 function structureQuestion(level) {

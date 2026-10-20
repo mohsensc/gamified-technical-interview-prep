@@ -1060,6 +1060,181 @@ Duplicates break the "one half is always sorted" guarantee when nums[left] == nu
     sayIt: "Same rotated binary search, but first peel off the ambiguous case, ==nums[left] == nums[mid] == nums[right] shrinks both ends by one==, otherwise the usual sorted-half check applies, O(n) worst case because of duplicates.",
     pitfall: 'Without the triple-equal check, duplicates can make both "halves" look sorted when they are not, causing the search to discard the half actually containing target.',
   },
+
+  {
+    id: 'thought:windows-search:find-all-anagrams',
+    lc: 438,
+    title: 'Find All Anagrams in a String',
+    difficulty: 'Medium',
+    category: 'windows-search',
+    skills: ['sliding-window', 'arrays-hashing'],
+    companies: ['meta', 'amazon', 'microsoft'],
+    statement: `Given strings s and p, return every start index in s where a substring of length len(p) is an anagram of p.
+
+An anagram has exactly the same letters with the same counts, in any order.`,
+    examples: [
+      { input: "s = 'cbaebabacd', p = 'abc'", output: '[0, 6]' },
+    ],
+    constraints: ['1 <= s.length, p.length <= 3 * 10^4', 'lowercase English letters'],
+    ds: {
+      answer: 'Counter of p + Counter of the current window',
+      choices: [
+        'Counter of p + Counter of the current window',
+        'sorted copy of p only',
+        'min-heap of the window letters',
+        'stack of the last len(p) letters',
+      ],
+    },
+    method: {
+      answer: "Slide a ==fixed-size window==: add the new right letter, remove the leaving one, record the start when the window ==counter equals== p's counter",
+      choices: [
+        "Slide a ==fixed-size window==: add the new right letter, remove the leaving one, record the start when the window ==counter equals== p's counter",
+        'Sort every substring of length len(p) and compare to sorted p',
+        'Two pointers that move inward from both ends',
+        'Binary search the start index of the anagram',
+      ],
+    },
+    code: `class Solution:
+    def findAnagrams(self, s, p):
+        if len(p) > len(s):
+            return []
+        need = Counter(p)
+        window = Counter(s[:len(p)])
+        result = [0] if window == need else []
+        for right in range(len(p), len(s)):
+            window[s[right]] += 1
+            leaving = s[right - len(p)]
+            window[leaving] -= 1
+            if window[leaving] == 0:
+                del window[leaving]
+            if window == need:
+                result.append(right - len(p) + 1)
+        return result`,
+    blanks: [4, 5, 8, 10, 14],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n * m log m)', 'O(n * m)', 'O(n^2)'], why: 'one pass; comparing two counters of at most 26 letters is constant' },
+    space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(m)', 'O(n * m)'], why: 'counters hold at most 26 keys' },
+    sayIt: '==Fixed-size window== of len(p): add the right letter, drop the leaving one, compare the ==two letter counters==; equal means an anagram starts there. O(n).',
+    pitfall: 'Window start index is right - len(p) + 1, an easy off-by-one when appending.',
+  },
+
+  {
+    id: 'thought:windows-search:shortest-subarray-sum-at-least-k',
+    lc: 862,
+    title: 'Shortest Subarray with Sum at Least K',
+    difficulty: 'Hard',
+    category: 'windows-search',
+    skills: ['prefix-sum', 'queue-deque', 'monotonic-stack'],
+    companies: ['google', 'amazon'],
+    statement: `Given an integer array nums that may contain negatives and an integer k, return the length of the shortest non-empty subarray whose sum is at least k, or -1 if none exists.
+
+Because of the negatives, a normal grow-and-shrink window does not work.`,
+    examples: [
+      { input: 'nums = [2,-1,2], k = 3', output: '3' },
+      { input: 'nums = [1], k = 1', output: '1' },
+    ],
+    constraints: ['1 <= nums.length <= 10^5', '-10^5 <= nums[i] <= 10^5', '1 <= k <= 10^9'],
+    ds: {
+      answer: 'prefix sum array + deque of indices with increasing prefix values',
+      choices: [
+        'prefix sum array + deque of indices with increasing prefix values',
+        'min-heap of (sum, index)',
+        'hashmap of prefix sum -> first index',
+        'stack of subarray sums',
+      ],
+    },
+    method: {
+      answer: 'Pop the deque ==front== while prefix[j] - prefix[front] >= k to record lengths, and pop the ==back== while its prefix >= prefix[j]',
+      choices: [
+        'Pop the deque ==front== while prefix[j] - prefix[front] >= k to record lengths, and pop the ==back== while its prefix >= prefix[j]',
+        'Two pointers: grow right, shrink left while the sum stays at least k',
+        'Binary search the length and verify each length with a window',
+        'Sort the prefix sums and pair adjacent ones',
+      ],
+    },
+    code: `class Solution:
+    def shortestSubarray(self, nums, k):
+        prefix = [0]
+        for num in nums:
+            prefix.append(prefix[-1] + num)
+        best = len(nums) + 1
+        window = deque()
+        for right, total in enumerate(prefix):
+            while window and total - prefix[window[0]] >= k:
+                best = min(best, right - window.popleft())
+            while window and prefix[window[-1]] >= total:
+                window.pop()
+            window.append(right)
+        return best if best <= len(nums) else -1`,
+    blanks: [4, 8, 9, 10, 12],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(n^2)', 'O(n * k)'], why: 'each index enters and leaves the deque once' },
+    space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(k)', 'O(log n)'], why: 'prefix array and deque' },
+    sayIt: 'Build prefix sums and keep a ==monotonic deque== of indices: pop the ==front== when the sum reaches k (record length), pop the ==back== when its prefix is not smaller. O(n).',
+    pitfall: 'A two-pointer window assumes non-negative values and silently returns wrong answers here.',
+  },
+
+  {
+    id: 'thought:windows-search:min-days-m-bouquets',
+    lc: 1482,
+    title: 'Minimum Number of Days to Make m Bouquets',
+    difficulty: 'Medium',
+    category: 'windows-search',
+    skills: ['binary-search', 'greedy'],
+    companies: ['amazon', 'google'],
+    statement: `bloomDay[i] is the day flower i blooms. A bouquet needs k adjacent bloomed flowers and each flower can be used once. Return the minimum number of days to make m bouquets, or -1 if impossible.`,
+    examples: [
+      { input: 'bloomDay = [1,10,3,10,2], m = 3, k = 1', output: '3' },
+      { input: 'bloomDay = [1,10,3,10,2], m = 3, k = 2', output: '-1' },
+    ],
+    constraints: ['1 <= bloomDay.length <= 10^5', '1 <= bloomDay[i] <= 10^9', '1 <= m <= 10^6, 1 <= k <= n'],
+    ds: {
+      answer: 'binary search bounds over days + a feasibility function scanning the array',
+      choices: [
+        'binary search bounds over days + a feasibility function scanning the array',
+        'min-heap of bloom days',
+        'prefix sum array of bloom days',
+        'hashmap of day -> flower index',
+      ],
+    },
+    method: {
+      answer: '==Binary search the answer== day; ==feasibility check== scans for runs of k bloomed flowers and counts bouquets, shrinking high if m is reached',
+      choices: [
+        '==Binary search the answer== day; ==feasibility check== scans for runs of k bloomed flowers and counts bouquets, shrinking high if m is reached',
+        'Try every day from 1 up and stop at the first that works',
+        'Sort the flowers and take the m * k smallest days',
+        'Sliding window of size k over the sorted bloom days',
+      ],
+    },
+    code: `class Solution:
+    def minDays(self, bloomDay, m, k):
+        if m * k > len(bloomDay):
+            return -1
+
+        def canMake(day):
+            bouquets = run = 0
+            for bloom in bloomDay:
+                if bloom <= day:
+                    run += 1
+                    if run == k:
+                        bouquets += 1
+                        run = 0
+                else:
+                    run = 0
+            return bouquets >= m
+
+        low, high = min(bloomDay), max(bloomDay)
+        while low < high:
+            mid = (low + high) // 2
+            if canMake(mid):
+                high = mid
+            else:
+                low = mid + 1
+        return low`,
+    blanks: [2, 8, 11, 6, 20],
+    time: { answer: 'O(n log max)', choices: ['O(n log max)', 'O(n)', 'O(n^2)', 'O(n log n)'], why: 'log of the day range iterations, each an O(n) scan' },
+    space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(log n)', 'O(m)'], why: 'only counters inside the check' },
+    sayIt: 'If day d works, any later day works: ==binary search the day==. Check = count runs of ==k adjacent bloomed flowers==, resetting after each bouquet or unbloomed flower. O(n log max).',
+    pitfall: 'Not resetting the run after completing a bouquet reuses the same flowers.',
+  },
 ]
 
 export default {

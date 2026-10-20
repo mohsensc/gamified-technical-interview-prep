@@ -506,4 +506,99 @@ const flashcards = flashcardData.map(([skills, front, back, code], i) => ({
   ...(code ? { code } : {}),
 }))
 
-export default { mcqs, clozes, parsons, flashcards }
+const problems = [
+  {
+    id: 'bank-graphs-dp:problem:174', lc: 174, title: 'Dungeon Game', difficulty: 'Hard',
+    skills: ['dp-2d', 'grid'], pattern: 'Dynamic programming: reverse grid DP (min health needed)', ds: ['dp table'],
+    constraints: '1 ≤ m, n ≤ 200, cells in [-1000, 1000], only move right or down, health must stay ≥ 1', time: 'O(m · n)', space: 'O(m · n)',
+    insight: 'Going forward you cannot know how much health you need later, so work backward: need[r][c] is the least health required on entering the cell.',
+    signals: ['health must never drop to 0', 'minimum initial health', 'path from top-left to bottom-right'],
+    narration: ['need[r][c] = max(1, min(need[r+1][c], need[r][c+1]) - dungeon[r][c]).', 'Pad with infinity outside the grid, but 1 just past the princess.', 'Fill from the bottom-right to the top-left.', 'need[0][0] is the answer.'],
+    solution: `class Solution:
+    def calculateMinimumHP(self, dungeon):
+        rows, cols = len(dungeon), len(dungeon[0])
+        need = [[float('inf')] * (cols + 1) for _ in range(rows + 1)]
+        need[rows][cols - 1] = need[rows - 1][cols] = 1
+        for r in range(rows - 1, -1, -1):
+            for c in range(cols - 1, -1, -1):
+                best = min(need[r + 1][c], need[r][c + 1])
+                need[r][c] = max(1, best - dungeon[r][c])
+        return need[0][0]`,
+    companies: ['amazon', 'microsoft'],
+    pitfalls: ['A forward DP of max health along a path ignores dips below 1 midway', 'Forgetting max(1, ...) lets the required health go to zero or below'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:329', lc: 329, title: 'Longest Increasing Path in a Matrix', difficulty: 'Hard',
+    skills: ['dp-2d', 'graph-dfs', 'grid'], pattern: 'Dynamic programming: memoized grid DFS', ds: ['grid', 'recursion stack'],
+    constraints: '1 ≤ m, n ≤ 200, move in 4 directions, strictly increasing values', time: 'O(m · n)', space: 'O(m · n)',
+    insight: 'Strictly increasing means no cycles, so the longest path from a cell depends only on larger neighbors and can be cached.',
+    signals: ['longest strictly increasing path', 'move in four directions', 'no repeated cells possible'],
+    narration: ['dfs(r, c) = 1 + max(dfs(neighbor)) over strictly larger neighbors.', 'Cache each result in memo so every cell is solved once.', 'No visited set needed: increasing paths cannot loop.', 'Answer is the max over all start cells.'],
+    solution: `class Solution:
+    def longestIncreasingPath(self, matrix):
+        rows, cols = len(matrix), len(matrix[0])
+        memo = {}
+
+        def dfs(r, c):
+            if (r, c) in memo:
+                return memo[(r, c)]
+            best = 1
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols and matrix[nr][nc] > matrix[r][c]:
+                    best = max(best, 1 + dfs(nr, nc))
+            memo[(r, c)] = best
+            return best
+
+        return max(dfs(r, c) for r in range(rows) for c in range(cols))`,
+    pitfalls: ['Plain DFS without a memo is exponential', 'Deep paths can exceed the default Python recursion limit, raise it or go bottom-up by sorted value'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:10', lc: 10, title: 'Regular Expression Matching', difficulty: 'Hard',
+    skills: ['dp-2d'], pattern: 'Dynamic programming: 2-D over (s, p) with star', ds: ['dp table'],
+    constraints: '1 ≤ s.length ≤ 20, 1 ≤ p.length ≤ 20, "." matches any one char, "*" repeats the previous element 0 or more times', time: 'O(m · n)', space: 'O(m · n)',
+    insight: 'dp[i][j] says whether s[:i] matches p[:j]; a star either drops its element (dp[i][j-2]) or consumes one more matching char (dp[i-1][j]).',
+    signals: ['pattern with . and *', 'match the entire string', 'star applies to the previous character'],
+    narration: ['dp[0][0] = True; a leading "x*" can match empty, so dp[0][j] = dp[0][j-2] for stars.', 'Normal char: dp[i][j] = dp[i-1][j-1] and chars match (or "." ).', 'Star: zero uses = dp[i][j-2]; one more use needs p[j-2] to match s[i-1] and dp[i-1][j].', 'Answer is dp[m][n].'],
+    solution: `class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        m, n = len(s), len(p)
+        dp = [[False] * (n + 1) for _ in range(m + 1)]
+        dp[0][0] = True
+        for j in range(2, n + 1):
+            if p[j - 1] == '*':
+                dp[0][j] = dp[0][j - 2]
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if p[j - 1] == '*':
+                    dp[i][j] = dp[i][j - 2]
+                    if p[j - 2] == '.' or p[j - 2] == s[i - 1]:
+                        dp[i][j] = dp[i][j] or dp[i - 1][j]
+                else:
+                    dp[i][j] = dp[i - 1][j - 1] and (p[j - 1] == '.' or p[j - 1] == s[i - 1])
+        return dp[m][n]`,
+    pitfalls: ['Treating "*" as a wildcard for any string, it only repeats the one element before it', 'Forgetting the empty-string row, so patterns like "a*b*" fail against ""'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:1277', lc: 1277, title: 'Count Square Submatrices with All Ones', difficulty: 'Medium',
+    skills: ['dp-2d', 'grid'], pattern: 'Dynamic programming: min of three neighbors + 1', ds: ['matrix'],
+    constraints: '1 ≤ m, n ≤ 300, cells are 0 or 1', time: 'O(m · n)', space: 'O(1) extra',
+    insight: 'dp[r][c] is the side of the largest all-ones square ending there, and it also counts how many squares end at that cell.',
+    signals: ['count all square submatrices of ones', 'bottom-right corner anchored', 'binary matrix'],
+    narration: ['For a 1 not on the first row or column, dp = 1 + min(up, left, up-left).', 'That value is the largest square ending here, which equals the number of squares ending here.', 'Sum dp over the whole grid.'],
+    solution: `class Solution:
+    def countSquares(self, matrix):
+        rows, cols = len(matrix), len(matrix[0])
+        total = 0
+        for r in range(rows):
+            for c in range(cols):
+                if matrix[r][c] and r and c:
+                    matrix[r][c] = 1 + min(matrix[r - 1][c], matrix[r][c - 1], matrix[r - 1][c - 1])
+                total += matrix[r][c]
+        return total`,
+    companies: ['google', 'amazon'],
+    pitfalls: ['Using max of the neighbors instead of min builds squares with holes', 'Counting only the largest square, not every size ending at the cell'],
+  },
+]
+
+export default { mcqs, clozes, parsons, flashcards, problems }

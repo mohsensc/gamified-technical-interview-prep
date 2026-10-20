@@ -1240,6 +1240,115 @@ Return the area (side length squared), not the side length itself.`,
     sayIt: "A square at (i,j) can only be as big as the smallest of its ==top, left, and top-left neighbor squares, plus one==, padded border handles edges, track the running best side, answer is best squared, O(rows*cols) time/space.",
     pitfall: 'Return best squared (the area), not best itself (the side length).',
   },
+
+  {
+    id: 'thought:dp:dungeon-game',
+    lc: 174,
+    title: 'Dungeon Game',
+    difficulty: 'Hard',
+    category: 'dp',
+    skills: ['dp-2d', 'grid'],
+    companies: ['amazon', 'microsoft'],
+    statement: `A knight starts at the top-left of a grid and must reach the bottom-right, moving only right or down. Each cell changes health by its value (negative hurts). Health must never drop to 0 or below.
+
+Return the minimum initial health that guarantees survival.`,
+    examples: [
+      { input: 'dungeon = [[-2,-3,3],[-5,-10,1],[10,30,-5]]', output: '7', explanation: 'Right, right, down, down.' },
+    ],
+    constraints: ['1 <= m, n <= 200', '-1000 <= dungeon[i][j] <= 1000'],
+    ds: {
+      answer: '2-D need table padded with infinity, filled backward',
+      choices: [
+        '2-D need table padded with infinity, filled backward',
+        '2-D table of max health, filled forward',
+        'min-heap of (health, r, c)',
+        'queue for BFS with a visited grid',
+      ],
+    },
+    method: {
+      answer: 'Work ==backward== from the princess: need[r][c] = ==max(1, min(need down, need right) - dungeon[r][c])==',
+      choices: [
+        'Work ==backward== from the princess: need[r][c] = ==max(1, min(need down, need right) - dungeon[r][c])==',
+        'Fill forward keeping the largest health along any path, then subtract',
+        'Run BFS and track the lowest health seen',
+        'Greedily step to the larger neighbor each time',
+      ],
+    },
+    code: `class Solution:
+    def calculateMinimumHP(self, dungeon):
+        rows, cols = len(dungeon), len(dungeon[0])
+        need = [[float('inf')] * (cols + 1) for _ in range(rows + 1)]
+        need[rows][cols - 1] = need[rows - 1][cols] = 1
+        for r in range(rows - 1, -1, -1):
+            for c in range(cols - 1, -1, -1):
+                best = min(need[r + 1][c], need[r][c + 1])
+                need[r][c] = max(1, best - dungeon[r][c])
+        return need[0][0]`,
+    blanks: [4, 7, 8, 9],
+    time: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(2^(m + n))', 'O((m * n)^2)', 'O(m + n)'], why: 'each cell is computed once' },
+    space: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(1)', 'O(m + n)', 'O(2^(m + n))'], why: 'one table cell per grid cell; one row would also do' },
+    sayIt: 'Forward DP fails because the future matters, so go ==backward==: need[r][c] = ==max(1, min(down, right) - cell)==, seeded with 1 beyond the goal. O(m * n).',
+    pitfall: 'Dropping the max(1, ...) lets required health fall to zero or below on big positive cells.',
+  },
+
+  {
+    id: 'thought:dp:regular-expression-matching',
+    lc: 10,
+    title: 'Regular Expression Matching',
+    difficulty: 'Hard',
+    category: 'dp',
+    skills: ['dp-2d'],
+    companies: ['google', 'meta', 'microsoft'],
+    statement: `Implement matching of string s against pattern p, where '.' matches any single character and '*' means zero or more of the element before it. The match must cover the entire string.
+
+Return true or false.`,
+    examples: [
+      { input: "s = 'aa', p = 'a*'", output: 'true' },
+      { input: "s = 'ab', p = '.*'", output: 'true' },
+      { input: "s = 'aa', p = 'a'", output: 'false' },
+    ],
+    constraints: ['1 <= s.length <= 20', '1 <= p.length <= 20', "'*' always follows a valid character"],
+    ds: {
+      answer: '2-D boolean table dp[i][j] over prefixes of s and p',
+      choices: [
+        '2-D boolean table dp[i][j] over prefixes of s and p',
+        'hash set of matched indices',
+        'stack of pattern characters',
+        '1-D array indexed by character code',
+      ],
+    },
+    method: {
+      answer: 'dp[i][j] = does s[:i] match p[:j]; for ==x*== either ==drop it (dp[i][j-2])== or consume one matching char (dp[i-1][j])',
+      choices: [
+        'dp[i][j] = does s[:i] match p[:j]; for ==x*== either ==drop it (dp[i][j-2])== or consume one matching char (dp[i-1][j])',
+        'Greedily match each pattern character against the next string character',
+        'Backtrack every way to expand each star without caching',
+        'Sort the pattern and compare to the sorted string',
+      ],
+    },
+    code: `class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        m, n = len(s), len(p)
+        dp = [[False] * (n + 1) for _ in range(m + 1)]
+        dp[0][0] = True
+        for j in range(2, n + 1):
+            if p[j - 1] == '*':
+                dp[0][j] = dp[0][j - 2]
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if p[j - 1] == '*':
+                    dp[i][j] = dp[i][j - 2]
+                    if p[j - 2] == '.' or p[j - 2] == s[i - 1]:
+                        dp[i][j] = dp[i][j] or dp[i - 1][j]
+                else:
+                    dp[i][j] = dp[i - 1][j - 1] and (p[j - 1] == '.' or p[j - 1] == s[i - 1])
+        return dp[m][n]`,
+    blanks: [4, 7, 11, 13],
+    time: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(2^(m + n))', 'O(m + n)', 'O(m * n^2)'], why: 'each (i, j) cell is computed once from earlier cells' },
+    space: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(m + n)', 'O(1)', 'O(2^n)'], why: 'the full table' },
+    sayIt: '2-D DP over prefixes. For ==x*== take ==zero uses (dp[i][j-2])== or, if x matches s[i-1], one more use (dp[i-1][j]). Otherwise the diagonal plus a char match. O(m * n).',
+    pitfall: "Treating '*' as match-anything instead of repeating the single element before it.",
+  },
 ]
 
 export default {

@@ -448,9 +448,86 @@ const cardData = [
 
 const flashcards = cardData.map(([skill, frontArr, back, code], i) => ({ id: `bank-structures:card:trees:${i + 1}`, skills: [skill], front: frontArr[0], back, ...(code ? { code } : {}) }))
 
+const problems = [
+  {
+    id: 'bank-structures:problem:1268', lc: 1268, title: 'Search Suggestions System', difficulty: 'Medium',
+    skills: ['trie', 'binary-search'], pattern: 'Trie with top-3 per node (or sort + bisect)', ds: ['trie', 'list'],
+    constraints: '1 ≤ products ≤ 1000, searchWord ≤ 1000 chars, return up to 3 lexicographic matches per prefix', time: 'O(n log n + L²)', space: 'O(1) extra',
+    insight: 'Sorted words with a shared prefix are contiguous, so binary search the prefix and read the next three.',
+    signals: ['suggest after each typed character', 'up to three lexicographically smallest', 'prefix of product names'],
+    narration: ['Sort the products once.', 'After each typed letter, bisect_left for the current prefix.', 'Take the next three words and keep those that start with the prefix.', 'A trie storing three words per node does the same without bisect.'],
+    solution: `class Solution:
+    def suggestedProducts(self, products, searchWord):
+        products.sort()
+        result = []
+        prefix = ''
+        for ch in searchWord:
+            prefix += ch
+            i = bisect_left(products, prefix)
+            result.append([word for word in products[i:i + 3] if word.startswith(prefix)])
+        return result`,
+    pitfalls: ['The three words after the bisect point may not all share the prefix, so filter', 'Forgetting to sort first breaks the contiguity'],
+  },
+  {
+    id: 'bank-structures:problem:421', lc: 421, title: 'Maximum XOR of Two Numbers in an Array', difficulty: 'Medium',
+    skills: ['trie', 'bit'], pattern: 'Trie of bits, greedy opposite bit', ds: ['trie'],
+    constraints: '1 ≤ n ≤ 2·10^5, 0 ≤ nums[i] ≤ 2^31 - 1', time: 'O(31n)', space: 'O(31n)',
+    insight: 'Store every number in a binary trie, then for each number walk down choosing the opposite bit whenever it exists; higher bits matter most.',
+    signals: ['maximum XOR of any pair', 'values up to 2^31', 'n squared is too slow'],
+    narration: ['Insert each number into a trie from bit 30 down to 0.', 'For each number, at every bit prefer the child with the opposite bit.', 'If it exists, that XOR bit is 1 and we step there; otherwise step the same way.', 'Track the best XOR over all numbers.'],
+    solution: `class Solution:
+    def findMaximumXOR(self, nums):
+        root = {}
+        for num in nums:
+            node = root
+            for bit in range(30, -1, -1):
+                node = node.setdefault((num >> bit) & 1, {})
+        best = 0
+        for num in nums:
+            node = root
+            current = 0
+            for bit in range(30, -1, -1):
+                want = 1 - ((num >> bit) & 1)
+                if want in node:
+                    current |= 1 << bit
+                    node = node[want]
+                else:
+                    node = node[1 - want]
+            best = max(best, current)
+        return best`,
+    companies: ['google', 'amazon'],
+    pitfalls: ['A number can pair with itself (XOR 0), which is harmless', 'Walking from the lowest bit up gives the wrong priority'],
+  },
+  {
+    id: 'bank-structures:problem:662', lc: 662, title: 'Maximum Width of Binary Tree', difficulty: 'Medium',
+    skills: ['tree-bfs'], pattern: 'BFS level order with position index', ds: ['binary tree', 'deque'],
+    constraints: '1 ≤ nodes ≤ 3000, width counts the null gaps between the leftmost and rightmost node of a level', time: 'O(n)', space: 'O(w)',
+    insight: 'Number nodes like a heap (children 2i and 2i + 1); a level\'s width is last index - first index + 1.',
+    signals: ['width includes empty positions', 'level by level', 'as if the tree were complete'],
+    narration: ['Queue holds (node, index) for one level at a time.', 'Width of a level = index of last - index of first + 1.', 'Children get 2 · index and 2 · index + 1, measured from the level\'s first index to keep numbers small.', 'Keep the max width.'],
+    solution: `class Solution:
+    def widthOfBinaryTree(self, root):
+        best = 0
+        level = deque([(root, 0)])
+        while level:
+            base = level[0][1]
+            best = max(best, level[-1][1] - base + 1)
+            for _ in range(len(level)):
+                node, index = level.popleft()
+                if node.left:
+                    level.append((node.left, 2 * (index - base)))
+                if node.right:
+                    level.append((node.right, 2 * (index - base) + 1))
+        return best`,
+    companies: ['amazon', 'google'],
+    pitfalls: ['Counting only real nodes per level gives the plain level size, not the width', 'Without re-basing, indexes double each level and grow huge in other languages'],
+  },
+]
+
 export default {
   mcqs: [...mcqs, ...dfsMcqs, ...bfsMcqs, ...bstMcqs],
   clozes,
   parsons,
   flashcards,
+  problems,
 }

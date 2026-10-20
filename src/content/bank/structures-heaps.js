@@ -173,9 +173,109 @@ const cardData = [
 
 const flashcards = cardData.map(([skill, front, back, code], i) => ({ id: `bank-structures:card:heap:${i + 1}`, skills: [skill], front, back, ...(code ? { code } : {}) }))
 
+const problems = [
+  {
+    id: 'bank-structures:problem:2402', lc: 2402, title: 'Meeting Rooms III', difficulty: 'Hard',
+    skills: ['heap', 'intervals'], pattern: 'Heap / top-k: two heaps (free rooms, busy by end time)', ds: ['min-heap'],
+    constraints: '1 ≤ n ≤ 100, 1 ≤ meetings ≤ 10^5, start times unique, delayed meetings keep their duration', time: 'O(m log m + m log n)', space: 'O(n)',
+    insight: 'Sort by start; a min-heap of free room numbers picks the lowest room, and a min-heap of (end time, room) tells you which room frees up first.',
+    signals: ['lowest-numbered free room', 'meeting waits for the earliest room to free', 'room with the most meetings'],
+    narration: ['Sort meetings by start.', 'Before each meeting, move every busy room whose end <= start back to the free heap.', 'If a room is free, take the smallest number. Otherwise pop the earliest-ending room and delay by its remaining time.', 'Count uses per room; return the first room with the max count.'],
+    solution: `class Solution:
+    def mostBooked(self, n, meetings):
+        meetings.sort()
+        free = list(range(n))
+        heapq.heapify(free)
+        busy = []
+        counts = [0] * n
+        for start, end in meetings:
+            while busy and busy[0][0] <= start:
+                _, room = heapq.heappop(busy)
+                heapq.heappush(free, room)
+            if free:
+                room = heapq.heappop(free)
+                heapq.heappush(busy, (end, room))
+            else:
+                freeAt, room = heapq.heappop(busy)
+                heapq.heappush(busy, (freeAt + end - start, room))
+            counts[room] += 1
+        return counts.index(max(counts))`,
+    pitfalls: ['Busy heap ties on end time must break by room number, which tuples do for free', 'A delayed meeting ends at freeAt + duration, not at its original end'],
+  },
+  {
+    id: 'bank-structures:problem:373', lc: 373, title: 'Find K Pairs with Smallest Sums', difficulty: 'Medium',
+    skills: ['heap'], pattern: 'Heap / top-k: k-way frontier from (i, 0)', ds: ['min-heap'],
+    constraints: '1 ≤ nums lengths ≤ 10^5, both sorted ascending, 1 ≤ k ≤ 10^4', time: 'O(k log k)', space: 'O(k)',
+    insight: 'Each row nums1[i] + nums2[·] is already sorted, so this is a k-way merge that only ever needs the next cell in a row.',
+    signals: ['two sorted arrays', 'k smallest pair sums', 'k much smaller than n · m'],
+    narration: ['Seed the heap with (nums1[i] + nums2[0], i, 0) for the first k rows.', 'Pop the smallest, record the pair.', 'Push the next pair in the same row, (i, j + 1).', 'Stop after k pops.'],
+    solution: `class Solution:
+    def kSmallestPairs(self, nums1, nums2, k):
+        heap = [(nums1[i] + nums2[0], i, 0) for i in range(min(k, len(nums1)))]
+        heapq.heapify(heap)
+        result = []
+        while heap and len(result) < k:
+            _, i, j = heapq.heappop(heap)
+            result.append([nums1[i], nums2[j]])
+            if j + 1 < len(nums2):
+                heapq.heappush(heap, (nums1[i] + nums2[j + 1], i, j + 1))
+        return result`,
+    pitfalls: ['Pushing all n · m pairs blows memory', 'Seeding more than k rows is wasted work, only the first k can matter'],
+  },
+  {
+    id: 'bank-structures:problem:632', lc: 632, title: 'Smallest Range Covering Elements from K Lists', difficulty: 'Hard',
+    skills: ['heap', 'sliding-window'], pattern: 'Heap / top-k: k-way merge tracking current max', ds: ['min-heap'],
+    constraints: '1 ≤ k ≤ 3500, each list sorted, total elements ≤ 10^5', time: 'O(N log k)', space: 'O(k)',
+    insight: 'Keep one element from every list in a min-heap while tracking the largest; [heap min, current max] is always a valid range, so advance the list that holds the min.',
+    signals: ['range must include one number from each list', 'k sorted lists', 'smallest range'],
+    narration: ['Push the first element of every list and track currentMax.', 'The range [heap top, currentMax] covers every list; update the best if it is narrower.', 'Pop the min and push the next element from the same list, raising currentMax if needed.', 'Stop when a list runs out.'],
+    solution: `class Solution:
+    def smallestRange(self, nums):
+        heap = [(row[0], i, 0) for i, row in enumerate(nums)]
+        heapq.heapify(heap)
+        currentMax = max(row[0] for row in nums)
+        best = [heap[0][0], currentMax]
+        while True:
+            value, i, j = heapq.heappop(heap)
+            if currentMax - value < best[1] - best[0]:
+                best = [value, currentMax]
+            if j + 1 == len(nums[i]):
+                return best
+            nextValue = nums[i][j + 1]
+            currentMax = max(currentMax, nextValue)
+            heapq.heappush(heap, (nextValue, i, j + 1))`,
+    companies: ['google', 'amazon'],
+    pitfalls: ['Once any list is exhausted no later range can cover it, so return immediately', 'Forgetting currentMax when pushing the next value shrinks the range wrongly'],
+  },
+  {
+    id: 'bank-structures:problem:502', lc: 502, title: 'IPO', difficulty: 'Hard',
+    skills: ['heap', 'greedy'], pattern: 'Heap / top-k: sort by capital + max-heap of profits', ds: ['heap'],
+    constraints: '1 ≤ k ≤ 10^5, 0 ≤ w ≤ 10^9, up to 10^5 projects', time: 'O(n log n + k log n)', space: 'O(n)',
+    insight: 'Greedy: always run the most profitable project you can afford; sort by capital and release affordable ones into a max-heap of profits.',
+    signals: ['pick at most k projects', 'each needs minimum capital', 'profit increases your capital'],
+    narration: ['Sort projects by required capital.', 'For each of k rounds, push every project with capital <= w into a max-heap of profits.', 'Pop the best profit and add it to w.', 'Stop early if nothing is affordable.'],
+    solution: `class Solution:
+    def findMaximizedCapital(self, k, w, profits, capital):
+        projects = sorted(zip(capital, profits))
+        available = []
+        i = 0
+        for _ in range(k):
+            while i < len(projects) and projects[i][0] <= w:
+                heapq.heappush(available, -projects[i][1])
+                i += 1
+            if not available:
+                break
+            w -= heapq.heappop(available)
+        return w`,
+    companies: ['amazon', 'google'],
+    pitfalls: ['Heap of all projects by profit would pick ones you cannot afford', 'Python heaps are min-heaps, so negate the profit'],
+  },
+]
+
 export default {
   mcqs,
   clozes,
   parsons,
   flashcards,
+  problems,
 }

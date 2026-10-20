@@ -608,6 +608,21 @@ const bugRounds = [
     buggyLine: 5, bugWhy: "It pops without checking the stack has anything in it first. A path like '/../a' hits '..' as its very first real component and crashes with an IndexError.",
     fixCorrect: 'Change to `if stack: stack.pop()`', fixWhy: "Going '..' past the root should just be ignored, not crash — there's nothing left to pop.",
     fixDistractors: ["Change `part != '.'` to `part != ''`", "Change `'/'.join(stack)` to `''.join(stack)`", "Change `path.split('/')` to `path.split('//')`"] },
+  { d: 3, skills: ['monotonic-stack', 'math'], title: 'Sum of Subarray Minimums',
+    code: L('def sumSubarrayMins(arr):', '    n = len(arr)', '    left = [0] * n', '    right = [0] * n', '    stack = []', '    for i in range(n):', '        while stack and arr[stack[-1]] >= arr[i]:', '            stack.pop()', '        left[i] = i - (stack[-1] if stack else -1)', '        stack.append(i)', '    stack = []', '    for i in range(n - 1, -1, -1):', '        while stack and arr[stack[-1]] >= arr[i]:', '            stack.pop()', '        right[i] = (stack[-1] if stack else n) - i', '        stack.append(i)', '    return sum(arr[i] * left[i] * right[i] for i in range(n)) % (10**9 + 7)'),
+    buggyLine: 13, bugWhy: 'Both passes stop at strictly smaller values, so with equal values a subarray is claimed by more than one minimum. For [2, 2] the total comes out as 8 instead of 6.',
+    fixCorrect: 'Change `>=` to `>` in the second while condition', fixWhy: 'One side must be strict and the other not, so every subarray has exactly one owner among equal minimums.',
+    fixDistractors: ['Change `stack.append(i)` to `stack.insert(0, i)` in the second loop', 'Change `else n` to `else n - 1`', 'Change `% (10**9 + 7)` to `% (10**9)`'] },
+  { d: 2, skills: ['sliding-window', 'arrays-hashing'], title: 'Find All Anagrams',
+    code: L('def findAnagrams(s, p):', '    need = Counter(p)', '    window = Counter()', '    result = []', '    for right, ch in enumerate(s):', '        window[ch] += 1', '        if right >= len(p):', '            leaving = s[right - len(p)]', '            window[leaving] -= 1', '            if window[leaving] == 0:', '                del window[leaving]', '        if window == need:', '            result.append(right - len(p))', '    return result'),
+    buggyLine: 13, bugWhy: "After sliding, the window covers right - len(p) + 1 through right, so the start is one larger than what is appended. For s = 'cbaebabacd' and p = 'abc' the first match reports -1 instead of 0.",
+    fixCorrect: 'Change to `result.append(right - len(p) + 1)`', fixWhy: 'A window of length len(p) ending at right starts at right - len(p) + 1.',
+    fixDistractors: ['Change `right >= len(p)` to `right > len(p)`', 'Change `window[leaving] -= 1` to `window[ch] -= 1`', 'Change `window == need` to `window.keys() == need.keys()`'] },
+  { d: 2, skills: ['prefix-sum'], title: 'Corporate Flight Bookings',
+    code: L('def corpFlightBookings(bookings, n):', '    diff = [0] * n', '    for first, last, seats in bookings:', '        diff[first - 1] += seats', '        diff[last] -= seats', '    result = []', '    running = 0', '    for i in range(n):', '        running += diff[i]', '        result.append(running)', '    return result'),
+    buggyLine: 2, bugWhy: 'Flights are 1-indexed, so a booking that ends on the last flight writes diff[n], one past the end of a list of length n, and raises IndexError.',
+    fixCorrect: 'Change to `diff = [0] * (n + 1)`', fixWhy: 'The difference array needs one spare slot after the last flight to cancel the seats.',
+    fixDistractors: ['Change `diff[last] -= seats` to `diff[last - 1] -= seats`', 'Change `diff[first - 1] += seats` to `diff[first] += seats`', 'Change `range(n)` to `range(n + 1)`'] },
 ]
 
 const lineupSnippets = [
@@ -645,6 +660,8 @@ const lineupSnippets = [
   { d: 1, title: 'Merge Intervals', skills: ['intervals'], lines: ['def merge(intervals):', '    intervals.sort(key=lambda pair: pair[0])', '    merged = [intervals[0]]', '    for start, end in intervals[1:]:', '        if start <= merged[-1][1]:', '            merged[-1][1] = max(merged[-1][1], end)', '        else:', '            merged.append([start, end])', '    return merged'] },
   { d: 1, title: 'Count Set Bits', skills: ['bit'], lines: ['def countBits(n):', '    count = 0', '    while n:', '        count += n & 1', '        n >>= 1', '    return count'] },
   { d: 1, title: 'Greatest Common Divisor', skills: ['math'], lines: ['def gcd(a, b):', '    while b:', '        a, b = b, a % b', '    return a'] },
+  { d: 3, title: 'Remove Duplicate Letters', skills: ['monotonic-stack', 'greedy'], lines: ['def removeDuplicateLetters(s):', '    lastIndex = {ch: i for i, ch in enumerate(s)}', '    stack = []', '    inStack = set()', '    for i, ch in enumerate(s):', '        if ch in inStack:', '            continue', '        while stack and stack[-1] > ch and lastIndex[stack[-1]] > i:', '            inStack.remove(stack.pop())', '        stack.append(ch)', '        inStack.add(ch)', "    return ''.join(stack)"] },
+  { d: 3, title: '0-1 BFS Grid Path', skills: ['graph-bfs', 'queue-deque'], lines: ['def minCost(grid):', '    rows, cols = len(grid), len(grid[0])', '    moves = ((0, 1), (0, -1), (1, 0), (-1, 0))', "    cost = [[float('inf')] * cols for _ in range(rows)]", '    cost[0][0] = 0', '    queue = deque([(0, 0)])', '    while queue:', '        r, c = queue.popleft()', '        for arrow, (dr, dc) in enumerate(moves, 1):', '            nr, nc = r + dr, c + dc', '            if 0 <= nr < rows and 0 <= nc < cols:', '                step = 0 if grid[r][c] == arrow else 1', '                if cost[r][c] + step < cost[nr][nc]:', '                    cost[nr][nc] = cost[r][c] + step', '                    if step == 0:', '                        queue.appendleft((nr, nc))', '                    else:', '                        queue.append((nr, nc))', '    return cost[rows - 1][cols - 1]'] },
 ]
 
 const keyLineIndex = key => (key === '0' ? 9 : Number(key) - 1)

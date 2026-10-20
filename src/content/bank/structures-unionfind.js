@@ -149,9 +149,109 @@ const cardData = [
 
 const flashcards = cardData.map(([skill, front, back, code], i) => ({ id: `bank-structures:card:unionfind:${i + 1}`, skills: [skill], front, back, ...(code ? { code } : {}) }))
 
+const problems = [
+  {
+    id: 'bank-structures:problem:990', lc: 990, title: 'Satisfiability of Equality Equations', difficulty: 'Medium',
+    skills: ['union-find', 'graph-modeling'], pattern: 'Union-Find: union all ==, then check !=', ds: ['array (parent)'],
+    constraints: '1 ≤ equations.length ≤ 500, each is "a==b" or "a!=b" over lowercase letters', time: 'O(n α(26))', space: 'O(1)',
+    insight: 'Equality is transitive, so union every == first; then any != whose two letters share a root is a contradiction.',
+    signals: ['a==b and b!=c style constraints', 'transitive equality', 'can all equations hold'],
+    narration: ['26 letters, one parent array.', 'First pass: union both sides of every "==" equation.', 'Second pass: if a "!=" equation has both letters in the same set, return False.', 'Otherwise True.'],
+    solution: `class Solution:
+    def equationsPossible(self, equations):
+        parent = list(range(26))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for eq in equations:
+            if eq[1] == '=':
+                parent[find(ord(eq[0]) - 97)] = find(ord(eq[3]) - 97)
+        for eq in equations:
+            if eq[1] == '!' and find(ord(eq[0]) - 97) == find(ord(eq[3]) - 97):
+                return False
+        return True`,
+    pitfalls: ['Processing equations in input order misses a != that is contradicted by a later ==', 'The operator is at index 1 and the second letter at index 3'],
+  },
+  {
+    id: 'bank-structures:problem:1202', lc: 1202, title: 'Smallest String With Swaps', difficulty: 'Medium',
+    skills: ['union-find', 'greedy'], pattern: 'Union-Find components + sort within each', ds: ['array (parent)', 'hashmap'],
+    constraints: '1 ≤ s.length ≤ 10^5, 0 ≤ pairs.length ≤ 10^5, swaps usable any number of times', time: 'O(n log n)', space: 'O(n)',
+    insight: 'Unlimited swaps let any characters in a connected component be rearranged freely, so sort each component and write it back in index order.',
+    signals: ['swap pairs of indices any number of times', 'lexicographically smallest string', 'indices connected through pairs'],
+    narration: ['Union the two indices of every pair.', 'Group indices by root; each group is already in ascending order.', 'Sort the group\'s letters.', 'Write the sorted letters back to the group\'s indices.'],
+    solution: `class Solution:
+    def smallestStringWithSwaps(self, s, pairs):
+        parent = list(range(len(s)))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for a, b in pairs:
+            parent[find(a)] = find(b)
+        groups = defaultdict(list)
+        for i in range(len(s)):
+            groups[find(i)].append(i)
+        result = list(s)
+        for indices in groups.values():
+            letters = sorted(s[i] for i in indices)
+            for i, letter in zip(indices, letters):
+                result[i] = letter
+        return ''.join(result)`,
+    companies: ['amazon', 'google'],
+    pitfalls: ['Swapping only along given pairs misses transitive reachability', 'Sorted letters must go to sorted indices, not back to arbitrary positions'],
+  },
+  {
+    id: 'bank-structures:problem:305', lc: 305, title: 'Number of Islands II', difficulty: 'Hard',
+    skills: ['union-find', 'grid'], pattern: 'Union-Find online on a grid (count as cells added)', ds: ['hashmap', 'array (parent)'],
+    constraints: '1 ≤ m, n ≤ 10^4, positions ≤ 10^4, a position may repeat', time: 'O(k α(k))', space: 'O(k)',
+    insight: 'Adding land makes one new island, and every distinct neighbor island it merges with removes one, so count changes in near-constant time per cell.',
+    signals: ['land cells added one at a time', 'island count after each addition', 'recomputing DFS each time is too slow'],
+    narration: ['parent only holds cells that are land.', 'On adding a cell: count += 1 (skip repeats).', 'For each land neighbor in bounds, union; each successful union does count -= 1.', 'Append count after every addition.'],
+    solution: `class Solution:
+    def numIslands2(self, m, n, positions):
+        parent = {}
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        count = 0
+        result = []
+        for r, c in positions:
+            cell = r * n + c
+            if cell in parent:
+                result.append(count)
+                continue
+            parent[cell] = cell
+            count += 1
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                neighbor = nr * n + nc
+                if 0 <= nr < m and 0 <= nc < n and neighbor in parent:
+                    rootA, rootB = find(cell), find(neighbor)
+                    if rootA != rootB:
+                        parent[rootA] = rootB
+                        count -= 1
+            result.append(count)
+        return result`,
+    companies: ['google', 'amazon'],
+    pitfalls: ['Adding the same cell twice must not bump the count', 'Decrement only when two different roots merge, not on every neighbor'],
+  },
+]
+
 export default {
   mcqs,
   clozes,
   parsons,
   flashcards,
+  problems,
 }

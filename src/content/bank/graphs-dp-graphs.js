@@ -642,4 +642,184 @@ const flashcards = flashcardData.map(([skills, front, back, code], i) => ({
   ...(code ? { code } : {}),
 }))
 
-export default { mcqs, clozes, parsons, flashcards }
+const problems = [
+  {
+    id: 'bank-graphs-dp:problem:1135', lc: 1135, title: 'Connecting Cities With Minimum Cost', difficulty: 'Medium',
+    skills: ['mst', 'union-find'], pattern: 'Union-Find Kruskal (sort edges)', ds: ['array (parent)'],
+    constraints: '1 ≤ n ≤ 10^4, 1 ≤ connections ≤ 10^4, return -1 if not connectable', time: 'O(E log E)', space: 'O(n)',
+    insight: 'Kruskal: take edges cheapest first and keep one only if it joins two different components.',
+    signals: ['connect every city', 'minimum total cost', 'return -1 if impossible'],
+    narration: ['Sort connections by cost.', 'For each edge, find both roots; if they differ, union and add the cost.', 'After n - 1 unions the tree is spanning.', 'If fewer unions happened, the graph is disconnected: -1.'],
+    solution: `class Solution:
+    def minimumCost(self, n, connections):
+        parent = list(range(n + 1))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        total = 0
+        used = 0
+        for a, b, cost in sorted(connections, key=lambda edge: edge[2]):
+            rootA, rootB = find(a), find(b)
+            if rootA != rootB:
+                parent[rootA] = rootB
+                total += cost
+                used += 1
+        return total if used == n - 1 else -1`,
+    pitfalls: ['Cities are 1-indexed, so the parent array needs n + 1 slots', 'Forgetting the n - 1 edge check returns a cost for a disconnected graph'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:2050', lc: 2050, title: 'Parallel Courses III', difficulty: 'Hard',
+    skills: ['topo-sort', 'dp-1d'], pattern: 'Topological sort + longest-path DP', ds: ['adjacency list', 'queue'],
+    constraints: '1 ≤ n ≤ 5·10^4, relations form a DAG, courses can run in parallel', time: 'O(n + E)', space: 'O(n + E)',
+    insight: 'A course can start when its slowest prerequisite finishes, so finish[c] = time[c] + max(finish of prerequisites), computed in topological order.',
+    signals: ['minimum months to finish all courses', 'unlimited parallel courses', 'each course has its own duration'],
+    narration: ['Build the DAG and in-degrees (courses are 1-indexed).', 'finish[c] starts at time[c].', 'Pop a course from the zero in-degree queue; for each dependent, finish[next] = max(finish[next], finish[c] + time[next]).', 'The answer is max(finish).'],
+    solution: `class Solution:
+    def minimumTime(self, n, relations, time):
+        graph = [[] for _ in range(n)]
+        indegree = [0] * n
+        for prev, nxt in relations:
+            graph[prev - 1].append(nxt - 1)
+            indegree[nxt - 1] += 1
+        finish = time[:]
+        queue = deque(i for i in range(n) if indegree[i] == 0)
+        while queue:
+            course = queue.popleft()
+            for nxt in graph[course]:
+                finish[nxt] = max(finish[nxt], finish[course] + time[nxt])
+                indegree[nxt] -= 1
+                if indegree[nxt] == 0:
+                    queue.append(nxt)
+        return max(finish)`,
+    companies: ['google', 'amazon'],
+    pitfalls: ['Summing times along one path instead of taking the max over prerequisites', 'The answer is max(finish), not the finish of the last popped course'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:444', lc: 444, title: 'Sequence Reconstruction', difficulty: 'Medium',
+    skills: ['topo-sort', 'graph-modeling'], pattern: 'Topological sort: queue size must stay 1 (unique order)', ds: ['adjacency list', 'queue'],
+    constraints: 'nums is a permutation of 1..n, sequences are subsequences of the true order', time: 'O(n + total sequence length)', space: 'O(n + E)',
+    insight: 'A topological order is unique exactly when the Kahn queue never holds two nodes at once.',
+    signals: ['is nums the only shortest supersequence', 'unique ordering', 'sequences give adjacent-pair constraints'],
+    narration: ['Each adjacent pair (a, b) in a sequence is an edge a -> b.', 'Run Kahn\'s algorithm from the in-degree-0 nodes.', 'If the queue ever has more than one node, two orders are possible: return False.', 'Otherwise compare the produced order to nums.'],
+    solution: `class Solution:
+    def sequenceReconstruction(self, nums, sequences):
+        n = len(nums)
+        graph = [[] for _ in range(n + 1)]
+        indegree = [0] * (n + 1)
+        for seq in sequences:
+            for a, b in zip(seq, seq[1:]):
+                graph[a].append(b)
+                indegree[b] += 1
+        queue = deque(i for i in range(1, n + 1) if indegree[i] == 0)
+        order = []
+        while queue:
+            if len(queue) > 1:
+                return False
+            node = queue.popleft()
+            order.append(node)
+            for nxt in graph[node]:
+                indegree[nxt] -= 1
+                if indegree[nxt] == 0:
+                    queue.append(nxt)
+        return order == nums`,
+    companies: ['google'],
+    pitfalls: ['Checking only that nums is a valid order says nothing about uniqueness', 'A cycle leaves order shorter than nums, which the final comparison catches'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:1293', lc: 1293, title: 'Shortest Path in a Grid with Obstacles Elimination', difficulty: 'Hard',
+    skills: ['graph-bfs', 'grid'], pattern: 'BFS shortest path, state (r, c, k left)', ds: ['queue', 'set'],
+    constraints: '1 ≤ m, n ≤ 40, 1 ≤ k ≤ m · n, cells are 0 or 1', time: 'O(m · n · k)', space: 'O(m · n · k)',
+    insight: 'Standing on the same cell with a different number of eliminations left is a different state; BFS over (row, col, left) still gives fewest steps.',
+    signals: ['shortest path with up to k walls removed', 'unit step cost', 'grid up to 40 by 40'],
+    narration: ['Shortcut: if k >= rows + cols - 2, walk straight to the corner.', 'Queue holds (r, c, left, steps); seen holds (r, c, left).', 'Moving into a wall costs one elimination; skip if none left.', 'First time the corner pops, steps is the answer.'],
+    solution: `class Solution:
+    def shortestPath(self, grid, k):
+        rows, cols = len(grid), len(grid[0])
+        if k >= rows + cols - 2:
+            return rows + cols - 2
+        queue = deque([(0, 0, k, 0)])
+        seen = {(0, 0, k)}
+        while queue:
+            r, c, left, steps = queue.popleft()
+            if r == rows - 1 and c == cols - 1:
+                return steps
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    nextLeft = left - grid[nr][nc]
+                    if nextLeft >= 0 and (nr, nc, nextLeft) not in seen:
+                        seen.add((nr, nc, nextLeft))
+                        queue.append((nr, nc, nextLeft, steps + 1))
+        return -1`,
+    pitfalls: ['A plain (r, c) visited set wrongly blocks a later arrival that has more eliminations left', 'Check budget after the move: left - grid[nr][nc] must stay >= 0'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:1368', lc: 1368, title: 'Minimum Cost to Make at Least One Valid Path in a Grid', difficulty: 'Hard',
+    skills: ['graph-bfs', 'queue-deque', 'grid'], pattern: 'BFS shortest path: 0-1 BFS (deque front for free moves)', ds: ['deque', 'grid'],
+    constraints: '1 ≤ m, n ≤ 100, each cell holds an arrow 1 right, 2 left, 3 down, 4 up', time: 'O(m · n)', space: 'O(m · n)',
+    insight: 'Following a cell\'s arrow costs 0 and any other move costs 1, so a deque with free moves at the front is a Dijkstra without the heap.',
+    signals: ['change an arrow at cost 1', 'edge costs are only 0 or 1', 'cheapest path from top-left to bottom-right'],
+    narration: ['cost[r][c] is the fewest arrow changes to reach the cell.', 'Each of the 4 moves costs 0 if it matches the arrow, else 1.', 'On an improvement, push free moves to the front and paid moves to the back of the deque.', 'Answer is cost at the bottom-right.'],
+    solution: `class Solution:
+    def minCost(self, grid):
+        rows, cols = len(grid), len(grid[0])
+        moves = ((0, 1), (0, -1), (1, 0), (-1, 0))
+        cost = [[float('inf')] * cols for _ in range(rows)]
+        cost[0][0] = 0
+        queue = deque([(0, 0)])
+        while queue:
+            r, c = queue.popleft()
+            for arrow, (dr, dc) in enumerate(moves, 1):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    step = 0 if grid[r][c] == arrow else 1
+                    if cost[r][c] + step < cost[nr][nc]:
+                        cost[nr][nc] = cost[r][c] + step
+                        if step == 0:
+                            queue.appendleft((nr, nc))
+                        else:
+                            queue.append((nr, nc))
+        return cost[rows - 1][cols - 1]`,
+    companies: ['google', 'amazon'],
+    pitfalls: ['Plain BFS treats every move as cost 1 and overcounts', 'Only push when the cost strictly improves, or the loop never ends'],
+  },
+  {
+    id: 'bank-graphs-dp:problem:815', lc: 815, title: 'Bus Routes', difficulty: 'Hard',
+    skills: ['graph-bfs', 'graph-modeling'], pattern: 'BFS shortest path over routes (stop to routes map)', ds: ['hashmap', 'queue'],
+    constraints: '1 ≤ routes ≤ 500, total stops ≤ 10^5, stops up to 10^6', time: 'O(total stops)', space: 'O(total stops)',
+    insight: 'The cost is buses taken, not stops passed, so make each route a node and BFS over routes via shared stops.',
+    signals: ['fewest buses', 'routes loop forever', 'transfer at a shared stop'],
+    narration: ['Map each stop to the routes serving it.', 'BFS from source; popping a stop boards every unused route there at cost buses + 1.', 'Mark a route used the first time so its stops are scanned once.', 'Return buses + 1 when target appears, else -1.'],
+    solution: `class Solution:
+    def numBusesToDestination(self, routes, source, target):
+        if source == target:
+            return 0
+        stopToRoutes = defaultdict(list)
+        for i, route in enumerate(routes):
+            for stop in route:
+                stopToRoutes[stop].append(i)
+        queue = deque([(source, 0)])
+        seenStops = {source}
+        seenRoutes = set()
+        while queue:
+            stop, buses = queue.popleft()
+            for i in stopToRoutes[stop]:
+                if i in seenRoutes:
+                    continue
+                seenRoutes.add(i)
+                for nxt in routes[i]:
+                    if nxt == target:
+                        return buses + 1
+                    if nxt not in seenStops:
+                        seenStops.add(nxt)
+                        queue.append((nxt, buses + 1))
+        return -1`,
+    pitfalls: ['BFS over stops without marking routes rescans the same route many times', 'source == target needs zero buses, handle it before the loop'],
+  },
+]
+
+export default { mcqs, clozes, parsons, flashcards, problems }

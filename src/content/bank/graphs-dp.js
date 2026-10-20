@@ -11,4 +11,5 @@ export default {
   clozes: parts.flatMap(part => part.clozes || []),
   parsons: parts.flatMap(part => part.parsons || []),
   flashcards: parts.flatMap(part => part.flashcards || []),
+  problems: parts.flatMap(part => part.problems || []),
 }

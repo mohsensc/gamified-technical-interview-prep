@@ -110,6 +110,10 @@ const builtIn = [
   ['Count how many stored words start with a given prefix.', 'Trie', 'Walk the prefix once; a count at each node avoids rescanning words.'],
   ['Determine if a number is a power of two.', 'Bit manipulation', 'n & (n − 1) clears the lowest set bit; a power of two has exactly one.'],
   ['Two numbers appear once, all others appear twice. Find both.', 'Bit manipulation', 'XOR everything to get a ⊕ b, then split by any set bit in that XOR.'],
+  ['Swap-allowed index pairs mean some characters can be rearranged freely. Make the string smallest.', 'Union-Find', 'Group the connected indices, then sort the letters inside each group.'],
+  ['Sorted array, at most k increments in total. Longest run of equal values you can make.', 'Sliding window', 'A window is valid while the cost to raise it to its largest value stays within k.'],
+  ['Give each meeting the lowest free room, delaying it when every room is busy.', 'Heap / top-k', 'One heap of free room numbers and one of busy rooms ordered by end time.'],
+  ['Is the given order the only one consistent with all the subsequences?', 'Topological sort', 'The order is unique only if the zero in-degree queue never holds two nodes at once.'],
 ]
 
 const builtInQuestions = builtIn.map(([text, pattern, why], index) => ({ text, pattern, why, id: `pattern-radar:${index}` }))
@@ -296,6 +300,18 @@ const recurrences = [
   { d: 3, dim: 2, name: 'Longest Increasing Path in a Matrix', skills: ['dp-2d'],
     rec: 'dp[r][c] = 1 + max(dp[nr][nc] for a strictly greater neighbor)', recWhy: 'Memoized DFS: the path starting at a cell is 1 plus the best path from a strictly larger neighbor.',
     base: 'dp[r][c] = 1 if no neighbor is greater', baseWhy: 'A local peak is a path of length 1 by itself.' },
+  { d: 3, dim: 2, name: 'Dungeon Game (min health)', skills: ['dp-2d', 'grid'],
+    rec: 'need[r][c] = max(1, min(need[r+1][c], need[r][c+1]) - dungeon[r][c])', recWhy: 'Health needed here is what the cheaper next step needs, minus this cell\'s gain, never below 1.',
+    base: 'need[last][last] = max(1, 1 - dungeon[last][last])', baseWhy: 'At the final cell you only need to survive that cell itself.' },
+  { d: 3, dim: 2, name: 'Regular Expression Matching', skills: ['dp-2d'],
+    rec: 'dp[i][j] = dp[i][j-2] or (s[i-1] matches p[j-2] and dp[i-1][j])  for p[j-1] == "*"', recWhy: 'A star matches zero copies of its element, or one more copy.',
+    base: 'dp[0][0] = True', baseWhy: 'The empty string matches the empty pattern.' },
+  { d: 2, dim: 2, name: 'Count Square Submatrices with All Ones', skills: ['dp-2d', 'grid'],
+    rec: 'dp[r][c] = 1 + min(dp[r-1][c], dp[r][c-1], dp[r-1][c-1])', recWhy: 'The square ending here is limited by the smallest of the three neighbor squares.',
+    base: 'dp[r][c] = matrix[r][c] on the first row and column', baseWhy: 'Along an edge only a 1 by 1 square can end at a cell.' },
+  { d: 3, dim: 1, name: 'Parallel Courses III (finish time)', skills: ['dp-1d', 'topo-sort'],
+    rec: 'finish[c] = time[c] + max(finish[p] for each prerequisite p)', recWhy: 'A course starts only when its slowest prerequisite is done.',
+    base: 'finish[c] = time[c] when c has no prerequisites', baseWhy: 'It can start immediately at month 0.' },
 ]
 
 const recPool1d = recurrences.filter(entry => entry.dim === 1)

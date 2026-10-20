@@ -442,6 +442,148 @@ class UndergroundSystem:
     companies: ['meta', 'microsoft'],
     pitfalls: ['Precomputing the full inorder list upfront works but costs O(n) memory, defeating the O(h) requirement'],
   },
+  {
+    id: 'bank-structures:problem:729', lc: 729, title: 'My Calendar I', difficulty: 'Medium',
+    skills: ['intervals', 'binary-search'], pattern: 'Intervals: sorted starts + bisect neighbor check', ds: ['list'],
+    constraints: '0 ≤ start < end ≤ 10^9, at most 1000 calls, half-open [start, end)', time: 'O(log n) search, O(n) insert', space: 'O(n)',
+    insight: 'Keep bookings sorted by start; a new booking can only clash with its immediate left and right neighbors.',
+    signals: ['book only if no overlap', 'half-open intervals', 'bookings arrive online'],
+    narration: ['Store sorted starts and matching ends.', 'bisect_right finds where the new start would go.', 'Reject if the left neighbor ends after the new start, or the right neighbor starts before the new end.', 'Otherwise insert at that position in both lists.'],
+    solution: `class MyCalendar:
+    def __init__(self):
+        self.starts = []
+        self.ends = []
+
+    def book(self, startTime: int, endTime: int) -> bool:
+        i = bisect_right(self.starts, startTime)
+        if i > 0 and self.ends[i - 1] > startTime:
+            return False
+        if i < len(self.starts) and self.starts[i] < endTime:
+            return False
+        self.starts.insert(i, startTime)
+        self.ends.insert(i, endTime)
+        return True`,
+    pitfalls: ['Half-open: end == next start is allowed, so compare with > and <, not >= and <=', 'Scanning every booking is O(n) per call'],
+  },
+  {
+    id: 'bank-structures:problem:362', lc: 362, title: 'Design Hit Counter', difficulty: 'Medium',
+    skills: ['queue-deque', 'ds-diagnosis'], pattern: 'Sliding window: queue of (timestamp, count) buckets', ds: ['deque'],
+    constraints: 'timestamps non-decreasing in seconds, window is the last 300 seconds', time: 'O(1) amortized', space: 'O(window)',
+    insight: 'Hits arrive in time order, so expired ones are always at the front of a queue; keep a running total and pop them as time advances.',
+    signals: ['hits in the past 5 minutes', 'timestamps only increase', 'getHits must be fast'],
+    narration: ['Queue of [timestamp, count] merges same-second hits.', 'hit() bumps the last bucket or appends a new one, and adds to the total.', 'getHits() pops buckets older than timestamp - 300 and subtracts them.', 'Return the total.'],
+    solution: `class HitCounter:
+    def __init__(self):
+        self.window = deque()
+        self.total = 0
+
+    def hit(self, timestamp: int) -> None:
+        if self.window and self.window[-1][0] == timestamp:
+            self.window[-1][1] += 1
+        else:
+            self.window.append([timestamp, 1])
+        self.total += 1
+
+    def getHits(self, timestamp: int) -> int:
+        while self.window and self.window[0][0] <= timestamp - 300:
+            self.total -= self.window.popleft()[1]
+        return self.total`,
+    pitfalls: ['Window is (t - 300, t], so a hit at exactly t - 300 is expired', 'Recounting the whole queue in getHits is O(window)'],
+  },
+  {
+    id: 'bank-structures:problem:2034', lc: 2034, title: 'Stock Price Fluctuation', difficulty: 'Medium',
+    skills: ['heap', 'ds-diagnosis'], pattern: 'Heap / top-k: two heaps with lazy deletion + map', ds: ['hashmap', 'min-heap'],
+    constraints: 'timestamp, price ≤ 10^9, up to 10^5 calls, records may be corrected later', time: 'O(log n) per call, amortized', space: 'O(n)',
+    insight: 'Corrections make heap entries stale; keep the true price in a map and discard stale heap tops only when you read them.',
+    signals: ['update can overwrite an earlier timestamp', 'current, maximum and minimum price', 'heap cannot delete from the middle'],
+    narration: ['prices maps timestamp to its latest price; latest tracks the newest timestamp.', 'update() pushes the new price onto a min-heap and a max-heap (negated), leaving old entries behind.', 'maximum() and minimum() pop the top while it disagrees with the map.', 'current() reads prices[latest].'],
+    solution: `class StockPrice:
+    def __init__(self):
+        self.prices = {}
+        self.latest = 0
+        self.low = []
+        self.high = []
+
+    def update(self, timestamp: int, price: int) -> None:
+        self.prices[timestamp] = price
+        self.latest = max(self.latest, timestamp)
+        heapq.heappush(self.low, (price, timestamp))
+        heapq.heappush(self.high, (-price, timestamp))
+
+    def current(self) -> int:
+        return self.prices[self.latest]
+
+    def maximum(self) -> int:
+        while -self.high[0][0] != self.prices[self.high[0][1]]:
+            heapq.heappop(self.high)
+        return -self.high[0][0]
+
+    def minimum(self) -> int:
+        while self.low[0][0] != self.prices[self.low[0][1]]:
+            heapq.heappop(self.low)
+        return self.low[0][0]`,
+    companies: ['amazon', 'google'],
+    pitfalls: ['Checking only the price, not the timestamp, accepts a stale entry that happens to match', 'Updates can arrive out of order, so latest is a max, not the last call'],
+  },
+  {
+    id: 'bank-structures:problem:895', lc: 895, title: 'Maximum Frequency Stack', difficulty: 'Hard',
+    skills: ['stack', 'arrays-hashing', 'ds-diagnosis'], pattern: 'Stack: hash map of frequency to stack', ds: ['hashmap', 'stack'],
+    constraints: 'up to 2·10^4 calls, 0 ≤ val ≤ 10^9', time: 'O(1) per operation', space: 'O(n)',
+    insight: 'Give each frequency level its own stack; popping from the highest level removes the most frequent value, and ties fall to the most recent push.',
+    signals: ['pop the most frequent element', 'ties broken by most recent', 'every operation O(1)'],
+    narration: ['count[val] is how often val is in the stack now.', 'push() increments it and appends val to the stack for that new count.', 'pop() takes from the stack at maxCount, decrements that value, and lowers maxCount if the level is empty.', 'A value with count 3 sits in the level-1, 2 and 3 stacks at once.'],
+    solution: `class FreqStack:
+    def __init__(self):
+        self.count = defaultdict(int)
+        self.stacks = defaultdict(list)
+        self.maxCount = 0
+
+    def push(self, val: int) -> None:
+        self.count[val] += 1
+        self.maxCount = max(self.maxCount, self.count[val])
+        self.stacks[self.count[val]].append(val)
+
+    def pop(self) -> int:
+        val = self.stacks[self.maxCount].pop()
+        self.count[val] -= 1
+        if not self.stacks[self.maxCount]:
+            self.maxCount -= 1
+        return val`,
+    pitfalls: ['A heap of (-freq, -time) needs stale-entry cleanup and costs O(log n)', 'Forgetting to lower maxCount when the top level empties makes the next pop fail'],
+  },
+  {
+    id: 'bank-structures:problem:307', lc: 307, title: 'Range Sum Query - Mutable', difficulty: 'Medium',
+    skills: ['prefix-sum', 'ds-diagnosis'], pattern: 'Prefix sum on a Fenwick tree (point update, prefix query)', ds: ['array'],
+    constraints: '1 ≤ n ≤ 3·10^4, up to 3·10^4 update and sumRange calls', time: 'O(log n) per update and query', space: 'O(n)',
+    insight: 'A Fenwick tree stores partial sums keyed by the lowest set bit, so both a point update and a prefix query touch only log n cells.',
+    signals: ['range sum with point updates', 'prefix sums go stale after an update', 'many queries and many updates'],
+    narration: ['tree[i] covers the last (i & -i) elements ending at i, 1-indexed.', 'update() adds the delta and jumps i += i & -i.', 'prefix(count) sums tree cells while jumping count -= count & -count.', 'sumRange(l, r) = prefix(r + 1) - prefix(l).'],
+    solution: `class NumArray:
+    def __init__(self, nums):
+        self.nums = [0] * len(nums)
+        self.tree = [0] * (len(nums) + 1)
+        for i, num in enumerate(nums):
+            self.update(i, num)
+
+    def update(self, index: int, val: int) -> None:
+        delta = val - self.nums[index]
+        self.nums[index] = val
+        i = index + 1
+        while i < len(self.tree):
+            self.tree[i] += delta
+            i += i & -i
+
+    def prefix(self, count: int) -> int:
+        total = 0
+        while count > 0:
+            total += self.tree[count]
+            count -= count & -count
+        return total
+
+    def sumRange(self, left: int, right: int) -> int:
+        return self.prefix(right + 1) - self.prefix(left)`,
+    pitfalls: ['Fenwick trees are 1-indexed; index 0 would loop forever', 'Update with the difference from the old value, not the new value'],
+  },
 ]
 
 export default {

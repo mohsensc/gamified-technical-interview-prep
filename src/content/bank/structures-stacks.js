@@ -383,9 +383,91 @@ const cardData = [
 
 const flashcards = cardData.map(([skill, front, back, code], i) => ({ id: `bank-structures:card:stacks-queues:${i + 1}`, skills: [skill], front, back, ...(code ? { code } : {}) }))
 
+const problems = [
+  {
+    id: 'bank-structures:problem:907', lc: 907, title: 'Sum of Subarray Minimums', difficulty: 'Medium',
+    skills: ['monotonic-stack', 'math'], pattern: 'Monotonic stack + contribution count (prev less / next less-or-equal)', ds: ['stack', 'array'],
+    constraints: '1 ≤ n ≤ 3·10^4, 1 ≤ arr[i] ≤ 3·10^4, answer mod 10^9+7', time: 'O(n)', space: 'O(n)',
+    insight: 'Each value is the minimum of left · right subarrays; count them with a monotonic stack instead of enumerating.',
+    signals: ['sum over all subarrays', 'minimum of each subarray', 'modulo 10^9 + 7'],
+    narration: ['For each i, left[i] = distance to the previous strictly smaller value.', 'right[i] = distance to the next smaller-or-equal value.', 'arr[i] is the minimum of left[i] · right[i] subarrays.', 'Sum arr[i] · left[i] · right[i], mod 10^9 + 7.'],
+    solution: `class Solution:
+    def sumSubarrayMins(self, arr):
+        mod = 10**9 + 7
+        n = len(arr)
+        left = [0] * n
+        right = [0] * n
+        stack = []
+        for i in range(n):
+            while stack and arr[stack[-1]] >= arr[i]:
+                stack.pop()
+            left[i] = i - (stack[-1] if stack else -1)
+            stack.append(i)
+        stack = []
+        for i in range(n - 1, -1, -1):
+            while stack and arr[stack[-1]] > arr[i]:
+                stack.pop()
+            right[i] = (stack[-1] if stack else n) - i
+            stack.append(i)
+        return sum(arr[i] * left[i] * right[i] for i in range(n)) % mod`,
+    pitfalls: ['Strict on one side and non-strict on the other, or equal values are counted twice', 'Enumerating every subarray is O(n²)'],
+  },
+  {
+    id: 'bank-structures:problem:85', lc: 85, title: 'Maximal Rectangle', difficulty: 'Hard',
+    skills: ['monotonic-stack', 'grid', 'dp-2d'], pattern: 'Monotonic stack: histogram per row', ds: ['stack', 'matrix'],
+    constraints: '1 ≤ rows, cols ≤ 200, cells are "0" or "1"', time: 'O(rows · cols)', space: 'O(cols)',
+    insight: 'Treat each row as the floor of a histogram of consecutive 1s above it, then reuse Largest Rectangle in Histogram.',
+    signals: ['largest rectangle of 1s', 'binary matrix', 'rectangle needs a base row'],
+    narration: ['Maintain heights[col] = consecutive 1s ending at the current row.', 'A "0" resets that column to 0.', 'Run the monotonic-stack histogram on heights, with a 0 sentinel at the end.', 'Take the best area over all rows.'],
+    solution: `class Solution:
+    def maximalRectangle(self, matrix):
+        if not matrix:
+            return 0
+        heights = [0] * len(matrix[0])
+        best = 0
+        for row in matrix:
+            for col, cell in enumerate(row):
+                heights[col] = heights[col] + 1 if cell == '1' else 0
+            stack = []
+            for i in range(len(heights) + 1):
+                current = heights[i] if i < len(heights) else 0
+                while stack and heights[stack[-1]] >= current:
+                    height = heights[stack.pop()]
+                    left = stack[-1] if stack else -1
+                    best = max(best, height * (i - left - 1))
+                stack.append(i)
+        return best`,
+    companies: ['google', 'amazon'],
+    pitfalls: ['Cells are strings, compare with "1" not 1', 'Without the trailing zero sentinel, bars left on the stack are never scored'],
+  },
+  {
+    id: 'bank-structures:problem:316', lc: 316, title: 'Remove Duplicate Letters', difficulty: 'Medium',
+    skills: ['monotonic-stack', 'greedy'], pattern: 'Monotonic stack + last-index + in-stack set', ds: ['stack', 'hashmap'],
+    constraints: '1 ≤ s.length ≤ 10^4, lowercase letters', time: 'O(n)', space: 'O(1)',
+    insight: 'Keep the stack increasing, but only pop a bigger letter if it appears again later, so no letter is lost.',
+    signals: ['smallest lexicographic result', 'each letter exactly once', 'keep relative order'],
+    narration: ['lastIndex records where each letter appears last.', 'Skip a letter already on the stack.', 'While the top is larger than the new letter and appears again later, pop it.', 'Push the letter; the stack is the answer.'],
+    solution: `class Solution:
+    def removeDuplicateLetters(self, s: str) -> str:
+        lastIndex = {ch: i for i, ch in enumerate(s)}
+        stack = []
+        inStack = set()
+        for i, ch in enumerate(s):
+            if ch in inStack:
+                continue
+            while stack and stack[-1] > ch and lastIndex[stack[-1]] > i:
+                inStack.remove(stack.pop())
+            stack.append(ch)
+            inStack.add(ch)
+        return ''.join(stack)`,
+    pitfalls: ['Popping a letter that never appears again loses it for good', 'Not skipping letters already in the stack duplicates them'],
+  },
+]
+
 export default {
   mcqs: [...mcqs, ...monoMcqs, ...queueMcqs],
   clozes,
   parsons,
   flashcards,
+  problems,
 }
