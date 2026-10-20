@@ -662,8 +662,16 @@ const reconcileWithRemote = async (userId, fresh) => {
       return
     }
     if (remote && (remote.updatedAt || 0) > (state.updatedAt || 0)) {
-      replaceState(remote)
-      markSynced()
+      const merged = mergeStates(state, remote)
+      const remoteText = JSON.stringify(cloudCopy(normalize(remote)))
+      if (JSON.stringify(cloudCopy(merged)) === remoteText) {
+        replaceState(remote)
+        markSynced()
+        return
+      }
+      merged.updatedAt = Date.now()
+      replaceState(merged)
+      await saveToCloud({ force: true })
       return
     }
     await saveToCloud()
@@ -702,7 +710,14 @@ const adoptUser = async user => {
   setSyncStatus('loading')
   const fresh = !cached || hasPendingMerge(user.id)
   if (fresh) setPendingMerge(user.id, true)
-  replaceState(cached || { ...guestSnapshot })
+  const guestIsNewer = !fresh && !isEmptyState(guestSnapshot) && (guestSnapshot.updatedAt || 0) > (cached.updatedAt || 0)
+  if (guestIsNewer) {
+    const merged = mergeStates(cached, guestSnapshot)
+    merged.updatedAt = Date.now()
+    replaceState(merged)
+  } else {
+    replaceState(cached || { ...guestSnapshot })
+  }
   await reconcileWithRemote(user.id, fresh)
 }
 
