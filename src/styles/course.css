@@ -60,7 +60,7 @@
 .crs-section summary::-webkit-details-marker { display: none; }
 .crs-section details[open] summary { margin-bottom: 2px; }
 
-.crs-hint { color: var(--amber); }
+.crs-hint { color: var(--amber-ink); }
 
 .crs-problem-row {
   display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;

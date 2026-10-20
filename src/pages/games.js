@@ -30,6 +30,14 @@ const bestOf = gameId => {
   }
 }
 
+const hasPlayed = gameId => {
+  try {
+    return store.getState()?.gameScores?.[gameId] !== undefined
+  } catch {
+    return false
+  }
+}
+
 const dailyGame = (date = new Date()) => games[hashString(dailySeed(date)) % games.length]
 
 function makeApi(game, isDaily = false) {
@@ -61,7 +69,7 @@ function renderTile(game, i) {
   return h('a', { class: `tile game-tile${game.id === 'complexity-boss' ? ' boss-tile' : ''}`, href: `#/games/${game.id}`, style: { '--tile-color': tileColors[i % tileColors.length] } },
     h('div', { class: 'row spread' },
       h('span', { class: 'tile-icon' }, icon(game.icon, 26)),
-      best ? h('span', { class: 'pill pill-amber' }, icon('star', 12), ` ${best}`) : h('span', { class: 'pill' }, 'new')),
+      hasPlayed(game.id) ? h('span', { class: 'pill pill-amber' }, icon('star', 12), ` ${best}`) : h('span', { class: 'pill' }, 'new')),
     h('span', { class: 'tile-title' }, game.title),
     h('span', { class: 'tile-sub' }, game.blurb))
 }

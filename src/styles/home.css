@@ -61,7 +61,7 @@ body.daily-modal-open { overflow: hidden; }
   background: var(--green-bright); color: var(--accent-ink);
   text-transform: uppercase; letter-spacing: 0.04em;
 }
-.player-xp-text { font-size: 12px; color: var(--muted); font-weight: 700; }
+.player-xp-text { font-size: 12px; color: var(--accent-ink); font-weight: 700; }
 .xp-bar { margin-top: 1px; }
 
 .play-stack { display: flex; flex-direction: column; gap: 10px; }

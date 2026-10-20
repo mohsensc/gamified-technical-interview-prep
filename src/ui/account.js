@@ -109,7 +109,13 @@ export function accountButton() {
       return
     }
     if (accountsAvailable()) {
-      root.replaceChildren(h('a', { class: 'btn btn-primary btn-sm account-signin', href: '#/login' }, 'Sign in'))
+      const signIn = h('a', { class: 'btn btn-ghost btn-sm account-signin', href: '#/login' }, 'Sign in')
+      const syncSignIn = () => {
+        signIn.style.display = /^#\/(login|account)/.test(location.hash) ? 'none' : ''
+      }
+      syncSignIn()
+      window.addEventListener('hashchange', syncSignIn)
+      root.replaceChildren(signIn)
       return
     }
     const guestLink = h('a', { class: 'btn-icon account-guest', href: '#/account', title: 'Guest' })

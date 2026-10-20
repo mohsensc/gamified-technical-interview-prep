@@ -29,7 +29,7 @@ function describeFilter(filter) {
     const groupSkills = new Set(group.skills.map(([id]) => id))
     return { label: group.label, match: item => (item.skills || []).some(skill => groupSkills.has(skill)) }
   }
-  return { label: filter, match: () => true }
+  return null
 }
 
 function generatedItems() {
@@ -107,6 +107,10 @@ const pct = value => `${Math.round((value || 0) * 100)}%`
 export default function render(container, params = {}) {
   const filterId = params.skill ? decodeParam(params.skill) : null
   const filter = describeFilter(filterId)
+  if (!filter) {
+    container.append(h('div', { class: 'page' }, h('div', { class: 'empty card' }, 'Drill not found. ', h('a', { href: '#/drill' }, 'Adaptive mix'))))
+    return
+  }
   let keyListener = null
   let advanceTimer = null
 

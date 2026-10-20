@@ -54,7 +54,7 @@ const unitDefs = [
     ],
   },
   {
-    id: 'u-oop', title: 'OOP & Design', icon: 'layers', topics: ['oop'],
+    id: 'u-oop', title: 'OOP & Design', icon: 'building', topics: ['oop'],
     modules: [
       { id: 'oop-classes', title: 'Classes & self', skills: ['communication', 'ds-diagnosis'], lessons: ['oop:lesson:classes-101', 'oop:lesson:pitfalls'], algos: [] },
       { id: 'oop-lru', title: 'LRU Cache', skills: ['linked-list', 'ds-diagnosis'], lessons: ['oop:lesson:building-blocks', 'oop:lesson:ordereddict-shortcut'], algos: [],

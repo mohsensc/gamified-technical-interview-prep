@@ -222,7 +222,7 @@ function renderTopic(container, topic) {
       h('span', { class: 'topic-icon' }, topic.icon ? icon(topic.icon, 22) : null),
       h('h1', null, stripMarks(topic.title)),
       masteryRing(topicMastery(topic), 48),
-      h('a', { class: 'btn btn-primary learn-drill-all', href: `#/drill/${encodeURIComponent(topic.id)}` }, 'Drill topic')),
+      h('a', { class: 'btn learn-drill-all', href: `#/drill/${encodeURIComponent(topic.id)}` }, 'Drill topic')),
     lessons.length ? tabs : null,
     deck,
     traces.length ? h('section', { class: 'stack learn-section' },

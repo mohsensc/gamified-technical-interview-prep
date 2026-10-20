@@ -8,10 +8,11 @@
   --border: #e6e2c9;
   --border-strong: #a9c98b;
   --text: #1a3328;
-  --muted: #707a61;
-  --faint: #abb79c;
+  --muted: #5c6650;
+  --faint: #66705a;
   --teal: #2e6a68;
   --amber: #d98e3f;
+  --amber-ink: #8f5316;
   --sky: #3f8e96;
   --pink: #cc7686;
   --pink-fill: #f6c9cc;
@@ -64,9 +65,10 @@
   --border-strong: #7fa35e;
   --text: #edf2e3;
   --muted: #a7b497;
-  --faint: #70795f;
+  --faint: #8a9578;
   --teal: #6fafa8;
   --amber: #f2c177;
+  --amber-ink: #f2c177;
   --sky: #7fd1d9;
   --pink: #e8a3ac;
   --pink-fill: #d98796;
@@ -279,7 +281,7 @@ button { font: inherit; color: inherit; }
   background: var(--surface-3); color: var(--muted); white-space: nowrap;
 }
 .pill-teal { background: var(--teal-soft); color: var(--teal); }
-.pill-amber { background: var(--amber-soft); color: var(--amber); }
+.pill-amber { background: var(--amber-soft); color: var(--amber-ink); }
 .pill-sky { background: var(--sky-soft); color: var(--sky); }
 .pill-pink { background: var(--pink-soft); color: var(--pink); }
 .pill-green { background: var(--green-soft); color: var(--green); }
@@ -342,7 +344,7 @@ button { font: inherit; color: inherit; }
 .code-ln { width: 38px; padding-right: 12px; text-align: right; color: var(--faint); user-select: none; flex-shrink: 0; }
 .code-text { white-space: pre; }
 .code-line.active { background: var(--line-active); border-left-color: var(--amber); }
-.code-line.active .code-ln { color: var(--amber); font-weight: 700; }
+.code-line.active .code-ln { color: var(--amber-ink); font-weight: 700; }
 .code-block.dim-others.has-active .code-line:not(.active) { opacity: 0.45; }
 .code-line.mark-good { background: var(--green-soft); border-left-color: var(--green); }
 .code-line.mark-bad { background: var(--red-soft); border-left-color: var(--red); }
@@ -353,7 +355,7 @@ button { font: inherit; color: inherit; }
 .tok-comment { color: var(--tok-comment); font-style: italic; }
 .tok-builtin { color: var(--tok-builtin); }
 .tok-def { color: var(--tok-def); font-weight: 600; }
-.tok-decorator { color: var(--amber); }
+.tok-decorator { color: var(--amber-ink); }
 .tok-op { color: var(--tok-op); }
 
 .toast-host { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }

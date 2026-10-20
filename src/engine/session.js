@@ -7,7 +7,7 @@ import { persistOverride } from '../ui/override.js'
 
 export const modes = [
   { id: 'rapid', title: 'Rapid fire', icon: 'bolt', blurb: 'Beat the clock', seconds: 90 },
-  { id: 'speed', title: 'Speed round', icon: 'bolt', blurb: '60 seconds, one tap', seconds: 60 },
+  { id: 'speed', title: 'Speed round', icon: 'clock', blurb: '60 seconds, one tap', seconds: 60 },
   { id: 'diagnose', title: 'Diagnose', icon: 'pulse', blurb: 'Pattern, DS, time, space' },
   { id: 'weakest', title: 'Weak spots', icon: 'target', blurb: 'Aimed at your lowest skills' },
   { id: 'mixed', title: 'Mixed', icon: 'dice', blurb: 'A bit of everything' },

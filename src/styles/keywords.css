@@ -14,7 +14,7 @@
 .kw:focus-visible { outline: none; background: var(--surface-3); }
 
 .kw-teal { color: var(--teal); }
-.kw-amber { color: var(--amber); }
+.kw-amber { color: var(--amber-ink); }
 .kw-sky { color: var(--sky); }
 .kw-pink { color: var(--pink); }
 .kw-green { color: var(--green); }

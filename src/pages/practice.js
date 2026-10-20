@@ -384,5 +384,9 @@ function renderSession(container, params) {
 
 export default function render(container, params = {}) {
   if (!params.mode) return renderHub(container)
+  if (!modeById[params.mode]) {
+    container.append(h('div', { class: 'page' }, h('div', { class: 'empty card' }, 'Mode not found. ', h('a', { href: '#/practice' }, 'Practice hub'))))
+    return
+  }
   return renderSession(container, params)
 }

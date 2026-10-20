@@ -122,7 +122,7 @@
 .session-mode-cell { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .session-score { font-family: var(--mono); font-weight: 700; }
 .session-score.good { color: var(--green); }
-.session-score.mid { color: var(--amber); }
+.session-score.mid { color: var(--amber-ink); }
 .session-score.bad { color: var(--red); }
 
 .tod-wrap { display: flex; flex-direction: column; gap: 6px; }

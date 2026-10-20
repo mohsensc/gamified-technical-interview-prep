@@ -188,7 +188,7 @@ function signInView(startMode) {
   }) }, 'Email me a sign-in link instead') : null
 
   const card = h('section', { class: 'card auth-card' },
-    brandBlock('CodeCram', 'Free coding interview prep. Sign in to keep your progress on every device.'),
+    brandBlock('CodeCram', authMode() === 'local' ? 'Free coding interview prep.' : 'Free coding interview prep. Sign in to keep your progress on every device.'),
     oauthBlock,
     tabs,
     form,

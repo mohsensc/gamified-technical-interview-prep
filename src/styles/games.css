@@ -37,10 +37,10 @@
 .game-float.good { color: var(--green); }
 .game-float.bad { color: var(--red); }
 .game-float.level { color: var(--sky); top: -10px; }
-.game-float.boss { color: var(--amber); font-size: 18px; }
+.game-float.boss { color: var(--amber-ink); font-size: 18px; }
 
 .game-combo { font-family: var(--mono); transition: background 0.2s, color 0.2s; }
-.game-combo.hot { background: var(--amber-soft); color: var(--amber); }
+.game-combo.hot { background: var(--amber-soft); color: var(--amber-ink); }
 .game-combo.blazing { background: var(--red-soft); color: var(--red); animation: game-pulse 0.9s ease-in-out infinite; }
 .game-combo-wrap { display: flex; flex-direction: column; gap: 3px; min-width: 64px; }
 .game-combo-bar { height: 3px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
@@ -145,7 +145,7 @@
 .ptr-edge.bent { stroke: var(--sky); }
 .ptr-arrowhead { fill: var(--teal); }
 .ptr-nulls { gap: 6px; padding: 4px 6px; }
-.ptr-running { color: var(--amber); padding-left: 4px; }
+.ptr-running { color: var(--amber-ink); padding-left: 4px; }
 .ptr-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .ptr-program { display: flex; flex-direction: column; gap: 6px; min-height: 60px; padding: 8px; border-radius: var(--radius-sm); border: 1px dashed var(--border-strong); }
 .ptr-bank { display: flex; flex-wrap: wrap; gap: 8px; }

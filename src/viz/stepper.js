@@ -52,8 +52,8 @@ export function mountStepper(container, trace, options = {}) {
   const errorEl = h('div', { class: 'st-error' })
 
   const counter = h('span', { class: 'st-counter mono' })
-  const prevButton = h('button', { class: 'btn btn-icon st-prev', title: 'Back (←)', onclick: () => go(index - 1) }, '⟵')
-  const nextButton = h('button', { class: 'btn btn-primary st-next', title: 'Next (→)', onclick: () => advance() }, '⟶')
+  const prevButton = h('button', { class: 'btn btn-icon st-prev', title: 'Back (←)', 'aria-label': 'Previous step', onclick: () => go(index - 1) }, '⟵')
+  const nextButton = h('button', { class: 'btn btn-primary st-next', title: 'Next (→)', 'aria-label': 'Next step', onclick: () => advance() }, '⟶')
   const playButton = h('button', { class: 'btn btn-icon st-play', title: 'Autoplay (space)', onclick: () => togglePlay() }, icon('play', 16))
   const scrub = h('input', { type: 'range', class: 'st-scrub', min: 0, max: 0, value: 0, oninput: event => go(Number(event.target.value)) })
   const ticks = h('div', { class: 'st-ticks' })

@@ -5,6 +5,7 @@ import { rich } from '../ui/rich.js'
 import { renderMcq } from '../ui/items.js'
 import { getState, update, subscribe, recordAnswer } from '../store.js'
 import { subnav } from '../ui/subnav.js'
+import { getInterviewAt } from '../engine/recommend.js'
 
 const budgetMs = 3 * 3600e3
 const passPct = 80
@@ -161,6 +162,14 @@ function secHead(tag, tone, title) {
   return h('div', { class: 'dayof-sec-head' }, h('span', { class: `pill pill-${tone}` }, tag), h('h3', null, rich(title)))
 }
 
+function interviewPill() {
+  const at = getInterviewAt()
+  if (!at) return null
+  const days = Math.max(0, Math.ceil((at.getTime() - Date.now()) / 86400e3))
+  const isToday = at.toDateString() === new Date().toDateString()
+  return h('span', { class: 'pill pill-amber' }, isToday ? 'Interview today' : `Interview in ${days}d`)
+}
+
 function stageHead(title, metaText, pct) {
   return h('div', { class: 'dayof-stage-head' },
     h('div', { class: 'row-wrap' }, h('h2', null, title), h('span', { class: 'pill' }, metaText)),
@@ -232,20 +241,20 @@ function renderHome(container) {
 
     const header = h('div', { class: 'page-header' },
       h('h1', null, 'Interview day'),
-      h('span', { class: 'pill pill-amber' }, 'Interview today'))
+      interviewPill())
 
     const nextBtn = h('a', { class: 'btn btn-primary btn-lg dayof-next', href: next.href }, h('span', null, 'Next step'), h('b', null, next.label))
 
     const reviewStage = h('div', { class: 'card dayof-stage-card' },
-      stageHead('① Review', `${reviewedCount}/${sheets.length}`, reviewedCount / sheets.length),
+      stageHead('Review', `${reviewedCount}/${sheets.length}`, reviewedCount / sheets.length),
       h('div', { class: 'grid-3 dayof-sheet-grid' }, statuses.map(({ sheet, status }) => reviewCard(sheet, status))))
 
     const testStage = h('div', { class: 'card dayof-stage-card' },
-      stageHead('② Test', `${passedCount}/${sheets.length} + exam`, (passedCount + (finalPassed ? 1 : 0)) / (sheets.length + 1)),
+      stageHead('Test', `${passedCount}/${sheets.length} + exam`, (passedCount + (finalPassed ? 1 : 0)) / (sheets.length + 1)),
       h('div', { class: 'grid-3 dayof-sheet-grid' }, [...statuses.map(({ sheet, status }) => testCard(sheet, status)), finalExamCard(finalBest, finalPassed)]))
 
     const finalStage = h('div', { class: 'card dayof-stage-card' },
-      stageHead('③ Final sheets', allTestsPassed ? 'ready' : `${sheets.length} sheets`, allTestsPassed ? 1 : 0.1),
+      stageHead('Final sheets', allTestsPassed ? 'ready' : `${sheets.length} sheets`, allTestsPassed ? 1 : 0.1),
       h('div', { class: 'grid-3 dayof-sheet-grid' }, statuses.map(({ sheet }) => finalCard(sheet, allTestsPassed))),
       h('a', { class: 'btn dayof-final-all', href: '#/dayof/final' }, 'Open the full final page →'))
 

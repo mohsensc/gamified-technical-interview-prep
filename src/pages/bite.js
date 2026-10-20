@@ -92,6 +92,7 @@ function renderLesson(stage, bite, markDone) {
         h('div', { class: 'slide-lesson muted' }, lesson.title),
         h('div', { class: 'slide-dots' }, slides.map((_, i) => h('button', {
           class: `slide-dot${i === slideIndex ? ' active' : ''}${i < slideIndex ? ' past' : ''}`,
+          'aria-label': `Slide ${i + 1}`,
           onclick: () => { slideIndex = i; draw() },
         })))),
       h('h2', { class: 'slide-title' }, slide.title || lesson.title),

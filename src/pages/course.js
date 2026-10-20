@@ -78,9 +78,9 @@ function moduleRow(mod, redraw) {
         mod.mustLearn ? h('span', { class: 'pill pill-amber' }, mod.gap?.tier || 'Must-learn') : null,
         h('span', { class: 'small muted' }, `${doneCount}/${core.length} bites · ${formatMinutes(mod.minutes)}`)),
       h('div', { class: 'crs-module-bar' }, h('div', { style: { width: `${progress * 100}%` } }))),
-    h('a', { class: 'btn btn-sm btn-primary', title: 'Play', href: practiceHref('mixed', { moduleId: mod.id }), onclick: e => e.stopPropagation() }, icon('play', 14)),
+    h('a', { class: 'btn btn-sm', title: 'Play', href: practiceHref('mixed', { moduleId: mod.id }), onclick: e => e.stopPropagation() }, icon('play', 14)),
     h('a', { class: 'btn btn-sm', title: cp?.passed ? 'Checkpoint passed' : 'Checkpoint', href: practiceHref('checkpoint', { moduleId: mod.id }), onclick: e => e.stopPropagation() }, cp?.passed ? [icon('flag', 14), icon('check', 11)] : icon('flag', 14)),
-    h('button', { class: 'crs-expand', onclick: toggle }, isOpen ? '▾' : '▸'))
+    h('button', { class: 'crs-expand', 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} ${mod.title}`, 'aria-expanded': String(isOpen), onclick: toggle }, isOpen ? '▾' : '▸'))
   const bites = isOpen ? h('div', { class: 'crs-bite-list' }, mod.bites.map(biteRow)) : null
   return h('div', { class: 'stack-sm' }, row, bites)
 }
@@ -101,9 +101,9 @@ function unitCard(unit, index, redraw) {
       h('div', { class: 'row-wrap' }, h('span', null, icon(unit.icon, 20)), h('h3', null, unit.title), unit.mustLearn ? h('span', { class: 'pill pill-amber' }, 'Must-learn') : null),
       h('span', { class: 'small muted' }, `${unit.modules.length} modules · ${formatMinutes(unit.minutes)}`),
       hint ? h('span', { class: 'small crs-hint' }, icon('idea', 13), ` ${hint}`) : null),
-    h('button', { class: 'crs-expand' }, isOpen ? '▾' : '▸'))
+    h('button', { class: 'crs-expand', 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} ${unit.title}`, 'aria-expanded': String(isOpen) }, isOpen ? '▾' : '▸'))
   const actions = h('div', { class: 'row-wrap' },
-    h('a', { class: 'btn btn-sm btn-primary', href: hrefFor(unit.id) }, 'Open ▸'),
+    h('a', { class: 'btn btn-sm', href: hrefFor(unit.id) }, 'Open ▸'),
     checkpointPill(cp))
   const moduleList = isOpen ? h('div', { class: 'crs-module-list' }, unit.modules.map(mod => moduleRow(mod, redraw))) : null
   return h('div', { class: 'card crs-unit-card' }, head, actions, moduleList)
@@ -196,7 +196,7 @@ function renderFocused(container, id) {
         h('div', { class: 'stack-sm' },
           h('b', { class: 'row' }, cp?.passed ? [icon('check', 13), ' Passed'] : 'Not passed yet'),
           h('span', { class: 'small muted' }, cp ? `Best ${cp.best}% · ${cp.attempts} attempt${cp.attempts === 1 ? '' : 's'}` : `${target.itemCount} items · need ${target.passPct}%`)),
-        h('a', { class: 'btn btn-primary btn-sm', href: practiceHref('checkpoint', scope) }, cp?.passed ? 'Retry' : 'Start')))
+        h('a', { class: 'btn btn-sm', href: practiceHref('checkpoint', scope) }, cp?.passed ? 'Retry' : 'Start')))
 
     page.replaceChildren(header, learnSection, practiceSection, problemsSection, checkpointSection)
   }

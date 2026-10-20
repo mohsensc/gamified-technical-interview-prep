@@ -1,6 +1,6 @@
-.nav-link-amber { color: var(--amber); }
-.nav-link-amber:hover { background: var(--amber-soft); color: var(--amber); }
-.nav-link-amber.active { background: var(--amber-soft); color: var(--amber); }
+.nav-link-amber { color: var(--amber-ink); }
+.nav-link-amber:hover { background: var(--amber-soft); color: var(--amber-ink); }
+.nav-link-amber.active { background: var(--amber-soft); color: var(--amber-ink); }
 
 .dayof-page .page-header { align-items: center; }
 
@@ -69,7 +69,7 @@
 .dayof-code-toolbar { margin-bottom: -4px; }
 
 .dayof-knobs { display: flex; flex-direction: column; gap: 8px; }
-.dayof-knob-chip.active { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
+.dayof-knob-chip.active { background: var(--amber-soft); border-color: var(--amber); color: var(--amber-ink); }
 .dayof-knob-panel { display: none; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); margin-top: 2px; }
 .dayof-knob-panel.open { display: flex; flex-direction: column; gap: 8px; }
 .dayof-knob-code .code-block { font-size: 12.5px; border-left: 3px solid var(--amber); }

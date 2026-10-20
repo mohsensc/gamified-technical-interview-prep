@@ -51,7 +51,7 @@
 .algo-list-card.level-0 { opacity: 0.82; }
 
 .tier-pill { font-family: var(--mono); }
-.tier-pill.tier-1 { background: var(--amber-soft); color: var(--amber); }
+.tier-pill.tier-1 { background: var(--amber-soft); color: var(--amber-ink); }
 .tier-pill.tier-2 { background: var(--sky-soft); color: var(--sky); }
 .tier-pill.tier-3 { background: var(--surface-3); color: var(--muted); }
 .level-pill.level-0 { background: var(--surface-3); color: var(--muted); }
@@ -77,7 +77,7 @@
 .recall-actions { margin-bottom: 8px; }
 .recall-slot {
   display: inline-block; min-width: 2.4em; padding: 0 4px; margin: 0 1px;
-  border: none; border-radius: 5px; background: var(--amber-soft); color: var(--amber);
+  border: none; border-radius: 5px; background: var(--amber-soft); color: var(--amber-ink);
   font: 600 inherit; font-family: var(--mono); cursor: pointer; line-height: inherit;
 }
 .recall-slot.is-revealed { background: var(--green-soft); color: var(--green); }

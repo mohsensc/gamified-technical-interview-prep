@@ -332,9 +332,18 @@ export function mountShell(root) {
 
   const shellEl = h('div', { class: 'app-shell' })
 
+  const drawerQuery = window.matchMedia('(max-width: 760px)')
+
+  const syncDrawerAccess = () => {
+    const isOpen = shellEl.classList.contains('drawer-open')
+    rail.inert = drawerQuery.matches && !isOpen
+    menuButton.setAttribute('aria-expanded', String(isOpen))
+  }
+
   const setDrawer = isOpen => {
     shellEl.classList.toggle('drawer-open', isOpen)
     document.body.classList.toggle('drawer-lock', isOpen)
+    syncDrawerAccess()
   }
 
   const menuButton = h('button', { class: 'btn-icon menu-button', type: 'button', 'aria-label': 'Open menu', onclick: () => setDrawer(!shellEl.classList.contains('drawer-open')) }, icon('menu', 18))
@@ -391,6 +400,8 @@ export function mountShell(root) {
   if (readPref('codecram-rail', 'open') === 'collapsed') shellEl.classList.add('rail-collapsed')
   syncCollapseLabel()
   shellEl.append(rail, scrim, h('div', { class: 'main-col' }, topbar, view), bottomNav)
+  syncDrawerAccess()
+  drawerQuery.addEventListener('change', syncDrawerAccess)
   root.replaceChildren(shellEl, palette.overlay)
 
   import('./account.js')
