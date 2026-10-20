@@ -11,6 +11,8 @@ const usersPath = join(dataDir, 'users.json')
 const authSessionsPath = join(dataDir, 'auth-sessions.json')
 const userStateDir = join(dataDir, 'users')
 const port = Number(process.env.PORT) || 5317
+const host = process.env.HOST || '127.0.0.1'
+const staticEntries = new Set(['index.html', 'src', 'robots.txt', 'sitemap.xml', 'manifest.webmanifest', 'favicon.svg'])
 const sessionCookieName = 'codecram_session'
 const sessionMaxAgeSeconds = 60 * 24 * 3600
 const maxUserStateBytes = 8 * 1024 * 1024
@@ -71,8 +73,10 @@ const writeFileAtomic = (filePath, text) => {
     const tempPath = `${filePath}.${process.pid}.${Date.now()}.tmp`
     await writeFile(tempPath, text, 'utf8')
     await rename(tempPath, filePath)
-  }).catch(error => console.error('write failed', filePath, error))
-  return writeChain
+  })
+  const job = writeChain
+  writeChain = job.catch(error => console.error('write failed', filePath, error))
+  return job
 }
 
 const writeStateAtomic = text => writeFileAtomic(statePath, text)
@@ -235,8 +239,12 @@ const handleState = async (req, res) => {
   }
   if (req.method === 'PUT' || req.method === 'POST') {
     try {
+      const origin = req.headers.origin
+      if (origin && new URL(origin).host !== req.headers.host) return sendJson(res, 403, { ok: false, error: 'Forbidden' })
       const text = await readBody(req)
       const parsed = JSON.parse(text)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Invalid state')
+      if ((parsed.updatedAt || 0) > Date.now() + 24 * 3600 * 1000) throw new Error('Invalid updatedAt')
       await writeStateAtomic(JSON.stringify(parsed))
       sendJson(res, 200, { ok: true, updatedAt: parsed?.updatedAt ?? null })
     } catch (error) {
@@ -251,7 +259,9 @@ const serveStatic = async (req, res) => {
   const urlPath = decodeURIComponent(new URL(req.url, 'http://localhost').pathname)
   const safePath = normalize(urlPath).replace(/^(\.\.[/\\])+/, '')
   let filePath = join(rootDir, safePath)
-  if (!filePath.startsWith(rootDir) || safePath.includes('/data/') || safePath.startsWith('/data')) {
+  const topEntry = safePath.split(/[/\\]/).filter(Boolean)[0]
+  const allowed = !topEntry || staticEntries.has(topEntry)
+  if (!filePath.startsWith(rootDir) || !allowed || safePath.split(/[/\\]/).some(part => part.startsWith('.') && part.length > 1)) {
     res.writeHead(403)
     res.end('Forbidden')
     return
@@ -294,7 +304,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { error: String(error.message || error) })
       }
     }
-    if (path.startsWith('/api/state')) return await handleState(req, res)
+    if (path === '/api/state') return await handleState(req, res)
     if (req.url.startsWith('/api/version')) {
       const version = Math.max(await latestMtime(join(rootDir, 'src')), (await stat(join(rootDir, 'index.html'))).mtimeMs)
       return sendJson(res, 200, { version })
@@ -312,6 +322,6 @@ const server = http.createServer(async (req, res) => {
   }
 })
 
-server.listen(port, () => {
+server.listen(port, host, () => {
   console.log(`\n  CodeCram  →  http://localhost:${port}\n`)
 })
