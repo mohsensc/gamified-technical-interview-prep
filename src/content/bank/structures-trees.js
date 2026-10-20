@@ -431,7 +431,7 @@ const cardData = [
   ['tree-dfs', ['Path Sum III approach'], 'DFS with a running prefix-sum count (hashmap), same trick as Subarray Sum Equals K, but walked top-down on the tree and undone on backtrack.'],
   ['tree-dfs', ['Count Good Nodes extra state'], 'Pass the max value seen on the path so far; a node is good if its value >= that running max.'],
   ['tree-bfs', ['Populate Next Right Pointers, O(1) space'], 'On a perfect tree, use the current level\'s already-set next pointers to walk it and link the next level — no queue required.'],
-  ['tree-bfs', ['Zigzag level order'], 'Same BFS as normal level order; just reverse() every other collected level.'],
+  ['bit', ['Counting Bits for 0..n in O(n)?'], 'bits[i] = bits[i >> 1] + (i & 1). Reuse the answer for i with its last bit dropped.'],
   ['tree-bfs', ['Cousins in Binary Tree needs'], 'Track BOTH depth and parent per node — equal depth alone does not rule out siblings.'],
   ['tree-bfs', ['Maximum Width of Binary Tree'], 'Number nodes as in a complete tree (2*i, 2*i+1); width = last index - first index + 1 per level, re-based to avoid overflow.'],
   ['tree-bfs', ['BFS memory vs DFS memory'], 'BFS queue can hold an entire level (up to ~n/2 on a bushy tree); DFS stack is bounded by height. Either can be worse depending on tree shape.'],

@@ -1667,7 +1667,7 @@ const cardData = [
   [['dp-2d'], '0/1 knapsack 1-D: loop direction for capacity?', 'Backwards, so each item is used at most once. Forward allows reuse (unbounded).'],
   [['dp-2d', 'complexity'], '2-D DP space trick?', 'If row r only needs row r-1, keep one or two rows: O(n) space.'],
   [['greedy'], 'What must be true for greedy to work?', 'A locally best choice never ruins the global optimum. Argue with an exchange argument.'],
-  [['greedy'], 'Jump Game greedy?', 'Track farthest reachable. If i > farthest, return False.'],
+  [['trie'], 'Trie delete a word?', 'Walk to the last node and clear its end flag. On the way back up, remove each node that has no children and is not the end of another word.'],
   [['greedy'], 'Kadane in one line?', 'curr = max(num, curr + num); result = max(result, curr).'],
   [['greedy'], 'Gas Station key fact?', 'If total gas ≥ total cost a start exists. Reset start after any index where the tank dips below 0.'],
   [['intervals'], 'First move on almost any interval problem?', 'Sort by start (merge, insert) or by end (max non-overlapping).'],

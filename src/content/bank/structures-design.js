@@ -209,12 +209,12 @@ const cardData = [
   ['ds-diagnosis', 'Insert Delete GetRandom O(1) trick', 'Array + hashmap(value -> index). Delete by swapping the target with the last element, then popping — avoids shifting.'],
   ['ds-diagnosis', 'Design HashMap from scratch', 'Bucket array, each bucket a small chain of (key, value) pairs; hash the key, mod by bucket count, scan the bucket for collisions.'],
   ['ds-diagnosis', 'Snapshot Array laziness', 'snap() just increments a counter in O(1); set() appends (snapId, value) per index; get() binary-searches that index\'s history.'],
-  ['ds-diagnosis', 'Time Based Key-Value Store', 'Per-key list of (timestamp, value), naturally sorted since timestamps increase; get() uses bisect_right for "value as of time T".'],
+  ['mst', 'MST on a disconnected graph?', 'Kruskal naturally yields a minimum spanning forest. The graph is connected only if it kept exactly V - 1 edges.'],
   ['communication', 'All O`one Data Structure shape', 'Doubly linked list of count "buckets" (each a set of keys), plus a hashmap key -> bucket node, so max/min/inc/dec are all O(1).'],
   ['ds-diagnosis', 'Mutable default argument trap', 'A mutable default (e.g. []) is created once at def-time and shared across every call that omits the argument — use None instead.'],
   ['ds-diagnosis', 'Class attribute vs self.attribute', 'Attributes set directly in the class body are shared across every instance; put mutable state in __init__ as self.x instead.'],
   ['ds-diagnosis', 'Design HashMap bucket + chaining', 'Fixed array of buckets, each a short list of (key, value) pairs. hash(key) picks the bucket; linear scan resolves collisions within it.'],
-  ['ds-diagnosis', 'Design Circular Queue state', 'Fixed array, a head index, and a count — enqueue/dequeue just move head by one (mod capacity) and adjust count, no shifting.'],
+  ['tree-bfs', 'Average of Levels in Binary Tree?', 'BFS by level: snapshot the queue size, sum that many nodes, divide by the size.'],
 ]
 
 const flashcards = cardData.map(([skill, front, back, code], i) => ({ id: `bank-structures:card:design:${i + 1}`, skills: [skill], front, back, ...(code ? { code } : {}) }))

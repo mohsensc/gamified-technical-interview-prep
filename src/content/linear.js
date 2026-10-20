@@ -1018,7 +1018,7 @@ for word in strs:
   [['prefix-sum'], 'Subarray sum divisible by k', 'Key = prefix % k. Equal remainders → divisible subarray between them.'],
   [['prefix-sum'], 'Longest subarray with sum k', 'Map prefix → FIRST index seen. length = i − first[prefix − k].'],
   [['binary-search'], 'Closed-interval binary search loop', 'while left <= right; mid = (left + right) // 2; left = mid + 1 / right = mid − 1.'],
-  [['binary-search'], 'bisect_left vs bisect_right', 'bisect_left: first index ≥ x. bisect_right: first index > x.'],
+  [['tree-bfs'], 'Serialize a tree with BFS?', 'Level order, writing null for each missing child. To decode, keep a queue of built parents and attach the next two tokens as their children.'],
   [['binary-search'], 'Binary search on answer signal', 'Minimize/maximize a value with a monotonic feasible(x) check; huge value range.'],
   [['binary-search'], 'Koko Eating Bananas', 'Search speed 1..max(piles). hours = Σ ceil(p / k). Feasible → right = k − 1.'],
   [['binary-search'], 'Rotated sorted array key fact', 'One half around mid is always sorted. Check if target lies in that half.'],

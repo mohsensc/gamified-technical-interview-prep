@@ -458,7 +458,7 @@ const parsons = parsonsRows.map(([skills, title, lines, distractors], i) => ({
 }))
 
 const flashcardData = [
-  [['dp-1d'], 'The 5-part DP recipe?', 'State, transition, base case, fill order, answer location.'],
+  [['trie'], 'Trie vs sorted array for prefix queries?', 'Binary search on a sorted array finds the prefix range in O(m log n) with little memory. A trie costs O(m) per query but spends memory on nodes.'],
   [['dp-1d'], 'House Robber II circular trick?', 'Run linear House Robber twice: once excluding the first house, once excluding the last. Take the max.'],
   [['dp-1d'], 'Decode Ways: why fill dp from the END of the string backward?', 'dp[i] depends on dp[i+1] and dp[i+2], which must already be computed.'],
   [['dp-1d'], 'Perfect Squares recurrence?', 'dp[i] = 1 + min(dp[i - j·j]) over every j with j·j ≤ i. Base case dp[0] = 0.'],
@@ -474,7 +474,7 @@ const flashcardData = [
   [['dp-1d', 'binary-search'], 'LIS patience-sorting trick?', 'Keep a tails array of the smallest possible tail per length; bisect_left finds where to extend or replace. len(tails) is the answer.'],
   [['dp-2d'], 'LCS recurrence on a match?', 'dp[i][j] = 1 + dp[i+1][j+1] — both pointers advance together.'],
   [['dp-2d'], 'LCS recurrence on a mismatch?', 'dp[i][j] = max(dp[i+1][j], dp[i][j+1]) — drop one character from either string.'],
-  [['dp-2d'], 'Edit Distance recurrence on a mismatch?', '1 + min(insert, delete, replace) = 1 + min(dp[i][j+1], dp[i+1][j], dp[i+1][j+1]).'],
+  [['mst'], 'Minimum bottleneck path between two nodes?', 'Build the MST. The path between them in the MST has the smallest possible maximum edge.'],
   [['dp-2d'], 'Longest Common Substring vs. LCS mismatch rule?', 'Substring resets dp[i][j] to 0 on a mismatch; subsequence instead takes the max of its neighbors.'],
   [['dp-2d'], 'Longest Palindromic Subsequence via LCS?', 'LPS(s) = LCS(s, reverse(s)).'],
   [['dp-2d'], 'Shortest Common Supersequence length formula?', 'len(a) + len(b) - LCS(a, b).'],

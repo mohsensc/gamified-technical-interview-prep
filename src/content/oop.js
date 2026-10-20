@@ -1327,7 +1327,7 @@ const flashcards = [
   ['heap', 'Running median: the trick', 'Max-heap for the lower half, min-heap for the upper half. Their tops are the two middle values.'],
   ['heap', 'Running median: the invariant', 'len(small) equals len(large), or is exactly one more. Rebalance after every insert.'],
   ['heap', 'Kth largest in a stream', 'Keep a min-heap of size k. heap[0] is always the kth largest so far; pop when size exceeds k.'],
-  ['heap', 'heapify vs n pushes', 'heapq.heapify(list) is O(n). Pushing n items one at a time is O(n log n).'],
+  ['bst', 'Inorder successor in a BST?', 'If the node has a right child, take the leftmost node of that subtree. Otherwise it is the lowest ancestor whose left subtree contains the node.'],
   ['trie', 'TrieNode fields', 'self.children: dict char → TrieNode. self.endOfWord: bool, true only at a word\'s last node.'],
   ['trie', 'Trie prefix exists vs word exists', 'Walking the path can succeed (prefix exists) while endOfWord is still False (not a full inserted word).'],
   ['trie', 'WordDictionary "." wildcard search', 'Recursive dfs(i, node): on ".", try EVERY child at this position, return True if any path completes.'],
