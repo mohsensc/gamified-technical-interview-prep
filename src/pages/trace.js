@@ -42,12 +42,12 @@ function renderTrace(container, trace) {
   const page = h('div', { class: 'page trace-page' },
     subnav('learn', null),
     h('div', { class: 'trace-nav' },
-      h('a', { class: 'btn btn-ghost btn-sm', href: '#/trace/all' }, '← Traces'),
+      h('a', { class: 'btn btn-ghost btn-sm', href: '#/trace/all' }, [icon('arrowLeft', 16), ' Traces']),
       h('span', { class: 'trace-crumb muted small' }, icon(topicMeta(trace.topic).icon, 13), ` ${topicMeta(trace.topic).title}`)),
     host,
     siblings.length > 1 ? h('div', { class: 'trace-pager' },
-      previous ? h('a', { class: 'btn btn-sm', href: `#/trace/${previous.id}` }, `← ${previous.title}`) : h('span'),
-      next ? h('a', { class: 'btn btn-sm', href: `#/trace/${next.id}` }, `${next.title} →`) : h('span')) : null)
+      previous ? h('a', { class: 'btn btn-sm', href: `#/trace/${previous.id}` }, [icon('arrowLeft', 16), ` ${previous.title}`]) : h('span'),
+      next ? h('a', { class: 'btn btn-sm', href: `#/trace/${next.id}` }, [`${next.title} `, icon('arrowRight', 16)]) : h('span')) : null)
   container.replaceChildren(page)
   const destroy = mountStepper(host, trace, { inputIndex })
   return () => destroy()

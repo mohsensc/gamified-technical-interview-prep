@@ -83,10 +83,10 @@ function renderLesson(stage, bite, markDone) {
       currentAsk = askBlock(slide.ask, `${lesson.id}:ask:${slideIndex}`, lesson.skills || bite.skills || [])
       body.append(currentAsk.el)
     }
-    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, '←')
+    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, icon('arrowLeft', 16))
     const nextButton = isLast
       ? h('button', { class: 'btn btn-primary', onclick: () => markDone() }, 'Finish')
-      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, '→')
+      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, icon('arrowRight', 16))
     deck.replaceChildren(
       h('div', { class: 'row slide-head' },
         h('div', { class: 'slide-lesson muted' }, lesson.title),
@@ -214,7 +214,7 @@ function renderSimRef(stage, markDone) {
   stage.replaceChildren(
     h('div', { class: 'card stack' },
       h('p', null, 'Run a full 45-minute mock interview with the timer and rubric.'),
-      h('a', { class: 'btn btn-primary', href: '#/mock' }, 'Open mock interview →')),
+      h('a', { class: 'btn btn-primary', href: '#/mock' }, ['Open mock interview ', icon('arrowRight', 16)])),
     doneButton(markDone, 'Mark done after you run it'))
 }
 
@@ -241,7 +241,7 @@ function renderNarrateRef(stage, templateId, markDone) {
       h('div', { class: 'bite-narrate-line' }, revealed ? richText(line.say) : h('span', { class: 'muted' }, 'Say it out loud, then reveal')),
       h('div', { class: 'row' },
         revealed ? null : h('button', { class: 'btn btn-primary', onclick: () => { revealed = true; draw() } }, 'Reveal'),
-        revealed ? h('button', { class: 'btn btn-primary', onclick: () => { index += 1; revealed = false; draw() } }, index + 1 < template.lines.length ? 'Next →' : 'Finish') : null))
+        revealed ? h('button', { class: 'btn btn-primary', onclick: () => { index += 1; revealed = false; draw() } }, index + 1 < template.lines.length ? ['Next ', icon('arrowRight', 16)] : 'Finish') : null))
   }
   draw()
   return null
@@ -258,7 +258,7 @@ function renderReadBite(stage, bite, markDone) {
       h('p', { class: 'muted' }, isDrill
         ? 'Rapid-fire signature drill: title + one-liner, type the class and method signature from memory.'
         : 'Read the full statement, extract the signal, then type the exact signature (class included).'),
-      h('a', { class: 'btn btn-primary', href: target }, 'Open Read & Sign →')),
+      h('a', { class: 'btn btn-primary', href: target }, ['Open Read & Sign ', icon('arrowRight', 16)])),
     doneButton(markDone, 'Done, mark complete'))
   return null
 }
@@ -296,7 +296,7 @@ function renderBite(container, bite) {
     const next = nextBite(bite.id, { includeOptional: true })
     footer.replaceChildren(
       h('a', { class: 'btn btn-ghost', href: hrefFor(bite.moduleId) }, 'Back to module'),
-      next ? h('a', { class: 'btn btn-primary', href: hrefFor(next.id) }, 'Next bite →') : h('a', { class: 'btn btn-primary', href: hrefFor(bite.moduleId) }, 'Module done →'))
+      next ? h('a', { class: 'btn btn-primary', href: hrefFor(next.id) }, ['Next bite ', icon('arrowRight', 16)]) : h('a', { class: 'btn btn-primary', href: hrefFor(bite.moduleId) }, ['Module done ', icon('arrowRight', 16)]))
   }
 
   let cleanup = null

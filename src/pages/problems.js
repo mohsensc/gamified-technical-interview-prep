@@ -256,7 +256,7 @@ function renderDetail(container, problem) {
   container.append(h('div', { class: 'page problem-detail' },
     subnav('learn', 'problems'),
     h('div', { class: 'page-header row' },
-      h('a', { class: 'btn btn-ghost', href: '#/problems' }, '←'),
+      h('a', { class: 'btn btn-ghost', href: '#/problems' }, icon('arrowLeft', 16)),
       problem.lc ? h('span', { class: 'mono muted lc-num' }, `#${problem.lc}`) : null,
       h('h1', null, stripMarks(problem.title)),
       problem.difficulty ? h('span', { class: `pill ${difficultyClass(problem.difficulty)}` }, problem.difficulty) : null,
@@ -264,13 +264,13 @@ function renderDetail(container, problem) {
     h('div', { class: 'card statement-card' },
       problem.constraints ? h('div', { class: 'constraints mono' }, problem.constraints) : null,
       problem.signals?.length ? h('div', { class: 'row signals' }, problem.signals.map(signal => h('span', { class: 'chip chip-signal' }, rich(signal)))) : null,
-      problem.lc ? h('a', { class: 'muted lc-link', href: `https://leetcode.com/problems/${slugify(problem.title)}/`, target: '_blank', rel: 'noopener' }, 'Open on LeetCode ↗') : null),
+      problem.lc ? h('a', { class: 'muted lc-link', href: `https://leetcode.com/problems/${slugify(problem.title)}/`, target: '_blank', rel: 'noopener' }, ['Open on LeetCode ', icon('external', 14)]) : null),
     steps.length ? h('div', { class: 'row diag-head' }, h('h3', null, 'Diagnose first'), scoreEl, skipButton) : null,
     stepHost,
     reveal,
     h('div', { class: 'row problem-pager' },
-      prev ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(prev.id)}` }, `← ${stripMarks(prev.title)}`) : h('span'),
-      next ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(next.id)}` }, `${stripMarks(next.title)} →`) : null)))
+      prev ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(prev.id)}` }, [icon('arrowLeft', 16), ` ${stripMarks(prev.title)}`]) : h('span'),
+      next ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(next.id)}` }, [`${stripMarks(next.title)} `, icon('arrowRight', 16)]) : null)))
 
   showStep(0)
 }

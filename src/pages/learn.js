@@ -144,12 +144,12 @@ function renderTopic(container, topic) {
       body.append(currentAsk.el)
     }
 
-    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, '←')
+    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, icon('arrowLeft', 16))
     const nextButton = isLast
       ? (lessons[lessonIndex + 1]
-        ? h('button', { class: 'btn btn-primary', onclick: () => nextLesson() }, 'Next lesson →')
-        : h('a', { class: 'btn btn-primary', href: `#/drill/${encodeURIComponent(topic.id)}` }, 'Drill it →'))
-      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, '→')
+        ? h('button', { class: 'btn btn-primary', onclick: () => nextLesson() }, ['Next lesson ', icon('arrowRight', 16)])
+        : h('a', { class: 'btn btn-primary', href: `#/drill/${encodeURIComponent(topic.id)}` }, ['Drill it ', icon('arrowRight', 16)]))
+      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, icon('arrowRight', 16))
 
     deck.replaceChildren(
       h('div', { class: 'row slide-head' },
@@ -218,7 +218,7 @@ function renderTopic(container, topic) {
   container.append(h('div', { class: 'page learn-topic' },
     subnav('learn', 'learn'),
     h('div', { class: 'page-header row' },
-      h('a', { class: 'btn btn-ghost', href: '#/learn' }, '←'),
+      h('a', { class: 'btn btn-ghost', href: '#/learn' }, icon('arrowLeft', 16)),
       h('span', { class: 'topic-icon' }, topic.icon ? icon(topic.icon, 22) : null),
       h('h1', null, stripMarks(topic.title)),
       masteryRing(topicMastery(topic), 48),

@@ -88,7 +88,7 @@ function renderGame(container, game, isDaily) {
   container.append(h('div', { class: 'page games-page' },
     h('div', { class: 'page-header' },
       h('div', { class: 'row row-wrap' },
-        h('a', { class: 'btn btn-ghost btn-sm', href: '#/games' }, '← Arcade'),
+        h('a', { class: 'btn btn-ghost btn-sm', href: '#/games' }, [icon('arrowLeft', 16), ' Arcade']),
         h('h1', { class: 'game-title' }, icon(game.icon, 22), ` ${game.title}`),
         isDaily ? h('span', { class: 'pill pill-sky' }, icon('calendar', 13), ` Daily · ${dailyLabel()}`) : null),
       h('span', { class: 'muted small' }, ...(keyHints[game.id] || keyHints.quiz).flatMap(([key, label]) => [h('span', { class: 'kbd' }, key), ` ${label}  `]))),

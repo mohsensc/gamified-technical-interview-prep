@@ -209,7 +209,7 @@ function renderDetail(container, rawTerm) {
   container.append(h('div', { class: 'page gl-detail' },
     subnav('cheatsheet', 'glossary'),
     h('div', { class: 'page-header row' },
-      h('a', { class: 'btn btn-ghost', href: '#/glossary' }, '←'),
+      h('a', { class: 'btn btn-ghost', href: '#/glossary' }, icon('arrowLeft', 16)),
       h('h1', null, entry.term),
       h('span', { class: `pill pill-${color}` }, categoryMeta[entry.category]?.label || entry.category)),
     h('div', { class: 'card gl-def-card' },

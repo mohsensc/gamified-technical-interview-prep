@@ -256,7 +256,7 @@ function renderHome(container) {
     const finalStage = h('div', { class: 'card dayof-stage-card' },
       stageHead('Final sheets', allTestsPassed ? 'ready' : `${sheets.length} sheets`, allTestsPassed ? 1 : 0.1),
       h('div', { class: 'grid-3 dayof-sheet-grid' }, statuses.map(({ sheet }) => finalCard(sheet, allTestsPassed))),
-      h('a', { class: 'btn dayof-final-all', href: '#/dayof/final' }, 'Open the full final page →'))
+      h('a', { class: 'btn dayof-final-all', href: '#/dayof/final' }, ['Open the full final page ', icon('arrowRight', 16)]))
 
     const timeline = h('div', { class: 'timeline dayof-path' },
       h('div', { class: `plan-block${allReviewed ? ' done' : ' current'}` }, h('div', { class: 'plan-dot' }, allReviewed ? icon('check', 13) : '1'), reviewStage),
@@ -350,7 +350,7 @@ function wholeTree(node) {
   for (const opt of node.options || []) {
     if (opt.leaf) {
       opts.append(h('div', { class: 'dayof-tree-diagram-leaf' },
-        h('span', { class: 'dayof-tree-diagram-label' }, rich(opt.label)), h('span', { class: 'muted' }, '→'),
+        h('span', { class: 'dayof-tree-diagram-label' }, rich(opt.label)), h('span', { class: 'muted' }, icon('arrowRight', 16)),
         h('b', null, rich(opt.leaf.result)), h('span', { class: 'pill mono' }, opt.leaf.time)))
     } else {
       opts.append(h('div', { class: 'dayof-tree-diagram-branch' },
@@ -373,7 +373,7 @@ function treeCard(section, id, ctx) {
     const rootBtn = h('button', { class: 'chip', type: 'button' }, 'Start')
     rootBtn.addEventListener('click', restart)
     crumbs.append(rootBtn)
-    for (const label of path) crumbs.append(h('span', { class: 'muted' }, '→'), h('span', { class: 'chip active' }, label))
+    for (const label of path) crumbs.append(h('span', { class: 'muted' }, icon('arrowRight', 16)), h('span', { class: 'chip active' }, label))
   }
 
   function renderNode(node) {
@@ -445,7 +445,7 @@ function beforeAfterCard(section, id) {
     h('div', { class: 'dayof-ba-list' }, (section.rows || []).map(row => h('div', { class: 'dayof-ba-row' },
       h('code', { class: 'dayof-ba-op' }, row.op),
       h('span', { class: 'dayof-ba-before mono' }, row.before),
-      h('span', { class: 'dayof-ba-arrow' }, '→'),
+      h('span', { class: 'dayof-ba-arrow' }, icon('arrowRight', 16)),
       h('span', { class: 'dayof-ba-after mono' }, row.after),
       row.note ? h('span', { class: 'muted small dayof-ba-note' }, row.note) : null))))
 }
@@ -526,13 +526,13 @@ function recallDrill(cards, onFinish) {
 
 function buildReview(page, sheet, sheets) {
   const startedAt = Date.now()
-  const backRow = h('div', { class: 'row-wrap dayof-review-top' }, h('a', { class: 'btn btn-ghost btn-sm', href: '#/dayof' }, '← DAYOF'), h('span', { class: 'muted small' }, 'Review'))
+  const backRow = h('div', { class: 'row-wrap dayof-review-top' }, h('a', { class: 'btn btn-ghost btn-sm', href: '#/dayof' }, [icon('arrowLeft', 16), ' DAYOF']), h('span', { class: 'muted small' }, 'Review'))
 
   const header = h('div', { class: 'page-header' },
     h('div', null,
       h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, icon(sheet.icon || 'file', 26)), h('h1', null, sheet.title)),
       h('p', { class: 'muted' }, `${sheet.minutes || 10} min budget · ${sheet.sections.length} sections`)),
-    h('a', { class: 'btn btn-primary', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, 'Skip to test →'))
+    h('a', { class: 'btn btn-primary', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, ['Skip to test ', icon('arrowRight', 16)]))
 
   const tldr = h('div', { class: 'card dayof-tldr', id: 'sec-tldr' },
     h('div', { class: 'section-title' }, 'TL;DR'),
@@ -542,7 +542,7 @@ function buildReview(page, sheet, sheets) {
 
   const recallWrap = h('div', { class: 'card dayof-recall', id: 'sec-recall' })
 
-  const ctaLink = h('a', { class: 'btn btn-primary btn-lg', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, 'Take the test →')
+  const ctaLink = h('a', { class: 'btn btn-primary btn-lg', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, ['Take the test ', icon('arrowRight', 16)])
   const ctaCard = h('div', { class: 'card dayof-cta', id: 'sec-test-cta' },
     h('div', null, h('h3', null, 'Ready?'), h('p', { class: 'muted small' }, 'Lock in what you just reviewed.')),
     ctaLink)
@@ -640,7 +640,7 @@ function runTest(page, initialItems, title, retryHref, onComplete) {
 
     const item = items[index]
     const pct = Math.round(index / items.length * 100)
-    const nextBtn = h('button', { class: 'btn btn-primary dayof-next-q', type: 'button', disabled: true }, index === items.length - 1 ? 'See results' : 'Next →')
+    const nextBtn = h('button', { class: 'btn btn-primary dayof-next-q', type: 'button', disabled: true }, index === items.length - 1 ? 'See results' : ['Next ', icon('arrowRight', 16)])
     nextBtn.addEventListener('click', () => { index += 1; draw() })
     const mcqEl = renderMcq(item, ({ correct, ms }) => {
       try {
@@ -698,13 +698,13 @@ function summaryCard(sheet) {
   return h('div', { class: 'card dayof-summary-card' },
     h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)), h('h3', null, sheet.title)),
     h('ul', { class: 'dayof-list dayof-summary-list' }, (sheet.summary || []).map(line => h('li', null, rich(line)))),
-    h('a', { class: 'btn btn-sm btn-ghost', href: `#/dayof/final/${encodeURIComponent(sheet.id)}` }, 'Full sheet →'))
+    h('a', { class: 'btn btn-sm btn-ghost', href: `#/dayof/final/${encodeURIComponent(sheet.id)}` }, ['Full sheet ', icon('arrowRight', 16)]))
 }
 
 function buildFinalOverview(sheets) {
   const header = h('div', { class: 'page-header' },
     h('h1', null, 'Final sheets'),
-    h('a', { class: 'btn btn-ghost', href: '#/dayof' }, '← DAYOF'))
+    h('a', { class: 'btn btn-ghost', href: '#/dayof' }, [icon('arrowLeft', 16), ' DAYOF']))
 
   const grid = h('div', { class: 'grid-3 dayof-final-grid' }, sheets.map(sheet => summaryCard(sheet)))
 
@@ -744,7 +744,7 @@ function buildSheetFinal(sheet) {
     h('div', null,
       h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, icon(sheet.icon || 'file', 26)), h('h1', null, sheet.title)),
       h('p', { class: 'muted' }, 'Final sheet — one screen')),
-    h('a', { class: 'btn btn-ghost', href: '#/dayof/final' }, '← All sheets'))
+    h('a', { class: 'btn btn-ghost', href: '#/dayof/final' }, [icon('arrowLeft', 16), ' All sheets']))
 
   const summary = h('div', { class: 'card dayof-tldr' }, h('ul', { class: 'dayof-list' }, (sheet.summary || []).map(line => h('li', null, rich(line)))))
   const boilerplates = sheet.sections.filter(s => s.kind === 'boilerplate')

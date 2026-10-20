@@ -281,7 +281,7 @@ function renderList(container) {
     const pool = filterPool(categoryPool, selectedCompanies, searchQuery)
     const queueIds = buildQueueIds(pool, selectedMode, statusMap)
     const isDefaultScope = selectedCategory === 'all' && selectedMode === 'priority' && !selectedCompanies.length && !searchQuery.trim()
-    const startLabel = !queueIds.length ? 'Nothing in this queue' : isDefaultScope ? 'Next problem →' : `Start — ${queueIds.length} problem${queueIds.length > 1 ? 's' : ''}`
+    const startLabel = !queueIds.length ? 'Nothing in this queue' : isDefaultScope ? ['Next problem ', icon('arrowRight', 16)] : `Start — ${queueIds.length} problem${queueIds.length > 1 ? 's' : ''}`
     const startBtn = h('button', { class: 'btn btn-primary btn-lg thought-start', type: 'button', disabled: !queueIds.length }, startLabel)
     startBtn.addEventListener('click', () => startQueue(selectedCategory, selectedMode, queueIds))
 
@@ -382,7 +382,7 @@ function buildRunner(page, item, data) {
   }
 
   const backRow = h('div', { class: 'row-wrap thought-top' },
-    h('a', { class: 'btn btn-ghost btn-sm', href: '#/thought' }, '← All problems'),
+    h('a', { class: 'btn btn-ghost btn-sm', href: '#/thought' }, [icon('arrowLeft', 16), ' All problems']),
     h('span', { class: 'muted small' }, categoryTitle))
   const stepperEl = h('div')
   const bodyEl = h('div', { class: 'thought-body' })
@@ -398,7 +398,7 @@ function buildRunner(page, item, data) {
 
   function renderStep1() {
     stepperEl.replaceChildren(stepperHeader(1))
-    const goBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, "I've got an approach →")
+    const goBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, ["I've got an approach ", icon('arrowRight', 16)])
     goBtn.addEventListener('click', () => renderStep2())
     bodyEl.replaceChildren(
       h('div', { class: 'card thought-card' },
@@ -431,7 +431,7 @@ function buildRunner(page, item, data) {
       shuffled.map(choice => h('option', { value: choice }, choice)))
     const lockBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: true }, 'Lock in')
     const feedback = h('div', { class: 'thought-feedback-slot' })
-    const nextBtn = h('button', { class: 'btn btn-primary', type: 'button', style: { display: 'none' } }, 'Continue →')
+    const nextBtn = h('button', { class: 'btn btn-primary', type: 'button', style: { display: 'none' } }, ['Continue ', icon('arrowRight', 16)])
 
     select.addEventListener('change', () => { lockBtn.disabled = !select.value })
 
@@ -489,7 +489,7 @@ function buildRunner(page, item, data) {
 
     const lockBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: true }, 'Lock in')
     const feedback = h('div', { class: 'thought-feedback-slot' })
-    const nextBtn = h('button', { class: 'btn btn-primary', type: 'button', style: { display: 'none' } }, 'Continue →')
+    const nextBtn = h('button', { class: 'btn btn-primary', type: 'button', style: { display: 'none' } }, ['Continue ', icon('arrowRight', 16)])
 
     function syncUI() {
       select.value = chosen
@@ -556,7 +556,7 @@ function buildRunner(page, item, data) {
     const lockBtn = h('button', { class: 'btn btn-primary', type: 'button', disabled: true }, 'Lock in')
     const timeFeedback = h('div', { class: 'thought-feedback-slot' })
     const spaceFeedback = h('div', { class: 'thought-feedback-slot' })
-    const codeBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button', style: { display: 'none' } }, 'See the code →')
+    const codeBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button', style: { display: 'none' } }, ['See the code ', icon('arrowRight', 16)])
 
     function updateLock() { lockBtn.disabled = !timeSelect.value || !spaceSelect.value }
     timeSelect.addEventListener('change', updateLock)
@@ -607,7 +607,7 @@ function buildRunner(page, item, data) {
 
   function renderStep5() {
     stepperEl.replaceChildren(stepperHeader(5))
-    const hideBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, 'Hide the key lines & test me →')
+    const hideBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, ['Hide the key lines & test me ', icon('arrowRight', 16)])
     hideBtn.addEventListener('click', () => renderStep6())
     bodyEl.replaceChildren(
       h('div', { class: 'card thought-card' },
@@ -660,7 +660,7 @@ function buildRunner(page, item, data) {
     const block = h('pre', { class: 'code-block with-ln thought-fill-code' }, h('code', null, lineEls))
     const checkBtn = h('button', { class: 'btn btn-primary', type: 'button' }, 'Check ', h('span', { class: 'kbd' }, '⌘↵'))
     const attemptsLabel = h('span', { class: 'muted small thought-attempts' }, '2 attempts left')
-    const nextBtn = h('button', { class: 'btn btn-primary', type: 'button', style: { display: 'none' } }, 'Continue →')
+    const nextBtn = h('button', { class: 'btn btn-primary', type: 'button', style: { display: 'none' } }, ['Continue ', icon('arrowRight', 16)])
     const feedback = h('div', { class: 'thought-feedback-slot' })
 
     function revealOne(i) {
@@ -822,7 +822,7 @@ function buildRunner(page, item, data) {
       pitfallBtn,
       pitfallBody) : null
 
-    const nextBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, nextItemId ? 'Next problem →' : 'Back to list', h('span', { class: 'kbd' }, 'N'))
+    const nextBtn = h('button', { class: 'btn btn-primary btn-lg', type: 'button' }, nextItemId ? ['Next problem ', icon('arrowRight', 16)] : 'Back to list', h('span', { class: 'kbd' }, 'N'))
     nextBtn.addEventListener('click', goNext)
     const retryBtn = h('button', { class: 'btn', type: 'button' }, 'Retry ', h('span', { class: 'kbd' }, 'R'))
     retryBtn.addEventListener('click', () => {

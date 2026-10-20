@@ -285,7 +285,7 @@ function renderTree(container, query) {
       h('div', { class: 'stack-sm grow' },
         h('div', { class: 'row spread' }, h('b', null, path.title), h('span', { class: 'muted small' }, `${done}/${total} done · ${path.minutes} min`)),
         h('div', { class: 'progress' }, h('div', { class: 'progress-fill', style: { width: `${total ? (done / total) * 100 : 0}%` } }))),
-      nextAlgo ? h('a', { class: 'btn btn-primary', href: algoHref(nextAlgo.id, activePath) }, `Next: ${nextAlgo.title} →`) : null,
+      nextAlgo ? h('a', { class: 'btn btn-primary', href: algoHref(nextAlgo.id, activePath) }, [`Next: ${nextAlgo.title} `, icon('arrowRight', 16)]) : null,
       h('button', { class: 'btn btn-icon', title: 'Clear path', onclick: () => { setPath(''); for (const chip of pathChipEls) chip.classList.remove('active'); refresh() } }, '×')))
   }
 
@@ -478,7 +478,7 @@ function renderDetail(container, algo, query) {
 
   const header = h('div', { class: 'page-header algo-detail-head' },
     h('div', { class: 'row algo-crumb' },
-      h('a', { class: 'btn btn-ghost btn-sm', href: pathId ? `#/algorithms?path=${encodeURIComponent(pathId)}` : '#/algorithms' }, '← Tree'),
+      h('a', { class: 'btn btn-ghost btn-sm', href: pathId ? `#/algorithms?path=${encodeURIComponent(pathId)}` : '#/algorithms' }, [icon('arrowLeft', 16), ' Tree']),
       branch ? h('span', { class: 'pill', style: { color: branch.color, background: 'color-mix(in srgb, currentColor 16%, transparent)' } }, branch.title) : null,
       h('span', { class: `pill tier-pill tier-${algo.tier}` }, tierLabel(algo.tier)),
       h('span', { class: `pill level-pill level-${level}` }, levelLabel[level]),
@@ -563,8 +563,8 @@ function renderDetail(container, algo, query) {
     h('a', { class: 'btn', href: practiceHref('cards', { skills: algo.skills }) }, 'Flashcards'))
 
   const pagerRow = h('div', { class: 'row problem-pager' },
-    prevHref ? h('a', { class: 'btn btn-ghost', href: prevHref }, '← Prev') : h('span'),
-    nextHref ? h('a', { class: 'btn btn-ghost', href: nextHref }, 'Next →') : null)
+    prevHref ? h('a', { class: 'btn btn-ghost', href: prevHref }, [icon('arrowLeft', 16), ' Prev']) : h('span'),
+    nextHref ? h('a', { class: 'btn btn-ghost', href: nextHref }, ['Next ', icon('arrowRight', 16)]) : null)
 
   const page = h('div', { class: 'page algo-detail-page' },
     subnav('learn', 'algorithms'),

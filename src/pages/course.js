@@ -80,7 +80,7 @@ function moduleRow(mod, redraw) {
       h('div', { class: 'crs-module-bar' }, h('div', { style: { width: `${progress * 100}%` } }))),
     h('a', { class: 'btn btn-sm', title: 'Play', href: practiceHref('mixed', { moduleId: mod.id }), onclick: e => e.stopPropagation() }, icon('play', 14)),
     h('a', { class: 'btn btn-sm', title: cp?.passed ? 'Checkpoint passed' : 'Checkpoint', href: practiceHref('checkpoint', { moduleId: mod.id }), onclick: e => e.stopPropagation() }, cp?.passed ? [icon('flag', 14), icon('check', 11)] : icon('flag', 14)),
-    h('button', { class: 'crs-expand', 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} ${mod.title}`, 'aria-expanded': String(isOpen), onclick: toggle }, isOpen ? '▾' : '▸'))
+    h('button', { class: 'crs-expand', 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} ${mod.title}`, 'aria-expanded': String(isOpen), onclick: toggle }, isOpen ? icon('chevronDown', 14) : icon('chevronRight', 14)))
   const bites = isOpen ? h('div', { class: 'crs-bite-list' }, mod.bites.map(biteRow)) : null
   return h('div', { class: 'stack-sm' }, row, bites)
 }
@@ -101,9 +101,9 @@ function unitCard(unit, index, redraw) {
       h('div', { class: 'row-wrap' }, h('span', null, icon(unit.icon, 20)), h('h3', null, unit.title), unit.mustLearn ? h('span', { class: 'pill pill-amber' }, 'Must-learn') : null),
       h('span', { class: 'small muted' }, `${unit.modules.length} modules · ${formatMinutes(unit.minutes)}`),
       hint ? h('span', { class: 'small crs-hint' }, icon('idea', 13), ` ${hint}`) : null),
-    h('button', { class: 'crs-expand', 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} ${unit.title}`, 'aria-expanded': String(isOpen) }, isOpen ? '▾' : '▸'))
+    h('button', { class: 'crs-expand', 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} ${unit.title}`, 'aria-expanded': String(isOpen) }, isOpen ? icon('chevronDown', 14) : icon('chevronRight', 14)))
   const actions = h('div', { class: 'row-wrap' },
-    h('a', { class: 'btn btn-sm', href: hrefFor(unit.id) }, 'Open ▸'),
+    h('a', { class: 'btn btn-sm', href: hrefFor(unit.id) }, ['Open ', icon('chevronRight', 14)]),
     checkpointPill(cp))
   const moduleList = isOpen ? h('div', { class: 'crs-module-list' }, unit.modules.map(mod => moduleRow(mod, redraw))) : null
   return h('div', { class: 'card crs-unit-card' }, head, actions, moduleList)
@@ -119,7 +119,7 @@ function renderOverview(container) {
       h('div', null,
         h('h1', null, 'Course'),
         h('p', { class: 'muted small' }, `${Math.round(overall * 100)}% complete · ${formatMinutes(course.minutes)} total`)),
-      h('a', { class: 'btn btn-primary', href: continueTarget() }, 'Continue ▸'))
+      h('a', { class: 'btn btn-primary', href: continueTarget() }, ['Continue ', icon('chevronRight', 14)]))
     page.replaceChildren(header, h('div', { class: 'crs-unit-grid' }, units.map((unit, index) => unitCard(unit, index, redraw))))
   }
   draw()
@@ -181,7 +181,7 @@ function renderFocused(container, id) {
     const problemsSection = problems.length ? h('div', { class: 'card crs-section' },
       h('div', { class: 'spread' },
         h('span', { class: 'section-title' }, 'Problems in this scope'),
-        h('a', { class: 'small', href: practiceHref('diagnose', scope) }, 'Diagnose them ▸')),
+        h('a', { class: 'small', href: practiceHref('diagnose', scope) }, ['Diagnose them ', icon('chevronRight', 14)])),
       h('div', { class: 'stack-sm' }, problems.map(problem => h('a', { class: 'crs-problem-row', href: `#/problems/${encodeURIComponent(problem.id)}` },
         h('div', { class: 'row-wrap grow' },
           problem.lc != null ? h('span', { class: 'mono small muted' }, `#${problem.lc}`) : null,

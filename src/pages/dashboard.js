@@ -216,7 +216,7 @@ function dailyQuestionStepper(questionItems, onFinish) {
     const item = questionItems[index]
     const kind = kindOf(item)
     const isLast = index === questionItems.length - 1
-    const nextButton = h('button', { class: 'btn btn-sm btn-primary', style: { visibility: 'hidden' }, onclick: () => isLast ? showDone() : showQuestion(index + 1) }, isLast ? 'Finish' : 'Next →')
+    const nextButton = h('button', { class: 'btn btn-sm btn-primary', style: { visibility: 'hidden' }, onclick: () => isLast ? showDone() : showQuestion(index + 1) }, isLast ? 'Finish' : ['Next ', icon('arrowRight', 16)])
     const onAnswer = result => {
       try { recordAnswer({ itemId: item.id, kind, skills: item.skills || [], correct: result.correct, ms: result.ms }) } catch {}
       nextButton.style.visibility = 'visible'
@@ -232,7 +232,7 @@ function dailyQuestionStepper(questionItems, onFinish) {
       h('b', null, 'Daily questions done'),
       h('span', { class: 'small muted' }, 'Nice work, see you tomorrow for a fresh set.'),
       h('div', { class: 'row-wrap daily-question-done-actions' },
-        h('a', { class: 'btn btn-sm', href: '#/practice' }, 'Keep practicing →'),
+        h('a', { class: 'btn btn-sm', href: '#/practice' }, ['Keep practicing ', icon('arrowRight', 16)]),
         h('button', { class: 'btn btn-sm btn-ghost', type: 'button', onclick: () => onFinish?.() }, 'Close'))))
   }
   showQuestion(0)
@@ -255,7 +255,7 @@ function buildDailyModal(thoughtItem, stepperNode, onAfterClose) {
             h('span', { class: `pill diff-${String(thoughtItem.difficulty || '').toLowerCase()}` }, thoughtItem.difficulty),
             h('b', null, thoughtItem.title),
             companyChips(thoughtItem.companies, { size: 'xs' })),
-          h('span', { class: 'btn btn-sm btn-primary' }, 'Walk through it →'))
+          h('span', { class: 'btn btn-sm btn-primary' }, ['Walk through it ', icon('arrowRight', 16)]))
         : null,
       stepperNode))
 

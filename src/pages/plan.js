@@ -1,4 +1,5 @@
 import { h } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { getBiteStatus, subscribe } from '../store.js'
 import { weeks, totalPlanMinutes } from '../content/plan.js'
 import { findNode } from '../content/curriculum.js'
@@ -72,7 +73,7 @@ function weekCard(info, isOpen, toggle) {
     h('div', { class: 'stack-sm', style: 'align-items:flex-end;flex-shrink:0' },
       h('span', { class: 'mono small' }, `${formatMinutes(doneMinutes)} / ${formatMinutes(week.minutes)}`),
       h('span', { class: 'muted small' }, `${doneCount}/${statuses.length} modules`),
-      h('button', { class: 'btn-icon', type: 'button', onclick: event => { event.stopPropagation(); toggle(week.id) } }, isOpen ? '▾' : '▸')))
+      h('button', { class: 'btn-icon', type: 'button', onclick: event => { event.stopPropagation(); toggle(week.id) } }, isOpen ? icon('chevronDown', 14) : icon('chevronRight', 14))))
   const body = isOpen ? h('div', { class: 'stack-sm', style: 'margin-top:14px' }, statuses.map(weekBlockRow)) : null
   return h('div', { class: 'card stack' }, header, body)
 }
@@ -103,7 +104,7 @@ export default function render(container) {
       currentBite ? h('div', { class: 'row-wrap', style: 'margin-top:8px' },
         h('span', { class: 'muted small' }, `Up next · ${current.week.title}`),
         h('b', null, currentBite.block.title),
-        h('a', { class: 'btn btn-primary btn-sm', href: currentBite.block.href }, 'Open ▸'))
+        h('a', { class: 'btn btn-primary btn-sm', href: currentBite.block.href }, ['Open ', icon('chevronRight', 14)]))
         : h('div', { class: 'row', style: 'margin-top:8px' }, h('b', null, 'All four weeks done. Nice work.')))
 
     const weekCards = weekInfos.map(info => weekCard(info, openWeek === info.week.id, id => { openWeek = openWeek === id ? null : id; draw() }))

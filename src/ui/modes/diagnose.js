@@ -1,4 +1,5 @@
 import { h } from '../h.js'
+import { icon } from '../icons.js'
 import { codeBlock } from '../code.js'
 import { renderMcq } from '../items.js'
 import { recordAnswer } from '../../store.js'
@@ -90,7 +91,7 @@ export default function runDiagnose(container, items, { onFinish } = {}) {
         h('span', { class: 'label muted' }, 'Say it'),
         problem.narration.map(line => h('div', { class: 'diagnose-say' }, richText(line)))) : null,
       problem.solution ? h('details', { class: 'diagnose-solution' }, h('summary', null, 'Solution'), codeBlock(problem.solution)) : null,
-      h('button', { class: 'btn btn-primary', onclick: () => next() }, groupIndex < groups.length - 1 ? 'Next problem →' : 'Finish'))
+      h('button', { class: 'btn btn-primary', onclick: () => next() }, groupIndex < groups.length - 1 ? ['Next problem ', icon('arrowRight', 16)] : 'Finish'))
   }
 
   function next() {

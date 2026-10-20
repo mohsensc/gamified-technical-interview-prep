@@ -178,7 +178,7 @@ function renderReadStep(stage, statement, onDone) {
 
   const legendEl = h('div', { class: 'rd-legend' })
   const scoreChip = h('span', { class: 'pill rd-score-chip' })
-  const continueBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => onDone() }, 'Continue to quiz →')
+  const continueBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => onDone() }, ['Continue to quiz ', icon('arrowRight', 16)])
 
   const revealBtn = h('button', { class: 'btn btn-primary', onclick: () => reveal() }, 'Reveal signals')
 
@@ -201,7 +201,7 @@ function renderReadStep(stage, statement, onDone) {
     const falsePositives = [...pickedIndices].filter(ci => !chunkFlags[ci].isSignal).length
     legendEl.replaceChildren(...results.map(r => h('div', { class: `rd-legend-item${r.hit === null ? '' : r.hit ? ' good' : ' bad'}` },
       h('span', { class: 'rd-legend-phrase' }, r.sig.phrase),
-      h('span', { class: 'rd-legend-arrow' }, '→'),
+      h('span', { class: 'rd-legend-arrow' }, icon('arrowRight', 16)),
       h('span', { class: 'rd-legend-means' }, rich(r.sig.means)))))
     const correct = grounded.length > 0 && hits === grounded.length && falsePositives === 0
     scoreChip.textContent = grounded.length ? `${hits}/${grounded.length} signals${falsePositives ? ` · ${falsePositives} extra` : ''}` : 'no signals tagged'
@@ -311,7 +311,7 @@ function renderStatementPanel(statement) {
 function renderSignStep(stage, statement, onDone) {
   const oneLiner = statementPlainText(statement).split(/(?<=[.!?])\s+/)[0] || statement.title
   let logged = false
-  const continueBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => onDone() }, 'Continue to edge cases →')
+  const continueBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => onDone() }, ['Continue to edge cases ', icon('arrowRight', 16)])
 
   const editor = createSignatureEditor(statement.signature, {
     onCheck: (result, attempts) => {
@@ -369,7 +369,7 @@ function renderEdgeStep(stage, statement, allStatements, onDone) {
 
   const feedback = h('div', { class: 'item-why-slot' })
   const checkBtn = h('button', { class: 'btn btn-primary', onclick: () => check() }, 'Check edge cases')
-  const finishBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => onDone() }, 'Finish →')
+  const finishBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => onDone() }, ['Finish ', icon('arrowRight', 16)])
 
   function check() {
     if (checked || !options.length) return
@@ -411,7 +411,7 @@ function renderSummary(stage, statement, allStatements, { onAnother, onBack }) {
     h('div', { class: 'row' }, h('div', { class: 'empty-icon' }, icon('check', 28)), h('h3', null, 'Statement complete')),
     h('p', { class: 'muted' }, 'Logged to your skill mastery and SRS queue.'),
     h('div', { class: 'row' },
-      nextPool.length ? h('button', { class: 'btn btn-primary', onclick: () => onAnother(nextPool[Math.floor(Math.random() * nextPool.length)]) }, 'Another statement →') : null,
+      nextPool.length ? h('button', { class: 'btn btn-primary', onclick: () => onAnother(nextPool[Math.floor(Math.random() * nextPool.length)]) }, ['Another statement ', icon('arrowRight', 16)]) : null,
       h('a', { class: 'btn btn-ghost', onclick: onBack, href: '#/read' }, 'Back to list'))))
 }
 
@@ -451,7 +451,7 @@ function renderRunner(container, statement, allStatements) {
   container.append(h('div', { class: 'page rd-page' },
     subnav('learn', 'read'),
     h('div', { class: 'page-header row' },
-      h('a', { class: 'btn btn-ghost', href: '#/read' }, '←'),
+      h('a', { class: 'btn btn-ghost', href: '#/read' }, icon('arrowLeft', 16)),
       statement.lc ? h('span', { class: 'mono muted lc-num' }, `#${statement.lc}`) : null,
       h('h1', null, stripMarks(statement.title)),
       statement.difficulty ? h('span', { class: `pill ${difficultyClass(statement.difficulty)}` }, statement.difficulty) : null,
@@ -551,7 +551,7 @@ function renderList(container, statements) {
 
   container.append(h('div', { class: 'page rd-page' },
     subnav('learn', 'read'),
-    h('div', { class: 'page-header row' }, h('h1', null, 'Read & sign'), countEl, randomButton, h('a', { class: 'btn btn-ghost', href: '#/read/drill' }, 'Signature drill →')),
+    h('div', { class: 'page-header row' }, h('h1', null, 'Read & sign'), countEl, randomButton, h('a', { class: 'btn btn-ghost', href: '#/read/drill' }, ['Signature drill ', icon('arrowRight', 16)])),
     h('div', { class: 'row problem-filters' }, searchInput, designChip, difficultyChips, doneChips),
     statements.length
       ? h('div', { class: 'card table-wrap' }, h('table', { class: 'problem-table' },
@@ -589,7 +589,7 @@ function renderDrill(container, statements) {
     const statement = queue[index]
     const oneLiner = statementPlainText(statement).split(/(?<=[.!?])\s+/)[0] || ''
     let answered = false
-    const nextBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => advance() }, index === queue.length - 1 ? 'Finish →' : 'Next →')
+    const nextBtn = h('button', { class: 'btn btn-primary', disabled: true, onclick: () => advance() }, index === queue.length - 1 ? ['Finish ', icon('arrowRight', 16)] : ['Next ', icon('arrowRight', 16)])
     const editor = createSignatureEditor(statement.signature, {
       revealAfter: 1,
       onCheck: result => {
@@ -639,7 +639,7 @@ function renderDrill(container, statements) {
 
   container.append(h('div', { class: 'page rd-page' },
     subnav('learn', 'read'),
-    h('div', { class: 'page-header row' }, h('a', { class: 'btn btn-ghost', href: '#/read' }, '←'), h('h1', null, 'Signature drill'), hud),
+    h('div', { class: 'page-header row' }, h('a', { class: 'btn btn-ghost', href: '#/read' }, icon('arrowLeft', 16)), h('h1', null, 'Signature drill'), hud),
     stage))
   drawCurrent()
 }

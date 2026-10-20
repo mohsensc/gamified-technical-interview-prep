@@ -35,8 +35,8 @@
 .cheat-card.is-hidden { display: none; }
 .cheat-card > summary.cheat-card-head { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 2px 0; }
 .cheat-card > summary.cheat-card-head::-webkit-details-marker { display: none; }
-.cheat-card > summary.cheat-card-head::after { content: '▸'; margin-left: auto; color: var(--faint); font-size: 13px; }
-.cheat-card[open] > summary.cheat-card-head::after { content: '▾'; }
+.cheat-chevron { margin-left: auto; color: var(--faint); display: inline-flex; }
+.cheat-card[open] .cheat-chevron svg { transform: rotate(90deg); }
 .cheat-card[open] > summary.cheat-card-head { margin-bottom: 14px; }
 .cheat-bar { display: inline-block; width: 5px; height: 22px; border-radius: 3px; flex-shrink: 0; }
 .cheat-card-body { flex-direction: column; gap: 14px; max-width: 100%; min-width: 0; }
@@ -167,7 +167,7 @@ div.cheat-row:not([tabindex]):hover { background: none; }
   .cheat-group { break-before: page; }
   .cheat-group:first-of-type { break-before: avoid; }
   .cheat-card { border: 1px solid var(--border-strong); box-shadow: none; background: #fff; padding: 12px 14px; border-radius: 6px; }
-  .cheat-card > summary.cheat-card-head::after { display: none; }
+  .cheat-chevron { display: none; }
   .cheat-row { break-inside: avoid; }
   .cheat-row:hover { background: none; }
   .code-block { max-height: none !important; overflow: visible !important; border-color: var(--border-strong); }

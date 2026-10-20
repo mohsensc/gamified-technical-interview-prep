@@ -295,7 +295,7 @@ function renderSession(container, params) {
   const timerPill = h('span', { class: 'pill mono practice-timer-pill' }, '0:00')
   const topRow = h('div', { class: 'row spread practice-session-top' },
     h('div', { class: 'row' },
-      h('a', { class: 'btn btn-ghost btn-sm', href: '#/practice' }, '← Practice'),
+      h('a', { class: 'btn btn-ghost btn-sm', href: '#/practice' }, [icon('arrowLeft', 16), ' Practice']),
       h('span', { class: 'chip' }, modeInfo ? [icon(modeInfo.icon, 13), ` ${modeInfo.title}`] : mode)),
     h('div', { class: 'row' }, timerOn ? timerPill : null, endButton))
   const stage = h('div', { class: 'practice-session-stage' })

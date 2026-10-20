@@ -52,8 +52,8 @@ export function mountStepper(container, trace, options = {}) {
   const errorEl = h('div', { class: 'st-error' })
 
   const counter = h('span', { class: 'st-counter mono' })
-  const prevButton = h('button', { class: 'btn btn-icon st-prev', title: 'Back (←)', 'aria-label': 'Previous step', onclick: () => go(index - 1) }, '⟵')
-  const nextButton = h('button', { class: 'btn btn-primary st-next', title: 'Next (→)', 'aria-label': 'Next step', onclick: () => advance() }, '⟶')
+  const prevButton = h('button', { class: 'btn btn-icon st-prev', title: 'Back (left arrow key)', 'aria-label': 'Previous step', onclick: () => go(index - 1) }, icon('arrowLeft', 20))
+  const nextButton = h('button', { class: 'btn btn-primary st-next', title: 'Next (right arrow key)', 'aria-label': 'Next step', onclick: () => advance() }, icon('arrowRight', 20))
   const playButton = h('button', { class: 'btn btn-icon st-play', title: 'Autoplay (space)', onclick: () => togglePlay() }, icon('play', 16))
   const scrub = h('input', { type: 'range', class: 'st-scrub', min: 0, max: 0, value: 0, oninput: event => go(Number(event.target.value)) })
   const ticks = h('div', { class: 'st-ticks' })
@@ -88,7 +88,7 @@ export function mountStepper(container, trace, options = {}) {
   const codePane = h('div', { class: 'st-code' }, code)
   let hintSeen = false
   try { hintSeen = localStorage.getItem('cram.stepHint') === '1' } catch {}
-  const stepHint = hintSeen ? null : h('div', { class: 'st-hint' }, h('span', { class: 'kbd' }, '←'), h('span', { class: 'kbd' }, '→'), ' to step')
+  const stepHint = hintSeen ? null : h('div', { class: 'st-hint' }, h('span', { class: 'kbd' }, icon('arrowLeft', 12)), h('span', { class: 'kbd' }, icon('arrowRight', 12)), ' to step')
   const dismissHint = () => {
     if (!stepHint || !stepHint.isConnected) return
     stepHint.classList.add('is-gone')
@@ -246,7 +246,7 @@ export function mountStepper(container, trace, options = {}) {
     predictButton.classList.toggle('active', predicting)
     scoreEl.textContent = predicting || score.total ? `${score.hits}/${score.total}` : ''
     predictBanner.style.display = predicting ? '' : 'none'
-    if (predicting && !predictBanner.dataset.result) predictBanner.replaceChildren(...(awaiting ? [icon('tap', 14), ' Click the line that runs next'] : ['Press ⟶ then guess the next line']))
+    if (predicting && !predictBanner.dataset.result) predictBanner.replaceChildren(...(awaiting ? [icon('tap', 14), ' Click the line that runs next'] : ['Press Next, then guess the next line']))
   }
 
   const go = target => {

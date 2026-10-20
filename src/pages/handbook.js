@@ -159,11 +159,11 @@ export default function render(container, params = {}) {
   container.append(h('div', { class: 'page hb-page' },
     subnav('handbook', 'handbook'),
     h('div', { class: 'page-header' },
-      h('a', { class: 'btn btn-ghost', href: '#/handbook' }, '← Handbook'),
+      h('a', { class: 'btn btn-ghost', href: '#/handbook' }, [icon('arrowLeft', 16), ' Handbook']),
       h('h1', { class: 'row' }, icon(chapter.icon, 24), ` ${stripMarks(chapter.title)}`)),
     h('div', { class: 'row hb-tabs' }, chapters.map(other => h('a', { class: `chip ${other.id === chapter.id ? 'active' : ''}`, href: `#/handbook/${other.id}` }, stripMarks(other.title)))),
     h('div', { class: 'hb-sections' }, chapter.sections.map(renderSection)),
     h('div', { class: 'row hb-pager' },
-      previous ? h('a', { class: 'btn btn-ghost', href: `#/handbook/${previous.id}` }, `← ${stripMarks(previous.title)}`) : h('span'),
-      next ? h('a', { class: 'btn btn-primary', href: `#/handbook/${next.id}` }, `${stripMarks(next.title)} →`) : null)))
+      previous ? h('a', { class: 'btn btn-ghost', href: `#/handbook/${previous.id}` }, [icon('arrowLeft', 16), ` ${stripMarks(previous.title)}`]) : h('span'),
+      next ? h('a', { class: 'btn btn-primary', href: `#/handbook/${next.id}` }, [`${stripMarks(next.title)} `, icon('arrowRight', 16)]) : null)))
 }

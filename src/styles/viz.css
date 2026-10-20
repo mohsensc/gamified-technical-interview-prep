@@ -5,7 +5,7 @@
 .viz-panel.has-error { border-color: var(--red); }
 .viz-panel-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .viz-panel-icon { font-family: var(--mono); color: var(--faint); text-transform: none; }
-.viz-panel.is-sorted .viz-panel-label::after { content: ' · sorted ↑'; color: var(--green); }
+.viz-panel.is-sorted .viz-panel-label::after { content: ' · sorted'; color: var(--green); }
 .viz-panel-body { overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
 .viz-empty { color: var(--faint); font-family: var(--mono); font-size: 13px; padding: 6px 2px; }
 

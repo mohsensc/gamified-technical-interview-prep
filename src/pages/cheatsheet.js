@@ -1,4 +1,5 @@
 import { h, clear, toast } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { renderMcq } from '../ui/items.js'
 import { codeBlock } from '../ui/code.js'
 import { companyMark } from '../ui/companies.js'
@@ -113,7 +114,7 @@ function colsTemplate(n) {
 function buildConstraintsBody(sheet) {
   const rows = sheet.rows.map(entry => rowEl(null, searchKey([entry.n, entry.target, entry.note]), { class: 'cheat-con-row' },
     h('span', { class: 'cheat-con-n mono' }, entry.n),
-    h('span', { class: 'cheat-con-arrow' }, '→'),
+    h('span', { class: 'cheat-con-arrow' }, icon('arrowRight', 14)),
     h('span', { class: 'cheat-con-target' }, entry.target),
     h('span', { class: 'cheat-con-note muted small' }, entry.note)))
   const notes = sheet.notes ? h('div', { class: 'row-wrap cheat-extra-notes' }, sheet.notes.map(text => h('span', { class: 'chip cheat-note-chip' }, text))) : null
@@ -150,7 +151,7 @@ function buildTableBody(sheet) {
 function buildSignalsBody(sheet) {
   const rows = sheet.rows.map(([signal, pattern]) => rowEl(null, searchKey([signal, pattern]), { class: 'cheat-signal-row' },
     h('span', { class: 'cheat-signal-text' }, signal),
-    h('span', { class: 'cheat-signal-arrow' }, '→'),
+    h('span', { class: 'cheat-signal-arrow' }, icon('arrowRight', 14)),
     h('span', { class: 'pill pill-red' }, pattern)))
   return [h('div', { class: 'cheat-signal-list' }, rows)]
 }
@@ -357,7 +358,8 @@ function buildSheetCard(sheet, group) {
   const details = h('details', { id: sheet.id, class: 'card cheat-card', open: isOpen || null, style: { '--sheet-tone': `var(--${tone})` } },
     h('summary', { class: 'cheat-card-head' },
       h('span', { class: 'cheat-bar', style: { background: `var(--${tone})` } }),
-      h('h2', null, sheet.title)),
+      h('h2', null, sheet.title),
+      h('span', { class: 'cheat-chevron' }, icon('chevronRight', 14))),
     h('div', { class: 'cheat-card-body' },
       ...body,
       h('div', { class: 'cheat-card-footer' }, quizButton),

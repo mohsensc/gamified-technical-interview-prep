@@ -193,7 +193,7 @@ function createSearchPalette() {
     list,
     h('div', { class: 'cmdk-foot small' },
       status,
-      h('span', { class: 'row cmdk-hints' }, h('span', { class: 'kbd' }, '↑'), h('span', { class: 'kbd' }, '↓'), h('span', { class: 'kbd' }, '↵'))))
+      h('span', { class: 'row cmdk-hints' }, h('span', { class: 'kbd' }, icon('arrowUp', 12)), h('span', { class: 'kbd' }, icon('arrowDown', 12)), h('span', { class: 'kbd' }, icon('enter', 12)))))
   const overlay = h('div', { class: 'cmdk-overlay', hidden: true, onclick: event => { if (event.target === overlay) close() } }, panel)
 
   const go = entry => {

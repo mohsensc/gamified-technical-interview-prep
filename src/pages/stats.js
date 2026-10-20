@@ -390,7 +390,7 @@ function renderSkillExtremesSection(state) {
       h('b', null, skillLabel(id)),
       h('div', { class: 'heat-bar', style: { '--heat': heatColor(record.mastery) } }, h('div', { style: { width: `${record.mastery * 100}%` } }))),
     h('span', { class: 'mono small muted' }, `${Math.round(record.mastery * 100)}%`),
-    drill ? h('span', { class: 'pill pill-teal' }, 'Drill now ▸') : null)
+    drill ? h('span', { class: 'pill pill-teal' }, ['Drill now ', icon('chevronRight', 14)]) : null)
 
   return h('div', { class: 'grid-2' },
     h('div', { class: 'card stack' }, h('span', { class: 'section-title' }, 'Strongest skills'),
@@ -402,7 +402,7 @@ function renderSkillExtremesSection(state) {
 function renderMissedSection() {
   const missed = getMissed({ since: Date.now() - 7 * dayMs }).slice(0, 8)
   const card = h('div', { class: 'card stack' },
-    h('div', { class: 'spread' }, h('span', { class: 'section-title' }, 'Most missed (7d)'), h('a', { class: 'small', href: practiceHref('mixed', { missedOnly: true }, { minutes: 10 }) }, 'Practice all ▸')))
+    h('div', { class: 'spread' }, h('span', { class: 'section-title' }, 'Most missed (7d)'), h('a', { class: 'small', href: practiceHref('mixed', { missedOnly: true }, { minutes: 10 }) }, ['Practice all ', icon('chevronRight', 14)])))
   if (!missed.length) {
     card.append(h('div', { class: 'empty small muted' }, 'Nothing missed recently.'))
     return card
@@ -530,7 +530,7 @@ function renderSessionsSection() {
           h('span', { class: 'muted small' }, ` ${s.correct}/${s.total}`),
           overruled ? h('span', { class: 'pill pill-teal' }, `+${overruled} overruled`) : null),
         h('td', { class: 'small muted mono' }, formatDuration(s.ms)),
-        h('td', null, h('a', { class: 'small', href: practiceHref(s.mode, s.scope || {}, { minutes: Math.max(5, Math.round((s.ms || 0) / 60e3)) }) }, 'Redo ▸')))
+        h('td', null, h('a', { class: 'small', href: practiceHref(s.mode, s.scope || {}, { minutes: Math.max(5, Math.round((s.ms || 0) / 60e3)) }) }, ['Redo ', icon('chevronRight', 14)])))
     })))))
   return card
 }

@@ -113,7 +113,7 @@ const phaseExtras = (phase, problem, session, persist) => {
           h('b', null, problem.lc ? `LC ${problem.lc} · ${stripMarks(problem.title)}` : stripMarks(problem.title)),
           problem.constraints ? h('span', { class: 'mono small' }, problem.constraints) : null,
           problem.signals?.length ? h('span', { class: 'muted small' }, 'Prompt mentions: ', rich(problem.signals.join(' · '))) : null,
-          problem.lc ? h('a', { class: 'small', href: `https://leetcode.com/problems/${problem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}/`, target: '_blank', rel: 'noopener' }, `Open LC #${problem.lc} statement ↗`) : null),
+          problem.lc ? h('a', { class: 'small', href: `https://leetcode.com/problems/${problem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}/`, target: '_blank', rel: 'noopener' }, [`Open LC #${problem.lc} statement `, icon('external', 14)]) : null),
       problem.pitfalls?.length ? reveal('pitfalls', 'Questions worth asking', h('ul', { class: 'mk-list' }, problem.pitfalls.map(item => h('li', null, rich(item))))) : null)
   }
   if (phase.id === 'constraints') {
@@ -164,8 +164,8 @@ const phaseExtras = (phase, problem, session, persist) => {
         }))
         : overridden ? h('div', { class: 'row' }, h('span', { class: 'pill pill-green override-pill' }, icon('check', 13), ' Counted as correct')) : null
       result.replaceChildren(
-        h('div', { class: `mk-cmp ${tone(timeOk)}` }, h('span', null, 'Time'), h('span', null, session.answers.time || '—'), h('span', null, '→'), h('strong', null, problem.time || '?')),
-        h('div', { class: `mk-cmp ${tone(spaceOk)}` }, h('span', null, 'Space'), h('span', null, session.answers.space || '—'), h('span', null, '→'), h('strong', null, problem.space || '?')),
+        h('div', { class: `mk-cmp ${tone(timeOk)}` }, h('span', null, 'Time'), h('span', null, session.answers.time || '—'), h('span', null, icon('arrowRight', 16)), h('strong', null, problem.time || '?')),
+        h('div', { class: `mk-cmp ${tone(spaceOk)}` }, h('span', null, 'Space'), h('span', null, session.answers.space || '—'), h('span', null, icon('arrowRight', 16)), h('strong', null, problem.space || '?')),
         overrideRow)
     }
     const check = () => {
@@ -317,10 +317,10 @@ const renderSession = (root, session, rerender, timers) => {
     starters,
     phaseExtras(phase, problem, session, persist),
     h('div', { class: 'row mk-nav' },
-      session.phaseIndex > 0 ? h('button', { class: 'btn btn-ghost', onclick: () => { session.phaseIndex -= 1; persist(true) } }, '← Back') : null,
+      session.phaseIndex > 0 ? h('button', { class: 'btn btn-ghost', onclick: () => { session.phaseIndex -= 1; persist(true) } }, [icon('arrowLeft', 16), ' Back']) : null,
       isLast
         ? h('button', { class: 'btn btn-primary', onclick: () => { session.rating = true; persist(true) } }, 'Finish & rate')
-        : h('button', { class: 'btn btn-primary', onclick: () => { session.phaseIndex += 1; persist(true) } }, 'Next phase →'),
+        : h('button', { class: 'btn btn-primary', onclick: () => { session.phaseIndex += 1; persist(true) } }, ['Next phase ', icon('arrowRight', 16)]),
       h('button', { class: 'btn btn-ghost mk-abandon', onclick: () => { if (confirm('Abandon this mock?')) { saveSession(null); rerender() } } }, 'Abandon')))
 
   root.append(header, h('div', { class: 'mk-body' }, phaseCard,
@@ -386,7 +386,7 @@ const renderNarrate = (root, rerender) => {
         class: `mk-choice ${drill.picked ? (kind === block.kind ? 'good' : kind === drill.picked ? 'bad' : 'faded') : ''}`,
         onclick: () => choose(kind),
       }, stripMarks(blockKinds[kind]))),
-      drill.picked ? h('button', { class: 'btn btn-primary', onclick: next }, drill.index + 1 < blocks.length ? 'Next block →' : 'Finish') : null)))
+      drill.picked ? h('button', { class: 'btn btn-primary', onclick: next }, drill.index + 1 < blocks.length ? ['Next block ', icon('arrowRight', 16)] : 'Finish') : null)))
 }
 
 const renderHistory = root => {

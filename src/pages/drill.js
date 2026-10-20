@@ -1,4 +1,5 @@
 import { h, clear, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { renderItem, kindOf, kindLabel } from '../ui/items.js'
 import { overrideResult } from '../engine/session.js'
 import * as store from '../store.js'
@@ -165,7 +166,7 @@ export default function render(container, params = {}) {
     const page = h('div', { class: 'page drill-page' },
       h('div', { class: 'drill-top' },
         h('div', { class: 'row drill-title' },
-          h('a', { class: 'btn btn-ghost', href: '#/' }, '←'),
+          h('a', { class: 'btn btn-ghost', href: '#/' }, icon('arrowLeft', 16)),
           h('h1', null, filter.label),
           h('div', { class: 'row drill-stats' }, comboEl, xpEl, counterEl)),
         progressEl,
