@@ -1125,6 +1125,8 @@
 
 .chip-signal {
   border-color: color-mix(in srgb, var(--sky, #38bdf8) 60%, transparent);
+  white-space: normal;
+  max-width: 100%;
 }
 
 .lc-link {
@@ -1235,6 +1237,15 @@
   justify-content: space-between;
   margin-top: 22px;
   gap: 10px;
+}
+
+.problem-pager .btn {
+  display: block;
+  max-width: 48%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @keyframes itemFadeUp {

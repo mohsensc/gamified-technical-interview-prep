@@ -55,6 +55,7 @@
   display: flex; flex-direction: column; gap: 4px;
 }
 .thought-example-row { display: flex; gap: 8px; align-items: baseline; }
+.thought-example-row code { min-width: 0; overflow-wrap: anywhere; }
 .thought-example-label {
   width: 56px; flex-shrink: 0; color: var(--muted); font-size: 11.5px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.05em;
