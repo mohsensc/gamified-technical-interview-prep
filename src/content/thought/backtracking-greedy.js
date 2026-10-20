@@ -59,11 +59,7 @@ Order of subsets in the result and order of elements within each subset don't ma
     category: 'backtracking-greedy',
     skills: ['backtracking'],
     companies: ['amazon', 'meta'],
-    statement: `Given an integer array that may contain duplicates, return every possible subset (the power set), with no duplicate subsets in the result.
-
-Sorting the array first groups equal values together, which makes it possible to skip over a duplicate value at the same recursion depth before it ever gets used.
-
-Both the subsets and the elements within each subset can be returned in any order.`,
+    statement: `Given an integer array that may contain duplicates, return every possible subset (the power set), with no duplicate subsets in the result.`,
     examples: [
       { input: 'nums = [1,2,2]', output: '[[],[1],[1,2],[1,2,2],[2],[2,2]]' },
       { input: 'nums = [0]', output: '[[],[0]]' },
@@ -116,9 +112,7 @@ Both the subsets and the elements within each subset can be returned in any orde
     companies: ['amazon', 'google', 'meta'],
     statement: `Given an array of distinct positive integers and a target, return every unique combination of numbers that sum to exactly target. The same number can be reused an unlimited number of times.
 
-Two combinations are considered the same if they use the same numbers in any order (sorted comparison), so each valid multiset should appear only once in the result.
-
-Since numbers can repeat, the recursion needs a way to "stay at the same index" instead of always moving forward, while still eventually making progress toward the target.`,
+Two combinations are considered the same if they use the same numbers in any order (sorted comparison), so each valid multiset should appear only once in the result.`,
     examples: [
       { input: 'candidates = [2,3,6,7], target = 7', output: '[[2,2,3],[7]]' },
       { input: 'candidates = [2,3,5], target = 8', output: '[[2,2,2,2],[2,3,3],[3,5]]' },
@@ -172,9 +166,7 @@ Since numbers can repeat, the recursion needs a way to "stay at the same index" 
     companies: ['amazon', 'meta'],
     statement: `Given a collection of candidate numbers that may contain duplicates, and a target, return every unique combination that sums to target. Unlike Combination Sum I, each number may only be used once per combination.
 
-Duplicate combinations in the result are not allowed, even though the input array itself can have repeated values.
-
-Sort the candidates first: it groups duplicates together (for the same skip trick as Subsets II) and lets you break out of the loop early the moment a candidate alone would overshoot the remaining target.`,
+Duplicate combinations in the result are not allowed, even though the input array itself can have repeated values.`,
     examples: [
       { input: 'candidates = [10,1,2,7,6,1,5], target = 8', output: '[[1,1,6],[1,2,5],[1,7],[2,6]]' },
       { input: 'candidates = [2,5,2,1,2], target = 5', output: '[[1,2,2],[5]]' },
@@ -231,9 +223,7 @@ Sort the candidates first: it groups duplicates together (for the same skip tric
     companies: ['amazon', 'microsoft', 'meta', 'google'],
     statement: `Given an array of distinct integers, return every possible permutation (every reordering of all the elements), in any order.
 
-Every permutation must use every element exactly once, just in a different arrangement.
-
-You'll need to track which elements are already placed in the current path, since (unlike subsets) you can revisit earlier indices as long as that value hasn't been used yet in this particular arrangement.`,
+Every permutation must use every element exactly once, just in a different arrangement.`,
     examples: [
       { input: 'nums = [1,2,3]', output: '[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]' },
       { input: 'nums = [0,1]', output: '[[0,1],[1,0]]' },
@@ -290,9 +280,7 @@ You'll need to track which elements are already placed in the current path, sinc
     companies: ['amazon', 'microsoft', 'bloomberg', 'meta'],
     statement: `Given an m x n grid of letters and a word, determine if the word can be constructed from letters that are sequentially adjacent (up, down, left, right), where the same cell can't be used more than once within a single word.
 
-Try starting the search from every cell in the grid, since the word could begin anywhere.
-
-While exploring a path, temporarily mark the current cell as visited (so you don't reuse it), then restore it before trying a different direction or backtracking to an earlier cell.`,
+The word can start at any cell.`,
     examples: [
       { input: 'board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"', output: 'true' },
       { input: 'board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCB"', output: 'false', explanation: 'the second B would require reusing the same cell twice' },
@@ -344,9 +332,7 @@ While exploring a path, temporarily mark the current cell as visited (so you don
     companies: ['amazon', 'meta'],
     statement: `Given a string, partition it so that every substring in the partition is a palindrome. Return all possible such partitions.
 
-A palindrome reads the same forward and backward; single characters always count as palindromes.
-
-Try every possible length for the next piece starting from the current position, only recursing into pieces that are themselves palindromes, and a partition is complete once you've consumed the entire string.`,
+A palindrome reads the same forward and backward; single characters always count as palindromes.`,
     examples: [
       { input: 's = "aab"', output: '[["a","a","b"],["aa","b"]]' },
       { input: 's = "a"', output: '[["a"]]' },
@@ -459,11 +445,7 @@ Each digit maps to 3 or 4 letters, and a combination picks exactly one letter pe
     category: 'backtracking-greedy',
     skills: ['backtracking'],
     companies: ['amazon', 'apple', 'microsoft'],
-    statement: `The n-queens puzzle asks you to place n chess queens on an n x n board so that no two queens attack each other: no two queens can share a row, column, or diagonal. Return every distinct board arrangement that achieves this.
-
-Placing at most one queen per row turns this into "choose a column for each row", which avoids the row-conflict case automatically and keeps the branching factor to n per row.
-
-Columns are easy to track with a set. Diagonals are trickier: every cell on the same top-left-to-bottom-right diagonal shares the same (row - col) value, and every cell on the same top-right-to-bottom-left diagonal shares the same (row + col) value.`,
+    statement: `The n-queens puzzle asks you to place n chess queens on an n x n board so that no two queens attack each other: no two queens can share a row, column, or diagonal. Return every distinct board arrangement that achieves this.`,
     examples: [
       { input: 'n = 4', output: '2 distinct solutions', explanation: 'the two board layouts are reflections of each other' },
       { input: 'n = 1', output: '1 solution: [["Q"]]' },
@@ -521,9 +503,7 @@ Columns are easy to track with a set. Diagonals are trickier: every cell on the 
     companies: ['amazon', 'google', 'microsoft'],
     statement: `You're given an array where each element is the maximum jump length from that position. Starting at index 0, determine if you can reach the last index.
 
-You don't need to find the actual sequence of jumps, just whether reaching the end is possible at all.
-
-Working backward from the end: keep track of the leftmost index that's known to still be able to reach the goal, and try to pull that "goal" marker further left each time an earlier index can reach it.`,
+You don't need to find the actual sequence of jumps, just whether reaching the end is possible at all.`,
     examples: [
       { input: 'nums = [2,3,1,1,4]', output: 'true', explanation: 'jump 1 step to index 1, then 3 steps to the last index' },
       { input: 'nums = [3,2,1,0,4]', output: 'false', explanation: 'every path gets stuck at the 0 on index 3' },
@@ -565,11 +545,7 @@ Working backward from the end: keep track of the leftmost index that's known to 
     category: 'backtracking-greedy',
     skills: ['greedy'],
     companies: ['amazon', 'google'],
-    statement: `Same setup as Jump Game: each element is the max jump length from that index, and you're guaranteed you can always reach the last index. This time, return the minimum number of jumps needed to get there.
-
-Think of it as a BFS over "reachable in k jumps" ranges, but computed greedily in one forward pass instead of an explicit queue.
-
-Track the farthest index reachable so far, and the farthest index reachable using jumps taken so far (the current jump's range); when you reach the end of the current range, that forces one more jump.`,
+    statement: `Same setup as Jump Game: each element is the max jump length from that index, and you're guaranteed you can always reach the last index. This time, return the minimum number of jumps needed to get there.`,
     examples: [
       { input: 'nums = [2,3,1,1,4]', output: '2', explanation: 'jump from index 0 to index 1 (distance 1), then from index 1 to index 4 (distance 3)' },
       { input: 'nums = [2,3,0,1,4]', output: '2' },
@@ -619,9 +595,7 @@ Track the farthest index reachable so far, and the farthest index reachable usin
     companies: ['amazon', 'google'],
     statement: `There are n gas stations in a circle, each with some amount of gas, and it costs some amount of gas to travel from each station to the next one. Starting at some station with an empty tank, determine the index of the starting station that lets you complete the full circuit, or return -1 if it's impossible.
 
-If a solution exists, it's guaranteed to be unique.
-
-The key insight: if the total gas available is at least the total cost, a valid start always exists. And if you run out of gas trying to leave some station after starting at index start, no station between start and that failure point could have worked as a start either.`,
+If a solution exists, it's guaranteed to be unique.`,
     examples: [
       { input: 'gas = [1,2,3,4,5], cost = [3,4,5,1,2]', output: '3', explanation: 'starting at station 3: tank goes 0->4->2->5->4->6, never negative' },
       { input: 'gas = [2,3,4], cost = [3,4,3]', output: '-1', explanation: 'total gas (9) is less than total cost (10)' },
@@ -671,9 +645,7 @@ The key insight: if the total gas available is at least the total cost, a valid 
     companies: ['amazon', 'meta'],
     statement: `You're given an array of card values and a groupSize. Determine if the cards can be rearranged into groups of exactly groupSize, where each group consists of groupSize consecutive values (a "straight").
 
-If the total card count isn't evenly divisible by groupSize, it's immediately impossible.
-
-Always start a new straight at the smallest remaining card value with a count still left; since nothing smaller exists to start a straight with it, it must begin one if it's going to be used at all.`,
+If the total card count isn't evenly divisible by groupSize, it's immediately impossible.`,
     examples: [
       { input: 'hand = [1,2,3,6,2,3,4,7,8], groupSize = 3', output: 'true', explanation: 'groups [1,2,3], [2,3,4], [6,7,8]' },
       { input: 'hand = [1,2,3,4,5], groupSize = 4', output: 'false' },
@@ -726,9 +698,7 @@ Always start a new straight at the smallest remaining card value with a count st
     companies: ['amazon', 'meta'],
     statement: `Given a string, partition it into as many parts as possible so that each letter appears in at most one part, then return the length of each part in order.
 
-Every occurrence of a given letter must land in the same partition piece, even if that letter repeats far apart in the string.
-
-Precompute the last index each letter appears at. Then sweep left to right, growing the current piece's end to cover the last occurrence of every letter seen so far; once the sweep index catches up to that end, the piece is complete.`,
+Every occurrence of a given letter must land in the same partition piece, even if that letter repeats far apart in the string.`,
     examples: [
       { input: 's = "ababcbacadefegdehijhklij"', output: '[9,7,8]', explanation: '"ababcbaca", "defegde", "hijhklij"' },
       { input: 's = "eccbbbbdec"', output: '[10]' },
@@ -776,11 +746,7 @@ Precompute the last index each letter appears at. Then sweep left to right, grow
     category: 'backtracking-greedy',
     skills: ['greedy'],
     companies: ['amazon', 'meta'],
-    statement: `Given a string containing '(', ')', and '*', determine if it's a valid parenthesization, where '*' can be treated as '(', ')', or the empty string, your choice.
-
-Trying every interpretation of every '*' would be exponential. Instead, track a range of possible "open-paren counts": a lower bound assuming every '*' resolves as unhelpfully as possible, and an upper bound assuming every '*' resolves as helpfully as possible.
-
-The string is valid if, after processing every character, the lower bound can be brought down to exactly 0 while the upper bound never dipped below 0 at any point along the way.`,
+    statement: `Given a string containing '(', ')', and '*', determine if it's a valid parenthesization, where '*' can be treated as '(', ')', or the empty string, your choice.`,
     examples: [
       { input: 's = "()"', output: 'true' },
       { input: 's = "(*)"', output: 'true', explanation: '* can act as empty' },
@@ -837,9 +803,7 @@ The string is valid if, after processing every character, the lower bound can be
     companies: ['amazon', 'apple'],
     statement: `Given a non-empty array of integers where every element appears exactly twice except for one, find that single element that only appears once.
 
-You need linear time and, ideally, constant extra space, which rules out a hashmap of counts.
-
-XOR is the trick: a number XORed with itself is 0, and XOR is commutative/associative, so XORing the entire array cancels out every pair and leaves only the lone element.`,
+Use linear time and constant extra space.`,
     examples: [
       { input: 'nums = [2,2,1]', output: '1' },
       { input: 'nums = [4,1,2,1,2]', output: '4' },
@@ -882,9 +846,7 @@ XOR is the trick: a number XORed with itself is 0, and XOR is commutative/associ
     companies: ['amazon', 'google'],
     statement: `Given an integer n, return an array ans of length n + 1 where ans[i] is the number of 1 bits in the binary representation of i, for every i from 0 to n.
 
-A per-number popcount loop works but costs O(log i) per value. There's an O(1)-per-value recurrence using values already computed earlier in the array.
-
-Every integer i relates to i >> 1 (i with its last bit dropped): the bit count of i is the bit count of i >> 1, plus 1 more if i's last bit (i & 1) is set.`,
+Aim for O(n) total time.`,
     examples: [
       { input: 'n = 2', output: '[0,1,1]', explanation: '0 has 0 bits, 1 has 1 bit, 2 (10 in binary) has 1 bit' },
       { input: 'n = 5', output: '[0,1,1,2,1,2]' },
@@ -928,9 +890,7 @@ Every integer i relates to i >> 1 (i with its last bit dropped): the bit count o
     companies: ['apple', 'microsoft'],
     statement: `Given a 32-bit unsigned integer, return the integer obtained by reversing the order of its bits.
 
-Treat the input strictly as a fixed-width 32-bit value: bit 0 (least significant) swaps with bit 31 (most significant), bit 1 swaps with bit 30, and so on.
-
-Build the result one bit at a time: pull out bit i of n, then place it into the mirrored position (31 - i) of the result.`,
+Treat the input strictly as a fixed-width 32-bit value: bit 0 (least significant) swaps with bit 31 (most significant), bit 1 swaps with bit 30, and so on.`,
     examples: [
       { input: 'n = 00000010100101000001111010011100', output: '964176192 (00111001011110000010100101000000)' },
       { input: 'n = 11111111111111111111111111111101', output: '3221225471' },
@@ -974,9 +934,7 @@ Build the result one bit at a time: pull out bit i of n, then place it into the 
     companies: ['amazon', 'microsoft', 'bloomberg'],
     statement: `Given an array containing n distinct numbers taken from the range [0, n], find the one number in that range that's missing from the array.
 
-The array has length n, but the full range [0, n] has n + 1 possible values, so exactly one is missing.
-
-XORing every array value together with every index from 0 to n cancels out every number that's present (since it appears once as a value and once as an index), leaving only the missing number and one unmatched index.`,
+The array has length n, but the full range [0, n] has n + 1 possible values, so exactly one is missing.`,
     examples: [
       { input: 'nums = [3,0,1]', output: '2', explanation: 'n = 3, range is [0,3], and 2 is the one missing' },
       { input: 'nums = [9,6,4,2,3,5,7,0,1]', output: '8' },
@@ -1019,8 +977,6 @@ XORing every array value together with every index from 0 to n cancels out every
     skills: ['bit'],
     companies: ['amazon', 'microsoft'],
     statement: `Given two integers a and b, return their sum without using the '+' or '-' operators.
-
-Think in terms of binary addition: XOR gives you the sum of two bits ignoring any carry, and AND (shifted left by one) gives you exactly the carry that addition would produce. Repeat until there's no carry left.
 
 Python integers aren't fixed-width, so negative numbers need a 32-bit mask to simulate the two's-complement wraparound a fixed-width language would do naturally.`,
     examples: [

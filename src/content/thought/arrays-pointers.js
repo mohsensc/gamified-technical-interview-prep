@@ -53,7 +53,7 @@ Each input has exactly one valid pair, you can't reuse the same element twice, a
     companies: ['amazon', 'google', 'meta'],
     statement: `Given an array of integers, return the k most frequent elements, in any order.
 
-A naive sort by frequency is O(n log n); bucket sort by frequency count gets this down to O(n), since frequency can never exceed the length of the array.`,
+Aim for better than O(n log n).`,
     examples: [
       { input: 'nums = [1,1,1,2,2,3], k = 2', output: '[1,2]', explanation: '1 appears 3 times, 2 appears twice, 3 appears once' },
     ],
@@ -103,7 +103,7 @@ A naive sort by frequency is O(n log n); bucket sort by frequency count gets thi
     companies: ['amazon', 'meta', 'microsoft'],
     statement: `Given an array of integers, return an array where each index holds the product of every other element except the one at that index.
 
-You can't use division, and the whole thing should run in O(n) time. Think in terms of a running product from the left and a running product from the right.`,
+You can't use division, and it should run in O(n) time.`,
     examples: [
       { input: 'nums = [1,2,3,4]', output: '[24,12,8,6]', explanation: 'result[0] = 2*3*4, result[1] = 1*3*4, and so on' },
     ],
@@ -153,7 +153,7 @@ You can't use division, and the whole thing should run in O(n) time. Think in te
     companies: ['amazon', 'google', 'meta'],
     statement: `Given an unsorted array of integers, find the length of the longest run of consecutive integers, such as [3,4,5,6].
 
-The array isn't sorted and you're asked for O(n) time, so sorting first (O(n log n)) doesn't meet the bar. A hash set lets you check "is this the start of a run" in O(1).`,
+The array isn't sorted, and it should run in O(n) time.`,
     examples: [
       { input: 'nums = [100,4,200,1,3,2]', output: '4', explanation: 'the run [1,2,3,4] has length 4' },
     ],
@@ -257,9 +257,7 @@ You only need to validate the digits already placed, not solve the board or conf
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'meta', 'microsoft', 'google'],
-    statement: `Given an array of integers, find all unique triplets that sum to zero. The solution set must not contain duplicate triplets.
-
-Sorting first turns this into, for each index i, a classic two-pointer search for pairs that sum to -nums[i], with careful skipping of duplicate values at every level.`,
+    statement: `Given an array of integers, find all unique triplets that sum to zero. The solution set must not contain duplicate triplets.`,
     examples: [
       { input: 'nums = [-1,0,1,2,-1,-4]', output: '[[-1,-1,2],[-1,0,1]]' },
     ],
@@ -314,9 +312,7 @@ Sorting first turns this into, for each index i, a classic two-pointer search fo
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'meta', 'google', 'bloomberg'],
-    statement: `Given an array of heights, each pair of indices forms a container whose capacity is the distance between them times the shorter of the two heights. Find the maximum capacity over all pairs.
-
-Checking every pair is O(n^2). Starting pointers at both ends and always moving the shorter one inward never throws away the true answer, since the shorter wall was the bottleneck at that width.`,
+    statement: `Given an array of heights, each pair of indices forms a container whose capacity is the distance between them times the shorter of the two heights. Find the maximum capacity over all pairs.`,
     examples: [
       { input: 'height = [1,8,6,2,5,4,8,3,7]', output: '49', explanation: 'lines at index 1 (height 8) and index 8 (height 7), width 7, capacity 7*7=49' },
     ],
@@ -363,9 +359,7 @@ Checking every pair is O(n^2). Starting pointers at both ends and always moving 
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'google', 'meta', 'microsoft'],
-    statement: `Given an array representing an elevation map, compute how much water it can trap after raining.
-
-Water trapped above any bar is bounded by the shorter of the tallest wall to its left and the tallest wall to its right. Two pointers moving inward from both ends, each tracking its own running max, computes this in one pass without ever needing full left-max/right-max arrays.`,
+    statement: `Given an array representing an elevation map, compute how much water it can trap after raining.`,
     examples: [
       { input: 'height = [0,1,0,2,1,0,1,3,2,1,2,1]', output: '6' },
     ],
@@ -415,9 +409,7 @@ Water trapped above any bar is bounded by the shorter of the tallest wall to its
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'microsoft', 'meta'],
-    statement: `Given an array with only the values 0, 1, and 2, sort it in place in one pass, without using a library sort.
-
-This is the Dutch national flag problem: three pointers partition the array into a 0-region, a 1-region, and an unprocessed region, swapping elements into place as you scan.`,
+    statement: `Given an array with only the values 0, 1, and 2, sort it in place in one pass, without using a library sort.`,
     examples: [
       { input: 'nums = [2,0,2,1,1,0]', output: '[0,0,1,1,2,2]' },
     ],
@@ -463,9 +455,7 @@ This is the Dutch national flag problem: three pointers partition the array into
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'meta'],
-    statement: `Given an array, move all 0s to the end while keeping the relative order of the non-zero elements, doing it in place without making a copy.
-
-A single write-pointer tracks where the next non-zero value should land; after the scan, everything from that pointer onward becomes 0.`,
+    statement: `Given an array, move all 0s to the end while keeping the relative order of the non-zero elements, doing it in place without making a copy.`,
     examples: [
       { input: 'nums = [0,1,0,3,12]', output: '[1,3,12,0,0]' },
     ],
@@ -508,9 +498,7 @@ A single write-pointer tracks where the next non-zero value should land; after t
     category: 'arrays-pointers',
     skills: ['prefix-sum'],
     companies: ['meta', 'amazon', 'google'],
-    statement: `Given an array of integers and a target k, count the total number of contiguous subarrays whose sum equals k. The array can contain negative numbers, so a sliding window alone doesn't work.
-
-Track a running prefix sum and a count of how many times each prefix sum value has been seen; a subarray from j+1 to i sums to k exactly when prefixSum[i] - prefixSum[j] == k.`,
+    statement: `Given an array of integers and a target k, count the total number of contiguous subarrays whose sum equals k. The array can contain negative numbers.`,
     examples: [
       { input: 'nums = [1,1,1], k = 2', output: '2', explanation: 'the subarrays [1,1] (index 0-1) and [1,1] (index 1-2) both sum to 2' },
     ],
@@ -555,9 +543,7 @@ Track a running prefix sum and a count of how many times each prefix sum value h
     category: 'arrays-pointers',
     skills: ['arrays-hashing'],
     companies: ['amazon', 'meta', 'microsoft', 'apple'],
-    statement: `Given an array of daily stock prices, find the maximum profit from buying on one day and selling on a later day. You must buy before you sell, and if no profit is possible, return 0.
-
-One pass, tracking the minimum price seen so far and the best profit achievable by selling today, is enough; no need to check every pair of days.`,
+    statement: `Given an array of daily stock prices, find the maximum profit from buying on one day and selling on a later day. You must buy before you sell, and if no profit is possible, return 0.`,
     examples: [
       { input: 'prices = [7,1,5,3,6,4]', output: '5', explanation: 'buy at 1 (day 1), sell at 6 (day 4), profit 5' },
       { input: 'prices = [7,6,4,3,1]', output: '0', explanation: 'prices only fall, so no profitable trade exists' },
@@ -601,9 +587,7 @@ One pass, tracking the minimum price seen so far and the best profit achievable 
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'microsoft'],
-    statement: `Given a 1-indexed array already sorted in ascending order, find two numbers that add up to a target and return their 1-indexed positions.
-
-Because the array is sorted, two pointers from both ends beat a hashmap here: O(1) extra space instead of O(n), since the sorted order tells you which pointer to move.`,
+    statement: `Given a 1-indexed array already sorted in ascending order, find two numbers that add up to a target and return their 1-indexed positions.`,
     examples: [
       { input: 'numbers = [2,7,11,15], target = 9', output: '[1,2]', explanation: 'numbers[0] + numbers[1] = 2 + 7 = 9, returned as 1-indexed [1,2]' },
     ],
@@ -649,9 +633,7 @@ Because the array is sorted, two pointers from both ends beat a hashmap here: O(
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'meta'],
-    statement: `Given an array of integers and a target, find all unique quadruplets that sum exactly to the target.
-
-This generalizes 3Sum by one more layer: sort first, fix two indices with nested loops (skipping duplicates at each level), then two-pointer the remaining two.`,
+    statement: `Given an array of integers and a target, find all unique quadruplets that sum exactly to the target.`,
     examples: [
       { input: 'nums = [1,0,-1,0,-2,2], target = 0', output: '[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]' },
     ],
@@ -711,9 +693,7 @@ This generalizes 3Sum by one more layer: sort first, fix two indices with nested
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['microsoft', 'amazon'],
-    statement: `Given a sorted array, remove the duplicates in place so each unique element appears only once, and return the count of unique elements. The relative order must be kept, and you must not allocate extra array space.
-
-A slow pointer tracks where the next unique value should be written; a fast pointer scans ahead looking for the next value different from the one before it.`,
+    statement: `Given a sorted array, remove the duplicates in place so each unique element appears only once, and return the count of unique elements. The relative order must be kept, and you must not allocate extra array space.`,
     examples: [
       { input: 'nums = [0,0,1,1,1,2,2,3,3,4]', output: '5, nums becomes [0,1,2,3,4,...]', explanation: '5 unique values, the first 5 slots hold them in order' },
     ],
@@ -755,9 +735,7 @@ A slow pointer tracks where the next unique value should be written; a fast poin
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'microsoft', 'google'],
-    statement: `Given an array of numbers representing a permutation, rearrange it into the lexicographically next greater permutation, in place. If no greater permutation exists (it's already the highest), rearrange it into the lowest possible order (sorted ascending).
-
-Scan from the right to find the first place the sequence drops (the pivot), find the smallest value to its right that's still bigger than it, swap them, then reverse everything after the pivot to make that suffix as small as possible.`,
+    statement: `Given an array of numbers representing a permutation, rearrange it into the lexicographically next greater permutation, in place. If no greater permutation exists (it's already the highest), rearrange it into the lowest possible order (sorted ascending).`,
     examples: [
       { input: 'nums = [1,2,3]', output: '[1,3,2]' },
       { input: 'nums = [3,2,1]', output: '[1,2,3]', explanation: 'already the highest permutation, wraps around to the lowest' },
@@ -805,9 +783,7 @@ Scan from the right to find the first place the sequence drops (the pivot), find
     category: 'arrays-pointers',
     skills: ['arrays-hashing'],
     companies: ['amazon', 'microsoft'],
-    statement: `Given an array of size n, find the element that appears more than n/2 times. The problem guarantees such a majority element always exists.
-
-Boyer-Moore voting does this in O(1) space: keep a candidate and a running count, incrementing when the current element matches the candidate and decrementing otherwise; when count hits zero, switch candidates.`,
+    statement: `Given an array of size n, find the element that appears more than n/2 times. The problem guarantees such a majority element always exists.`,
     examples: [
       { input: 'nums = [2,2,1,1,1,2,2]', output: '2' },
     ],
@@ -852,9 +828,7 @@ Boyer-Moore voting does this in O(1) space: keep a candidate and a running count
     category: 'arrays-pointers',
     skills: ['two-pointers'],
     companies: ['amazon', 'microsoft', 'meta'],
-    statement: `Given an array, rotate it to the right by k steps, in place, without using extra array space.
-
-The reversal trick does it in three reversals: reverse the whole array, then reverse the first k elements, then reverse the rest; this is equivalent to rotating but only touches each element O(1) times total.`,
+    statement: `Given an array, rotate it to the right by k steps, in place, without using extra array space.`,
     examples: [
       { input: 'nums = [1,2,3,4,5,6,7], k = 3', output: '[5,6,7,1,2,3,4]' },
     ],
@@ -900,9 +874,7 @@ The reversal trick does it in three reversals: reverse the whole array, then rev
     category: 'arrays-pointers',
     skills: ['arrays-hashing'],
     companies: ['amazon', 'bloomberg'],
-    statement: `Given an array of n integers where every value is between 1 and n, and each value appears either once or twice, find all the values that appear twice — in O(n) time and O(1) extra space.
-
-Since values are in range [1, n], you can use the array itself as a hash set: for each value, negate the number at the index it points to; if that slot is already negative, the value has been seen before.`,
+    statement: `Given an array of n integers where every value is between 1 and n, and each value appears either once or twice, find all the values that appear twice — in O(n) time and O(1) extra space.`,
     examples: [
       { input: 'nums = [4,3,2,7,8,2,3,1]', output: '[2,3]' },
     ],
@@ -945,9 +917,7 @@ Since values are in range [1, n], you can use the array itself as a hash set: fo
     category: 'arrays-pointers',
     skills: ['arrays-hashing'],
     companies: ['amazon', 'apple'],
-    statement: `Given an array of integers and an integer k, determine whether there are two distinct indices i and j such that nums[i] == nums[j] and the absolute difference between i and j is at most k.
-
-A hashmap from value to its most recent index lets you check this in one pass: whenever a value repeats, just compare the index gap to k.`,
+    statement: `Given an array of integers and an integer k, determine whether there are two distinct indices i and j such that nums[i] == nums[j] and the absolute difference between i and j is at most k.`,
     examples: [
       { input: 'nums = [1,2,3,1], k = 3', output: 'true', explanation: 'both 1s are at indices 0 and 3, a gap of 3, which is <= k' },
       { input: 'nums = [1,2,3,1,2,3], k = 2', output: 'false', explanation: 'every repeat is more than 2 indices apart' },

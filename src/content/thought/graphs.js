@@ -9,9 +9,7 @@ const items = [
     companies: ['google', 'amazon', 'microsoft', 'meta', 'bloomberg'],
     statement: `You get a 2-D grid of "1"s (land) and "0"s (water). An island is a maximal blob of land cells connected up/down/left/right - diagonals do not count.
 
-Count how many separate islands sit in the grid. The grid never wraps around the edges, and a single island can be any bendy shape.
-
-Think of each land cell as a node and each 4-directional land-land adjacency as an edge; islands are exactly the connected components of that implicit graph.`,
+Count how many separate islands sit in the grid. The grid never wraps around the edges, and a single island can be any bendy shape.`,
     examples: [
       { input: 'grid = [["1","1","0","0"],["1","1","0","0"],["0","0","1","0"],["0","0","0","1"]]', output: '3', explanation: 'a 2x2 block, a lone cell at (2,2), and a lone cell at (3,3)' },
     ],
@@ -72,9 +70,7 @@ Think of each land cell as a node and each 4-directional land-land adjacency as 
     companies: ['google', 'amazon', 'meta'],
     statement: `Same grid-of-land setup as Number of Islands, but now every island has a size: the count of land cells in its connected blob.
 
-Return the size of the single largest island, or 0 if the grid is all water.
-
-You still only move 4-directionally, and you still want to visit every cell belonging to one island exactly once before moving to the next island.`,
+Return the size of the single largest island, or 0 if the grid is all water.`,
     examples: [
       { input: 'grid = [[1,1,0,0],[1,1,0,0],[0,0,0,1]]', output: '4', explanation: 'the 2x2 block has area 4; the lone cell at (2,3) has area 1' },
     ],
@@ -137,9 +133,7 @@ You still only move 4-directionally, and you still want to visit every cell belo
     companies: ['google', 'amazon', 'microsoft'],
     statement: `A grid has empty cells (0), fresh oranges (1) and rotten oranges (2). Every minute, every rotten orange rots its 4-directional fresh neighbors at the same time.
 
-Return the number of minutes until no fresh orange is left, or -1 if some fresh orange can never be reached.
-
-Because rot spreads from many sources simultaneously and in lockstep minutes, this is a layer-by-layer spread problem, not a single start-to-finish path.`,
+Return the number of minutes until no fresh orange is left, or -1 if some fresh orange can never be reached.`,
     examples: [
       { input: 'grid = [[2,1,1],[1,1,0],[0,1,1]]', output: '4' },
     ],
@@ -204,9 +198,7 @@ Because rot spreads from many sources simultaneously and in lockstep minutes, th
     companies: ['google', 'meta'],
     statement: `A grid mixes walls (-1), treasure chests (0) and empty rooms (INF, shown as 2147483647). Moves are 4-directional and walls block movement.
 
-Fill every empty room in place with the distance to its nearest treasure chest. Rooms that cannot reach any chest stay INF.
-
-Multiple chests exist, and a room should pick whichever chest is closest - so you want every chest expanding outward at the same time, not one chest fully explored before the next.`,
+Fill every empty room in place with the distance to its nearest treasure chest. Rooms that cannot reach any chest stay INF.`,
     examples: [
       { input: 'grid = [[2147483647,0,2147483647],[2147483647,-1,2147483647]]', output: '[[1,0,1],[2,-1,2]]' },
     ],
@@ -264,9 +256,7 @@ Multiple chests exist, and a room should pick whichever chest is closest - so yo
     companies: ['google', 'amazon'],
     statement: `A grid of heights has the Pacific touching its top and left edges, and the Atlantic touching its bottom and right edges. Water flows from a cell to a 4-directional neighbor only if the neighbor's height is less than or equal to the current cell.
 
-Return every cell from which water can reach BOTH oceans.
-
-Checking every cell's path forward to both oceans is slow, so instead flow backward: start DFS from each ocean's border cells and only climb to neighbors that are equal or taller, which is exactly water flowing downhill in reverse.`,
+Return every cell from which water can reach BOTH oceans.`,
     examples: [
       { input: 'heights = [[1,2],[4,3]]', output: '[[0,1],[1,0],[1,1]]' },
     ],
@@ -330,7 +320,7 @@ Checking every cell's path forward to both oceans is slow, so instead flow backw
 
 Return a deep copy of the whole graph: new node objects with the same values and the same neighbor structure, with no shared references back to the original.
 
-The graph can have cycles, so whatever you use to build the copy needs to recognize "I already cloned this node" instead of recursing forever.`,
+The graph can contain cycles.`,
     examples: [
       { input: 'adjList = [[2,4],[1,3],[2,4],[1,3]]', output: '[[2,4],[1,3],[2,4],[1,3]]', explanation: 'node 1 connects to 2 and 4, etc; the clone has the same shape' },
     ],
@@ -385,9 +375,7 @@ The graph can have cycles, so whatever you use to build the copy needs to recogn
     companies: ['google'],
     statement: `A board has 'X' and 'O' cells. Capture every region of 'O's that is fully surrounded by 'X' on all sides, flipping it to 'X'.
 
-An 'O' region touching the border, directly or through a chain of other 'O's, can never be captured - it has an escape route.
-
-So instead of trying to prove a region is surrounded, it's easier to find every region that is NOT surrounded (reachable from the border) and leave only those alone.`,
+An 'O' region touching the border, directly or through a chain of other 'O's, can never be captured - it has an escape route.`,
     examples: [
       { input: 'board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]', output: '[["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]', explanation: 'the O at the bottom-left touches the border and survives; the rest get captured' },
     ],
@@ -452,9 +440,7 @@ So instead of trying to prove a region is surrounded, it's easier to find every 
     companies: ['google', 'amazon', 'microsoft', 'meta'],
     statement: `Starting from beginWord, you may change exactly one letter at a time, and every intermediate word must exist in wordList. Reach endWord in as few transformations as possible.
 
-Return the number of words in the shortest such sequence, counting both begin and end words, or 0 if no sequence exists.
-
-Every word is a node, and an edge connects two words that differ by exactly one letter; the fewest transformations is just the shortest path in that implicit graph, so it wants BFS, not DFS.`,
+Return the number of words in the shortest such sequence, counting both begin and end words, or 0 if no sequence exists.`,
     examples: [
       { input: 'beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]', output: '5', explanation: 'hit -> hot -> dot -> dog -> cog' },
     ],
@@ -585,9 +571,7 @@ Nodes with no edges at all are still their own single-node component.`,
     companies: ['google', 'microsoft', 'meta'],
     statement: `You get n nodes labeled 0 to n-1 and a list of undirected edges.
 
-Decide whether these edges form a valid tree: every node connected, and no cycles.
-
-A tree on n nodes always has exactly n-1 edges, which is a fast pre-check, but it isn't sufficient by itself - you still need to confirm the edges don't form a cycle somewhere while leaving another part disconnected.`,
+Decide whether these edges form a valid tree: every node connected, and no cycles.`,
     examples: [
       { input: 'n = 5, edges = [[0,1],[0,2],[0,3],[1,4]]', output: 'true' },
       { input: 'n = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]', output: 'false', explanation: '1-2-3-1 is a cycle' },
@@ -649,9 +633,7 @@ A tree on n nodes always has exactly n-1 edges, which is a fast pre-check, but i
     companies: ['google', 'amazon'],
     statement: `An n x n grid has 0 (clear) and 1 (blocked) cells. From a cell you may step to any of its 8 neighbors - orthogonal AND diagonal - as long as that neighbor is clear.
 
-Return the length of the shortest clear path from the top-left to the bottom-right cell, counting both endpoints, or -1 if no path exists.
-
-Because every step costs exactly 1 regardless of direction, the shortest path is just a BFS distance, not a weighted shortest-path problem.`,
+Return the length of the shortest clear path from the top-left to the bottom-right cell, counting both endpoints, or -1 if no path exists.`,
     examples: [
       { input: 'grid = [[0,1],[1,0]]', output: '2' },
     ],
@@ -711,9 +693,7 @@ Because every step costs exactly 1 regardless of direction, the shortest path is
     companies: ['google'],
     statement: `There are n rooms numbered 0 to n-1. You start inside room 0, which is unlocked. Each room holds a list of keys, and each key is the index of another room you may now also enter.
 
-Return true if you can eventually visit every room, false otherwise.
-
-Room i's keys are exactly its outgoing edges to other rooms, so this is a reachability question on an implicit directed graph starting from node 0.`,
+Return true if you can eventually visit every room, false otherwise.`,
     examples: [
       { input: 'rooms = [[1],[2],[3],[]]', output: 'true' },
       { input: 'rooms = [[1,3],[3,0,1],[2],[0]]', output: 'false', explanation: 'room 2 is never reachable' },
@@ -768,9 +748,7 @@ Room i's keys are exactly its outgoing edges to other rooms, so this is a reacha
     companies: ['amazon', 'microsoft'],
     statement: `You get n nodes labeled 0 to n-1, a list of undirected edges, plus a source and a destination node.
 
-Return true if there's any path (through any number of edges) from source to destination, false otherwise.
-
-This is a plain reachability check, no shortest distance needed - you can stop the instant destination is found anywhere in the search.`,
+Return true if there's any path (through any number of edges) from source to destination, false otherwise.`,
     examples: [
       { input: 'n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2', output: 'true' },
     ],
@@ -830,9 +808,7 @@ This is a plain reachability check, no shortest distance needed - you can stop t
     companies: ['google', 'amazon', 'meta'],
     statement: `n cities are described by an n x n adjacency MATRIX isConnected, where isConnected[i][j] = 1 means city i and city j are directly connected.
 
-A province is a group of cities connected directly or indirectly, with no connection to any city outside the group. Return the number of provinces.
-
-The input is already a dense matrix instead of an edge list, so each DFS step scans a whole row of n entries rather than following a short adjacency list.`,
+A province is a group of cities connected directly or indirectly, with no connection to any city outside the group. Return the number of provinces.`,
     examples: [
       { input: 'isConnected = [[1,1,0],[1,1,0],[0,0,1]]', output: '2' },
     ],
@@ -892,9 +868,7 @@ The input is already a dense matrix instead of an edge list, so each DFS step sc
     companies: ['google', 'amazon', 'meta'],
     statement: `A grid has exactly one island of land cells (1s) connected 4-directionally, with water (0s) everywhere else and no lakes inside the island.
 
-Return the perimeter of that island - the total length of its boundary edges.
-
-There's no traversal order to figure out here: every land cell contributes one unit of perimeter for each side that touches water or the edge of the grid, so a single pass with no visited set does the whole job.`,
+Return the perimeter of that island - the total length of its boundary edges.`,
     examples: [
       { input: 'grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]', output: '16' },
     ],
@@ -952,7 +926,7 @@ There's no traversal order to figure out here: every land cell contributes one u
 
 Return the resulting image.
 
-The classic trap: if the new color happens to equal the start color, naive recursion never terminates because every repainted pixel still "matches" and keeps re-queuing itself.`,
+The new color may equal the start color.`,
     examples: [
       { input: 'image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2', output: '[[2,2,2],[2,2,0],[2,0,1]]' },
     ],
@@ -1011,7 +985,7 @@ The classic trap: if the new color happens to equal the start color, naive recur
 
 Return how many of grid2's islands are sub-islands.
 
-A single mismatched cell anywhere in a grid2 island disqualifies the WHOLE island, not just that cell - so the DFS needs to check every cell and every branch before deciding, not bail out on the first mismatch.`,
+One mismatched land cell disqualifies the whole grid2 island.`,
     examples: [
       { input: 'grid1 = [[1,1,1,0],[0,1,1,1],[0,0,0,0],[1,0,0,0]], grid2 = [[1,1,1,0],[0,0,1,1],[0,1,0,0],[1,0,1,1]]', output: '2' },
     ],

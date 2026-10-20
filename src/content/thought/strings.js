@@ -7,9 +7,7 @@ const items = [
     category: 'strings',
     skills: ['arrays-hashing'],
     companies: ['amazon', 'microsoft', 'bloomberg'],
-    statement: `You're given two strings s and t. Decide whether t is an anagram of s — meaning t uses exactly the same letters as s, same multiset of counts, just possibly reordered.
-
-If the strings are different lengths they obviously can't match, so that's an instant no. Otherwise every letter's count in one string has to equal its count in the other.`,
+    statement: `You're given two strings s and t. Decide whether t is an anagram of s — meaning t uses exactly the same letters as s, same multiset of counts, just possibly reordered.`,
     examples: [
       { input: 's = "anagram", t = "nagaram"', output: 'true' },
       { input: 's = "rat", t = "car"', output: 'false' },
@@ -55,9 +53,7 @@ If the strings are different lengths they obviously can't match, so that's an in
     category: 'strings',
     skills: ['arrays-hashing'],
     companies: ['google', 'amazon', 'meta', 'bloomberg'],
-    statement: `You get a list of lowercase words. Bucket them into groups where every word in a group is an anagram of every other word in that group, and return the groups in any order.
-
-The trick is finding a key that's identical for any two anagrams but different otherwise — either a sorted version of the word, or a fixed-length count of how many of each letter it has.`,
+    statement: `You get a list of lowercase words. Bucket them into groups where every word in a group is an anagram of every other word in that group, and return the groups in any order.`,
     examples: [
       { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', output: '[["bat"],["nat","tan"],["ate","eat","tea"]]' },
     ],
@@ -105,9 +101,7 @@ The trick is finding a key that's identical for any two anagrams but different o
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
     companies: ['google', 'amazon', 'microsoft', 'meta', 'apple', 'bloomberg'],
-    statement: `Given a string s, find the length of the longest contiguous substring that never repeats a character.
-
-A brute-force check of every substring is too slow, so the standard move is a sliding window: grow the right edge, and the moment a character would repeat, snap the left edge forward past its previous occurrence instead of inching forward one step at a time.`,
+    statement: `Given a string s, find the length of the longest contiguous substring that never repeats a character.`,
     examples: [
       { input: 's = "abcabcbb"', output: '3', explanation: '"abc" is the longest run with no repeats' },
       { input: 's = "bbbbb"', output: '1' },
@@ -159,9 +153,7 @@ A brute-force check of every substring is too slow, so the standard move is a sl
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
     companies: ['google'],
-    statement: `You can change up to k characters in string s to any other character. After doing so, find the length of the longest substring where every character is the same.
-
-Slide a window over s while tracking the count of the most frequent letter inside it. The window is valid as long as everything else in it — window size minus that top count — is at most k replacements; otherwise shrink from the left.`,
+    statement: `You can change up to k characters in string s to any other character. After doing so, find the length of the longest substring where every character is the same.`,
     examples: [
       { input: 's = "ABAB", k = 2', output: '4', explanation: 'replace both Bs with A (or vice versa)' },
       { input: 's = "AABABBA", k = 1', output: '4' },
@@ -218,9 +210,7 @@ Slide a window over s while tracking the count of the most frequent letter insid
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
     companies: ['amazon', 'microsoft'],
-    statement: `Given two strings s1 and s2, decide whether any contiguous substring of s2 is a permutation of s1 — same letters, same counts, any order.
-
-Since a permutation only cares about letter counts, slide a fixed-size window of length len(s1) across s2 and compare its letter counts to s1's letter counts at every position.`,
+    statement: `Given two strings s1 and s2, decide whether any contiguous substring of s2 is a permutation of s1 — same letters, same counts, any order.`,
     examples: [
       { input: 's1 = "ab", s2 = "eidbaooo"', output: 'true', explanation: '"ba" inside s2 is a permutation of "ab"' },
       { input: 's1 = "ab", s2 = "eidboaoo"', output: 'false' },
@@ -278,9 +268,7 @@ Since a permutation only cares about letter counts, slide a fixed-size window of
     category: 'strings',
     skills: ['sliding-window', 'arrays-hashing'],
     companies: ['google', 'amazon', 'microsoft', 'meta'],
-    statement: `Given strings s and t, find the shortest contiguous substring of s that contains every character of t, including duplicates — or an empty string if no such window exists.
-
-Expand a window over s, counting how many of t's required letters are currently satisfied in full. Once every required letter is satisfied, shrink the window from the left to look for something tighter before it breaks the condition again.`,
+    statement: `Given strings s and t, find the shortest contiguous substring of s that contains every character of t, including duplicates — or an empty string if no such window exists.`,
     examples: [
       { input: 's = "ADOBECODEBANC", t = "ABC"', output: '"BANC"' },
       { input: 's = "a", t = "aa"', output: '""', explanation: 's does not have two a-s, so no window works' },
@@ -344,9 +332,7 @@ Expand a window over s, counting how many of t's required letters are currently 
     category: 'strings',
     skills: ['two-pointers'],
     companies: ['microsoft', 'meta', 'apple'],
-    statement: `Given a string s, decide whether it reads the same forwards and backwards once you ignore every character that isn't a letter or digit, and ignore case.
-
-Rather than building a cleaned copy of the string, walk inward from both ends at once, skipping past anything that isn't alphanumeric, and compare the letters you land on (lowercased).`,
+    statement: `Given a string s, decide whether it reads the same forwards and backwards once you ignore every character that isn't a letter or digit, and ignore case.`,
     examples: [
       { input: 's = "A man, a plan, a canal: Panama"', output: 'true' },
       { input: 's = "race a car"', output: 'false' },
@@ -400,9 +386,7 @@ Rather than building a cleaned copy of the string, walk inward from both ends at
     category: 'strings',
     skills: ['two-pointers'],
     companies: ['microsoft', 'meta'],
-    statement: `Given a string s, decide whether it can be made into a palindrome by deleting at most one character.
-
-Two-pointer scan inward as usual. The first time the two ends disagree, you have exactly one chance left: try skipping the left character or skipping the right character, and see if either remaining range is a clean palindrome on its own.`,
+    statement: `Given a string s, decide whether it can be made into a palindrome by deleting at most one character.`,
     examples: [
       { input: 's = "abca"', output: 'true', explanation: 'delete the c (or the b) to get "aba"' },
       { input: 's = "abc"', output: 'false' },
@@ -457,9 +441,7 @@ Two-pointer scan inward as usual. The first time the two ends disagree, you have
     category: 'strings',
     skills: ['two-pointers'],
     companies: ['amazon', 'microsoft', 'meta'],
-    statement: `Given a string s, count how many substrings of s are palindromes — the same substring appearing at different positions counts separately each time.
-
-Every palindrome has a center: either a single character (odd length) or a gap between two characters (even length). Expand outward from every possible center and count every step that still matches on both sides.`,
+    statement: `Given a string s, count how many substrings of s are palindromes — the same substring appearing at different positions counts separately each time.`,
     examples: [
       { input: 's = "abc"', output: '3', explanation: '"a", "b", "c" are the only palindromic substrings' },
       { input: 's = "aaa"', output: '6', explanation: '"a", "a", "a", "aa", "aa", "aaa"' },
@@ -514,9 +496,7 @@ Every palindrome has a center: either a single character (odd length) or a gap b
     category: 'strings',
     skills: ['two-pointers', 'arrays-hashing'],
     companies: ['google', 'meta'],
-    statement: `Design an encode(strs) function that joins a list of strings into one string, and a decode(s) function that perfectly recovers the original list — even when the strings themselves contain any character, including commas, spaces, or whatever delimiter you were about to pick.
-
-The standard trick is to never rely on a separator character that could appear inside the data. Instead, prefix each string with its own length and a delimiter the length itself can't be confused with, so decoding always knows exactly how many characters to read next.`,
+    statement: `Design an encode(strs) function that joins a list of strings into one string, and a decode(s) function that perfectly recovers the original list — even when the strings themselves contain any character, including commas, spaces, or whatever delimiter you were about to pick.`,
     examples: [
       { input: 'strs = ["lint","code","love","you"]', output: '["lint","code","love","you"]', explanation: 'decode(encode(strs)) returns the original list' },
       { input: 'strs = ["we","say",":","yes"]', output: '["we","say",":","yes"]' },
@@ -572,9 +552,7 @@ The standard trick is to never rely on a separator character that could appear i
     category: 'strings',
     skills: ['two-pointers'],
     companies: ['microsoft', 'apple', 'bloomberg'],
-    statement: `Given a string s containing words separated by spaces, return a string with the words in reverse order, using a single space between words and no leading, trailing, or doubled-up spaces even if the input had extra ones.
-
-Python's split() already collapses any run of whitespace and drops empty pieces, so the real work is just reversing the resulting list of words and joining it back with single spaces.`,
+    statement: `Given a string s containing words separated by spaces, return a string with the words in reverse order, using a single space between words and no leading, trailing, or doubled-up spaces even if the input had extra ones.`,
     examples: [
       { input: 's = "  hello world  "', output: '"world hello"' },
       { input: 's = "a good   example"', output: '"example good a"' },
@@ -681,9 +659,7 @@ Any invalid string with no digits at all should just produce 0, not an error.`,
     category: 'strings',
     skills: ['math'],
     companies: ['amazon', 'microsoft', 'apple'],
-    statement: `Write the characters of string s in a zigzag pattern across numRows rows — straight down one column, then diagonally back up, then straight down again — and return the string formed by reading row by row left to right.
-
-Rather than computing each character's final (row, column) position with a formula, you can simulate it: walk through s once, append each character to whichever row you're currently on, and bounce that row pointer between 0 and numRows-1.`,
+    statement: `Write the characters of string s in a zigzag pattern across numRows rows — straight down one column, then diagonally back up, then straight down again — and return the string formed by reading row by row left to right.`,
     examples: [
       { input: 's = "PAYPALISHIRING", numRows = 3', output: '"PAHNAPLSIIGYIR"' },
       { input: 's = "PAYPALISHIRING", numRows = 4', output: '"PINALSIGYAHRPI"' },
@@ -740,9 +716,7 @@ Rather than computing each character's final (row, column) position with a formu
     category: 'strings',
     skills: ['arrays-hashing'],
     companies: ['google', 'apple'],
-    statement: `Given two strings s and t of the same length, decide whether they're isomorphic: there must exist a way to replace every character in s with another character (always the same replacement) so that it becomes exactly t, and that mapping has to be one-to-one in both directions.
-
-It's not enough to track s's characters mapping to t's — two different characters in s are also not allowed to map to the same character in t, so you need to check both directions as you scan.`,
+    statement: `Given two strings s and t of the same length, decide whether they're isomorphic: there must exist a way to replace every character in s with another character (always the same replacement) so that it becomes exactly t, and that mapping has to be one-to-one in both directions.`,
     examples: [
       { input: 's = "egg", t = "add"', output: 'true', explanation: 'e maps to a, g maps to d, consistently' },
       { input: 's = "foo", t = "bar"', output: 'false', explanation: 'both os in foo would need two different mappings' },
@@ -795,9 +769,7 @@ It's not enough to track s's characters mapping to t's — two different charact
     category: 'strings',
     skills: ['math', 'arrays-hashing'],
     companies: ['amazon', 'microsoft', 'apple', 'bloomberg'],
-    statement: `Convert a Roman numeral string into its integer value. Each symbol (I, V, X, L, C, D, M) has a fixed value, and the only wrinkle is the subtractive notation — a smaller-value symbol placed right before a larger one means subtract instead of add, like IV meaning 4 instead of 6.
-
-Scanning left to right, you only need to look one symbol ahead: if the next symbol outranks the current one, the current one's value gets subtracted instead of added.`,
+    statement: `Convert a Roman numeral string into its integer value. Each symbol (I, V, X, L, C, D, M) has a fixed value, and the only wrinkle is the subtractive notation — a smaller-value symbol placed right before a larger one means subtract instead of add, like IV meaning 4 instead of 6.`,
     examples: [
       { input: 's = "III"', output: '3' },
       { input: 's = "MCMXCIV"', output: '1994' },
@@ -847,9 +819,7 @@ Scanning left to right, you only need to look one symbol ahead: if the next symb
     category: 'strings',
     skills: ['two-pointers'],
     companies: ['amazon', 'microsoft', 'meta'],
-    statement: `Given two strings haystack and needle, return the index of the first occurrence of needle inside haystack, or -1 if needle never appears there at all.
-
-The straightforward approach tries every possible starting index in haystack and checks whether needle matches character by character from there, stopping as soon as a mismatch rules that start out.`,
+    statement: `Given two strings haystack and needle, return the index of the first occurrence of needle inside haystack, or -1 if needle never appears there at all.`,
     examples: [
       { input: 'haystack = "sadbutsad", needle = "sad"', output: '0', explanation: 'the first occurrence starts at index 0' },
       { input: 'haystack = "leetcode", needle = "leeto"', output: '-1' },
@@ -903,9 +873,7 @@ The straightforward approach tries every possible starting index in haystack and
     category: 'strings',
     skills: ['arrays-hashing'],
     companies: ['amazon', 'bloomberg'],
-    statement: `Given a string s, find the index of the first character that appears exactly once in the whole string, or -1 if every character repeats.
-
-Since uniqueness depends on the WHOLE string's counts, not just what's been seen so far, you need two passes: one to tally every character's total count, and a second to walk left to right looking for the first one whose total count is exactly 1.`,
+    statement: `Given a string s, find the index of the first character that appears exactly once in the whole string, or -1 if every character repeats.`,
     examples: [
       { input: 's = "leetcode"', output: '0', explanation: "l is the first character with count 1" },
       { input: 's = "aabb"', output: '-1' },
@@ -952,9 +920,7 @@ Since uniqueness depends on the WHOLE string's counts, not just what's been seen
     category: 'strings',
     skills: ['two-pointers'],
     companies: ['google', 'amazon', 'apple'],
-    statement: `Given a list of strings, find the longest prefix string that all of them share. If there's no common prefix at all, return an empty string.
-
-Use the first string as a yardstick and check column by column: for position i, see whether every other string still has a character at i and whether it matches the first string's character there. The moment one doesn't, the prefix found so far is the answer.`,
+    statement: `Given a list of strings, find the longest prefix string that all of them share. If there's no common prefix at all, return an empty string.`,
     examples: [
       { input: 'strs = ["flower","flow","flight"]', output: '"fl"' },
       { input: 'strs = ["dog","racecar","car"]', output: '""', explanation: 'no common prefix between all three' },

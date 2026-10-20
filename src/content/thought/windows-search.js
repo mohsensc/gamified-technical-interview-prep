@@ -7,9 +7,7 @@ const items = [
     category: 'windows-search',
     skills: ['sliding-window', 'queue-deque'],
     companies: ['amazon', 'google', 'meta'],
-    statement: `Given an array and a window size k, return the maximum value in each window as it slides from the left end of the array to the right.
-
-Recomputing the max for every window is O(n*k). A monotonic decreasing deque of indices keeps the window max at the front in O(1) amortized: pop smaller values from the back before pushing, and drop indices that fall out of the window from the front.`,
+    statement: `Given an array and a window size k, return the maximum value in each window as it slides from the left end of the array to the right.`,
     examples: [
       { input: 'nums = [1,3,-1,-3,5,3,6,7], k = 3', output: '[3,3,5,5,6,7]' },
     ],
@@ -58,9 +56,7 @@ Recomputing the max for every window is O(n*k). A monotonic decreasing deque of 
     category: 'windows-search',
     skills: ['sliding-window'],
     companies: ['amazon', 'google'],
-    statement: `You're picking fruit from a row of trees, each tree holding one type. You have exactly two baskets, each holding only one type of fruit, with no limit on quantity. You must pick from trees in a contiguous run and stop as soon as you'd need a third basket type.
-
-This is really "longest subarray with at most 2 distinct values": grow the window to the right, and whenever a third distinct type appears, shrink from the left until only 2 types remain.`,
+    statement: `You're picking fruit from a row of trees, each tree holding one type. You have exactly two baskets, each holding only one type of fruit, with no limit on quantity. You must pick from trees in a contiguous run and stop as soon as you'd need a third basket type.`,
     examples: [
       { input: 'fruits = [1,2,1]', output: '3', explanation: 'all three trees can be picked, only 2 types present' },
       { input: 'fruits = [0,1,2,2]', output: '3', explanation: 'picking [1,2,2] uses only 2 basket types' },
@@ -111,9 +107,7 @@ This is really "longest subarray with at most 2 distinct values": grow the windo
     category: 'windows-search',
     skills: ['sliding-window'],
     companies: ['google', 'meta'],
-    statement: `Given a binary array and an integer k, find the length of the longest contiguous subarray of 1s you can get by flipping at most k zeros to 1s.
-
-Grow the window to the right, counting zeros inside it; whenever the zero count exceeds k, shrink from the left until it's back at k or fewer.`,
+    statement: `Given a binary array and an integer k, find the length of the longest contiguous subarray of 1s you can get by flipping at most k zeros to 1s.`,
     examples: [
       { input: 'nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2', output: '6', explanation: 'flip the two 0s at indices 3,4 to get a run of six 1s from index 0 to 5' },
     ],
@@ -163,9 +157,7 @@ Grow the window to the right, counting zeros inside it; whenever the zero count 
     category: 'windows-search',
     skills: ['sliding-window'],
     companies: ['meta', 'amazon'],
-    statement: `Given an array of positive integers and a target sum, find the length of the shortest contiguous subarray whose sum is greater than or equal to the target. Return 0 if no such subarray exists.
-
-Since all values are positive, growing the window only increases the sum and shrinking only decreases it, so a sliding window works: grow right until the sum reaches target, then shrink left as far as possible while staying at or above target.`,
+    statement: `Given an array of positive integers and a target sum, find the length of the shortest contiguous subarray whose sum is greater than or equal to the target. Return 0 if no such subarray exists.`,
     examples: [
       { input: 'target = 7, nums = [2,3,1,2,4,3]', output: '2', explanation: 'the subarray [4,3] has sum 7 with length 2' },
       { input: 'target = 11, nums = [1,1,1,1,1,1,1,1]', output: '0', explanation: 'the total sum is only 8, which never reaches 11' },
@@ -213,9 +205,7 @@ Since all values are positive, growing the window only increases the sum and shr
     category: 'windows-search',
     skills: ['sliding-window'],
     companies: ['amazon', 'google'],
-    statement: `Given an array of integers and an integer k, find the maximum average value of any contiguous subarray of exactly length k.
-
-Compute the sum of the first window directly, then slide the window one step at a time, adjusting the sum by subtracting the element that leaves and adding the one that enters, instead of resumming from scratch.`,
+    statement: `Given an array of integers and an integer k, find the maximum average value of any contiguous subarray of exactly length k.`,
     examples: [
       { input: 'nums = [1,12,-5,-6,50,3], k = 4', output: '12.75', explanation: 'the window [12,-5,-6,50] sums to 51, average 51/4 = 12.75' },
     ],
@@ -257,9 +247,7 @@ Compute the sum of the first window directly, then slide the window one step at 
     category: 'windows-search',
     skills: ['sliding-window'],
     companies: ['google', 'amazon'],
-    statement: `Given a binary array, you must delete exactly one element from it. Find the length of the longest contiguous run of 1s in the resulting array.
-
-This is "at most one zero in the window" (same shape as Max Consecutive Ones III with k=1), except you must delete something, so the answer is the best window width minus 1, not the width itself.`,
+    statement: `Given a binary array, you must delete exactly one element from it. Find the length of the longest contiguous run of 1s in the resulting array.`,
     examples: [
       { input: 'nums = [1,1,0,1]', output: '3', explanation: 'delete the 0 at index 2, leaving [1,1,1]' },
       { input: 'nums = [1,1,1]', output: '2', explanation: 'no zero to delete, so you must still delete one of the 1s, leaving length 2' },
@@ -310,9 +298,7 @@ This is "at most one zero in the window" (same shape as Max Consecutive Ones III
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'google', 'microsoft'],
-    statement: `Given a sorted array of distinct integers and a target, return the index of the target, or -1 if it's not present. The classic requirement is O(log n) time.
-
-Keep a left and right bound, check the midpoint, and discard half the search space each time based on whether the midpoint is too small or too large.`,
+    statement: `Given a sorted array of distinct integers and a target, return the index of the target, or -1 if it's not present. The classic requirement is O(log n) time.`,
     examples: [
       { input: 'nums = [-1,0,3,5,9,12], target = 9', output: '4' },
     ],
@@ -359,9 +345,7 @@ Keep a left and right bound, check the midpoint, and discard half the search spa
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'microsoft'],
-    statement: `Given a sorted array of distinct integers and a target, return the index if the target is found, or the index where it would be inserted to keep the array sorted, if it's not.
-
-This is binary search for the leftmost position where nums[pos] >= target; the loop is written with a half-open [left, right) range so the answer falls out naturally as left when the loop ends.`,
+    statement: `Given a sorted array of distinct integers and a target, return the index if the target is found, or the index where it would be inserted to keep the array sorted, if it's not.`,
     examples: [
       { input: 'nums = [1,3,5,6], target = 5', output: '2', explanation: 'target is present at index 2' },
       { input: 'nums = [1,3,5,6], target = 2', output: '1', explanation: 'target would be inserted between index 0 and 1' },
@@ -407,9 +391,7 @@ This is binary search for the leftmost position where nums[pos] >= target; the l
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'microsoft', 'meta', 'google'],
-    statement: `You're given an array that was sorted in ascending order, then rotated at some unknown pivot. Search for a target value and return its index, or -1 if it's not present, in O(log n) time.
-
-At every midpoint, one of the two halves is still guaranteed to be properly sorted. Check which half is sorted, then check whether the target falls inside that sorted half's range to decide which side to keep searching.`,
+    statement: `You're given an array that was sorted in ascending order, then rotated at some unknown pivot. Search for a target value and return its index, or -1 if it's not present, in O(log n) time.`,
     examples: [
       { input: 'nums = [4,5,6,7,0,1,2], target = 0', output: '4' },
       { input: 'nums = [4,5,6,7,0,1,2], target = 3', output: '-1' },
@@ -464,9 +446,7 @@ At every midpoint, one of the two halves is still guaranteed to be properly sort
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'microsoft'],
-    statement: `Given a rotated sorted array of distinct values with no duplicates, find the minimum element in O(log n) time.
-
-Compare the middle element to the rightmost element: if the middle is greater, the minimum must be strictly to the right of it; otherwise the middle itself could be (or be past) the minimum, so keep it in the search range.`,
+    statement: `Given a rotated sorted array of distinct values with no duplicates, find the minimum element in O(log n) time.`,
     examples: [
       { input: 'nums = [3,4,5,1,2]', output: '1' },
       { input: 'nums = [4,5,6,7,0,1,2]', output: '0' },
@@ -512,9 +492,7 @@ Compare the middle element to the rightmost element: if the middle is greater, t
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'microsoft'],
-    statement: `You're given an m x n matrix where each row is sorted ascending, and the first element of each row is greater than the last element of the previous row — meaning the whole matrix is really just one sorted sequence read row by row. Determine whether a target value exists in the matrix.
-
-Treat the matrix as one flat sorted array of length rows*cols, binary search over that flat index space, and convert mid back to (row, col) with divmod.`,
+    statement: `You're given an m x n matrix where each row is sorted ascending, and the first element of each row is greater than the last element of the previous row — meaning the whole matrix is really just one sorted sequence read row by row. Determine whether a target value exists in the matrix.`,
     examples: [
       { input: 'matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3', output: 'true' },
       { input: 'matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13', output: 'false' },
@@ -564,9 +542,7 @@ Treat the matrix as one flat sorted array of length rows*cols, binary search ove
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['google', 'amazon'],
-    statement: `A peak element is one strictly greater than both of its neighbors (treating out-of-bounds neighbors as negative infinity). Given an array, find the index of any one peak; multiple peaks may exist and returning any valid one is fine.
-
-Binary search works here even though the array isn't sorted: whichever direction is increasing from the midpoint is guaranteed to lead to a peak, since the array's boundaries are effectively -infinity.`,
+    statement: `A peak element is one strictly greater than both of its neighbors (treating out-of-bounds neighbors as negative infinity). Given an array, find the index of any one peak; multiple peaks may exist and returning any valid one is fine.`,
     examples: [
       { input: 'nums = [1,2,3,1]', output: '2', explanation: 'index 2 holds value 3, greater than both neighbors' },
       { input: 'nums = [1,2,1,3,5,6,4]', output: '1 or 5', explanation: 'both index 1 (value 2) and index 5 (value 6) are valid peaks' },
@@ -612,9 +588,7 @@ Binary search works here even though the array isn't sorted: whichever direction
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['google', 'amazon'],
-    statement: `Koko has piles of bananas and h hours before the guards return. Each hour she picks one pile and eats up to k bananas from it (if the pile has fewer than k, she finishes it and the hour still counts). Find the minimum integer eating speed k so she finishes all piles within h hours.
-
-The answer space (possible speeds from 1 to max(piles)) is monotonic: a faster speed never needs more hours. Binary search on the speed itself, checking how many hours a candidate speed requires.`,
+    statement: `Koko has piles of bananas and h hours before the guards return. Each hour she picks one pile and eats up to k bananas from it (if the pile has fewer than k, she finishes it and the hour still counts). Find the minimum integer eating speed k so she finishes all piles within h hours.`,
     examples: [
       { input: 'piles = [3,6,7,11], h = 8', output: '4' },
       { input: 'piles = [30,11,23,4,20], h = 5', output: '30' },
@@ -661,9 +635,7 @@ The answer space (possible speeds from 1 to max(piles)) is monotonic: a faster s
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['google', 'amazon'],
-    statement: `A conveyor belt ships packages (in the given order, never reordered) over exactly D days, where each day you load as many consecutive packages as fit within the ship's weight capacity. Find the minimum ship capacity that still ships everything within D days.
-
-Same shape as Koko: the answer space is monotonic (a bigger capacity never needs more days), so binary search on capacity and simulate how many days a candidate capacity requires.`,
+    statement: `A conveyor belt ships packages (in the given order, never reordered) over exactly D days, where each day you load as many consecutive packages as fit within the ship's weight capacity. Find the minimum ship capacity that still ships everything within D days.`,
     examples: [
       { input: 'weights = [1,2,3,4,5,6,7,8,9,10], days = 5', output: '15' },
       { input: 'weights = [3,2,2,4,1,4], days = 3', output: '6' },
@@ -716,9 +688,7 @@ Same shape as Koko: the answer space is monotonic (a bigger capacity never needs
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'microsoft', 'google', 'apple'],
-    statement: `Given two sorted arrays, find the median of the combined data, in O(log(min(m,n))) time, without actually merging the arrays.
-
-Binary search on how many elements to take from the shorter array; the partition point in the longer array is then fully determined by that choice, since together both partitions must hold exactly half the combined length.`,
+    statement: `Given two sorted arrays, find the median of the combined data, in O(log(min(m,n))) time, without actually merging the arrays.`,
     examples: [
       { input: 'nums1 = [1,3], nums2 = [2]', output: '2.0', explanation: 'merged is [1,2,3], median is the middle value 2' },
       { input: 'nums1 = [1,2], nums2 = [3,4]', output: '2.5', explanation: 'merged is [1,2,3,4], median is the average of the two middle values' },
@@ -776,9 +746,7 @@ Binary search on how many elements to take from the shorter array; the partition
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['google', 'apple'],
-    statement: `Given an array of non-negative integers and an integer k, split the array into k non-empty contiguous subarrays so as to minimize the largest sum among the subarrays.
-
-The answer is monotonic in the "max allowed subarray sum" (a larger cap always needs fewer or equal groups), so binary search that cap between max(nums) and sum(nums), greedily counting how many groups a candidate cap requires.`,
+    statement: `Given an array of non-negative integers and an integer k, split the array into k non-empty contiguous subarrays so as to minimize the largest sum among the subarrays.`,
     examples: [
       { input: 'nums = [7,2,5,10,8], k = 2', output: '18', explanation: 'split into [7,2,5] (sum 14) and [10,8] (sum 18), minimizing the larger of the two' },
     ],
@@ -834,9 +802,7 @@ The answer is monotonic in the "max allowed subarray sum" (a larger cap always n
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'bloomberg'],
-    statement: `Design a time-based key-value store that stores multiple values for the same key at different timestamps, and can retrieve the value associated with a key at a given timestamp. If no exact timestamp match exists, return the value at the largest stored timestamp that is still <= the given timestamp; return "" if none exists.
-
-Store each key's (timestamp, value) pairs in a list, appended in increasing timestamp order (since set() calls are guaranteed non-decreasing in time), and binary search that list for the latest entry not exceeding the query timestamp.`,
+    statement: `Design a time-based key-value store that stores multiple values for the same key at different timestamps, and can retrieve the value associated with a key at a given timestamp. If no exact timestamp match exists, return the value at the largest stored timestamp that is still <= the given timestamp; return "" if none exists.`,
     examples: [
       { input: 'set("foo","bar",1); get("foo",1); get("foo",3)', output: '"bar", "bar"', explanation: 'no entry at timestamp 3, so it falls back to the latest entry at or before it, timestamp 1' },
       { input: 'set("foo","bar2",4); get("foo",4); get("foo",5)', output: '"bar2", "bar2"' },
@@ -889,9 +855,7 @@ Store each key's (timestamp, value) pairs in a list, appended in increasing time
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'microsoft'],
-    statement: `Given a sorted array of integers and a target, find the starting and ending position of the target's run. Return [-1,-1] if the target isn't present, in O(log n) time.
-
-Run two separate binary searches: one biased to keep narrowing left after a match (finds the first occurrence), one biased to keep narrowing right after a match (finds the last occurrence).`,
+    statement: `Given a sorted array of integers and a target, find the starting and ending position of the target's run. Return [-1,-1] if the target isn't present, in O(log n) time.`,
     examples: [
       { input: 'nums = [5,7,7,8,8,10], target = 8', output: '[3,4]' },
       { input: 'nums = [5,7,7,8,8,10], target = 6', output: '[-1,-1]' },
@@ -947,9 +911,7 @@ Run two separate binary searches: one biased to keep narrowing left after a matc
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['google', 'amazon'],
-    statement: `Given an n x n matrix where every row and every column is sorted ascending, find the kth smallest element in the matrix (counting duplicates).
-
-Binary search on the value range [matrix[0][0], matrix[n-1][n-1]] instead of on index. For a candidate value, count how many entries are <= it in O(n) by walking from the bottom-left corner: moving right when the current cell qualifies, moving up when it doesn't.`,
+    statement: `Given an n x n matrix where every row and every column is sorted ascending, find the kth smallest element in the matrix (counting duplicates).`,
     examples: [
       { input: 'matrix = [[1,5,9],[10,11,13],[12,13,15]], k = 8', output: '13' },
     ],
@@ -1008,9 +970,7 @@ Binary search on the value range [matrix[0][0], matrix[n-1][n-1]] instead of on 
     category: 'windows-search',
     skills: ['binary-search'],
     companies: ['amazon', 'microsoft'],
-    statement: `Same as Search in Rotated Sorted Array, except this array may contain duplicate values. Determine whether target exists in the array.
-
-Duplicates break the "one half is always sorted" guarantee when nums[left] == nums[mid] == nums[right], since you can't tell which side is rotated; in that one case, shrink both ends by one and keep going, which only costs O(n) worst case instead of O(log n).`,
+    statement: `Same as Search in Rotated Sorted Array, except this array may contain duplicate values. Determine whether target exists in the array.`,
     examples: [
       { input: 'nums = [2,5,6,0,0,1,2], target = 0', output: 'true' },
       { input: 'nums = [2,5,6,0,0,1,2], target = 3', output: 'false' },
@@ -1125,9 +1085,7 @@ An anagram has exactly the same letters with the same counts, in any order.`,
     category: 'windows-search',
     skills: ['prefix-sum', 'queue-deque', 'monotonic-stack'],
     companies: ['google', 'amazon'],
-    statement: `Given an integer array nums that may contain negatives and an integer k, return the length of the shortest non-empty subarray whose sum is at least k, or -1 if none exists.
-
-Because of the negatives, a normal grow-and-shrink window does not work.`,
+    statement: `Given an integer array nums that may contain negatives and an integer k, return the length of the shortest non-empty subarray whose sum is at least k, or -1 if none exists.`,
     examples: [
       { input: 'nums = [2,-1,2], k = 3', output: '3' },
       { input: 'nums = [1], k = 1', output: '1' },

@@ -11,7 +11,7 @@ export default {
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['google', 'amazon', 'microsoft', 'meta', 'bloomberg'],
-      statement: "You're given a string made only of the characters (, ), {, }, [, and ]. Decide whether the brackets are balanced: every closing bracket must match the most recently opened bracket of the same type, and every open bracket must eventually close.\n\nAn empty string counts as balanced. Think about what happens the instant you see a closing bracket — what do you need to compare it against, and where does that thing live?",
+      statement: "You're given a string made only of the characters (, ), {, }, [, and ]. Decide whether the brackets are balanced: every closing bracket must match the most recently opened bracket of the same type, and every open bracket must eventually close.",
       examples: [
         { input: "s = '()[]{}'", output: 'true' },
         { input: "s = '(]'", output: 'false' },
@@ -64,7 +64,7 @@ export default {
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['google', 'amazon', 'bloomberg'],
-      statement: 'Design a stack that supports push, pop, top, and getMin, where getMin must return the current minimum in O(1). The hard part is that pop can remove the current minimum, so you need to know the next minimum without rescanning the whole stack.\n\nAll four operations are expected to run in constant time. Think about carrying extra information alongside each pushed value instead of keeping a separate structure in sync.',
+      statement: 'Design a stack that supports push, pop, top, and getMin, where getMin must return the current minimum in O(1).',
       examples: [
         { input: 'push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()', output: '-3, None, 0, -2', explanation: 'getMin right after push(-3) is -3; after pop, top is 0 and the new getMin is -2' },
       ],
@@ -119,7 +119,7 @@ export default {
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['google', 'amazon', 'meta'],
-      statement: "You're given tokens of an arithmetic expression already written in postfix order — operands come before the operator that uses them. Evaluate it and return the integer result.\n\nValid operators are +, -, *, and /, and division truncates toward zero. There are no divide-by-zero cases and the result always fits in a 32-bit integer.\n\nBecause an operator always arrives right after the two operands it needs, you only ever have to remember a small amount of recent state.",
+      statement: "You're given tokens of an arithmetic expression already written in postfix order — operands come before the operator that uses them. Evaluate it and return the integer result.\n\nValid operators are +, -, *, and /, and division truncates toward zero. There are no divide-by-zero cases and the result always fits in a 32-bit integer.",
       examples: [{ input: "tokens = ['2','1','+','3','*']", output: '9', explanation: '(2 + 1) * 3' }],
       constraints: ['1 <= tokens.length <= 10^4', "each token is an operator, or an integer in [-200, 200]"],
       ds: {
@@ -172,7 +172,7 @@ export default {
       category: 'stack-trie',
       skills: ['monotonic-stack'],
       companies: ['google', 'amazon'],
-      statement: "Given the day's temperature for n days, for each day return how many days you'd have to wait until a warmer temperature shows up. If none ever comes, that day's answer is 0.\n\nChecking every future day for every day is quadratic. Instead keep a stack of days that are still waiting for something warmer, and resolve them the moment a hotter day finally arrives.",
+      statement: "Given the day's temperature for n days, for each day return how many days you'd have to wait until a warmer temperature shows up. If none ever comes, that day's answer is 0.",
       examples: [{ input: 'temperatures = [73,74,75,71,69,72,76,73]', output: '[1,1,4,2,1,1,0,0]' }],
       constraints: ['1 <= temperatures.length <= 10^5', '30 <= temperatures[i] <= 100'],
       ds: {
@@ -220,7 +220,7 @@ export default {
       category: 'stack-trie',
       skills: ['monotonic-stack'],
       companies: ['amazon'],
-      statement: "You have two arrays, nums1 and nums2, where every value in nums1 also appears somewhere in nums2. For each value in nums1, find its next greater element to the right in nums2 — the first value further right that's strictly bigger. If there isn't one, the answer is -1.\n\nBuild the next-greater answer for every value in nums2 once with a monotonic stack, then just look up each nums1 value in that map.",
+      statement: "You have two arrays, nums1 and nums2, where every value in nums1 also appears somewhere in nums2. For each value in nums1, find its next greater element to the right in nums2 — the first value further right that's strictly bigger. If there isn't one, the answer is -1.",
       examples: [{ input: 'nums1 = [4,1,2], nums2 = [1,3,4,2]', output: '[-1,3,-1]', explanation: "4 has nothing bigger after it; 1's next greater is 3; 2 has nothing after it" }],
       constraints: ['1 <= nums1.length <= nums2.length <= 1000', 'all integers in nums2 are distinct', 'nums1 is a subset of nums2'],
       ds: {
@@ -268,7 +268,7 @@ export default {
       category: 'stack-trie',
       skills: ['monotonic-stack'],
       companies: ['google', 'amazon', 'microsoft', 'meta'],
-      statement: "Given the bar heights of a histogram where each bar has width 1, find the area of the largest rectangle that fits entirely under the skyline.\n\nFor every bar, imagine it's the shortest bar in some rectangle — that rectangle can then stretch left and right until it hits a shorter bar on either side. A monotonic increasing stack of indices finds those boundaries for every bar in one pass instead of n separate scans.\n\nWhenever a shorter bar forces you to pop something off the stack, you now know exactly where that popped bar's rectangle ends on the right.",
+      statement: "Given the bar heights of a histogram where each bar has width 1, find the area of the largest rectangle that fits entirely under the skyline.",
       examples: [{ input: 'heights = [2,1,5,6,2,3]', output: '10', explanation: 'the bars of height 5 and 6 together give width 2 * height 5 = 10' }],
       constraints: ['1 <= heights.length <= 10^5', '0 <= heights[i] <= 10^4'],
       ds: {
@@ -321,7 +321,7 @@ export default {
       category: 'stack-trie',
       skills: ['monotonic-stack'],
       companies: ['google'],
-      statement: "Cars start at different positions on a single-lane road, all driving toward the same target at their own fixed speed, and no car can pass another — a faster car behind a slower one just bunches up into that car's fleet and matches its speed. Given each car's starting position and speed, count how many distinct fleets arrive at the target.\n\nSort cars by starting position, closest to the target first, and compute how long each car would take to reach the target alone. Walking from the car nearest the target backward, a car merges into the fleet ahead whenever its own arrival time doesn't exceed that fleet's time — otherwise it becomes its own fleet.",
+      statement: "Cars start at different positions on a single-lane road, all driving toward the same target at their own fixed speed, and no car can pass another — a faster car behind a slower one just bunches up into that car's fleet and matches its speed. Given each car's starting position and speed, count how many distinct fleets arrive at the target.",
       examples: [{ input: 'target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]', output: '3', explanation: 'the cars at 10 and 8 merge into one fleet; the remaining three cars form two more fleets' }],
       constraints: ['n == position.length == speed.length', '1 <= n <= 10^5', '0 < position[i] < target <= 10^6', '0 < speed[i] <= 10^6', 'all positions are distinct'],
       ds: {
@@ -369,7 +369,7 @@ export default {
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['google', 'amazon', 'bloomberg'],
-      statement: "Asteroids move along a single row: a positive value moves right, a negative value moves left, and the absolute value is its size. When two asteroids collide, the smaller one explodes; equal sizes mean both explode. Asteroids moving the same direction never meet. Return the state of all asteroids after every collision has finished.\n\nA collision only happens when a right-moving asteroid is already sitting on the stack and the next asteroid moves left — so scan left to right, resolve the stack's top against each new left-mover, and only push what survives.",
+      statement: "Asteroids move along a single row: a positive value moves right, a negative value moves left, and the absolute value is its size. When two asteroids collide, the smaller one explodes; equal sizes mean both explode. Asteroids moving the same direction never meet. Return the state of all asteroids after every collision has finished.",
       examples: [
         { input: 'asteroids = [5,10,-5]', output: '[5,10]', explanation: '10 and -5 collide; 10 survives since it is bigger' },
         { input: 'asteroids = [8,-8]', output: '[]', explanation: 'equal size, both explode' },
@@ -426,7 +426,7 @@ export default {
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['google', 'amazon', 'bloomberg'],
-      statement: "You're given an encoded string like '3[a2[c]]' where k[encoded] means encoded repeats k times, and these encodings can nest arbitrarily deep. Decode it back to the full string.\n\nEvery '[' starts a new nested layer, so save the string built so far plus the repeat count, then start fresh. Every ']' finishes the layer you were just building, so pop back to the saved string and append the repeated result onto it.",
+      statement: "You're given an encoded string like '3[a2[c]]' where k[encoded] means encoded repeats k times, and these encodings can nest arbitrarily deep. Decode it back to the full string.",
       examples: [
         { input: "s = '3[a2[c]]'", output: "'accaccacc'" },
         { input: "s = '2[abc]3[cd]ef'", output: "'abcabccdcdcdef'" },
@@ -488,7 +488,7 @@ export default {
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['meta', 'bloomberg'],
-      statement: "Repeatedly remove any two adjacent, identical letters from a string until no such pair remains, then return what's left. Order matters here — removing one pair can expose a brand new pair right next to where it used to be.\n\nA single left-to-right pass with a stack handles the whole cascade for free: push each letter, but if it matches what's already on top, pop instead of pushing. Whatever survives, read bottom to top, is the answer.",
+      statement: "Repeatedly remove any two adjacent, identical letters from a string until no such pair remains, then return what's left. Order matters here — removing one pair can expose a brand new pair right next to where it used to be.",
       examples: [{ input: "s = 'abbaca'", output: "'ca'", explanation: "'bb' cancels first leaving 'aaca', then 'aa' cancels, leaving 'ca'" }],
       constraints: ['1 <= s.length <= 10^5', 's consists of lowercase English letters'],
       ds: {
@@ -535,7 +535,7 @@ export default {
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['microsoft', 'meta'],
-      statement: "You're given an absolute Unix-style file path and need its simplified canonical form. A single dot means stay in the current directory, a double dot means go up one directory, and repeated slashes just collapse into one.\n\nSplit the path on '/' and process each piece: '..' pops the last real directory off a stack (if any exist), '.' and the empty pieces from repeated slashes are skipped, and everything else gets pushed. Join what's left with '/' and a leading slash.",
+      statement: "You're given an absolute Unix-style file path and need its simplified canonical form. A single dot means stay in the current directory, a double dot means go up one directory, and repeated slashes just collapse into one.",
       examples: [
         { input: "path = '/a/./b/../../c/'", output: "'/c'" },
         { input: "path = '/../'", output: "'/'" },
@@ -588,7 +588,7 @@ export default {
       category: 'stack-trie',
       skills: ['monotonic-stack'],
       companies: ['amazon'],
-      statement: "Design a class that is called once per day with that day's stock price, and returns the stock's span: the number of consecutive days up to and including today where the price stayed less than or equal to today's price, counting backward.\n\nA naive approach rescans every previous day on every call. Instead keep a stack of (price, span) pairs — when a new price is at least as big as the stack top's price, that whole span gets absorbed into today's span, since every day that span covers is also <= today's price.",
+      statement: "Design a class that is called once per day with that day's stock price, and returns the stock's span: the number of consecutive days up to and including today where the price stayed less than or equal to today's price, counting backward.",
       examples: [{ input: 'next(100), next(80), next(60), next(70), next(60), next(75), next(85)', output: '1, 1, 1, 2, 1, 4, 6' }],
       constraints: ['1 <= price <= 10^5', 'at most 10^4 calls to next'],
       ds: {
@@ -637,7 +637,7 @@ export default {
       category: 'stack-trie',
       skills: ['trie'],
       companies: ['google', 'amazon', 'microsoft', 'meta'],
-      statement: "Design a trie that supports insert, search (exact word match), and startsWith (prefix match), all faster than scanning a word list each time.\n\nEach node holds a dict mapping the next character to a child node, plus a flag marking whether some word ends exactly there. Walking character by character from the root either builds new nodes along the way (insert) or bails out the instant a needed character is missing (search / startsWith).",
+      statement: "Design a trie that supports insert, search (exact word match), and startsWith (prefix match), all faster than scanning a word list each time.",
       examples: [{ input: "insert('apple'), search('apple'), search('app'), startsWith('app'), insert('app'), search('app')", output: 'None, true, false, true, None, true' }],
       constraints: ['1 <= word.length, prefix.length <= 2000', 'word and prefix consist only of lowercase English letters', 'at most 3*10^4 calls total to insert, search, startsWith'],
       ds: {
@@ -705,7 +705,7 @@ class Trie:
       category: 'stack-trie',
       skills: ['trie'],
       companies: ['amazon', 'microsoft', 'meta'],
-      statement: "Design a structure that supports adding words and then searching with a wildcard: a '.' in the search pattern matches any single letter. addWord behaves like a normal trie insert; search needs to branch into every child the moment it hits a '.'.\n\nWalk the pattern index by index. On a normal letter, follow that one matching child or fail immediately. On '.', try every child at that node and succeed if any of them lets the rest of the pattern match too.",
+      statement: "Design a structure that supports adding words and then searching with a wildcard: a '.' in the search pattern matches any single letter.",
       examples: [{ input: "addWord('bad'), addWord('dad'), addWord('mad'), search('pad'), search('bad'), search('.ad'), search('b..')", output: 'None, None, None, false, true, true, true' }],
       constraints: ['1 <= word.length <= 25', 'word in addWord consists of lowercase English letters', 'word in search consists of lowercase letters and/or periods', 'at most 2*10^4 calls total'],
       ds: {
@@ -770,7 +770,7 @@ class WordDictionary:
       category: 'stack-trie',
       skills: ['trie', 'grid', 'backtracking'],
       companies: ['google', 'amazon', 'microsoft', 'meta'],
-      statement: "Given a grid of letters and a list of words, find every word that can be traced by moving to horizontally or vertically adjacent cells, never reusing a cell within one word.\n\nChecking each word against the grid one at a time repeats a lot of shared work when many words share prefixes. Building all the words into one trie first lets a single DFS over the grid explore every candidate word at once, pruning the search the instant the path no longer matches any remaining prefix.",
+      statement: "Given a grid of letters and a list of words, find every word that can be traced by moving to horizontally or vertically adjacent cells, never reusing a cell within one word.",
       examples: [{ input: "board = [['o','a','a','n'],['e','t','a','e'],['i','h','k','r'],['i','f','l','v']], words = ['oath','pea','eat','rain']", output: "['eat','oath']" }],
       constraints: ['1 <= rows, cols <= 12', '1 <= words.length <= 3*10^4', '1 <= word.length <= 10', 'all inputs are lowercase English letters'],
       ds: {
@@ -842,7 +842,7 @@ class Solution:
       category: 'stack-trie',
       skills: ['arrays-hashing'],
       companies: ['google', 'amazon', 'apple'],
-      statement: "Given a list of strings, find the longest prefix that every single one of them starts with. If there's no common starting prefix at all, return an empty string.\n\nThe shortest string in the list caps how long any common prefix could possibly be. Walk column by column up to that length, comparing the same character position across every string, and stop the instant one of them disagrees.",
+      statement: "Given a list of strings, find the longest prefix that every single one of them starts with. If there's no common starting prefix at all, return an empty string.",
       examples: [{ input: "strs = ['flower','flow','flight']", output: "'fl'" }, { input: "strs = ['dog','racecar','car']", output: "''" }],
       constraints: ['1 <= strs.length <= 200', '0 <= strs[i].length <= 200', 'strs[i] consists of lowercase English letters'],
       ds: {
@@ -888,7 +888,7 @@ class Solution:
       category: 'stack-trie',
       skills: ['trie'],
       companies: ['amazon'],
-      statement: "You have a dictionary of root words and a sentence. For every word in the sentence, if some root is a prefix of it, replace the word with the shortest such root. Words with no matching root stay exactly as they are.\n\nInsert every root into a trie, then for each sentence word walk the trie character by character — the moment you reach a node flagged as the end of a root, you've found the shortest replacement and can stop immediately.",
+      statement: "You have a dictionary of root words and a sentence. For every word in the sentence, if some root is a prefix of it, replace the word with the shortest such root. Words with no matching root stay exactly as they are.",
       examples: [{ input: "dictionary = ['cat','bat','rat'], sentence = 'the cattle was rattled by the battery'", output: "'the cat was rat by the bat'" }],
       constraints: ['1 <= dictionary.length <= 1000', '1 <= roots[i].length <= 100', '1 <= sentence.length <= 10^6', 'roots and sentence words are lowercase English letters'],
       ds: {
@@ -950,7 +950,7 @@ class Solution:
       category: 'stack-trie',
       skills: ['stack'],
       companies: ['amazon', 'meta'],
-      statement: "You're given a string expression containing non-negative integers and the operators +, -, *, and /, with no parentheses and no spaces to worry about once you skip them. Evaluate it following standard operator precedence (multiply and divide before add and subtract) and return the integer result.\n\nDivision between two integers should truncate toward zero. Think about what you can resolve immediately versus what has to wait.",
+      statement: "You're given a string expression containing non-negative integers and the operators +, -, *, and /, with no parentheses and no spaces to worry about once you skip them. Evaluate it following standard operator precedence (multiply and divide before add and subtract) and return the integer result.\n\nDivision between two integers should truncate toward zero.",
       examples: [
         { input: 's = "3+2*2"', output: '7', explanation: '2*2 is evaluated first (6), then 3+6=9... actually 3 + (2*2) = 7' },
         { input: 's = " 3/2 "', output: '1', explanation: 'integer division truncates 1.5 toward zero' },
@@ -1215,9 +1215,7 @@ The array is circular but you only ever wrap around once per starting position, 
       companies: ['google', 'amazon'],
       statement: `Design a structure that supports insert(key, val), storing a value for a string key, and sum(prefix), returning the sum of values for every key that starts with that prefix.
 
-Inserting a key that was already inserted before overwrites its value; it doesn't add to it.
-
-Think about where to store partial sums so sum(prefix) doesn't have to rescan every stored key.`,
+Inserting a key that was already inserted before overwrites its value; it doesn't add to it.`,
       examples: [
         { input: 'insert("apple", 3), sum("ap"), insert("app", 2), sum("ap")', output: '3, 5', explanation: 'sum("ap") first counts only "apple" (3), then also "app" (2) once inserted, for a total of 5' },
       ],
@@ -1275,7 +1273,7 @@ Think about where to store partial sums so sum(prefix) doesn't have to rescan ev
       companies: ['amazon'],
       statement: `Given an integer array arr, add up the minimum of every contiguous subarray and return the total modulo 10^9 + 7.
 
-There are O(n^2) subarrays, so you cannot list them. Ask instead: for each element, in how many subarrays is it the minimum?`,
+There are O(n^2) subarrays, so aim for better than listing them all.`,
       examples: [
         { input: 'arr = [3,1,2,4]', output: '17', explanation: 'Minimums are 3,1,2,4,1,1,2,1,1,1 which add to 17.' },
         { input: 'arr = [11,81,94,43,3]', output: '444' },

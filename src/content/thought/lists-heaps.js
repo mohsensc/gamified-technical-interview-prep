@@ -58,7 +58,7 @@ Solve it in a single pass using O(1) extra space, not by copying values into an 
     companies: ['amazon', 'microsoft', 'bloomberg'],
     statement: `Given the head of a linked list, determine if the list has a cycle in it: some node's next pointer eventually loops back to a node earlier in the list instead of ending at None.
 
-You need to detect this using O(1) extra memory, which rules out storing every visited node in a set.
+Use O(1) extra memory.
 
 Return true if a cycle exists anywhere in the list, false if it terminates normally at None.`,
     examples: [
@@ -270,9 +270,7 @@ Do it in one pass, without first walking the list to compute its length.`,
     companies: ['amazon', 'meta'],
     statement: `Given the head of a singly linked list L0 -> L1 -> ... -> Ln-1 -> Ln, reorder it in place to L0 -> Ln -> L1 -> Ln-1 -> L2 -> Ln-2 -> ..., weaving the front half and the reversed back half together.
 
-You must do this by rewiring existing node pointers only, no copying values into a new list or array.
-
-Think of it as three sub-problems back to back: find the middle, reverse the second half, then merge the two halves by alternating nodes.`,
+You must do this by rewiring existing node pointers only, no copying values into a new list or array.`,
     examples: [
       { input: 'head = [1,2,3,4]', output: '[1,4,2,3]' },
       { input: 'head = [1,2,3,4,5]', output: '[1,5,2,4,3]' },
@@ -324,9 +322,7 @@ Think of it as three sub-problems back to back: find the middle, reverse the sec
     companies: ['amazon', 'microsoft', 'meta', 'bloomberg'],
     statement: `You're given a linked list where each node has a .next pointer and also a .random pointer, which can point to any node in the list (or None). Build a deep copy of the entire list.
 
-The copy must be fully independent: none of its .next or .random pointers may point back into the original list, only into the new one.
-
-Because .random pointers can point forward to nodes not created yet, you need some way to look up "the new node that corresponds to this old node" regardless of order.`,
+The copy must be fully independent: none of its .next or .random pointers may point back into the original list, only into the new one.`,
     examples: [
       { input: 'head = [[7,null],[13,0],[11,4],[10,2],[1,0]]', output: 'a deep copy with identical val/next/random shape', explanation: 'node i\'s .random index refers to the node at that position in the original list' },
       { input: 'head = []', output: '[]' },
@@ -380,9 +376,7 @@ Because .random pointers can point forward to nodes not created yet, you need so
     companies: ['amazon', 'microsoft', 'google', 'bloomberg'],
     statement: `Design a Least Recently Used (LRU) cache with a fixed capacity. It needs get(key) and put(key, value), both running in O(1) average time.
 
-get returns the value for a key, or -1 if it isn't present, and counts as "using" that key, making it the most recently used. put inserts or updates a key's value, also marking it most recently used; if inserting a new key pushes the cache over capacity, evict the least recently used key first.
-
-You need both fast key lookup and a way to track usage order that supports O(1) "move this key to the front" — a plain list can't do that part in O(1).`,
+get returns the value for a key, or -1 if it isn't present, and counts as "using" that key, making it the most recently used. put inserts or updates a key's value, also marking it most recently used; if inserting a new key pushes the cache over capacity, evict the least recently used key first.`,
     examples: [
       { input: 'LRUCache(2), put(1,1), put(2,2), get(1), put(3,3), get(2), put(4,4), get(1), get(3), get(4)', output: 'null, null, null, 1, null, -1, null, -1, 3, 4', explanation: 'put(3,3) evicts key 2 (least recently used); put(4,4) evicts key 1' },
     ],
@@ -435,9 +429,7 @@ You need both fast key lookup and a way to track usage order that supports O(1) 
     companies: ['amazon', 'microsoft', 'google'],
     statement: `Given the head of a linked list, reverse the nodes k at a time and return the new head. k is a positive integer, and if the number of nodes left at the end isn't a multiple of k, leave that final partial group exactly as it is.
 
-You can't just reverse nodes' values, the nodes themselves need to move.
-
-Think of it recursively: reverse the first group of k nodes, then recurse on the rest of the list, and let whatever the recursive call returns become the new "next" of the just-reversed group's original head.`,
+You can't just reverse nodes' values, the nodes themselves need to move.`,
     examples: [
       { input: 'head = [1,2,3,4,5], k = 2', output: '[2,1,4,3,5]' },
       { input: 'head = [1,2,3,4,5], k = 3', output: '[3,2,1,4,5]' },
@@ -485,8 +477,6 @@ Think of it recursively: reverse the first group of k nodes, then recurse on the
     skills: ['heap', 'linked-list'],
     companies: ['amazon', 'google', 'microsoft', 'meta'],
     statement: `You're given an array of k linked lists, each already sorted in ascending order. Merge all of them into one sorted linked list and return its head.
-
-With k potentially large, repeatedly merging two lists at a time (pairwise) works but a min-heap lets you pick the overall smallest head node directly at every step.
 
 Each list can be empty, and the total number of nodes across all lists can be large, so the approach needs to scale with total nodes, not blow up per merge.`,
     examples: [
@@ -539,11 +529,7 @@ Each list can be empty, and the total number of nodes across all lists can be la
     category: 'lists-heaps',
     skills: ['heap'],
     companies: ['amazon', 'meta', 'microsoft'],
-    statement: `Given an integer array and an integer k, find the kth largest element in the array. That means the kth largest in sorted order, not the kth distinct value, so duplicates count individually.
-
-You need something better than fully sorting the array when the array is large and k is small.
-
-A min-heap capped at size k gives you exactly the kth largest sitting at the top once every element has been processed.`,
+    statement: `Given an integer array and an integer k, find the kth largest element in the array. That means the kth largest in sorted order, not the kth distinct value, so duplicates count individually.`,
     examples: [
       { input: 'nums = [3,2,1,5,6,4], k = 2', output: '5' },
       { input: 'nums = [3,2,3,1,2,4,5,5,6], k = 4', output: '4' },
@@ -588,9 +574,7 @@ A min-heap capped at size k gives you exactly the kth largest sitting at the top
     companies: ['amazon', 'google'],
     statement: `You have a pile of stones, each with a positive weight. Each turn, smash together the two heaviest stones: if they're equal, both are destroyed; if not, the lighter one is destroyed and the heavier one's weight becomes the difference.
 
-Keep going until at most one stone remains, and return that stone's weight, or 0 if none remain.
-
-Python's heapq is a min-heap only, so to repeatedly grab the two largest you need a trick to simulate a max-heap.`,
+Keep going until at most one stone remains, and return that stone's weight, or 0 if none remain.`,
     examples: [
       { input: 'stones = [2,7,4,1,8,1]', output: '1', explanation: '8&7->1, 2&4->2, 2&1->1, 1&1->0; (order among equal picks may vary but 1 remains either way)' },
       { input: 'stones = [1]', output: '1' },
@@ -636,8 +620,6 @@ Python's heapq is a min-heap only, so to repeatedly grab the two largest you nee
     skills: ['heap'],
     companies: ['amazon', 'meta', 'microsoft'],
     statement: `Given an integer array and an integer k, return the k most frequent elements, in any order.
-
-The straightforward approach sorts all distinct values by frequency, which is O(n log n). A heap bounded to size k can do it in O(n log k) instead.
 
 You can assume the answer (the set of k most frequent elements) is uniquely determined, so you don't need to worry about tie-breaking rules.`,
     examples: [
@@ -685,9 +667,7 @@ You can assume the answer (the set of k most frequent elements) is uniquely dete
     companies: ['amazon', 'google', 'microsoft'],
     statement: `Given an array of points on the X-Y plane and an integer k, return the k points closest to the origin (0, 0), in any order.
 
-Distance here is standard Euclidean distance, but since you only need to compare distances (not report them), you can skip the square root and compare squared distances instead.
-
-Any ordering of the k closest points is accepted, so you just need the right set, not a specific order.`,
+Distance here is standard Euclidean distance, but since you only need to compare distances (not report them), you can skip the square root and compare squared distances instead.`,
     examples: [
       { input: 'points = [[1,3],[-2,2]], k = 1', output: '[[-2,2]]', explanation: '(-2,2) has squared distance 8, versus 10 for (1,3)' },
       { input: 'points = [[3,3],[5,-1],[-2,4]], k = 2', output: '[[3,3],[-2,4]]' },
@@ -734,9 +714,7 @@ Any ordering of the k closest points is accepted, so you just need the right set
     companies: ['amazon', 'meta', 'bloomberg'],
     statement: `You're given a list of CPU tasks (letters) and a cooldown n: the same task letter must be separated by at least n other time units (idle or other tasks) between occurrences. Each unit of time runs exactly one task or sits idle.
 
-Find the minimum total time units needed to finish all tasks while respecting the cooldown.
-
-The greedy idea: always run whichever available task currently has the most remaining occurrences, since that's the one most likely to force idle time later if delayed.`,
+Find the minimum total time units needed to finish all tasks while respecting the cooldown.`,
     examples: [
       { input: 'tasks = ["A","A","A","B","B","B"], n = 2', output: '8', explanation: 'A B idle A B idle A B is one valid 8-unit schedule' },
       { input: 'tasks = ["A","A","A","B","B","B"], n = 0', output: '6', explanation: 'no cooldown needed, just run everything back to back' },
@@ -792,9 +770,7 @@ The greedy idea: always run whichever available task currently has the most rema
     companies: ['amazon', 'meta'],
     statement: `Design a simplified Twitter: postTweet(userId, tweetId) posts a new tweet, follow/unfollow(followerId, followeeId) manage the follow graph, and getNewsFeed(userId) returns the 10 most recent tweet ids from people the user follows plus the user's own tweets, most recent first.
 
-Users can't follow themselves, and tweet ids should be considered most recent to least recent as posted.
-
-Since only the 10 most recent tweets are ever needed, you don't need to sort every followee's entire tweet history, just their most recent handful.`,
+Users can't follow themselves, and tweet ids should be considered most recent to least recent as posted.`,
     examples: [
       { input: 'postTweet(1,5), getNewsFeed(1), follow(1,2), postTweet(2,6), getNewsFeed(1), unfollow(1,2), getNewsFeed(1)', output: 'null, [5], null, null, [6,5], null, [5]' },
     ],
@@ -856,9 +832,7 @@ Since only the 10 most recent tweets are ever needed, you don't need to sort eve
     companies: ['amazon', 'google', 'apple', 'bloomberg'],
     statement: `Design a structure that supports adding integers one at a time (addNum) and, at any point, returning the median of all numbers seen so far (findMedian).
 
-If the count so far is odd, the median is the single middle value; if even, it's the average of the two middle values.
-
-Both operations need to be efficient, which rules out re-sorting everything from scratch on every findMedian call.`,
+If the count so far is odd, the median is the single middle value; if even, it's the average of the two middle values.`,
     examples: [
       { input: 'addNum(1), addNum(2), findMedian(), addNum(3), findMedian()', output: 'null, null, 1.5, null, 2.0' },
     ],
@@ -909,9 +883,7 @@ Both operations need to be efficient, which rules out re-sorting everything from
     companies: ['google', 'amazon', 'meta', 'microsoft'],
     statement: `Given an array of intervals, merge all overlapping intervals and return an array of the non-overlapping intervals that cover all the input ranges.
 
-Two intervals overlap if one starts at or before the other one ends (touching endpoints like [1,4] and [4,5] count as overlapping and should merge).
-
-Sorting by start first turns this into a single linear pass where you only ever need to compare against the most recently merged interval.`,
+Two intervals overlap if one starts at or before the other one ends (touching endpoints like [1,4] and [4,5] count as overlapping and should merge).`,
     examples: [
       { input: 'intervals = [[1,3],[2,6],[8,10],[15,18]]', output: '[[1,6],[8,10],[15,18]]' },
       { input: 'intervals = [[1,4],[4,5]]', output: '[[1,5]]', explanation: 'touching at 4 still counts as overlapping' },
@@ -958,11 +930,7 @@ Sorting by start first turns this into a single linear pass where you only ever 
     category: 'lists-heaps',
     skills: ['intervals'],
     companies: ['google', 'amazon', 'microsoft'],
-    statement: `You're given a list of non-overlapping intervals already sorted by start time, plus one new interval to insert. Insert it into the list, merging with any existing intervals it overlaps, and return the resulting sorted, non-overlapping list.
-
-Unlike Merge Intervals, you don't need to sort anything here — the input is already sorted, so you can do this in a single linear pass.
-
-Split the work into three phases: intervals entirely before the new one (copy as-is), intervals that overlap the new one (fold into it), and intervals entirely after (copy as-is).`,
+    statement: `You're given a list of non-overlapping intervals already sorted by start time, plus one new interval to insert. Insert it into the list, merging with any existing intervals it overlaps, and return the resulting sorted, non-overlapping list.`,
     examples: [
       { input: 'intervals = [[1,3],[6,9]], newInterval = [2,5]', output: '[[1,5],[6,9]]' },
       { input: 'intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]', output: '[[1,2],[3,10],[12,16]]' },
@@ -1016,9 +984,7 @@ Split the work into three phases: intervals entirely before the new one (copy as
     companies: ['amazon', 'google'],
     statement: `Given an array of intervals, find the minimum number of intervals you'd need to remove so that the rest of the intervals don't overlap each other.
 
-Intervals that only touch at an endpoint (like [1,2] and [2,3]) do not count as overlapping.
-
-Sort by end time, not start time: greedily keep whichever interval ends earliest among any overlapping group, since it leaves the most room for everything that comes after.`,
+Intervals that only touch at an endpoint (like [1,2] and [2,3]) do not count as overlapping.`,
     examples: [
       { input: 'intervals = [[1,2],[2,3],[3,4],[1,3]]', output: '1', explanation: 'removing [1,3] leaves [1,2],[2,3],[3,4] fully non-overlapping' },
       { input: 'intervals = [[1,2],[1,2],[1,2]]', output: '2', explanation: 'keep just one of the three identical intervals' },
@@ -1067,9 +1033,7 @@ Sort by end time, not start time: greedily keep whichever interval ends earliest
     companies: ['google', 'amazon', 'microsoft', 'meta'],
     statement: `Given an array of meeting time intervals, find the minimum number of conference rooms required so that every meeting can be scheduled without two meetings using the same room at the same time.
 
-A meeting ending exactly when another starts does not require a second room; they can share one.
-
-Separating all the start times and all the end times into two sorted lists lets you sweep through both in lockstep and track how many rooms are simultaneously in use.`,
+A meeting ending exactly when another starts does not require a second room; they can share one.`,
     examples: [
       { input: 'intervals = [[0,30],[5,10],[15,20]]', output: '2', explanation: 'the [5,10] and [15,20] meetings both need a room while [0,30] is still running, but never both at once' },
       { input: 'intervals = [[7,10],[2,4]]', output: '1', explanation: "[2,4] ends before [7,10] starts, so one room suffices" },
@@ -1119,9 +1083,7 @@ Separating all the start times and all the end times into two sorted lists lets 
     companies: ['google', 'amazon'],
     statement: `You're given a list of intervals and a list of queries. For each query, find the size of the smallest interval that contains that query value (start <= query <= end), or -1 if no interval contains it.
 
-Both intervals and queries can be large in number, so checking every interval against every query would be too slow.
-
-Process queries in sorted order: as the query value grows, activate every interval whose start has been reached, keep active intervals in a heap keyed by size, and discard ones that have already ended before the current query.`,
+Both intervals and queries can be large in number, so checking every interval against every query would be too slow.`,
     examples: [
       { input: 'intervals = [[1,4],[2,4],[3,6],[4,4]], queries = [2,3,4,5]', output: '[3,3,1,4]', explanation: 'for query 4, [4,4] has size 1 and contains it, the smallest such interval' },
       { input: 'intervals = [[2,3],[2,5],[1,8],[20,25]], queries = [2,19,5,22]', output: '[2,-1,4,6]' },

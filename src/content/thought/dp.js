@@ -450,9 +450,7 @@ You only need the length of the longest such subsequence, not the subsequence it
     companies: ['amazon', 'meta'],
     statement: `Given an array of positive integers, decide whether it can be split into two subsets whose sums are exactly equal.
 
-Every element must land in exactly one of the two groups; nothing is left out and nothing is shared between groups.
-
-This is really asking whether some subset of the array sums to exactly half of the total.`,
+Every element must land in exactly one of the two groups; nothing is left out and nothing is shared between groups.`,
     examples: [
       { input: 'nums = [1,5,11,5]', output: 'true', explanation: '[1,5,5] sums to 11 and the remaining [11] also sums to 11' },
       { input: 'nums = [1,2,3,5]', output: 'false', explanation: 'total is 11 (odd), so it can never split into two equal halves' },
@@ -703,7 +701,7 @@ Return the fewest operations needed, not the sequence of edits itself.`,
 
 Each way is a different choice of index positions in s, read left to right, whose characters spell out t exactly; the same characters chosen at different positions count as different ways.
 
-Return that count, which can get large, so think in terms of accumulating counts rather than enumerating them.`,
+Return that count, which can get large.`,
     examples: [
       { input: 's = "rabbbit", t = "rabbit"', output: '3', explanation: "3 different choices of which 'b' to skip among the three b's" },
     ],
@@ -904,8 +902,6 @@ Find the maximum total coins you can collect by choosing the best order to burst
     companies: ['amazon', 'meta'],
     statement: `Given an array of integers that can include negative numbers and zero, find the contiguous subarray with the largest product.
 
-Because a negative number flips the sign, the subarray with the best product so far can turn into the worst one after multiplying by another negative, so tracking only a running maximum isn't enough.
-
 Return that maximum product, not the subarray itself.`,
     examples: [
       { input: 'nums = [2,3,-2,4]', output: '6', explanation: '[2,3] has product 6; pulling in -2 or [-2,4] only drops it' },
@@ -1002,9 +998,7 @@ A subsequence keeps the relative order of the original array but can skip elemen
     category: 'dp',
     skills: ['dp-1d'],
     companies: ['amazon', 'meta'],
-    statement: `Given an array of distinct positive integers and a target, count the number of possible ORDERED sequences that add up to target. The same number can be reused any number of times, and different orderings count as different sequences.
-
-Despite the name "Combination Sum", this is secretly counting permutations, not combinations.`,
+    statement: `Given an array of distinct positive integers and a target, count the number of possible ORDERED sequences that add up to target. The same number can be reused any number of times, and different orderings count as different sequences.`,
     examples: [
       { input: 'nums = [1,2,3], target = 4', output: '7', explanation: '(1,1,1,1),(1,1,2),(1,2,1),(2,1,1),(1,3),(3,1),(2,2) are all counted separately' },
     ],

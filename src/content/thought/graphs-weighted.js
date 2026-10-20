@@ -13,8 +13,6 @@ export default {
       companies: ['google', 'amazon', 'microsoft'],
       statement: `You're given n courses labeled 0 to n-1 and a list of prerequisite pairs [a, b] meaning you must finish course b before course a. Decide whether it's possible to finish every course given these dependencies.
 
-Think of each prerequisite as a directed edge. You can finish all courses exactly when the dependency graph has no cycle — a cycle means two or more courses depend on each other in a loop, so none of them could ever go first.
-
 Return true if an ordering exists that satisfies every prerequisite, and false if some cycle makes that impossible.`,
       examples: [
         { input: 'numCourses = 2, prerequisites = [[1,0]]', output: 'true', explanation: 'Take course 0, then course 1.' },
@@ -78,9 +76,7 @@ Return true if an ordering exists that satisfies every prerequisite, and false i
       companies: ['google', 'amazon'],
       statement: `This is the same course dependency setup as before, but now you must produce one valid order to take all n courses, not just decide if it's possible. Each prerequisite pair [a, b] still means b must come before a.
 
-If no valid order exists because of a cycle, return an empty array instead.
-
-A natural way to build an order is to repeatedly pick courses whose prerequisites are all already satisfied — courses with zero remaining dependencies — append them to the result, and update the dependency counts of everything that depended on them.`,
+If no valid order exists because of a cycle, return an empty array instead.`,
       examples: [
         { input: 'numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]', output: '[0,1,2,3] (or [0,2,1,3])', explanation: '0 has no prereqs; 1 and 2 both need 0; 3 needs both 1 and 2.' },
       ],
@@ -140,11 +136,7 @@ A natural way to build an order is to repeatedly pick courses whose prerequisite
       category: 'graphs-weighted',
       skills: ['topo-sort', 'graph-dfs', 'graph-modeling'],
       companies: ['google', 'amazon', 'meta'],
-      statement: `You're given a list of words from an alien language, already sorted according to that language's unknown alphabet order. From the order the words appear in, figure out one valid ordering of the letters themselves, or report that no valid ordering exists.
-
-Compare each pair of neighboring words letter by letter. The first position where they differ tells you that one letter must come before the other in the alien alphabet — that's a directed edge. If one word is a prefix of the next but appears after it, the order is already broken and no answer is possible.
-
-Once you've built this letter-ordering graph, a valid alphabet is just a topological sort of it; if the graph has a cycle, no valid alphabet exists.`,
+      statement: `You're given a list of words from an alien language, already sorted according to that language's unknown alphabet order. From the order the words appear in, figure out one valid ordering of the letters themselves, or report that no valid ordering exists.`,
       examples: [
         { input: 'words = ["wrt","wrf","er","ett","rftt"]', output: '"wertf"', explanation: 'Comparing adjacent words gives edges w<e, r<t, t<f, e<r.' },
         { input: 'words = ["z","x","z"]', output: '""', explanation: 'z<x and x<z contradict each other — a cycle.' },
@@ -212,9 +204,7 @@ Once you've built this letter-ordering graph, a valid alphabet is just a topolog
       companies: ['google', 'amazon'],
       statement: `A network has n nodes labeled 1 to n. You're given directed edges times[i] = [u, v, w] meaning a signal takes w time units to travel from node u to node v. A signal starts at node k and needs to reach every other node.
 
-Find the minimum time for the signal sent from k to reach all n nodes. If some node is unreachable, return -1 instead.
-
-This is a shortest-path problem with positive weights, so track the shortest known distance to each node and always expand from the closest unvisited node next.`,
+Find the minimum time for the signal sent from k to reach all n nodes. If some node is unreachable, return -1 instead.`,
       examples: [
         { input: 'times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2', output: '2', explanation: 'From node 2: nodes 1 and 3 reached at time 1, node 4 reached at time 2.' },
       ],
@@ -276,9 +266,7 @@ This is a shortest-path problem with positive weights, so track the shortest kno
       companies: ['google', 'amazon'],
       statement: `You're given a 2-D grid of heights. You start at the top-left cell and must reach the bottom-right cell, moving only up/down/left/right. The effort of a route is the maximum absolute height difference between any two consecutive cells on that route, not the sum.
 
-Find the route that minimizes this maximum step, and return that minimum possible effort.
-
-This is a shortest-path variant where instead of summing edge weights you take the max along the path, then minimize that max over all paths — a classic Dijkstra-style minimax on an implicit grid graph.`,
+Find the route that minimizes this maximum step, and return that minimum possible effort.`,
       examples: [
         { input: 'heights = [[1,2,2],[3,8,2],[5,3,5]]', output: '2', explanation: 'Going right, right, down, down keeps every step difference at most 2.' },
       ],
@@ -339,9 +327,7 @@ This is a shortest-path variant where instead of summing edge weights you take t
       companies: ['google'],
       statement: `You're given an n x n grid where cell (i, j) has an elevation. At time t, water has risen to level t, so you can only stand on a cell once the water level is at least that cell's elevation. You start at the top-left cell at time 0 and want to reach the bottom-right cell, moving to any of the 4 adjacent cells.
 
-Find the minimum time t at which a path from start to end exists.
-
-Equivalently, over every path from start to end, a path's cost is the highest elevation cell on it; you want the path that minimizes that highest elevation — expand outward from the start and always surface the lowest-elevation frontier cell next.`,
+Find the minimum time t at which a path from start to end exists.`,
       examples: [
         { input: 'grid = [[0,2],[1,3]]', output: '3', explanation: 'You must eventually step on the cell with elevation 3 to reach the bottom-right.' },
       ],
@@ -398,11 +384,7 @@ Equivalently, over every path from start to end, a path's cost is the highest el
       category: 'graphs-weighted',
       skills: ['graph-modeling', 'dp-1d'],
       companies: ['google', 'amazon'],
-      statement: `There are n cities connected by flights, each with a cost. You're given a starting city src, a destination dst, and a cap k on the number of stops (intermediate cities) you're allowed to use. Find the cheapest price to get from src to dst using at most k stops, or -1 if it's not possible within that limit.
-
-Because there's a hard cap on the number of edges in the path (at most k+1 edges), a plain Dijkstra isn't safe here — it could lock in a cheaper but longer route before a more expensive, shorter-hop route gets a chance.
-
-Instead, relax every edge exactly k+1 times, each round only using distances fixed by the previous round. This is Bellman-Ford limited to k+1 rounds, which naturally caps the number of edges used per path.`,
+      statement: `There are n cities connected by flights, each with a cost. You're given a starting city src, a destination dst, and a cap k on the number of stops (intermediate cities) you're allowed to use. Find the cheapest price to get from src to dst using at most k stops, or -1 if it's not possible within that limit.`,
       examples: [
         { input: 'n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1', output: '700', explanation: '0 -> 1 -> 3 costs 700 with one stop; the cheaper 0->1->2->3 route needs 2 stops.' },
       ],
@@ -453,11 +435,7 @@ Instead, relax every edge exactly k+1 times, each round only using distances fix
       category: 'graphs-weighted',
       skills: ['mst', 'heap', 'graph-modeling'],
       companies: ['google', 'amazon'],
-      statement: `You're given n points on a 2-D plane. The cost to connect any two points is the Manhattan distance between them. Find the minimum total cost to connect all n points so that every point can reach every other point, directly or through others.
-
-This is a minimum spanning tree problem on a complete graph where every pair of points has an implicit edge — you don't build the graph explicitly, you compute distances on demand.
-
-Grow the tree one point at a time: start from any point, and repeatedly add whichever unconnected point is closest to the current tree, using a heap to always have the next-cheapest edge ready.`,
+      statement: `You're given n points on a 2-D plane. The cost to connect any two points is the Manhattan distance between them. Find the minimum total cost to connect all n points so that every point can reach every other point, directly or through others.`,
       examples: [
         { input: 'points = [[0,0],[2,2],[3,10],[5,2],[7,0]]', output: '20', explanation: 'Connecting via Manhattan distances in the cheapest tree sums to 20.' },
       ],
@@ -517,9 +495,7 @@ Grow the tree one point at a time: start from any point, and repeatedly add whic
       companies: ['google', 'amazon'],
       statement: `You're given a list of edges that describe a graph which started as a tree on n nodes, then had exactly one extra edge added, creating a single cycle. Find that extra edge — the one you could remove to get back to a tree.
 
-If multiple edges could be removed to break the cycle, return the one that appears last in the input list.
-
-Process edges in order and union their two endpoints. The first edge whose two endpoints are already in the same component is the redundant one — adding it is what created the cycle.`,
+If multiple edges could be removed to break the cycle, return the one that appears last in the input list.`,
       examples: [
         { input: 'edges = [[1,2],[1,3],[2,3]]', output: '[2,3]', explanation: '1-2 and 1-3 already connect everything; 2-3 closes a cycle.' },
       ],
@@ -579,9 +555,7 @@ Process edges in order and union their two endpoints. The first edge whose two e
       companies: ['google', 'amazon', 'meta'],
       statement: `You're given a list of accounts, each a list starting with a name followed by emails belonging to that account. Two accounts belong to the same person if they share at least one email, even transitively through a chain of accounts.
 
-Merge all accounts that belong to the same person into one, combining all their emails (sorted) under that person's name, and return the merged list in any order.
-
-Treat each account as a node and each shared email as gluing two accounts together — union accounts that share any email, then gather every email that ends up in the same group.`,
+Merge all accounts that belong to the same person into one, combining all their emails (sorted) under that person's name, and return the merged list in any order.`,
       examples: [
         { input: 'accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"],["John","johnsmith@mail.com","john00@mail.com"],["Mary","mary@mail.com"],["John","johnny@mail.com"]]', output: '[["John","john00@mail.com","john_newyork@mail.com","johnsmith@mail.com"],["Mary","mary@mail.com"],["John","johnny@mail.com"]]', explanation: 'The first two John accounts share johnsmith@mail.com so they merge; the third John is unrelated.' },
       ],
@@ -648,9 +622,7 @@ Treat each account as a node and each shared email as gluing two accounts togeth
       companies: ['google', 'meta'],
       statement: `You're given an undirected graph as an adjacency list. A graph is bipartite if you can split its nodes into two groups so that every edge connects a node in one group to a node in the other — no edge stays within a group.
 
-Determine whether the given graph is bipartite. The graph may not be connected, so you need to check every component.
-
-A standard way is to 2-color the graph with BFS: color the start node, then force every neighbor to the opposite color; if a neighbor is already colored the same as the current node, the graph isn't bipartite.`,
+Determine whether the given graph is bipartite. The graph may not be connected, so you need to check every component.`,
       examples: [
         { input: 'graph = [[1,2,3],[0,2],[0,1,3],[0,2]]', output: 'false', explanation: 'Nodes 0,1,2 form an odd cycle (triangle), so no valid 2-coloring exists.' },
         { input: 'graph = [[1,3],[0,2],[1,3],[0,2]]', output: 'true', explanation: 'Colors alternate cleanly around the even cycle 0-1-2-3-0.' },
@@ -713,9 +685,7 @@ A standard way is to 2-color the graph with BFS: color the start node, then forc
       companies: ['google'],
       statement: `You have n people numbered 1 to n and a list of dislike pairs. You need to split everyone into two groups so that no two people who dislike each other end up in the same group.
 
-Return true if such a split is possible, and false otherwise.
-
-This is the same 2-coloring problem as graph bipartiteness, just phrased through people and dislikes instead of nodes and edges — build the dislike graph, then try to 2-color it, this time with DFS.`,
+Return true if such a split is possible, and false otherwise.`,
       examples: [
         { input: 'n = 4, dislikes = [[1,2],[1,3],[2,4]]', output: 'true', explanation: 'Group {1,4} and {2,3} satisfy every dislike pair.' },
         { input: 'n = 3, dislikes = [[1,2],[1,3],[2,3]]', output: 'false', explanation: '1, 2, 3 mutually dislike each other — an odd cycle (triangle).' },
@@ -772,9 +742,7 @@ This is the same 2-coloring problem as graph bipartiteness, just phrased through
       companies: ['google'],
       statement: `You're given a directed graph as an adjacency list. A node is terminal if it has no outgoing edges. A node is safe if every possible path starting from it eventually ends at a terminal node — no matter which path you take, you can never get stuck in a cycle.
 
-Return all safe nodes, sorted in ascending order.
-
-This is a cycle-detection problem again: a node is unsafe exactly when some path from it reaches a cycle. Run a 3-state DFS from every node, memoizing each node's safety once it's known so you don't redo work.`,
+Return all safe nodes, sorted in ascending order.`,
       examples: [
         { input: 'graph = [[1,2],[2,3],[5],[0],[5],[],[]]', output: '[2,4,5,6]', explanation: 'Nodes 2, 4, 5, 6 only ever reach terminal nodes; 0, 1, 3 are stuck in a cycle.' },
       ],
@@ -833,9 +801,7 @@ This is a cycle-detection problem again: a node is unsafe exactly when some path
       companies: ['google'],
       statement: `You have a 1-indexed n x n grid of land that floods one cell per day, given by the order in cells. On day 0, every cell is land; you want to walk from the top row to the bottom row using only land cells, moving in the 4 cardinal directions.
 
-Find the last day on which such a path still exists. After that day, every path from top to bottom is blocked by water.
-
-As days increase, more cells become water, so the set of days where a path exists is monotonic — once it's impossible, it stays impossible. That lets you binary search on the day and, for each candidate day, run a BFS to check whether top-to-bottom is still reachable using only cells that haven't flooded yet.`,
+Find the last day on which such a path still exists. After that day, every path from top to bottom is blocked by water.`,
       examples: [
         { input: 'row = 2, col = 2, cells = [[1,1],[2,1],[1,2],[2,2]]', output: '2', explanation: 'By day 2, a path through (1,2) still exists; day 3 floods everything.' },
       ],
@@ -899,11 +865,7 @@ As days increase, more cells become water, so the set of days where a path exist
       category: 'graphs-weighted',
       skills: ['graph-dfs', 'graph-modeling'],
       companies: ['google', 'amazon'],
-      statement: `You're given a list of equations like a / b = value, meaning you know the ratio between a and b. You're also given a list of queries c / d, and for each one you need to compute that ratio using the known equations, or return -1.0 if it can't be determined.
-
-Model each equation a / b = v as a weighted, directed, bidirectional pair of edges: a to b with weight v, and b to a with weight 1 / v. A query c / d is then just the product of edge weights along any path from c to d.
-
-For each query, DFS from c multiplying weights as you go, and return the accumulated product the moment you reach d, or -1.0 if no path connects them (or either variable is unknown).`,
+      statement: `You're given a list of equations like a / b = value, meaning you know the ratio between a and b. You're also given a list of queries c / d, and for each one you need to compute that ratio using the known equations, or return -1.0 if it can't be determined.`,
       examples: [
         { input: 'equations = [["a","b"],["b","c"]], values = [2.0,3.0], queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]', output: '[6.0,0.5,-1.0,1.0,-1.0]', explanation: 'a/c = (a/b)*(b/c) = 2*3 = 6; a/e is undetermined since e is unknown.' },
       ],
@@ -1074,9 +1036,7 @@ It's impossible only when there aren't even enough cables to connect everyone, r
       companies: ['google', 'meta'],
       statement: `There are n servers connected by n-1 or more bidirectional connections, forming a network. A critical connection is one that, if removed, would split the network into two or more disconnected pieces.
 
-Return all critical connections in the network, in any order.
-
-Think about which connections lead only into "dead-end" parts of the network with no other way back.`,
+Return all critical connections in the network, in any order.`,
       examples: [
         { input: 'n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]', output: '[[1,3]]', explanation: '0-1-2 form a cycle (any one edge there is replaceable), but 1-3 is the only way to reach server 3' },
       ],
@@ -1494,9 +1454,7 @@ Return the minimum number of months to finish every course.`,
       category: 'graphs-weighted',
       skills: ['union-find', 'graph-modeling'],
       companies: ['google'],
-      statement: `You are given equations like 'a==b' and 'b!=c' over single lowercase letters. Return true if you can assign integers to the letters so every equation holds.
-
-Equality is transitive, which is the key to checking all of them together.`,
+      statement: `You are given equations like 'a==b' and 'b!=c' over single lowercase letters. Return true if you can assign integers to the letters so every equation holds.`,
       examples: [
         { input: "['a==b','b!=a']", output: 'false' },
         { input: "['b==a','a==b']", output: 'true' },
