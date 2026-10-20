@@ -33,8 +33,8 @@ let lastInputAt = Date.now()
 let lastTickAt = Date.now()
 let lastCloudText = ''
 let lastCloudSaveAt = 0
-let lastSyncedRemoteUpdatedAt = 0
-let cloudSaving = null
+let saveQueue = Promise.resolve()
+let lastRemoteKey = ''
 let remoteMergeInFlight = null
 let cloudReady = false
 let accountSwitch = Promise.resolve()
@@ -139,16 +139,59 @@ const trimmedCopy = (source, { events, sessions, history, skillDays }) => {
 
 const cloudCopy = source => trimmedCopy(source, { events: cloudEventLimit, sessions: cloudSessionLimit, history: cloudHistoryLimit, skillDays: cloudSkillHistoryDays })
 
-const writeLocal = () => {
+const lastLocalTexts = new Map()
+
+const sortKeys = value => {
+  if (Array.isArray(value)) return value.map(sortKeys)
+  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, sortKeys(value[key])]))
+  return value
+}
+
+const contentKey = source => {
+  const copy = cloudCopy(normalize(source))
+  copy.updatedAt = 0
+  return JSON.stringify(sortKeys(copy))
+}
+
+const absorbStoredState = key => {
+  let stored = null
+  try {
+    stored = localStorage.getItem(key)
+  } catch {
+    return
+  }
+  if (!stored || stored === lastLocalTexts.get(key)) return
+  lastLocalTexts.set(key, stored)
+  let parsed = null
+  try {
+    parsed = JSON.parse(stored)
+  } catch {
+    return
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+  const merged = mergeStates(state, parsed)
+  if (contentKey(merged) === contentKey(state)) return
+  merged.updatedAt = Math.max(state.updatedAt || 0, parsed.updatedAt || 0)
+  state = merged
+  publishState()
+}
+
+const writeLocal = ({ absorb = true } = {}) => {
   if (!state) return
   const key = storageKeyFor(activeUserId)
+  if (absorb) absorbStoredState(key)
+  let written = JSON.stringify(state)
   try {
-    localStorage.setItem(key, JSON.stringify(state))
+    localStorage.setItem(key, written)
   } catch {
+    written = JSON.stringify(cloudCopy(state))
     try {
-      localStorage.setItem(key, JSON.stringify(cloudCopy(state)))
-    } catch {}
+      localStorage.setItem(key, written)
+    } catch {
+      written = null
+    }
   }
+  if (written) lastLocalTexts.set(key, written)
   try {
     localStorage.setItem(themeStorageKey, state.settings.theme || 'light')
   } catch {}
@@ -200,40 +243,41 @@ const pushToServer = async () => {
   } catch {}
 }
 
-const saveToCloud = async ({ force = false, keepalive = false } = {}) => {
+const runCloudSave = async ({ keepalive = false, replace = false } = {}) => {
   if (!state || !activeUserId || !cloudReady) return false
-  if (cloudSaving) {
-    await cloudSaving
-    if (!force) return false
-  }
   const userId = activeUserId
-  if (!keepalive) await mergeRemoteIfNewer(userId)
-  if (activeUserId !== userId || !state) return false
+  if (!keepalive && !replace) {
+    const outcome = await mergeRemoteIfNewer(userId)
+    if (outcome === 'failed') return false
+  }
+  if (activeUserId !== userId || !state || !cloudReady) return false
   const text = JSON.stringify(cloudCopy(state))
-  const savedUpdatedAt = state.updatedAt || 0
   if (text === lastCloudText) {
     setSyncStatus('synced', { at: syncStatus.at || Date.now() })
     return false
   }
   setSyncStatus('saving')
-  cloudSaving = (async () => {
-    try {
-      await saveRemoteState(text, { keepalive: keepalive && text.length < keepaliveLimitBytes })
-      if (userId === activeUserId) {
-        lastCloudText = text
-        lastCloudSaveAt = Date.now()
-        lastSyncedRemoteUpdatedAt = savedUpdatedAt
-        setSyncStatus('synced', { at: lastCloudSaveAt })
-      }
-      return true
-    } catch (error) {
-      if (userId === activeUserId) setSyncStatus('error', { error: String(error?.message || error) })
-      return false
-    } finally {
-      cloudSaving = null
+  try {
+    await saveRemoteState(text, { keepalive: keepalive && text.length < keepaliveLimitBytes })
+    if (userId === activeUserId) {
+      lastCloudText = text
+      lastRemoteKey = contentKey(JSON.parse(text))
+      lastCloudSaveAt = Date.now()
+      setSyncStatus('synced', { at: lastCloudSaveAt })
     }
-  })()
-  return cloudSaving
+    return true
+  } catch (error) {
+    if (userId === activeUserId) setSyncStatus('error', { error: String(error?.message || error) })
+    return false
+  }
+}
+
+const saveToCloud = (options = {}) => {
+  if (!state || !activeUserId || !cloudReady) return Promise.resolve(false)
+  if (options.keepalive) return runCloudSave(options)
+  const job = saveQueue.then(() => runCloudSave(options))
+  saveQueue = job.catch(() => {})
+  return job
 }
 
 const scheduleCloudSave = () => {
@@ -263,7 +307,7 @@ const flushNow = () => {
   writeLocal()
   if (activeUserId) {
     clearTimeout(cloudTimer)
-    saveToCloud({ force: true, keepalive: true })
+    saveToCloud({ keepalive: true })
     return
   }
   if (!guestServerAvailable) return
@@ -276,10 +320,10 @@ const flushNow = () => {
   }
 }
 
-export function syncNow() {
+export function syncNow({ replace = false } = {}) {
   clearTimeout(cloudTimer)
-  writeLocal()
-  if (activeUserId) return saveToCloud({ force: true })
+  writeLocal({ absorb: !replace })
+  if (activeUserId) return saveToCloud({ replace })
   return pushToServer()
 }
 
@@ -409,7 +453,15 @@ export function getEvents(filter = {}) {
 
 const answeredCount = source => Object.values(source?.items || {}).filter(item => item?.attempts > 0).length
 
-const isEmptyState = source => !source || (answeredCount(source) === 0 && !(source.xp > 0) && !Object.keys(source.bites || {}).length)
+const countKeys = value => value && typeof value === 'object' ? Object.keys(value).length : 0
+
+const isEmptyState = source => {
+  if (!source || typeof source !== 'object') return true
+  if (answeredCount(source) > 0 || source.xp > 0) return false
+  if (Object.values(source.skills || {}).some(skill => skill?.attempts > 0)) return false
+  if (Array.isArray(source.sessions) && source.sessions.length) return false
+  return ['bites', 'checkpoints', 'bookmarks', 'notes', 'gameScores', 'plan'].every(key => countKeys(source[key]) === 0)
+}
 
 const unionKeys = (a = {}, b = {}) => [...new Set([...Object.keys(a), ...Object.keys(b)])]
 
@@ -572,9 +624,7 @@ const announce = message => {
   import('./ui/h.js').then(({ toast }) => toast(message, 'good')).catch(() => {})
 }
 
-const replaceState = next => {
-  state = normalize(next)
-  writeLocal()
+const publishState = () => {
   applyTheme()
   notify()
   for (const listener of [...replaceListeners]) {
@@ -584,6 +634,22 @@ const replaceState = next => {
       console.error(error)
     }
   }
+}
+
+const replaceState = next => {
+  state = normalize(next)
+  writeLocal({ absorb: false })
+  publishState()
+}
+
+const clearGuestProgress = () => {
+  const empty = freshState()
+  const text = JSON.stringify(empty)
+  try {
+    localStorage.setItem(guestStorageKey, text)
+    lastLocalTexts.set(guestStorageKey, text)
+  } catch {}
+  if (isLocalhost()) fetchWithTimeout('/api/state', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: text }, 5000).catch(() => {})
 }
 
 const loadGuestState = async () => {
@@ -616,24 +682,27 @@ const fetchRemote = async () => {
   }
 }
 
+const applyRemote = remote => {
+  const remoteKey = contentKey(remote)
+  if (remoteKey === lastRemoteKey) return 'same'
+  lastRemoteKey = remoteKey
+  const merged = mergeStates(state, remote)
+  if (contentKey(merged) === contentKey(state)) return 'same'
+  merged.updatedAt = Date.now()
+  replaceState(merged)
+  return 'merged'
+}
+
 const mergeRemoteIfNewer = userId => {
   if (remoteMergeInFlight) return remoteMergeInFlight
   remoteMergeInFlight = (async () => {
     try {
-      if (!state || activeUserId !== userId || !cloudReady) return false
+      if (!state || activeUserId !== userId || !cloudReady) return 'skipped'
       const { ok, remote } = await fetchRemote()
-      if (!ok || !remote || activeUserId !== userId) return false
-      const remoteUpdatedAt = remote.updatedAt || 0
-      if (remoteUpdatedAt <= lastSyncedRemoteUpdatedAt) return false
-      if (remoteUpdatedAt === (state.updatedAt || 0)) {
-        lastSyncedRemoteUpdatedAt = remoteUpdatedAt
-        return false
-      }
-      const merged = mergeStates(state, remote)
-      merged.updatedAt = Date.now()
-      lastSyncedRemoteUpdatedAt = remoteUpdatedAt
-      replaceState(merged)
-      return true
+      if (activeUserId !== userId) return 'skipped'
+      if (!ok) return 'failed'
+      if (!remote) return 'same'
+      return applyRemote(remote)
     } finally {
       remoteMergeInFlight = null
     }
@@ -652,26 +721,14 @@ const reconcileWithRemote = async (userId, fresh) => {
   }
   const markSynced = () => {
     lastCloudText = JSON.stringify(cloudCopy(state))
-    lastSyncedRemoteUpdatedAt = state.updatedAt || 0
+    lastRemoteKey = contentKey(state)
     setSyncStatus('synced', { at: Date.now() })
   }
+  cloudReady = true
   if (!fresh) {
-    cloudReady = true
-    if (remote && remote.updatedAt === state.updatedAt) {
+    if (remote) applyRemote(remote)
+    if (remote && contentKey(remote) === contentKey(state)) {
       markSynced()
-      return
-    }
-    if (remote && (remote.updatedAt || 0) > (state.updatedAt || 0)) {
-      const merged = mergeStates(state, remote)
-      const remoteText = JSON.stringify(cloudCopy(normalize(remote)))
-      if (JSON.stringify(cloudCopy(merged)) === remoteText) {
-        replaceState(remote)
-        markSynced()
-        return
-      }
-      merged.updatedAt = Date.now()
-      replaceState(merged)
-      await saveToCloud({ force: true })
       return
     }
     await saveToCloud()
@@ -679,11 +736,10 @@ const reconcileWithRemote = async (userId, fresh) => {
     return
   }
   const local = state
-  cloudReady = true
   setPendingMerge(userId, false)
   if (isEmptyState(remote)) {
     replaceState({ ...local, updatedAt: Date.now() })
-    await saveToCloud({ force: true })
+    await saveToCloud()
     if (!isEmptyState(local)) announce('Progress synced')
     return
   }
@@ -695,43 +751,62 @@ const reconcileWithRemote = async (userId, fresh) => {
   const merged = mergeStates(local, remote)
   merged.updatedAt = Date.now()
   replaceState(merged)
-  await saveToCloud({ force: true })
+  lastRemoteKey = contentKey(remote)
+  await saveToCloud()
   announce('Progress synced')
 }
 
-const adoptUser = async user => {
+const stopPendingWrites = () => {
+  clearTimeout(cloudTimer)
+  clearTimeout(localTimer)
+  clearTimeout(serverTimer)
+}
+
+const adoptUser = async (user, guestSnapshot) => {
+  if (activeUserId && activeUserId !== user.id) {
+    stopPendingWrites()
+    writeLocal()
+  }
   const cached = readLocal(user.id)
-  const guestSnapshot = state && !activeUserId ? state : normalize(readLocal(null))
+  const guestHasProgress = !isEmptyState(guestSnapshot)
   activeUserId = user.id
   cloudReady = false
   lastCloudText = ''
   lastCloudSaveAt = 0
-  lastSyncedRemoteUpdatedAt = 0
+  lastRemoteKey = ''
   setSyncStatus('loading')
   const fresh = !cached || hasPendingMerge(user.id)
   if (fresh) setPendingMerge(user.id, true)
-  const guestIsNewer = !fresh && !isEmptyState(guestSnapshot) && (guestSnapshot.updatedAt || 0) > (cached.updatedAt || 0)
-  if (guestIsNewer) {
+  if (cached && guestHasProgress) {
     const merged = mergeStates(cached, guestSnapshot)
     merged.updatedAt = Date.now()
     replaceState(merged)
   } else {
     replaceState(cached || { ...guestSnapshot })
   }
+  if (guestHasProgress) clearGuestProgress()
   await reconcileWithRemote(user.id, fresh)
 }
 
 const dropToGuest = async () => {
-  clearTimeout(cloudTimer)
+  stopPendingWrites()
+  writeLocal()
   activeUserId = null
+  cloudReady = false
   lastCloudText = ''
-  lastSyncedRemoteUpdatedAt = 0
+  lastRemoteKey = ''
+  guestServerAvailable = false
   setSyncStatus('local', { at: 0 })
-  replaceState(await loadGuestState())
+  replaceState(normalize(readLocal(null)))
+  const loaded = await loadGuestState()
+  if (activeUserId) return
+  replaceState(mergeStates(state, loaded))
 }
 
+const currentGuestSnapshot = () => activeUserId ? normalize(readLocal(null)) : state
+
 const handleAuthChange = user => {
-  accountSwitch = accountSwitch.then(() => user ? (user.id === activeUserId ? null : adoptUser(user)) : (activeUserId ? dropToGuest() : null)).catch(error => console.error('account switch failed', error))
+  accountSwitch = accountSwitch.then(() => user ? (user.id === activeUserId ? null : adoptUser(user, currentGuestSnapshot())) : (activeUserId ? dropToGuest() : null)).catch(error => console.error('account switch failed', error))
   return accountSwitch
 }
 
@@ -748,7 +823,7 @@ export async function signOutUser() {
   if (activeUserId) {
     clearTimeout(cloudTimer)
     writeLocal()
-    await saveToCloud({ force: true })
+    await saveToCloud()
   }
   await signOut()
   await accountSwitch
@@ -764,14 +839,11 @@ export async function initStore() {
   if (user) {
     const cached = readLocal(user.id)
     if (cached) {
-      activeUserId = user.id
-      cloudReady = false
       state = normalize(cached)
-      setSyncStatus('loading')
-      accountSwitch = reconcileWithRemote(user.id, hasPendingMerge(user.id)).catch(error => console.error(error))
+      accountSwitch = adoptUser(user, normalize(readLocal(null))).catch(error => console.error(error))
     } else {
       state = await loadGuestState()
-      accountSwitch = adoptUser(user).catch(error => console.error(error))
+      accountSwitch = adoptUser(user, state).catch(error => console.error(error))
     }
   } else {
     state = await loadGuestState()
@@ -1149,7 +1221,7 @@ export function resetState() {
   const fresh = freshState()
   fresh.updatedAt = Date.now()
   replaceState(fresh)
-  syncNow()
+  syncNow({ replace: true })
 }
 
 export function exportState() {
@@ -1159,7 +1231,7 @@ export function exportState() {
 export function importState(raw) {
   if (!raw || typeof raw !== 'object' || !raw.items || typeof raw.items !== 'object') return false
   replaceState({ ...raw, updatedAt: Date.now() })
-  syncNow()
+  syncNow({ replace: true })
   return true
 }
 
@@ -1198,6 +1270,9 @@ function startActivityTracking() {
     }
   })
   window.addEventListener('pagehide', flushNow)
+  window.addEventListener('storage', event => {
+    if (state && event.key === storageKeyFor(activeUserId)) absorbStoredState(event.key)
+  })
 }
 
 export function getDailyRollups(days = 14) {

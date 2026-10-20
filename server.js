@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { randomBytes, randomUUID, scrypt, timingSafeEqual, createHash } from 'node:crypto'
 
 const rootDir = dirname(fileURLToPath(import.meta.url))
-const dataDir = join(rootDir, 'data')
+const dataDir = process.env.DATA_DIR || join(rootDir, 'data')
 const statePath = join(dataDir, 'state.json')
 const usersPath = join(dataDir, 'users.json')
 const authSessionsPath = join(dataDir, 'auth-sessions.json')
