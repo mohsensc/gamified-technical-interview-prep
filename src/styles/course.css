@@ -9,6 +9,7 @@
 .crs-unit-head { display: flex; align-items: center; gap: 14px; cursor: pointer; }
 .crs-unit-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .crs-unit-title h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crs-unit-title .row-wrap { flex-wrap: nowrap; min-width: 0; }
 
 .crs-ring { position: relative; display: grid; place-items: center; flex-shrink: 0; }
 .crs-ring svg { position: absolute; inset: 0; }
