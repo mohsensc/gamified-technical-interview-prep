@@ -1,6 +1,5 @@
 import { initStore, onStateReplaced } from './store.js'
 import { route, setNotFound, startRouter, resolve } from './router.js'
-import { isLocalhost } from './auth/index.js'
 import { mountShell } from './ui/shell.js'
 import { h } from './ui/h.js'
 import { icon } from './ui/icons.js'
@@ -43,7 +42,7 @@ const pages = {
   cheatsheet: lazyPage(() => import('./pages/cheatsheet.js')),
   dayof: lazyPage(() => import('./pages/dayof.js')),
   thought: lazyPage(() => import('./pages/thought.js')),
-  account: lazyPage(() => import('./pages/account.js')),
+  settings: lazyPage(() => import('./pages/settings.js')),
 }
 
 route('#/', pages.dashboard)
@@ -80,8 +79,7 @@ route('#/dayof/:stage', pages.dayof)
 route('#/dayof/:stage/:id', pages.dayof)
 route('#/thought', pages.thought)
 route('#/thought/:id', pages.thought)
-route('#/account', pages.account)
-route('#/login', pages.account)
+route('#/settings', pages.settings)
 
 setNotFound(container => {
   container.replaceChildren(h('div', { class: 'page' },
@@ -101,7 +99,7 @@ const boot = async () => {
   startRouter(view)
   let pendingRender = null
   onStateReplaced(() => {
-    if (/^#\/(login|account)/.test(location.hash)) return
+    if (location.hash.startsWith('#/settings')) return
     cancelAnimationFrame(pendingRender)
     pendingRender = requestAnimationFrame(() => resolve())
   })
@@ -118,7 +116,6 @@ const fetchVersion = async () => {
 }
 
 const watchForUpdates = async () => {
-  if (!isLocalhost()) return
   const loadedVersion = await fetchVersion()
   if (!loadedVersion) return
   let stale = false

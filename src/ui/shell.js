@@ -1,6 +1,6 @@
 import { h } from './h.js'
 import { logoGlyph } from './logo.js'
-import { getSetting, setSetting } from '../store.js'
+import { getSetting, setSetting, subscribe } from '../store.js'
 import { onNavigate, navigate } from '../router.js'
 import { icon } from './icons.js'
 
@@ -329,7 +329,7 @@ export function mountShell(root) {
     renderStats()
   } })
 
-  const accountSlot = h('div', { class: 'account-slot' })
+  const settingsLink = h('a', { class: 'btn-icon', href: '#/settings', title: 'Settings', 'aria-label': 'Settings' }, icon('settings', 18))
 
   const shellEl = h('div', { class: 'app-shell' })
 
@@ -355,7 +355,7 @@ export function mountShell(root) {
     searchButton,
     h('div', { class: 'grow' }),
     themeButton,
-    accountSlot)
+    settingsLink)
 
   const view = h('main', { class: 'view', id: 'view' })
 
@@ -405,19 +405,13 @@ export function mountShell(root) {
   drawerQuery.addEventListener('change', syncDrawerAccess)
   root.replaceChildren(shellEl, palette.overlay)
 
-  import('./account.js')
-    .then(mod => {
-      const button = mod.accountButton?.()
-      if (button) accountSlot.replaceChildren(button)
-    })
-    .catch(() => {})
-
   function renderStats() {
     const dark = getSetting('theme', 'light') === 'dark'
     themeButton.replaceChildren(icon(dark ? 'sun' : 'moon', 18))
   }
 
   renderStats()
+  subscribe(renderStats)
 
   onNavigate(path => {
     const active = sectionFor(path)

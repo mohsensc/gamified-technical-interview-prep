@@ -3,36 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>TechPrep · Coding interview prep</title>
-  <meta name="description" content="Free coding interview prep. Learn patterns, practice real interview problems tagged by company, play drills, and track your progress.">
-  <meta name="theme-color" content="#1a1614" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#fff8f6" media="(prefers-color-scheme: light)">
-  <meta name="color-scheme" content="dark light">
-  <meta name="application-name" content="TechPrep">
-  <meta name="apple-mobile-web-app-title" content="TechPrep">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="TechPrep">
-  <meta property="og:title" content="TechPrep · Coding interview prep">
-  <meta property="og:description" content="Free coding interview prep. Patterns, problems tagged by company, games, and progress tracking.">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="TechPrep · Coding interview prep">
-  <meta name="twitter:description" content="Free coding interview prep. Patterns, problems tagged by company, games, and progress tracking.">
+  <title>TechPrep</title>
+  <meta name="description" content="Coding interview prep that runs on your own computer.">
+  <meta name="color-scheme" content="light">
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='9' fill='%23577646'/><path d='M7 9.5h13a4.25 4.25 0 0 1 0 8.5h-6M13.5 9.5v14' stroke='%23F6C9CC' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script>
     try {
-      const rawState = JSON.parse(localStorage.getItem('techprep-state') || localStorage.getItem('codecram-state') || localStorage.getItem('google-cram-state') || '{}')
-      const legacyTheme = rawState?.settings?.theme
-      const migratedLight = Boolean(rawState?.settings?.themeMigratedLight)
-      const savedTheme = localStorage.getItem('techprep-theme') || localStorage.getItem('codecram-theme') || legacyTheme
-      if (savedTheme === 'dark' && !migratedLight) document.documentElement.dataset.theme = 'light'
-      else if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme
-      else document.documentElement.dataset.theme = 'light'
+      const savedTheme = localStorage.getItem('techprep-theme')
+      document.documentElement.dataset.theme = savedTheme === 'dark' ? 'dark' : 'light'
     } catch {}
   </script>
   <link rel="stylesheet" href="/src/styles/base.css">
@@ -50,7 +32,7 @@
   <link rel="stylesheet" href="/src/styles/dayof.css">
   <link rel="stylesheet" href="/src/styles/thought.css">
   <link rel="stylesheet" href="/src/styles/home.css">
-  <link rel="stylesheet" href="/src/styles/account.css">
+  <link rel="stylesheet" href="/src/styles/settings.css">
 </head>
 <body>
   <div id="app"><div class="boot-screen" aria-busy="true"><span class="brand-mark">&lt;/&gt;</span></div></div>

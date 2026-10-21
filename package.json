@@ -2,13 +2,12 @@
   "name": "techprep",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "start": "node server.js",
-    "build": "node scripts/build.mjs",
     "validate": "node scripts/validate-content.mjs",
-    "test:sync": "node tests/sync/run.mjs"
-  },
-  "devDependencies": {
-    "playwright-core": "^1.64.1"
+    "test": "node --test"
   }
 }

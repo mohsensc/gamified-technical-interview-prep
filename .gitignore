@@ -1,6 +1,4 @@
 data/
-dist/
 .DS_Store
 node_modules/
 .env
-tests/sync/.cache/

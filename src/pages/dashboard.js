@@ -4,8 +4,6 @@ import { icon } from '../ui/icons.js'
 import { getState, subscribe, getLevelInfo, getStreak, getStudyMinutes, getNodeProgress, getEvents, dueItems, recordAnswer } from '../store.js'
 import { allItems, hrefFor, course } from '../content/curriculum.js'
 import { recommendNext, nextIncompleteBite, getInterviewAt, setInterviewAt } from '../engine/recommend.js'
-import { getUser } from '../auth/index.js'
-import { userInitial } from '../ui/account.js'
 import { companyChips } from '../ui/companies.js'
 import { renderItem, kindOf } from '../ui/items.js'
 import { persistOverride } from '../ui/override.js'
@@ -147,11 +145,10 @@ function buildTitleBlock() {
     h('p', { class: 'game-tagline' }, 'Your coding interview training arcade'))
 }
 
-function buildPlayerCard(user, levelInfo) {
-  const initial = user ? userInitial(user) : 'P'
+function buildPlayerCard(levelInfo) {
   const pct = Math.max(4, Math.round((levelInfo.progress || 0) * 100))
   return h('div', { class: 'player-card' },
-    h('span', { class: 'player-avatar' }, initial),
+    h('span', { class: 'player-avatar' }, 'P'),
     h('div', { class: 'player-meta' },
       h('div', { class: 'player-meta-top' },
         h('span', { class: 'player-level-badge' }, `Lv ${levelInfo.level}`),
@@ -424,7 +421,6 @@ export default async function render(container) {
 
   const draw = () => {
     const newVisitor = isNewVisitor()
-    const user = getUser()
     const levelInfo = getLevelInfo()
     const bite = nextIncompleteBite()
     const kindCounts = getKindCounts()
@@ -448,7 +444,7 @@ export default async function render(container) {
 
     const main = h('div', { class: 'home-main' },
       buildTitleBlock(),
-      buildPlayerCard(user, levelInfo),
+      buildPlayerCard(levelInfo),
       h('div', { class: 'play-stack' },
         buildPlayButton(bite, newVisitor),
         h('div', { class: 'row-wrap play-sub-row' }, interviewEl)),

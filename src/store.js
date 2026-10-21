@@ -1,44 +1,24 @@
-import { migrateLegacyStorage } from './storageMigration.js'
-import { initAuth, getUser, onAuthChange, loadRemoteState, saveRemoteState, syncTiming, isLocalhost, signOut } from './auth/index.js'
-
-const guestStorageKey = 'techprep-state'
 const themeStorageKey = 'techprep-theme'
-const userStorageKey = userId => `techprep-state:${userId}`
-const pendingMergeKey = userId => `techprep-pending-merge:${userId}`
+const legacyStateKeyPattern = /^(techprep|codecram)-state(:|$)|^google-cram-state$/
 const boxIntervals = [0, 5 * 60e3, 30 * 60e3, 3 * 3600e3, 12 * 3600e3, 2 * 86400e3]
 const startMastery = 0.3
-const serverDebounceMs = 900
+const saveDebounceMs = 500
 const idleLimitMs = 3 * 60e3
 const tickMs = 15e3
 const maxEvents = 20000
 const maxSessions = 300
-const cloudEventLimit = 3000
-const cloudSessionLimit = 150
-const cloudHistoryLimit = 150
-const cloudSkillHistoryDays = 120
-const keepaliveLimitBytes = 60000
 const masteryFloor = startMastery
 const masteryTarget = 0.85
+const saveErrorToastGapMs = 60e3
 
 const listeners = new Set()
 const replaceListeners = new Set()
-const syncListeners = new Set()
 let state = null
-let activeUserId = null
-let serverTimer = null
-let localTimer = null
-let cloudTimer = null
-let guestServerAvailable = false
+let saveTimer = null
+let saveChain = Promise.resolve()
 let lastInputAt = Date.now()
 let lastTickAt = Date.now()
-let lastCloudText = ''
-let lastCloudSaveAt = 0
-let saveQueue = Promise.resolve()
-let lastRemoteKey = ''
-let remoteMergeInFlight = null
-let cloudReady = false
-let accountSwitch = Promise.resolve()
-let syncStatus = { status: 'local', at: 0, error: null }
+let lastSaveErrorToastAt = 0
 
 const dayKey = (time = Date.now()) => {
   const date = new Date(time)
@@ -81,243 +61,64 @@ const normalize = raw => {
   if (!Array.isArray(merged.events)) merged.events = []
   if (!Array.isArray(merged.sessions)) merged.sessions = []
   merged.settings = { ...base.settings, ...merged.settings }
-  if (merged.settings.theme === 'dark' && !merged.settings.themeMigratedLight) {
-    merged.settings.theme = 'light'
-    merged.settings.themeMigratedLight = true
-  }
   for (const key of ['xp', 'answerStreak', 'bestAnswerStreak', 'studyMs', 'updatedAt']) {
     if (!Number.isFinite(merged[key])) merged[key] = 0
   }
   return merged
 }
 
-const storageKeyFor = userId => userId ? userStorageKey(userId) : guestStorageKey
+const answeredCount = source => Object.values(source?.items || {}).filter(item => item?.attempts > 0).length
 
-const readStorage = key => {
-  try {
-    const text = localStorage.getItem(key)
-    return text ? JSON.parse(text) : null
-  } catch {
-    return null
-  }
+const hasProgress = source => Boolean(source) && (answeredCount(source) > 0 || source.xp > 0)
+
+const warnSaveFailed = () => {
+  if (Date.now() - lastSaveErrorToastAt < saveErrorToastGapMs) return
+  lastSaveErrorToastAt = Date.now()
+  import('./ui/h.js').then(({ toast }) => toast('Could not save progress. Is the TechPrep server still running?', 'bad')).catch(() => {})
 }
 
+const sendState = async (snapshot, { keepalive = false } = {}) => {
+  const response = await fetch('/api/state', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: snapshot,
+    keepalive: keepalive && snapshot.length < 60000,
+  })
+  if (!response.ok) throw new Error(`Save failed with status ${response.status}`)
+}
 
-const readLocal = (userId = activeUserId) => readStorage(storageKeyFor(userId))
+const saveNow = () => {
+  clearTimeout(saveTimer)
+  saveTimer = null
+  if (!state) return saveChain
+  const snapshot = JSON.stringify(state)
+  saveChain = saveChain.then(() => sendState(snapshot)).catch(error => {
+    console.error(error)
+    warnSaveFailed()
+  })
+  return saveChain
+}
 
-const setPendingMerge = (userId, on) => {
+const scheduleSave = () => {
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(saveNow, saveDebounceMs)
+}
+
+const flushNow = () => {
+  if (!state || !saveTimer) return
+  clearTimeout(saveTimer)
+  saveTimer = null
+  const snapshot = JSON.stringify(state)
   try {
-    if (on) localStorage.setItem(pendingMergeKey(userId), '1')
-    else localStorage.removeItem(pendingMergeKey(userId))
+    const body = new Blob([snapshot], { type: 'application/json' })
+    if (navigator.sendBeacon?.('/api/state', body)) return
   } catch {}
-}
-
-const hasPendingMerge = userId => {
-  try {
-    return localStorage.getItem(pendingMergeKey(userId)) === '1'
-  } catch {
-    return false
-  }
-}
-
-const trimmedCopy = (source, { events, sessions, history, skillDays }) => {
-  const copy = { ...source }
-  copy.events = source.events.slice(-events)
-  copy.sessions = source.sessions.slice(-sessions)
-  copy.history = source.history.slice(-history)
-  const days = Object.keys(source.skillHistory).sort().slice(-skillDays)
-  copy.skillHistory = Object.fromEntries(days.map(day => [day, source.skillHistory[day]]))
-  return copy
-}
-
-const cloudCopy = source => trimmedCopy(source, { events: cloudEventLimit, sessions: cloudSessionLimit, history: cloudHistoryLimit, skillDays: cloudSkillHistoryDays })
-
-const lastLocalTexts = new Map()
-
-const sortKeys = value => {
-  if (Array.isArray(value)) return value.map(sortKeys)
-  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, sortKeys(value[key])]))
-  return value
-}
-
-const contentKey = source => {
-  const copy = cloudCopy(normalize(source))
-  copy.updatedAt = 0
-  return JSON.stringify(sortKeys(copy))
-}
-
-const absorbStoredState = key => {
-  let stored = null
-  try {
-    stored = localStorage.getItem(key)
-  } catch {
-    return
-  }
-  if (!stored || stored === lastLocalTexts.get(key)) return
-  lastLocalTexts.set(key, stored)
-  let parsed = null
-  try {
-    parsed = JSON.parse(stored)
-  } catch {
-    return
-  }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
-  const merged = mergeStates(state, parsed)
-  if (contentKey(merged) === contentKey(state)) return
-  merged.updatedAt = Math.max(state.updatedAt || 0, parsed.updatedAt || 0)
-  state = merged
-  publishState()
-}
-
-const writeLocal = ({ absorb = true } = {}) => {
-  if (!state) return
-  const key = storageKeyFor(activeUserId)
-  if (absorb) absorbStoredState(key)
-  let written = JSON.stringify(state)
-  try {
-    localStorage.setItem(key, written)
-  } catch {
-    written = JSON.stringify(cloudCopy(state))
-    try {
-      localStorage.setItem(key, written)
-    } catch {
-      written = null
-    }
-  }
-  if (written) lastLocalTexts.set(key, written)
-  try {
-    localStorage.setItem(themeStorageKey, state.settings.theme || 'light')
-  } catch {}
-}
-
-const fetchWithTimeout = async (url, options = {}, ms = 2500) => {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), ms)
-  try {
-    return await fetch(url, { ...options, signal: controller.signal })
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
-const setSyncStatus = (status, extra = {}) => {
-  syncStatus = { ...syncStatus, status, error: null, ...extra }
-  for (const listener of [...syncListeners]) {
-    try {
-      listener(syncStatus)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-}
-
-export function getSyncStatus() {
-  return { ...syncStatus, userId: activeUserId }
-}
-
-export function onSyncChange(fn) {
-  syncListeners.add(fn)
-  return () => syncListeners.delete(fn)
+  sendState(snapshot, { keepalive: true }).catch(() => {})
 }
 
 export function onStateReplaced(fn) {
   replaceListeners.add(fn)
   return () => replaceListeners.delete(fn)
-}
-
-const pushToServer = async () => {
-  if (!state || activeUserId || !guestServerAvailable) return
-  try {
-    await fetchWithTimeout('/api/state', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state),
-    }, 5000)
-  } catch {}
-}
-
-const runCloudSave = async ({ keepalive = false, replace = false } = {}) => {
-  if (!state || !activeUserId || !cloudReady) return false
-  const userId = activeUserId
-  if (!keepalive && !replace) {
-    const outcome = await mergeRemoteIfNewer(userId)
-    if (outcome === 'failed') return false
-  }
-  if (activeUserId !== userId || !state || !cloudReady) return false
-  const text = JSON.stringify(cloudCopy(state))
-  if (text === lastCloudText) {
-    setSyncStatus('synced', { at: syncStatus.at || Date.now() })
-    return false
-  }
-  setSyncStatus('saving')
-  try {
-    await saveRemoteState(text, { keepalive: keepalive && text.length < keepaliveLimitBytes })
-    if (userId === activeUserId) {
-      lastCloudText = text
-      lastRemoteKey = contentKey(JSON.parse(text))
-      lastCloudSaveAt = Date.now()
-      setSyncStatus('synced', { at: lastCloudSaveAt })
-    }
-    return true
-  } catch (error) {
-    if (userId === activeUserId) setSyncStatus('error', { error: String(error?.message || error) })
-    return false
-  }
-}
-
-const saveToCloud = (options = {}) => {
-  if (!state || !activeUserId || !cloudReady) return Promise.resolve(false)
-  if (options.keepalive) return runCloudSave(options)
-  const job = saveQueue.then(() => runCloudSave(options))
-  saveQueue = job.catch(() => {})
-  return job
-}
-
-const scheduleCloudSave = () => {
-  if (!activeUserId) return
-  clearTimeout(cloudTimer)
-  const { delayMs, minGapMs } = syncTiming()
-  const wait = Math.max(delayMs, lastCloudSaveAt + minGapMs - Date.now())
-  if (syncStatus.status !== 'saving') setSyncStatus('pending')
-  cloudTimer = setTimeout(() => saveToCloud(), wait)
-}
-
-const scheduleSave = () => {
-  clearTimeout(localTimer)
-  localTimer = setTimeout(writeLocal, 120)
-  if (activeUserId) {
-    scheduleCloudSave()
-    return
-  }
-  if (!guestServerAvailable) return
-  clearTimeout(serverTimer)
-  serverTimer = setTimeout(pushToServer, serverDebounceMs)
-}
-
-const flushNow = () => {
-  if (!state) return
-  clearTimeout(localTimer)
-  writeLocal()
-  if (activeUserId) {
-    clearTimeout(cloudTimer)
-    saveToCloud({ keepalive: true })
-    return
-  }
-  if (!guestServerAvailable) return
-  clearTimeout(serverTimer)
-  try {
-    const body = new Blob([JSON.stringify(state)], { type: 'application/json' })
-    if (!navigator.sendBeacon?.('/api/state', body)) pushToServer()
-  } catch {
-    pushToServer()
-  }
-}
-
-export function syncNow({ replace = false } = {}) {
-  clearTimeout(cloudTimer)
-  writeLocal({ absorb: !replace })
-  if (activeUserId) return saveToCloud({ replace })
-  return pushToServer()
 }
 
 const notify = () => {
@@ -444,178 +245,6 @@ export function getEvents(filter = {}) {
   return result
 }
 
-const answeredCount = source => Object.values(source?.items || {}).filter(item => item?.attempts > 0).length
-
-const countKeys = value => value && typeof value === 'object' ? Object.keys(value).length : 0
-
-const isEmptyState = source => {
-  if (!source || typeof source !== 'object') return true
-  if (answeredCount(source) > 0 || source.xp > 0) return false
-  if (Object.values(source.skills || {}).some(skill => skill?.attempts > 0)) return false
-  if (Array.isArray(source.sessions) && source.sessions.length) return false
-  return ['bites', 'checkpoints', 'bookmarks', 'notes', 'gameScores', 'plan'].every(key => countKeys(source[key]) === 0)
-}
-
-const unionKeys = (a = {}, b = {}) => [...new Set([...Object.keys(a), ...Object.keys(b)])]
-
-const mergeByStrength = (a = {}, b = {}, { countField, tsField, maxFields = [] }) => {
-  const result = {}
-  for (const id of unionKeys(a, b)) {
-    const av = a[id]
-    const bv = b[id]
-    if (!av) { result[id] = bv; continue }
-    if (!bv) { result[id] = av; continue }
-    const aCount = av[countField] || 0
-    const bCount = bv[countField] || 0
-    const useA = aCount !== bCount ? aCount > bCount : (av[tsField] || 0) >= (bv[tsField] || 0)
-    const winner = useA ? av : bv
-    const merged = { ...winner }
-    for (const field of maxFields) merged[field] = Math.max(av[field] || 0, bv[field] || 0)
-    result[id] = merged
-  }
-  return result
-}
-
-const mergeEarliestTimestamp = (a = {}, b = {}) => {
-  const result = {}
-  for (const id of unionKeys(a, b)) {
-    const av = a[id]
-    const bv = b[id]
-    result[id] = av === undefined ? bv : bv === undefined ? av : Math.min(av, bv)
-  }
-  return result
-}
-
-const mergeMaxValue = (a = {}, b = {}) => {
-  const result = {}
-  for (const id of unionKeys(a, b)) {
-    const av = a[id]
-    const bv = b[id]
-    result[id] = av === undefined ? bv : bv === undefined ? av : Math.max(av, bv)
-  }
-  return result
-}
-
-const mergeDaily = (a = {}, b = {}) => {
-  const result = {}
-  for (const day of unionKeys(a, b)) {
-    const av = a[day]
-    const bv = b[day]
-    if (!av) { result[day] = bv; continue }
-    if (!bv) { result[day] = av; continue }
-    const merged = {
-      xp: Math.max(av.xp || 0, bv.xp || 0),
-      answers: Math.max(av.answers || 0, bv.answers || 0),
-      correct: Math.max(av.correct || 0, bv.correct || 0),
-      ms: Math.max(av.ms || 0, bv.ms || 0),
-    }
-    if (av.answerMs !== undefined || bv.answerMs !== undefined) merged.answerMs = Math.max(av.answerMs || 0, bv.answerMs || 0)
-    result[day] = merged
-  }
-  return result
-}
-
-const mergeCheckpoints = (a = {}, b = {}) => {
-  const merged = mergeByStrength(a, b, { countField: 'attempts', tsField: 'at', maxFields: ['best'] })
-  for (const record of Object.values(merged)) record.passed = record.best >= 80
-  return merged
-}
-
-const mergeSkills = (a = {}, b = {}) => {
-  const winners = {}
-  const skills = {}
-  for (const skill of unionKeys(a, b)) {
-    const av = a[skill]
-    const bv = b[skill]
-    if (!av) { skills[skill] = bv; winners[skill] = 'b'; continue }
-    if (!bv) { skills[skill] = av; winners[skill] = 'a'; continue }
-    const aAttempts = av.attempts || 0
-    const bAttempts = bv.attempts || 0
-    const useA = aAttempts !== bAttempts ? aAttempts > bAttempts : (av.lastAt || 0) >= (bv.lastAt || 0)
-    winners[skill] = useA ? 'a' : 'b'
-    skills[skill] = useA ? av : bv
-  }
-  return { skills, winners }
-}
-
-const mergeSkillHistory = (a = {}, b = {}, winners = {}) => {
-  const result = {}
-  for (const day of unionKeys(a, b)) {
-    const ad = a[day] || {}
-    const bd = b[day] || {}
-    const dayMerged = {}
-    for (const skill of unionKeys(ad, bd)) {
-      const hasA = ad[skill] !== undefined
-      const hasB = bd[skill] !== undefined
-      dayMerged[skill] = hasA && hasB ? (winners[skill] === 'b' ? bd[skill] : ad[skill]) : hasA ? ad[skill] : bd[skill]
-    }
-    result[day] = dayMerged
-  }
-  return result
-}
-
-const dedupeByKey = (list, keyFn) => [...new Map(list.map(entry => [keyFn(entry), entry])).values()]
-
-const mergeEvents = (a = [], b = []) => {
-  const merged = dedupeByKey([...a, ...b], event => JSON.stringify(event)).sort((x, y) => x.ts - y.ts)
-  return merged.length > maxEvents ? merged.slice(-maxEvents) : merged
-}
-
-const mergeSessions = (a = [], b = []) => {
-  const merged = dedupeByKey([...a, ...b], session => session.id).sort((x, y) => x.at - y.at)
-  return merged.length > maxSessions ? merged.slice(-maxSessions) : merged
-}
-
-const mergeHistory = (a = [], b = []) => {
-  const merged = dedupeByKey([...a, ...b], entry => JSON.stringify(entry)).sort((x, y) => x.t - y.t)
-  return merged.length > 400 ? merged.slice(-400) : merged
-}
-
-const mergePreferSide = (a = {}, b = {}, preferB) => {
-  const result = {}
-  for (const key of unionKeys(a, b)) {
-    const hasA = a[key] !== undefined
-    const hasB = b[key] !== undefined
-    result[key] = hasA && hasB ? (preferB ? b[key] : a[key]) : hasA ? a[key] : b[key]
-  }
-  return result
-}
-
-const mergeStates = (guestRaw, remoteRaw) => {
-  const a = normalize(guestRaw)
-  const b = normalize(remoteRaw)
-  const preferB = (b.updatedAt || 0) > (a.updatedAt || 0)
-  const { skills, winners } = mergeSkills(a.skills, b.skills)
-  return normalize({
-    version: Math.max(a.version || 1, b.version || 1),
-    createdAt: Math.min(a.createdAt || Date.now(), b.createdAt || Date.now()),
-    updatedAt: Math.max(a.updatedAt || 0, b.updatedAt || 0),
-    xp: Math.max(a.xp || 0, b.xp || 0),
-    answerStreak: Math.max(a.answerStreak || 0, b.answerStreak || 0),
-    bestAnswerStreak: Math.max(a.bestAnswerStreak || 0, b.bestAnswerStreak || 0),
-    studyMs: Math.max(a.studyMs || 0, b.studyMs || 0),
-    skills,
-    items: mergeByStrength(a.items, b.items, { countField: 'attempts', tsField: 'lastAt' }),
-    seen: mergeEarliestTimestamp(a.seen, b.seen),
-    daily: mergeDaily(a.daily, b.daily),
-    plan: mergePreferSide(a.plan, b.plan, preferB),
-    settings: preferB ? b.settings : a.settings,
-    gameScores: mergeMaxValue(a.gameScores, b.gameScores),
-    notes: mergePreferSide(a.notes, b.notes, preferB),
-    history: mergeHistory(a.history, b.history),
-    events: mergeEvents(a.events, b.events),
-    bites: mergeByStrength(a.bites, b.bites, { countField: 'count', tsField: 'at', maxFields: ['best'] }),
-    checkpoints: mergeCheckpoints(a.checkpoints, b.checkpoints),
-    bookmarks: mergeEarliestTimestamp(a.bookmarks, b.bookmarks),
-    sessions: mergeSessions(a.sessions, b.sessions),
-    skillHistory: mergeSkillHistory(a.skillHistory, b.skillHistory, winners),
-  })
-}
-
-const announce = message => {
-  if (typeof document === 'undefined') return
-  import('./ui/h.js').then(({ toast }) => toast(message, 'good')).catch(() => {})
-}
 
 const publishState = () => {
   applyTheme()
@@ -631,225 +260,64 @@ const publishState = () => {
 
 const replaceState = next => {
   state = normalize(next)
-  writeLocal({ absorb: false })
   publishState()
 }
 
-const clearGuestProgress = () => {
-  const empty = freshState()
-  const text = JSON.stringify(empty)
+const readLegacyBrowserStates = () => {
+  const found = []
   try {
-    localStorage.setItem(guestStorageKey, text)
-    lastLocalTexts.set(guestStorageKey, text)
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index)
+      if (!key || !legacyStateKeyPattern.test(key)) continue
+      try {
+        const parsed = JSON.parse(localStorage.getItem(key))
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) found.push({ key, state: parsed })
+      } catch {}
+    }
   } catch {}
-  if (isLocalhost()) fetchWithTimeout('/api/state', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: text }, 5000).catch(() => {})
+  return found
 }
 
-const loadGuestState = async () => {
-  const local = readLocal(null)
-  let remote = null
-  guestServerAvailable = false
-  if (isLocalhost()) {
-    try {
-      const res = await fetchWithTimeout('/api/state')
-      if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
-        remote = await res.json()
-        guestServerAvailable = true
-      }
-    } catch {}
-  }
-  const localTime = local?.updatedAt || 0
-  const remoteTime = remote?.updatedAt || 0
-  const chosen = normalize(remoteTime > localTime ? remote : local || remote)
-  if (localTime > remoteTime) setTimeout(pushToServer, 0)
-  return chosen
-}
-
-const fetchRemote = async () => {
+const dropLegacyBrowserStates = keys => {
   try {
-    const remote = await loadRemoteState()
-    return { ok: true, remote: remote && typeof remote === 'object' ? remote : null }
-  } catch (error) {
-    setSyncStatus('error', { error: String(error?.message || error) })
-    return { ok: false, remote: null }
-  }
+    for (const key of keys) localStorage.removeItem(key)
+  } catch {}
 }
 
-const applyRemote = remote => {
-  const remoteKey = contentKey(remote)
-  if (remoteKey === lastRemoteKey) return 'same'
-  lastRemoteKey = remoteKey
-  const merged = mergeStates(state, remote)
-  if (contentKey(merged) === contentKey(state)) return 'same'
-  merged.updatedAt = Date.now()
-  replaceState(merged)
-  return 'merged'
+const loadServerState = async () => {
+  const response = await fetch('/api/state', { cache: 'no-store' })
+  if (!response.ok) throw new Error(`Load failed with status ${response.status}`)
+  return (await response.json()).state
 }
 
-const mergeRemoteIfNewer = userId => {
-  if (remoteMergeInFlight) return remoteMergeInFlight
-  remoteMergeInFlight = (async () => {
-    try {
-      if (!state || activeUserId !== userId || !cloudReady) return 'skipped'
-      const { ok, remote } = await fetchRemote()
-      if (activeUserId !== userId) return 'skipped'
-      if (!ok) return 'failed'
-      if (!remote) return 'same'
-      return applyRemote(remote)
-    } finally {
-      remoteMergeInFlight = null
-    }
-  })()
-  return remoteMergeInFlight
-}
-
-const reconcileWithRemote = async (userId, fresh) => {
-  const { ok, remote } = await fetchRemote()
-  if (activeUserId !== userId) return
-  if (!ok) {
-    setTimeout(() => {
-      if (activeUserId === userId && !cloudReady) reconcileWithRemote(userId, fresh)
-    }, 30000)
-    return
-  }
-  const markSynced = () => {
-    lastCloudText = JSON.stringify(cloudCopy(state))
-    lastRemoteKey = contentKey(state)
-    setSyncStatus('synced', { at: Date.now() })
-  }
-  cloudReady = true
-  if (!fresh) {
-    if (remote) applyRemote(remote)
-    if (remote && contentKey(remote) === contentKey(state)) {
-      markSynced()
-      return
-    }
-    await saveToCloud()
-    if (syncStatus.status !== 'error') setSyncStatus('synced', { at: Date.now() })
-    return
-  }
-  const local = state
-  setPendingMerge(userId, false)
-  if (isEmptyState(remote)) {
-    replaceState({ ...local, updatedAt: Date.now() })
-    await saveToCloud()
-    if (!isEmptyState(local)) announce('Progress synced')
-    return
-  }
-  if (isEmptyState(local)) {
-    replaceState(remote)
-    markSynced()
-    return
-  }
-  const merged = mergeStates(local, remote)
-  merged.updatedAt = Date.now()
-  replaceState(merged)
-  lastRemoteKey = contentKey(remote)
-  await saveToCloud()
-  announce('Progress synced')
-}
-
-const stopPendingWrites = () => {
-  clearTimeout(cloudTimer)
-  clearTimeout(localTimer)
-  clearTimeout(serverTimer)
-}
-
-const adoptUser = async (user, guestSnapshot) => {
-  if (activeUserId && activeUserId !== user.id) {
-    stopPendingWrites()
-    writeLocal()
-  }
-  const cached = readLocal(user.id)
-  const guestHasProgress = !isEmptyState(guestSnapshot)
-  activeUserId = user.id
-  cloudReady = false
-  lastCloudText = ''
-  lastCloudSaveAt = 0
-  lastRemoteKey = ''
-  setSyncStatus('loading')
-  const fresh = !cached || hasPendingMerge(user.id)
-  if (fresh) setPendingMerge(user.id, true)
-  if (cached && guestHasProgress) {
-    const merged = mergeStates(cached, guestSnapshot)
-    merged.updatedAt = Date.now()
-    replaceState(merged)
-  } else {
-    replaceState(cached || { ...guestSnapshot })
-  }
-  if (guestHasProgress) clearGuestProgress()
-  await reconcileWithRemote(user.id, fresh)
-}
-
-const dropToGuest = async () => {
-  stopPendingWrites()
-  writeLocal()
-  activeUserId = null
-  cloudReady = false
-  lastCloudText = ''
-  lastRemoteKey = ''
-  guestServerAvailable = false
-  setSyncStatus('local', { at: 0 })
-  replaceState(normalize(readLocal(null)))
-  const loaded = await loadGuestState()
-  if (activeUserId) return
-  replaceState(mergeStates(state, loaded))
-}
-
-const currentGuestSnapshot = () => activeUserId ? normalize(readLocal(null)) : state
-
-const handleAuthChange = user => {
-  accountSwitch = accountSwitch.then(() => user ? (user.id === activeUserId ? null : adoptUser(user, currentGuestSnapshot())) : (activeUserId ? dropToGuest() : null)).catch(error => console.error('account switch failed', error))
-  return accountSwitch
-}
-
-export function whenAccountReady() {
-  return accountSwitch
-}
-
-export function getActiveUserId() {
-  return activeUserId
-}
-
-export async function signOutUser() {
-  await accountSwitch
-  if (activeUserId) {
-    clearTimeout(cloudTimer)
-    writeLocal()
-    await saveToCloud()
-  }
-  await signOut()
-  await accountSwitch
+const importBrowserProgressOnce = async serverState => {
+  const legacy = readLegacyBrowserStates()
+  if (!legacy.length) return serverState
+  const best = legacy.sort((a, b) => answeredCount(b.state) - answeredCount(a.state))[0]
+  if (serverState || !hasProgress(best.state)) return serverState
+  const imported = normalize(best.state)
+  await sendState(JSON.stringify(imported))
+  dropLegacyBrowserStates(legacy.map(entry => entry.key))
+  return imported
 }
 
 export async function initStore() {
-  migrateLegacyStorage()
-  let user = null
-  try {
-    user = await initAuth()
-  } catch {}
   await loadCurriculum()
-  if (user) {
-    const cached = readLocal(user.id)
-    if (cached) {
-      state = normalize(cached)
-      accountSwitch = adoptUser(user, normalize(readLocal(null))).catch(error => console.error(error))
-    } else {
-      state = await loadGuestState()
-      accountSwitch = adoptUser(user, state).catch(error => console.error(error))
-    }
-  } else {
-    state = await loadGuestState()
+  let loaded = null
+  try {
+    loaded = await importBrowserProgressOnce(await loadServerState())
+  } catch (error) {
+    console.error('could not load progress', error)
+    warnSaveFailed()
   }
-  onAuthChange(handleAuthChange)
-  writeLocal()
+  state = normalize(loaded)
   applyTheme()
   startActivityTracking()
   return state
 }
 
 export function getState() {
-  if (!state) state = normalize(readLocal())
+  if (!state) state = normalize(null)
   return state
 }
 
@@ -1214,7 +682,7 @@ export function resetState() {
   const fresh = freshState()
   fresh.updatedAt = Date.now()
   replaceState(fresh)
-  syncNow({ replace: true })
+  saveNow()
 }
 
 export function exportState() {
@@ -1224,13 +692,15 @@ export function exportState() {
 export function importState(raw) {
   if (!raw || typeof raw !== 'object' || !raw.items || typeof raw.items !== 'object') return false
   replaceState({ ...raw, updatedAt: Date.now() })
-  syncNow({ replace: true })
+  saveNow()
   return true
 }
 
 export function applyTheme() {
+  const theme = getState().settings.theme === 'dark' ? 'dark' : 'light'
   try {
-    document.documentElement.dataset.theme = getState().settings.theme || 'light'
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem(themeStorageKey, theme)
   } catch {}
 }
 
@@ -1259,13 +729,9 @@ function startActivityTracking() {
     } else {
       lastTickAt = Date.now()
       lastInputAt = Date.now()
-      if (activeUserId && cloudReady) mergeRemoteIfNewer(activeUserId).catch(error => console.error(error))
     }
   })
   window.addEventListener('pagehide', flushNow)
-  window.addEventListener('storage', event => {
-    if (state && event.key === storageKeyFor(activeUserId)) absorbStoredState(event.key)
-  })
 }
 
 export function getDailyRollups(days = 14) {
