@@ -1,12 +1,10 @@
 {
   "name": "TechPrep",
   "short_name": "TechPrep",
-  "description": "Free coding interview prep: patterns, company-tagged problems, games and progress tracking.",
   "start_url": "/#/",
-  "scope": "/",
   "display": "standalone",
-  "background_color": "#191d14",
-  "theme_color": "#191d14",
+  "background_color": "#fbfbfa",
+  "theme_color": "#fbfbfa",
   "icons": [
     { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
