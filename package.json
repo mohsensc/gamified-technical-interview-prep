@@ -8,6 +8,6 @@
   "scripts": {
     "start": "node server.js",
     "validate": "node scripts/validate-content.mjs",
-    "test": "node --test"
+    "test": "node --test tests/"
   }
 }

@@ -141,7 +141,6 @@ button { font: inherit; color: inherit; }
 .app-shell.rail-collapsed .nav-group-label,
 .app-shell.rail-collapsed .nav-label,
 .app-shell.rail-collapsed .brand-text,
-.app-shell.rail-collapsed .rail-tagline { display: none; }
 .app-shell.rail-collapsed .nav-link { justify-content: center; padding: 10px; }
 .app-shell.rail-collapsed .rail-head { justify-content: center; }
 .app-shell.rail-collapsed .rail-head .brand { padding: 4px; }
@@ -159,8 +158,7 @@ button { font: inherit; color: inherit; }
 .rail-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 22px; padding-bottom: 8px; }
 .rail-scroll::-webkit-scrollbar { width: 6px; }
 .rail-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
-.rail-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
-.rail-tagline { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
 .rail-collapse, .menu-button, .drawer-close { flex-shrink: 0; }
 .nav-group { display: flex; flex-direction: column; gap: 4px; }
 .nav-group-label { padding: 0 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); font-family: var(--font); }
@@ -436,7 +434,7 @@ button { font: inherit; color: inherit; }
 
 @media (max-width: 1080px) {
   :root { --rail-width: 68px; }
-  .nav-label, .brand-text, .nav-group-label, .rail-tagline { display: none; }
+  .nav-label, .brand-text, .nav-group-label { display: none; }
   .nav-link { justify-content: center; padding: 10px; }
   .brand { justify-content: center; padding: 4px 0; }
   .rail-head { justify-content: center; }
@@ -458,7 +456,7 @@ button { font: inherit; color: inherit; }
     transition: transform 0.22s ease;
   }
   .rail-head, .rail-foot { justify-content: space-between; }
-  .nav-label, .brand-text, .rail-tagline { display: inline; }
+  .nav-label, .brand-text { display: inline; }
   .nav-group-label { display: block; }
   .nav-link { justify-content: flex-start; padding: 9px 12px; }
   .app-shell.drawer-open .rail { transform: translateX(0); }

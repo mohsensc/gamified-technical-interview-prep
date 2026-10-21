@@ -386,7 +386,6 @@ export function mountShell(root) {
       h('button', { class: 'btn-icon drawer-close', type: 'button', 'aria-label': 'Close menu', onclick: () => setDrawer(false) }, icon('close', 18))),
     h('div', { class: 'rail-scroll' }, navSections),
     h('div', { class: 'rail-foot' },
-      h('span', { class: 'rail-tagline small faint' }, 'Free coding interview prep'),
       collapseButton))
 
   const bottomLinks = bottomNavIds.map(id => {
