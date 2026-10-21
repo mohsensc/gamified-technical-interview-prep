@@ -172,8 +172,8 @@ function wrapLabel(title, maxChars = 15) {
 }
 
 function renderTree(container, query) {
-  let view = readPref('cram.algoView', 'tree')
-  let activePath = query.path && pathById[query.path] ? query.path : readPref('cram.algoPath', '')
+  let view = readPref('techprep.algoView', 'tree')
+  let activePath = query.path && pathById[query.path] ? query.path : readPref('techprep.algoPath', '')
   if (activePath && !pathById[activePath]) activePath = ''
   let tierFilter = 'all'
   const activeBranches = new Set(branches.map(b => b.id))
@@ -181,7 +181,7 @@ function renderTree(container, query) {
 
   const setPath = id => {
     activePath = id
-    writePref('cram.algoPath', id || '')
+    writePref('techprep.algoPath', id || '')
   }
 
   const matches = node => {
@@ -246,8 +246,8 @@ function renderTree(container, query) {
 
   const viewTreeChip = h('button', { class: `chip${view === 'tree' ? ' active' : ''}` }, icon('tree', 14), ' Tree')
   const viewListChip = h('button', { class: `chip${view === 'list' ? ' active' : ''}` }, icon('list', 14), ' List')
-  viewTreeChip.onclick = () => { view = 'tree'; writePref('cram.algoView', view); viewTreeChip.classList.add('active'); viewListChip.classList.remove('active'); redrawBody() }
-  viewListChip.onclick = () => { view = 'list'; writePref('cram.algoView', view); viewListChip.classList.add('active'); viewTreeChip.classList.remove('active'); redrawBody() }
+  viewTreeChip.onclick = () => { view = 'tree'; writePref('techprep.algoView', view); viewTreeChip.classList.add('active'); viewListChip.classList.remove('active'); redrawBody() }
+  viewListChip.onclick = () => { view = 'list'; writePref('techprep.algoView', view); viewListChip.classList.add('active'); viewTreeChip.classList.remove('active'); redrawBody() }
 
   const pathBarHost = h('div', { class: 'algo-pathbar-host' })
   const bodyHost = h('div', { class: 'algo-body-host' })

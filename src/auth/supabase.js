@@ -1,5 +1,6 @@
+import '../storageMigration.js'
 const libraryUrl = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-const sessionStorageKey = 'codecram-auth'
+const sessionStorageKey = 'techprep-auth'
 const progressTable = 'progress'
 
 const toUser = raw => {

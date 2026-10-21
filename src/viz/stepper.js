@@ -87,13 +87,13 @@ export function mountStepper(container, trace, options = {}) {
 
   const codePane = h('div', { class: 'st-code' }, code)
   let hintSeen = false
-  try { hintSeen = localStorage.getItem('cram.stepHint') === '1' } catch {}
+  try { hintSeen = localStorage.getItem('techprep.stepHint') === '1' } catch {}
   const stepHint = hintSeen ? null : h('div', { class: 'st-hint' }, h('span', { class: 'kbd' }, icon('arrowLeft', 12)), h('span', { class: 'kbd' }, icon('arrowRight', 12)), ' to step')
   const dismissHint = () => {
     if (!stepHint || !stepHint.isConnected) return
     stepHint.classList.add('is-gone')
     setTimeout(() => stepHint.remove(), 400)
-    try { localStorage.setItem('cram.stepHint', '1') } catch {}
+    try { localStorage.setItem('techprep.stepHint', '1') } catch {}
   }
   const root = h('div', { class: 'stepper' },
     h('div', { class: 'st-head' },

@@ -279,7 +279,7 @@ export function createArcade(container, api, config) {
     const best = Math.max(result.best ?? 0, state.score)
     const label = seed ? `Daily Challenge · ${dailyLabel()}` : title
     const link = `${location.origin}${location.pathname}${location.hash}`
-    return `CodeCram · ${label} — scored ${state.score} (best ${best}). Beat me: ${link}`
+    return `TechPrep · ${label} — scored ${state.score} (best ${best}). Beat me: ${link}`
   }
 
   function copyShare(button, result) {

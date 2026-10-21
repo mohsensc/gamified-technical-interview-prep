@@ -383,7 +383,7 @@ export const units = unitDefs.map(unit => {
 export const course = {
   id: 'course',
   kind: 'course',
-  title: 'CodeCram Interview Course',
+  title: 'TechPrep Interview Course',
   deadline: null,
   minutes: units.reduce((sum, unit) => sum + unit.minutes, 0),
   units,

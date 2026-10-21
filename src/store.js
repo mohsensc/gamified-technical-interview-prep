@@ -1,10 +1,10 @@
+import { migrateLegacyStorage } from './storageMigration.js'
 import { initAuth, getUser, onAuthChange, loadRemoteState, saveRemoteState, syncTiming, isLocalhost, signOut } from './auth/index.js'
 
-const guestStorageKey = 'codecram-state'
-const legacyStorageKey = 'google-cram-state'
-const themeStorageKey = 'codecram-theme'
-const userStorageKey = userId => `codecram-state:${userId}`
-const pendingMergeKey = userId => `codecram-pending-merge:${userId}`
+const guestStorageKey = 'techprep-state'
+const themeStorageKey = 'techprep-theme'
+const userStorageKey = userId => `techprep-state:${userId}`
+const pendingMergeKey = userId => `techprep-pending-merge:${userId}`
 const boxIntervals = [0, 5 * 60e3, 30 * 60e3, 3 * 3600e3, 12 * 3600e3, 2 * 86400e3]
 const startMastery = 0.3
 const serverDebounceMs = 900
@@ -102,13 +102,6 @@ const readStorage = key => {
   }
 }
 
-const migrateLegacyStorage = () => {
-  try {
-    if (localStorage.getItem(guestStorageKey)) return
-    const legacy = localStorage.getItem(legacyStorageKey)
-    if (legacy) localStorage.setItem(guestStorageKey, legacy)
-  } catch {}
-}
 
 const readLocal = (userId = activeUserId) => readStorage(storageKeyFor(userId))
 

@@ -90,11 +90,11 @@ const flushPage = page => page.evaluate(() => window.dispatchEvent(new Event('pa
 const localState = page => page.evaluate(() => JSON.parse(JSON.stringify(t.store.getState())))
 const status = page => page.evaluate(() => t.store.getSyncStatus())
 const storedGuest = page => page.evaluate(() => {
-  const text = localStorage.getItem('codecram-state')
+  const text = localStorage.getItem('techprep-state')
   return text ? JSON.parse(text) : null
 })
 const storedUser = (page, userId) => page.evaluate(id => {
-  const text = localStorage.getItem(`codecram-state:${id}`)
+  const text = localStorage.getItem(`techprep-state:${id}`)
   return text ? JSON.parse(text) : null
 }, userId)
 const activeUser = page => page.evaluate(() => t.store.getActiveUserId())

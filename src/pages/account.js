@@ -32,7 +32,7 @@ const answeredCount = () => Object.values(getState().items).filter(item => item.
 
 const downloadProgress = () => {
   const blob = new Blob([JSON.stringify(exportState())], { type: 'application/json' })
-  const link = h('a', { href: URL.createObjectURL(blob), download: `codecram-progress-${new Date().toISOString().slice(0, 10)}.json` })
+  const link = h('a', { href: URL.createObjectURL(blob), download: `techprep-progress-${new Date().toISOString().slice(0, 10)}.json` })
   document.body.appendChild(link)
   link.click()
   link.remove()
@@ -188,7 +188,7 @@ function signInView(startMode) {
   }) }, 'Email me a sign-in link instead') : null
 
   const card = h('section', { class: 'card auth-card' },
-    brandBlock('CodeCram', authMode() === 'local' ? 'Free coding interview prep.' : 'Free coding interview prep. Sign in to keep your progress on every device.'),
+    brandBlock('TechPrep', authMode() === 'local' ? 'Free coding interview prep.' : 'Free coding interview prep. Sign in to keep your progress on every device.'),
     oauthBlock,
     tabs,
     form,

@@ -1,4 +1,5 @@
 import { h } from './h.js'
+import { logoGlyph } from './logo.js'
 import { getSetting, setSetting } from '../store.js'
 import { onNavigate, navigate } from '../router.js'
 import { icon } from './icons.js'
@@ -350,7 +351,7 @@ export function mountShell(root) {
 
   const topbar = h('header', { class: 'topbar' },
     menuButton,
-    h('a', { class: 'brand brand-compact', href: '#/', 'aria-label': 'CodeCram home' }, h('span', { class: 'brand-mark' }, '</>')),
+    h('a', { class: 'brand brand-compact', href: '#/', 'aria-label': 'TechPrep home' }, h('span', { class: 'brand-mark' }, logoGlyph())),
     searchButton,
     h('div', { class: 'grow' }),
     themeButton,
@@ -372,16 +373,16 @@ export function mountShell(root) {
     onclick: () => {
       const collapsed = !shellEl.classList.contains('rail-collapsed')
       shellEl.classList.toggle('rail-collapsed', collapsed)
-      writePref('codecram-rail', collapsed ? 'collapsed' : 'open')
+      writePref('techprep-rail', collapsed ? 'collapsed' : 'open')
       syncCollapseLabel()
     },
   }, icon('collapse', 18))
 
   const rail = h('nav', { class: 'rail', 'aria-label': 'Main' },
     h('div', { class: 'rail-head' },
-      h('a', { class: 'brand', href: '#/', title: 'CodeCram' },
-        h('span', { class: 'brand-mark' }, '</>'),
-        h('span', { class: 'brand-text' }, 'Code', h('b', null, 'Cram'))),
+      h('a', { class: 'brand', href: '#/', title: 'TechPrep' },
+        h('span', { class: 'brand-mark' }, logoGlyph()),
+        h('span', { class: 'brand-text' }, 'Tech', h('b', null, 'Prep'))),
       h('button', { class: 'btn-icon drawer-close', type: 'button', 'aria-label': 'Close menu', onclick: () => setDrawer(false) }, icon('close', 18))),
     h('div', { class: 'rail-scroll' }, navSections),
     h('div', { class: 'rail-foot' },
@@ -397,7 +398,7 @@ export function mountShell(root) {
 
   const scrim = h('div', { class: 'drawer-scrim', onclick: () => setDrawer(false) })
 
-  if (readPref('codecram-rail', 'open') === 'collapsed') shellEl.classList.add('rail-collapsed')
+  if (readPref('techprep-rail', 'open') === 'collapsed') shellEl.classList.add('rail-collapsed')
   syncCollapseLabel()
   shellEl.append(rail, scrim, h('div', { class: 'main-col' }, topbar, view), bottomNav)
   syncDrawerAccess()

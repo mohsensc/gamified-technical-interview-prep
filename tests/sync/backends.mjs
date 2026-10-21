@@ -13,7 +13,7 @@ export const baseUrl = `http://127.0.0.1:${port}`
 const password = 'password123'
 
 export const startServer = async () => {
-  const dataDir = await mkdtemp(join(tmpdir(), 'codecram-sync-'))
+  const dataDir = await mkdtemp(join(tmpdir(), 'techprep-sync-'))
   const child = spawn('node', ['server.js'], { cwd: rootDir, env: { ...process.env, PORT: String(port), HOST: '127.0.0.1', DATA_DIR: dataDir }, stdio: ['ignore', 'pipe', 'pipe'] })
   let output = ''
   child.stdout.on('data', chunk => { output += chunk })

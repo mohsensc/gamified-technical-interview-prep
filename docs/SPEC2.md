@@ -1,4 +1,4 @@
-# Google Cram v2: foundation contract
+# TechPrep v2: foundation contract
 
 Extends `SPEC.md`. Same rules apply: vanilla ES modules, no deps, camelCase, no comments, minimal text, dark and light tokens from `src/styles/base.css`.
 

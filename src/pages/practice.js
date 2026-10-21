@@ -18,7 +18,7 @@ import runPredict from '../ui/modes/predict.js'
 import runGeneric from '../ui/modes/generic.js'
 import { statBlock, resultItemId, formatElapsed } from '../ui/modes/shared.js'
 
-const scopeKey = 'cram.practiceScope'
+const scopeKey = 'techprep.practiceScope'
 const lengthOptions = [5, 10, 20, 0]
 const lengthLabel = n => (n ? String(n) : 'Endless')
 const hubModes = modes.filter(mode => mode.id !== 'checkpoint')

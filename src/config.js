@@ -1,5 +1,5 @@
 export const config = {
-  appName: 'CodeCram',
+  appName: 'TechPrep',
   siteUrl: '',
   supabaseUrl: '',
   supabaseAnonKey: '',

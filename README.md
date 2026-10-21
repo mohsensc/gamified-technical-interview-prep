@@ -1,4 +1,4 @@
-# CodeCram
+# TechPrep
 
 Free coding-interview prep. Patterns, company-tagged problems, thought-process drills, games, and progress tracking. Plain ES modules, no build step, no dependencies.
 
@@ -46,4 +46,4 @@ Guest mode needs no sign-in and works fully offline in localStorage. Signing in 
 
 ## Progress data
 
-Guest progress lives in `localStorage` under `codecram-state` (migrated automatically from the old `google-cram-state` key) and, on localhost, in `data/state.json`. Signed-in progress is cached locally per account and synced to Supabase or the local server.
+Guest progress lives in `localStorage` under `techprep-state` (migrated automatically from the old `codecram-state` and `google-cram-state` keys) and, on localhost, in `data/state.json`. Signed-in progress is cached locally per account and synced to Supabase or the local server.

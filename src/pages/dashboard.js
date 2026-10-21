@@ -1,4 +1,5 @@
 import { h } from '../ui/h.js'
+import { logoGlyph } from '../ui/logo.js'
 import { icon } from '../ui/icons.js'
 import { getState, subscribe, getLevelInfo, getStreak, getStudyMinutes, getNodeProgress, getEvents, dueItems, recordAnswer } from '../store.js'
 import { allItems, hrefFor, course } from '../content/curriculum.js'
@@ -142,7 +143,7 @@ function buildInterviewControl() {
 
 function buildTitleBlock() {
   return h('div', { class: 'game-title-block' },
-    h('h1', { class: 'game-logo' }, h('span', { class: 'brand-mark' }, '</>'), 'CodeCram'),
+    h('h1', { class: 'game-logo' }, h('span', { class: 'brand-mark' }, logoGlyph()), 'TechPrep'),
     h('p', { class: 'game-tagline' }, 'Your coding interview training arcade'))
 }
 

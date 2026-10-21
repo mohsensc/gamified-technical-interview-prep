@@ -1,4 +1,4 @@
-# Google Cram — build contract (all agents MUST follow)
+# TechPrep — build contract (all agents MUST follow)
 
 Local study web app. Vanilla ES modules, NO build step, NO npm deps. Served by `node server.js` on http://localhost:5317.
 User: Google SWE intern candidate, interviews Tue noon. Writes Python. Weak spots: picking time/space from constraints,

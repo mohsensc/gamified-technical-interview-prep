@@ -1,6 +1,6 @@
 {
-  "name": "CodeCram",
-  "short_name": "CodeCram",
+  "name": "TechPrep",
+  "short_name": "TechPrep",
   "description": "Free coding interview prep: patterns, company-tagged problems, games and progress tracking.",
   "start_url": "/#/",
   "scope": "/",

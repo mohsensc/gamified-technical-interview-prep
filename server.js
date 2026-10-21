@@ -13,7 +13,8 @@ const userStateDir = join(dataDir, 'users')
 const port = Number(process.env.PORT) || 5317
 const host = process.env.HOST || '127.0.0.1'
 const staticEntries = new Set(['index.html', 'src', 'robots.txt', 'sitemap.xml', 'manifest.webmanifest', 'favicon.svg'])
-const sessionCookieName = 'codecram_session'
+const sessionCookieName = 'techprep_session'
+const legacySessionCookieName = 'codecram_session'
 const sessionMaxAgeSeconds = 60 * 24 * 3600
 const maxUserStateBytes = 8 * 1024 * 1024
 
@@ -101,6 +102,11 @@ const parseCookies = header => Object.fromEntries(String(header || '').split(';'
   return [part.slice(0, index).trim(), decodeURIComponent(part.slice(index + 1).trim())]
 }).filter(Boolean))
 
+const readSessionToken = req => {
+  const cookies = parseCookies(req.headers.cookie)
+  return cookies[sessionCookieName] || cookies[legacySessionCookieName]
+}
+
 const sessionCookie = (token, maxAge) => `${sessionCookieName}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}`
 
 const publicUser = user => ({ id: user.id, email: user.email, name: user.name, provider: 'local' })
@@ -129,7 +135,7 @@ const saveAuthSessions = () => writeFileAtomic(authSessionsPath, JSON.stringify(
 const userStatePath = userId => join(userStateDir, `${userId.replace(/[^a-zA-Z0-9-]/g, '')}.json`)
 
 const currentUser = async req => {
-  const token = parseCookies(req.headers.cookie)[sessionCookieName]
+  const token = readSessionToken(req)
   if (!token) return null
   const sessions = await loadAuthSessions()
   const session = sessions[hashToken(token)]
@@ -196,7 +202,7 @@ const handleAuth = async (req, res, path) => {
     return sendJson(res, 200, { user: publicUser(user) })
   }
   if (path === '/api/auth/logout') {
-    const token = parseCookies(req.headers.cookie)[sessionCookieName]
+    const token = readSessionToken(req)
     if (token) {
       const sessions = await loadAuthSessions()
       delete sessions[hashToken(token)]
@@ -323,5 +329,5 @@ const server = http.createServer(async (req, res) => {
 })
 
 server.listen(port, host, () => {
-  console.log(`\n  CodeCram  →  http://localhost:${port}\n`)
+  console.log(`\n  TechPrep  →  http://localhost:${port}\n`)
 })
