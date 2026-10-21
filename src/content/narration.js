@@ -1,42 +1,42 @@
 export const framework = [
   {
-    id: 'clarify', title: 'Clarify & examples', icon: '❓', minutes: 4,
+    id: 'clarify', title: 'Clarify & examples', icon: 'question', minutes: 4,
     goal: 'Restate. Ask. Walk one example by hand.',
     checklist: ['Restate the problem in one sentence', 'Input types, ranges, empty input?', 'Duplicates, negatives, sorted?', 'Output format, ties, in-place?', 'Trace a tiny example out loud'],
     starters: ['So I want to make sure I understand: given ___, return ___.', 'Can the input be empty, or contain duplicates or negatives?', 'Should I return indices or values, and what if there are ties?', 'Let me walk through this small example to confirm.'],
   },
   {
-    id: 'constraints', title: 'Constraints → target', icon: '📏', minutes: 2,
+    id: 'constraints', title: 'Constraints → target', icon: 'ruler', minutes: 2,
     goal: 'Read n. Pick the Big-O you must hit.',
     checklist: ['Ask for n if not given', 'Map n to a complexity budget', 'Say the target out loud'],
     starters: ['How large can n get?', 'With n up to 10^5, I am aiming for O(n log n) or better.', 'n is at most 20, so an exponential search over subsets is fine here.'],
   },
   {
-    id: 'brute', title: 'Brute force + cost', icon: '🔨', minutes: 3,
+    id: 'brute', title: 'Brute force + cost', icon: 'hammer', minutes: 3,
     goal: 'Say the obvious way and why it is too slow.',
     checklist: ['Describe the naive approach in 1-2 lines', 'State its time and space', 'Point at the repeated work'],
     starters: ['The simplest approach is to try every ___, which is O(___).', 'That repeats work because we recompute ___ each time.', 'This would not pass for n = 10^5, so let me optimize.'],
   },
   {
-    id: 'optimize', title: 'Optimize: pattern + DS', icon: '💡', minutes: 6,
+    id: 'optimize', title: 'Optimize: pattern + DS', icon: 'idea', minutes: 6,
     goal: 'Name the pattern, the data structure, and why.',
     checklist: ['Name the pattern (BFS, window, heap...)', 'Name the DS and what it stores', 'Why it removes the repeated work', 'Get a nod before coding'],
     starters: ['This looks like a ___ problem because the prompt says ___.', 'I will use a ___ to store ___, so each lookup is O(1).', 'That brings it down to O(___). Does that sound good before I code it?'],
   },
   {
-    id: 'code', title: 'Code while narrating', icon: '⌨️', minutes: 18,
+    id: 'code', title: 'Code while narrating', icon: 'keyboard', minutes: 18,
     goal: 'Talk at every block: setup, loop, update, return.',
     checklist: ['Setup: say what each variable holds', 'Loop: say the invariant', 'Update: say why this line keeps it true', 'Return: say what the answer means', 'Use helper names, not long comments'],
     starters: ['First I set up ___ which holds ___.', 'This loop goes over ___; at each step ___ is always true.', 'Here I update ___ because ___.', 'At the end ___ holds the answer, so I return it.'],
   },
   {
-    id: 'test', title: 'Test + edge cases', icon: '🧪', minutes: 6,
+    id: 'test', title: 'Test + edge cases', icon: 'flask', minutes: 6,
     goal: 'Dry-run your example line by line. Then edges.',
     checklist: ['Trace the example through the code', 'Empty / single element', 'All same / all negative', 'Max size or deep recursion', 'Fix bugs calmly, say what changed'],
     starters: ['Let me trace through with ___: after the first iteration ___.', 'For an empty input we return ___ right away.', 'One edge case is ___; my code handles it because ___.'],
   },
   {
-    id: 'complexity', title: 'Time & space + why', icon: '⏱️', minutes: 3,
+    id: 'complexity', title: 'Time & space + why', icon: 'clock', minutes: 3,
     goal: 'State both, justify each term.',
     checklist: ['Time with the reason for each factor', 'Space including recursion stack', 'Mention a trade-off or follow-up'],
     starters: ['Time is O(___) because each ___ is processed once and ___.', 'Space is O(___) for the ___, plus the recursion stack of depth ___.', 'If memory mattered more, we could ___.'],
@@ -157,10 +157,10 @@ export const whereToLook = [
   { signal: 'matching brackets / undo', think: 'Last in, first out', pattern: 'Stack', ds: 'list', skill: 'stack' },
 ]
 
-export const googleTips = [
+export const interviewTips = [
   { title: 'Think aloud', text: 'Silence reads as stuck. Narrate even half-ideas.' },
   { title: 'Clarify first', text: 'Two or three questions before any code. Interviewers grade this.' },
-  { title: 'Googleyness', text: 'Collaborative, humble, curious. Treat hints as teamwork.' },
+  { title: 'Be a teammate', text: 'Collaborative, humble, curious. Treat hints as teamwork.' },
   { title: 'Charm + substance', text: 'Friendly tone, but every sentence moves the solution forward.' },
   { title: 'Drive', text: 'Propose the next step yourself: "Shall I code this?"' },
   { title: 'Own bugs', text: 'Say "found a bug", fix it, move on. Calm beats perfect.' },

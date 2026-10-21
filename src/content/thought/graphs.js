@@ -6,11 +6,10 @@ const items = [
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'grid'],
+    companies: ['google', 'amazon', 'microsoft', 'meta', 'bloomberg'],
     statement: `You get a 2-D grid of "1"s (land) and "0"s (water). An island is a maximal blob of land cells connected up/down/left/right - diagonals do not count.
 
-Count how many separate islands sit in the grid. The grid never wraps around the edges, and a single island can be any bendy shape.
-
-Think of each land cell as a node and each 4-directional land-land adjacency as an edge; islands are exactly the connected components of that implicit graph.`,
+Count how many separate islands sit in the grid. The grid never wraps around the edges, and a single island can be any bendy shape.`,
     examples: [
       { input: 'grid = [["1","1","0","0"],["1","1","0","0"],["0","0","1","0"],["0","0","0","1"]]', output: '3', explanation: 'a 2x2 block, a lone cell at (2,2), and a lone cell at (3,3)' },
     ],
@@ -68,11 +67,10 @@ Think of each land cell as a node and each 4-directional land-land adjacency as 
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'grid'],
+    companies: ['google', 'amazon', 'meta'],
     statement: `Same grid-of-land setup as Number of Islands, but now every island has a size: the count of land cells in its connected blob.
 
-Return the size of the single largest island, or 0 if the grid is all water.
-
-You still only move 4-directionally, and you still want to visit every cell belonging to one island exactly once before moving to the next island.`,
+Return the size of the single largest island, or 0 if the grid is all water.`,
     examples: [
       { input: 'grid = [[1,1,0,0],[1,1,0,0],[0,0,0,1]]', output: '4', explanation: 'the 2x2 block has area 4; the lone cell at (2,3) has area 1' },
     ],
@@ -132,11 +130,10 @@ You still only move 4-directionally, and you still want to visit every cell belo
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-bfs', 'grid'],
+    companies: ['google', 'amazon', 'microsoft'],
     statement: `A grid has empty cells (0), fresh oranges (1) and rotten oranges (2). Every minute, every rotten orange rots its 4-directional fresh neighbors at the same time.
 
-Return the number of minutes until no fresh orange is left, or -1 if some fresh orange can never be reached.
-
-Because rot spreads from many sources simultaneously and in lockstep minutes, this is a layer-by-layer spread problem, not a single start-to-finish path.`,
+Return the number of minutes until no fresh orange is left, or -1 if some fresh orange can never be reached.`,
     examples: [
       { input: 'grid = [[2,1,1],[1,1,0],[0,1,1]]', output: '4' },
     ],
@@ -198,11 +195,10 @@ Because rot spreads from many sources simultaneously and in lockstep minutes, th
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-bfs', 'grid'],
+    companies: ['google', 'meta'],
     statement: `A grid mixes walls (-1), treasure chests (0) and empty rooms (INF, shown as 2147483647). Moves are 4-directional and walls block movement.
 
-Fill every empty room in place with the distance to its nearest treasure chest. Rooms that cannot reach any chest stay INF.
-
-Multiple chests exist, and a room should pick whichever chest is closest - so you want every chest expanding outward at the same time, not one chest fully explored before the next.`,
+Fill every empty room in place with the distance to its nearest treasure chest. Rooms that cannot reach any chest stay INF.`,
     examples: [
       { input: 'grid = [[2147483647,0,2147483647],[2147483647,-1,2147483647]]', output: '[[1,0,1],[2,-1,2]]' },
     ],
@@ -257,11 +253,10 @@ Multiple chests exist, and a room should pick whichever chest is closest - so yo
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'grid'],
+    companies: ['google', 'amazon'],
     statement: `A grid of heights has the Pacific touching its top and left edges, and the Atlantic touching its bottom and right edges. Water flows from a cell to a 4-directional neighbor only if the neighbor's height is less than or equal to the current cell.
 
-Return every cell from which water can reach BOTH oceans.
-
-Checking every cell's path forward to both oceans is slow, so instead flow backward: start DFS from each ocean's border cells and only climb to neighbors that are equal or taller, which is exactly water flowing downhill in reverse.`,
+Return every cell from which water can reach BOTH oceans.`,
     examples: [
       { input: 'heights = [[1,2],[4,3]]', output: '[[0,1],[1,0],[1,1]]' },
     ],
@@ -320,11 +315,12 @@ Checking every cell's path forward to both oceans is slow, so instead flow backw
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'graph-modeling'],
+    companies: ['google', 'microsoft', 'meta'],
     statement: `You're handed a reference to one node of a connected undirected graph. Every node has a value and a list of neighbor references.
 
 Return a deep copy of the whole graph: new node objects with the same values and the same neighbor structure, with no shared references back to the original.
 
-The graph can have cycles, so whatever you use to build the copy needs to recognize "I already cloned this node" instead of recursing forever.`,
+The graph can contain cycles.`,
     examples: [
       { input: 'adjList = [[2,4],[1,3],[2,4],[1,3]]', output: '[[2,4],[1,3],[2,4],[1,3]]', explanation: 'node 1 connects to 2 and 4, etc; the clone has the same shape' },
     ],
@@ -376,11 +372,10 @@ The graph can have cycles, so whatever you use to build the copy needs to recogn
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'grid'],
+    companies: ['google'],
     statement: `A board has 'X' and 'O' cells. Capture every region of 'O's that is fully surrounded by 'X' on all sides, flipping it to 'X'.
 
-An 'O' region touching the border, directly or through a chain of other 'O's, can never be captured - it has an escape route.
-
-So instead of trying to prove a region is surrounded, it's easier to find every region that is NOT surrounded (reachable from the border) and leave only those alone.`,
+An 'O' region touching the border, directly or through a chain of other 'O's, can never be captured - it has an escape route.`,
     examples: [
       { input: 'board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]', output: '[["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]', explanation: 'the O at the bottom-left touches the border and survives; the rest get captured' },
     ],
@@ -442,11 +437,10 @@ So instead of trying to prove a region is surrounded, it's easier to find every 
     difficulty: 'Hard',
     category: 'graphs',
     skills: ['graph-bfs', 'graph-modeling'],
+    companies: ['google', 'amazon', 'microsoft', 'meta'],
     statement: `Starting from beginWord, you may change exactly one letter at a time, and every intermediate word must exist in wordList. Reach endWord in as few transformations as possible.
 
-Return the number of words in the shortest such sequence, counting both begin and end words, or 0 if no sequence exists.
-
-Every word is a node, and an edge connects two words that differ by exactly one letter; the fewest transformations is just the shortest path in that implicit graph, so it wants BFS, not DFS.`,
+Return the number of words in the shortest such sequence, counting both begin and end words, or 0 if no sequence exists.`,
     examples: [
       { input: 'beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]', output: '5', explanation: 'hit -> hot -> dot -> dog -> cog' },
     ],
@@ -508,6 +502,7 @@ Every word is a node, and an edge connects two words that differ by exactly one 
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'graph-modeling'],
+    companies: ['google', 'amazon', 'meta'],
     statement: `You get n nodes labeled 0 to n-1 and a list of undirected edges between them.
 
 Return how many separate connected components the graph splits into - groups of nodes where every node can reach every other node in the same group, with no path to any other group.
@@ -573,11 +568,10 @@ Nodes with no edges at all are still their own single-node component.`,
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'graph-modeling'],
+    companies: ['google', 'microsoft', 'meta'],
     statement: `You get n nodes labeled 0 to n-1 and a list of undirected edges.
 
-Decide whether these edges form a valid tree: every node connected, and no cycles.
-
-A tree on n nodes always has exactly n-1 edges, which is a fast pre-check, but it isn't sufficient by itself - you still need to confirm the edges don't form a cycle somewhere while leaving another part disconnected.`,
+Decide whether these edges form a valid tree: every node connected, and no cycles.`,
     examples: [
       { input: 'n = 5, edges = [[0,1],[0,2],[0,3],[1,4]]', output: 'true' },
       { input: 'n = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]', output: 'false', explanation: '1-2-3-1 is a cycle' },
@@ -636,11 +630,10 @@ A tree on n nodes always has exactly n-1 edges, which is a fast pre-check, but i
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-bfs', 'grid'],
+    companies: ['google', 'amazon'],
     statement: `An n x n grid has 0 (clear) and 1 (blocked) cells. From a cell you may step to any of its 8 neighbors - orthogonal AND diagonal - as long as that neighbor is clear.
 
-Return the length of the shortest clear path from the top-left to the bottom-right cell, counting both endpoints, or -1 if no path exists.
-
-Because every step costs exactly 1 regardless of direction, the shortest path is just a BFS distance, not a weighted shortest-path problem.`,
+Return the length of the shortest clear path from the top-left to the bottom-right cell, counting both endpoints, or -1 if no path exists.`,
     examples: [
       { input: 'grid = [[0,1],[1,0]]', output: '2' },
     ],
@@ -697,11 +690,10 @@ Because every step costs exactly 1 regardless of direction, the shortest path is
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'graph-modeling'],
+    companies: ['google'],
     statement: `There are n rooms numbered 0 to n-1. You start inside room 0, which is unlocked. Each room holds a list of keys, and each key is the index of another room you may now also enter.
 
-Return true if you can eventually visit every room, false otherwise.
-
-Room i's keys are exactly its outgoing edges to other rooms, so this is a reachability question on an implicit directed graph starting from node 0.`,
+Return true if you can eventually visit every room, false otherwise.`,
     examples: [
       { input: 'rooms = [[1],[2],[3],[]]', output: 'true' },
       { input: 'rooms = [[1,3],[3,0,1],[2],[0]]', output: 'false', explanation: 'room 2 is never reachable' },
@@ -753,11 +745,10 @@ Room i's keys are exactly its outgoing edges to other rooms, so this is a reacha
     difficulty: 'Easy',
     category: 'graphs',
     skills: ['graph-dfs', 'graph-modeling'],
+    companies: ['amazon', 'microsoft'],
     statement: `You get n nodes labeled 0 to n-1, a list of undirected edges, plus a source and a destination node.
 
-Return true if there's any path (through any number of edges) from source to destination, false otherwise.
-
-This is a plain reachability check, no shortest distance needed - you can stop the instant destination is found anywhere in the search.`,
+Return true if there's any path (through any number of edges) from source to destination, false otherwise.`,
     examples: [
       { input: 'n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2', output: 'true' },
     ],
@@ -814,11 +805,10 @@ This is a plain reachability check, no shortest distance needed - you can stop t
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'graph-modeling'],
+    companies: ['google', 'amazon', 'meta'],
     statement: `n cities are described by an n x n adjacency MATRIX isConnected, where isConnected[i][j] = 1 means city i and city j are directly connected.
 
-A province is a group of cities connected directly or indirectly, with no connection to any city outside the group. Return the number of provinces.
-
-The input is already a dense matrix instead of an edge list, so each DFS step scans a whole row of n entries rather than following a short adjacency list.`,
+A province is a group of cities connected directly or indirectly, with no connection to any city outside the group. Return the number of provinces.`,
     examples: [
       { input: 'isConnected = [[1,1,0],[1,1,0],[0,0,1]]', output: '2' },
     ],
@@ -875,11 +865,10 @@ The input is already a dense matrix instead of an edge list, so each DFS step sc
     difficulty: 'Easy',
     category: 'graphs',
     skills: ['grid'],
+    companies: ['google', 'amazon', 'meta'],
     statement: `A grid has exactly one island of land cells (1s) connected 4-directionally, with water (0s) everywhere else and no lakes inside the island.
 
-Return the perimeter of that island - the total length of its boundary edges.
-
-There's no traversal order to figure out here: every land cell contributes one unit of perimeter for each side that touches water or the edge of the grid, so a single pass with no visited set does the whole job.`,
+Return the perimeter of that island - the total length of its boundary edges.`,
     examples: [
       { input: 'grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]', output: '16' },
     ],
@@ -932,11 +921,12 @@ There's no traversal order to figure out here: every land cell contributes one u
     difficulty: 'Easy',
     category: 'graphs',
     skills: ['graph-dfs', 'grid'],
+    companies: ['amazon', 'microsoft'],
     statement: `An image is a grid of colors. Starting at pixel (sr, sc), repaint it and every 4-directionally connected pixel that shares its ORIGINAL color with the new color.
 
 Return the resulting image.
 
-The classic trap: if the new color happens to equal the start color, naive recursion never terminates because every repainted pixel still "matches" and keeps re-queuing itself.`,
+The new color may equal the start color.`,
     examples: [
       { input: 'image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2', output: '[[2,2,2],[2,2,0],[2,0,1]]' },
     ],
@@ -990,11 +980,12 @@ The classic trap: if the new color happens to equal the start color, naive recur
     difficulty: 'Medium',
     category: 'graphs',
     skills: ['graph-dfs', 'grid'],
+    companies: ['google', 'amazon'],
     statement: `You get two same-sized grids of land (1) and water (0). An island in grid2 is a SUB-island if every one of its land cells is also land in grid1 at the same position.
 
 Return how many of grid2's islands are sub-islands.
 
-A single mismatched cell anywhere in a grid2 island disqualifies the WHOLE island, not just that cell - so the DFS needs to check every cell and every branch before deciding, not bail out on the first mismatch.`,
+One mismatched land cell disqualifies the whole grid2 island.`,
     examples: [
       { input: 'grid1 = [[1,1,1,0],[0,1,1,1],[0,0,0,0],[1,0,0,0]], grid2 = [[1,1,1,0],[0,0,1,1],[0,1,0,0],[1,0,1,1]]', output: '2' },
     ],
@@ -1047,11 +1038,366 @@ A single mismatched cell anywhere in a grid2 island disqualifies the WHOLE islan
     sayIt: 'DFS each grid2 island, AND-ing whether grid1 also has land there across every cell and branch, before counting it. O(rows*cols) time and space.',
     pitfall: 'Returning early on mismatch skips marking the rest of the island, causing a double count.',
   },
+  {
+    id: 'thought:graphs:01-matrix',
+    lc: 542,
+    title: '01 Matrix',
+    difficulty: 'Medium',
+    category: 'graphs',
+    skills: ['graph-bfs', 'grid'],
+    companies: ['google', 'amazon'],
+    statement: `You're given an m x n binary matrix of 0s and 1s. For every cell, return the distance to the nearest 0, where distance is measured in up/down/left/right steps.
+
+Every cell holding a 0 has distance 0 to itself. The matrix always contains at least one 0.
+
+Return a same-shaped matrix of these distances.`,
+    examples: [
+      { input: 'mat = [[0,0,0],[0,1,0],[1,1,1]]', output: '[[0,0,0],[0,1,0],[1,2,1]]', explanation: 'the center 1 is one step from a 0; the bottom-right 1 is two steps away' },
+    ],
+    constraints: ['1 <= rows, cols <= 10^4', 'rows * cols <= 10^4', 'mat[i][j] is 0 or 1', 'at least one 0 exists'],
+    ds: {
+      answer: 'BFS queue seeded with every 0-cell + dist grid (multi-source BFS)',
+      choices: ['BFS queue seeded with every 0-cell + dist grid (multi-source BFS)', '2-D dp table swept forward then backward', 'DFS from every 1-cell outward to the nearest 0', 'min-heap of (dist, row, col) (Dijkstra)'],
+    },
+    method: {
+      answer: 'Multi-source BFS: ==seed the queue with every 0-cell at distance 0==, then BFS outward so each 1-cell gets its distance from the first 0 that reaches it',
+      choices: [
+        'Multi-source BFS: ==seed the queue with every 0-cell at distance 0==, then BFS outward so each 1-cell gets its distance from the first 0 that reaches it',
+        'Single-source BFS from one arbitrary 0-cell, repeated once per 1-cell',
+        'Two-pass DP: sweep top-left to bottom-right taking min of up/left, then bottom-right to top-left taking min of down/right',
+        'DFS from each 1-cell, tracking the minimum depth to any 0 seen so far',
+      ],
+    },
+    code: `class Solution:
+    def updateMatrix(self, mat: List[List[int]]) -> List[List[int]]:
+        rows, cols = len(mat), len(mat[0])
+        dist = [[-1] * cols for _ in range(rows)]
+        queue = deque()
+
+        for r in range(rows):
+            for c in range(cols):
+                if mat[r][c] == 0:
+                    dist[r][c] = 0
+                    queue.append((r, c))
+
+        while queue:
+            r, c = queue.popleft()
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols and dist[nr][nc] == -1:
+                    dist[nr][nc] = dist[r][c] + 1
+                    queue.append((nr, nc))
+
+        return dist`,
+    blanks: [9, 10, 17],
+    time: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(rows * cols * log(rows * cols))', 'O((rows * cols)^2)', 'O(rows + cols)'], why: 'each cell is enqueued and dequeued at most once' },
+    space: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(1)', 'O(rows + cols)', 'O(log(rows * cols))'], why: 'dist grid plus a queue that can hold every cell' },
+    sayIt: 'I seed a BFS queue with every 0-cell at distance 0, then expand outward so each 1-cell picks up the distance from the nearest 0, O(rows*cols) time.',
+    pitfall: 'Must seed ALL zero cells into the queue up front, not just one, or distances overcount.',
+  },
+  {
+    id: 'thought:graphs:as-far-from-land-as-possible',
+    lc: 1162,
+    title: 'As Far from Land as Possible',
+    difficulty: 'Medium',
+    category: 'graphs',
+    skills: ['graph-bfs', 'grid'],
+    companies: ['google', 'amazon'],
+    statement: `You're given an n x n grid of 0s (water) and 1s (land). Find a water cell whose distance to the nearest land cell is as large as possible, and return that distance.
+
+Distance is measured in up/down/left/right steps between cells. If the grid is all land or all water, return -1 since the question doesn't apply.`,
+    examples: [
+      { input: 'grid = [[1,0,1],[0,0,0],[1,0,1]]', output: '2', explanation: 'the center cell is 2 steps from the nearest land corner' },
+    ],
+    constraints: ['1 <= n <= 100', 'grid[i][j] is 0 or 1'],
+    ds: {
+      answer: 'BFS queue seeded with every land cell, processed level by level',
+      choices: ['BFS queue seeded with every land cell, processed level by level', 'min-heap of (dist, row, col) (Dijkstra)', '2-D dp table of distances swept twice', 'DFS from each water cell outward to the nearest land'],
+    },
+    method: {
+      answer: "Multi-source level-order BFS: ==seed every land cell at distance 0==, expand one full ring (level) at a time, and the last level fully processed before the queue empties is the answer",
+      choices: [
+        "Multi-source level-order BFS: ==seed every land cell at distance 0==, expand one full ring (level) at a time, and the last level fully processed before the queue empties is the answer",
+        'Single BFS from one land cell, then take the max distance recorded',
+        'Sort all cells by Manhattan distance to the nearest land cell, computed pairwise',
+        'DFS flood fill marking depth from each land cell independently and taking the max over all runs',
+      ],
+    },
+    code: `class Solution:
+    def maxDistance(self, grid: List[List[int]]) -> int:
+        rows, cols = len(grid), len(grid[0])
+        queue = deque()
+
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == 1:
+                    queue.append((r, c))
+
+        if not queue or len(queue) == rows * cols:
+            return -1
+
+        dist = -1
+        while queue:
+            for _ in range(len(queue)):
+                r, c = queue.popleft()
+                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 0:
+                        grid[nr][nc] = 1
+                        queue.append((nr, nc))
+            dist += 1
+
+        return dist`,
+    blanks: [8, 20, 22],
+    time: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(n^2 log n)', 'O(n^3)', 'O(n)'], why: 'each of the n*n cells is enqueued and dequeued once' },
+    space: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(1)', 'O(n)', 'O(n^2 log n)'], why: 'queue and grid both scale with the number of cells' },
+    sayIt: 'I BFS outward from all land cells at once, level by level, so the last ring reached is the maximum distance; O(n^2) time.',
+    pitfall: 'Must return -1 up front when the grid is all land or all water.',
+  },
+  {
+    id: 'thought:graphs:number-of-enclaves',
+    lc: 1020,
+    title: 'Number of Enclaves',
+    difficulty: 'Medium',
+    category: 'graphs',
+    skills: ['graph-dfs', 'grid'],
+    companies: ['amazon', 'meta'],
+    statement: `You're given a binary matrix where 1 means land and 0 means water, connected up/down/left/right. A move walks from one land cell to an adjacent land cell, or off the boundary of the grid.
+
+An enclave is a land cell from which you can never walk off the boundary of the grid, no matter how many moves you make.
+
+Return the number of land cells in all enclaves.`,
+    examples: [
+      { input: 'grid = [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]', output: '3', explanation: 'the three connected 1s in the middle never reach the border' },
+    ],
+    constraints: ['1 <= rows, cols <= 500', 'grid[i][j] is 0 or 1'],
+    ds: {
+      answer: 'DFS flood-fill that sinks land connected to the border, in-place on the grid',
+      choices: ['DFS flood-fill that sinks land connected to the border, in-place on the grid', 'Union-Find over land cells merging neighbors and a virtual border node', 'BFS queue seeded with border land cells', '2-D dp table marking reachability from the border'],
+    },
+    method: {
+      answer: "DFS flood the border first: ==walk every border cell and recursively sink (zero out) any connected land==, then whatever land remains after sinking is fully enclosed, so count it",
+      choices: [
+        "DFS flood the border first: ==walk every border cell and recursively sink (zero out) any connected land==, then whatever land remains after sinking is fully enclosed, so count it",
+        'BFS from the border inward, counting cells visited as escaped and subtracting from total land',
+        'DFS from every individual land cell checking if any path reaches the border, memoizing per cell',
+        'Union-Find merging every land cell with its neighbors, then flagging any component that touches a border index',
+      ],
+    },
+    code: `class Solution:
+    def numEnclaves(self, grid: List[List[int]]) -> int:
+        rows, cols = len(grid), len(grid[0])
+
+        def sink(r, c):
+            if not (0 <= r < rows and 0 <= c < cols) or grid[r][c] == 0:
+                return
+
+            grid[r][c] = 0
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                sink(r + dr, c + dc)
+
+        for r in range(rows):
+            sink(r, 0)
+            sink(r, cols - 1)
+        for c in range(cols):
+            sink(0, c)
+            sink(rows - 1, c)
+
+        return sum(row.count(1) for row in grid)`,
+    blanks: [8, 10, 19],
+    time: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(rows * cols * log(rows * cols))', 'O((rows + cols)^2)', 'O(rows + cols)'], why: 'DFS visits each land cell once total across all sink calls' },
+    space: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(1)', 'O(rows + cols)', 'O(log(rows * cols))'], why: 'recursion depth can reach every connected land cell' },
+    sayIt: 'I DFS-sink every land cell reachable from the border down to 0, then whatever land is left over never reached the border, O(rows*cols) time.',
+    pitfall: 'Sinking has to run from ALL four border edges, not just the first row or column.',
+  },
+  {
+    id: 'thought:graphs:open-the-lock',
+    lc: 752,
+    title: 'Open the Lock',
+    difficulty: 'Medium',
+    category: 'graphs',
+    skills: ['graph-bfs', 'graph-modeling'],
+    companies: ['google', 'amazon'],
+    statement: `A lock has 4 circular wheels, each showing a digit 0-9, starting at "0000". Each move turns one wheel by one position, wrapping from 9 to 0 or from 0 to 9.
+
+You're given a list of deadend combinations; if the lock ever displays one of them, it locks forever and that combination can never be reached or passed through.
+
+Find the minimum number of moves to reach the target combination, or report it's impossible.`,
+    examples: [
+      { input: 'deadends = ["0201","0101","0102","1212","2002"], target = "0202"', output: '6', explanation: 'a path of 6 single-wheel turns reaches 0202 while avoiding every deadend' },
+      { input: 'deadends = ["8888"], target = "0009"', output: '1', explanation: 'turn the last wheel from 0 to 9 (wrapping down) in a single move' },
+    ],
+    constraints: ['1 <= deadends.length <= 500', 'deadends[i].length == 4', 'target.length == 4', 'target is not in the list deadends', 'deadends and target consist of digits only'],
+    ds: {
+      answer: 'BFS queue of (combo string, steps) + a visited set of seen combos',
+      choices: ['BFS queue of (combo string, steps) + a visited set of seen combos', 'DFS with memo keyed by combo, returning the minimum of all neighbor results', 'Dijkstra with a min-heap of (steps, combo)', 'Union-Find over all 10000 possible combos'],
+    },
+    method: {
+      answer: "BFS over the state graph of all 4-digit combos: ==each combo has 8 neighbors, one digit wheel moved +1 or -1 (mod 10)==, explore layer by layer so the first time target is dequeued gives the fewest turns, skipping deadends and already-visited combos",
+      choices: [
+        'DFS exploring every reachable combo recursively, tracking the minimum depth seen so far',
+        "BFS over the state graph of all 4-digit combos: ==each combo has 8 neighbors, one digit wheel moved +1 or -1 (mod 10)==, explore layer by layer so the first time target is dequeued gives the fewest turns, skipping deadends and already-visited combos",
+        'Treat it as shortest path with Dijkstra, since every move costs exactly 1',
+        'Precompute the full 10000-node graph once, then run BFS from target back to "0000" instead',
+      ],
+    },
+    code: `class Solution:
+    def openLock(self, deadends: List[str], target: str) -> int:
+        dead = set(deadends)
+        if "0000" in dead:
+            return -1
+
+        queue = deque([("0000", 0)])
+        visited = {"0000"}
+
+        while queue:
+            combo, steps = queue.popleft()
+            if combo == target:
+                return steps
+
+            for i in range(4):
+                digit = int(combo[i])
+                for delta in (-1, 1):
+                    nextDigit = (digit + delta) % 10
+                    nextCombo = combo[:i] + str(nextDigit) + combo[i + 1:]
+                    if nextCombo not in dead and nextCombo not in visited:
+                        visited.add(nextCombo)
+                        queue.append((nextCombo, steps + 1))
+
+        return -1`,
+    blanks: [12, 17, 21],
+    time: { answer: 'O(10^4)', choices: ['O(10^4)', 'O(10^8)', 'O(log(10^4))', 'O(2^(10^4))'], why: 'at most 10,000 reachable combos, each with a constant 8 neighbors explored once' },
+    space: { answer: 'O(10^4)', choices: ['O(10^4)', 'O(1)', 'O(10^8)', 'O(4)'], why: 'the visited set and queue can together hold up to all 10,000 combos' },
+    sayIt: "BFS from 0000 treating each combo as a node with ==8 neighbors from turning one wheel +/-1 mod 10==, skip deadends and revisits, first time target pops off the queue is the answer, O(10^4) time.",
+    pitfall: 'Check whether "0000" itself is a deadend before starting BFS from it.',
+  },
+  {
+    id: 'thought:graphs:snakes-and-ladders',
+    lc: 909,
+    title: 'Snakes and Ladders',
+    difficulty: 'Medium',
+    category: 'graphs',
+    skills: ['graph-bfs', 'grid'],
+    companies: ['amazon', 'google'],
+    statement: `You're given an n x n board where squares are numbered 1 to n*n in a boustrophedon pattern (left to right on one row, then right to left on the next, alternating), starting at the bottom-left square.
+
+From square curr, a move can reach any of squares curr+1 through curr+6 (like rolling a die). If that destination square has a snake or ladder, you immediately move to the other end of it instead; you can only use one snake or ladder per move, and landing back on a square with another snake/ladder does not chain further.
+
+Find the minimum number of moves to go from square 1 to square n*n, or report it's impossible.`,
+    examples: [
+      { input: 'board = [[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,-1,-1],[-1,35,-1,-1,13,-1],[-1,-1,-1,-1,-1,-1],[-1,15,-1,-1,-1,-1]]', output: '4', explanation: 'rolling to square 2 (laddering straight to 15), then 17, 32, and finally 36 reaches the end in 4 moves' },
+    ],
+    constraints: ['2 <= n <= 20', 'board[i][j] is either -1 (no snake/ladder) or a valid 1-indexed destination square'],
+    ds: {
+      answer: 'BFS queue of (board label, steps) + visited set of reached labels',
+      choices: ['BFS queue of (board label, steps) + visited set of reached labels', 'DFS with memo keyed by label, returning min steps to n*n', 'Dijkstra with a min-heap of (steps, label)', '2-D dp table of (row, col) minimum steps, filled by increasing label'],
+    },
+    method: {
+      answer: "BFS over labels 1..n*n: ==from label, try every roll 1-6 to reach nextLabel, convert it to (row,col) with a boustrophedon formula, then jump through a snake or ladder if board[r][c] != -1==, first time n*n is dequeued is the fewest rolls",
+      choices: [
+        'DFS trying every sequence of dice rolls recursively, tracking the minimum path length found',
+        'Greedy: always take the roll that lands on the snake/ladder destination farthest along the board',
+        "BFS over labels 1..n*n: ==from label, try every roll 1-6 to reach nextLabel, convert it to (row,col) with a boustrophedon formula, then jump through a snake or ladder if board[r][c] != -1==, first time n*n is dequeued is the fewest rolls",
+        'Precompute all-pairs shortest paths between every two labels with Floyd-Warshall, then read off label 1 to n*n',
+      ],
+    },
+    code: `class Solution:
+    def snakesAndLadders(self, board: List[List[int]]) -> int:
+        n = len(board)
+
+        def cell(label):
+            row, col = divmod(label - 1, n)
+            if row % 2 == 1:
+                col = n - 1 - col
+            return n - 1 - row, col
+
+        queue = deque([(1, 0)])
+        visited = {1}
+
+        while queue:
+            label, steps = queue.popleft()
+            if label == n * n:
+                return steps
+
+            for nextLabel in range(label + 1, min(label + 6, n * n) + 1):
+                r, c = cell(nextLabel)
+                dest = board[r][c] if board[r][c] != -1 else nextLabel
+                if dest not in visited:
+                    visited.add(dest)
+                    queue.append((dest, steps + 1))
+
+        return -1`,
+    blanks: [7, 20, 23],
+    time: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(n)', 'O(n^4)', 'O(n^2 log n)'], why: 'each of the n^2 labels is visited once, with a constant 6 rolls checked per label' },
+    space: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(n)', 'O(1)', 'O(n log n)'], why: 'visited set and queue can hold up to n^2 labels, plus the board itself' },
+    sayIt: "BFS over board labels, each state tries rolls ==1 through 6==, converts the landing label to (row,col) with the boustrophedon flip, and snakes/ladders teleport the destination; first dequeue of n*n wins, O(n^2) time/space.",
+    pitfall: "Odd rows (from the bottom, 0-indexed) read right to left — forgetting the boustrophedon column flip sends you to the wrong cell.",
+  },
+  {
+    id: 'thought:graphs:number-of-distinct-islands',
+    lc: 694,
+    title: 'Number of Distinct Islands',
+    difficulty: 'Medium',
+    category: 'graphs',
+    skills: ['graph-dfs', 'grid'],
+    companies: ['amazon', 'google'],
+    statement: `You're given a grid of 0s and 1s where 1s form islands (connected horizontally or vertically). Two islands are considered the same shape if one can be translated (shifted, not rotated or reflected) to exactly match the other.
+
+Count how many distinct island shapes exist in the grid.
+
+Islands that are identical in shape but located in different parts of the grid still only count once.`,
+    examples: [
+      { input: 'grid = [[1,1,0,0,0],[1,1,0,0,0],[0,0,0,1,1],[0,0,0,1,1]]', output: '1', explanation: 'both 2x2 square islands have the exact same shape' },
+    ],
+    constraints: ['1 <= rows, cols <= 50', 'grid[i][j] is 0 or 1'],
+    ds: {
+      answer: 'DFS per island recording relative (row,col) offsets from its start cell, collected into a set of shape tuples',
+      choices: ['DFS per island recording relative (row,col) offsets from its start cell, collected into a set of shape tuples', 'BFS per island recording absolute (row,col) cells into a set', 'Union-Find grouping land cells, counting connected components only', 'dd(list) adjacency + hashing the sorted list of absolute cell coordinates'],
+    },
+    method: {
+      answer: "DFS each unvisited land cell as a new island, but record every visited cell as ==(row - startRow, col - startCol)== relative to where that island started, so two islands with the same shape produce the identical path tuple regardless of position",
+      choices: [
+        'DFS each island recording absolute (row, col) cells, then normalize afterward by subtracting the minimum row and column',
+        "DFS each unvisited land cell as a new island, but record every visited cell as ==(row - startRow, col - startCol)== relative to where that island started, so two islands with the same shape produce the identical path tuple regardless of position",
+        'BFS each island, hashing the multiset of cell-to-cell Manhattan distances',
+        'Flood-fill and compare islands pairwise by rotating and reflecting one onto the other',
+      ],
+    },
+    code: `class Solution:
+    def numDistinctIslands(self, grid: List[List[int]]) -> int:
+        rows, cols = len(grid), len(grid[0])
+        seen = set()
+        shapes = set()
+
+        def dfs(r, c, r0, c0, path):
+            if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0 or (r, c) in seen:
+                return
+
+            seen.add((r, c))
+            path.append((r - r0, c - c0))
+
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                dfs(r + dr, c + dc, r0, c0, path)
+
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == 1 and (r, c) not in seen:
+                    path = []
+                    dfs(r, c, r, c, path)
+                    shapes.add(tuple(path))
+
+        return len(shapes)`,
+    blanks: [11, 18, 21],
+    time: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(rows * cols * log(rows*cols))', 'O((rows*cols)^2)', 'O(rows + cols)'], why: 'each land cell is visited by DFS exactly once total' },
+    space: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(rows + cols)', 'O(1)', 'O(log(rows*cols))'], why: 'seen set, recursion stack, and shape paths can each hold every land cell' },
+    sayIt: "DFS each island, but record cells as ==offsets from that island's own start cell==, not absolute coordinates, so identical shapes hash to the same tuple no matter where they sit, O(rows*cols) time/space.",
+    pitfall: 'Recording absolute coordinates instead of offsets from the start cell makes every island look unique, even identical shapes in different spots.',
+  },
 ]
 
 export default {
   id: 'graphs',
   title: 'Graphs: traversal',
-  icon: '🕸️',
+  icon: 'web',
   items,
 }

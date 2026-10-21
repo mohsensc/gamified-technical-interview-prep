@@ -1,5 +1,7 @@
 import { h, svg, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { createArcade, pick, shuffle, rand } from './_engine.js'
+import { overrideButton, applyOverrideVisuals } from '../ui/override.js'
 
 const modes = {
   preorder: { label: 'DFS preorder', why: 'Preorder: node, then left subtree, then right.', skills: ['tree-dfs'], d: 1 },
@@ -9,6 +11,8 @@ const modes = {
   graphDfs: { label: 'Graph DFS from 0', why: 'DFS dives into the smallest unvisited neighbor, backtracks when stuck.', skills: ['graph-dfs'], d: 3 },
   graphBfs: { label: 'Graph BFS from 0', why: 'BFS dequeues in order and enqueues unvisited neighbors ascending.', skills: ['graph-bfs'], d: 3 },
   topo: { label: 'Topological order', why: 'A node may appear only after every node pointing into it.', skills: ['topo-sort'], d: 4 },
+  graphDfsForest: { label: 'DFS forest, two components', why: 'Once a component runs out of neighbors, restart DFS at the smallest unvisited node.', skills: ['graph-dfs'], d: 4 },
+  bfsMultiSource: { label: 'Multi-source BFS', why: 'Every source starts in the queue together; BFS still expands one ring of distance at a time.', skills: ['graph-bfs'], d: 4 },
 }
 
 function makeTree(size) {
@@ -120,6 +124,40 @@ function makeGraph(size) {
   }
 }
 
+function multiSourceBfsOrder(adjacency, sources) {
+  const visited = new Set(sources)
+  const queue = [...sources].sort((a, b) => a - b)
+  const order = []
+  while (queue.length) {
+    const node = queue.shift()
+    order.push(String(node))
+    for (const next of adjacency[node]) if (!visited.has(next)) {
+      visited.add(next)
+      queue.push(next)
+    }
+  }
+  return order
+}
+
+function makeForest(sizeA, sizeB) {
+  const a = makeGraph(sizeA)
+  const b = makeGraph(sizeB)
+  const place = (built, idOffset, xOffset, xScale) => ({
+    nodes: built.layout.nodes.map(node => ({ ...node, id: String(Number(node.id) + idOffset), x: xOffset + node.x * xScale, y: node.y })),
+    edges: built.layout.edges.map(edge => ({ from: String(Number(edge.from) + idOffset), to: String(Number(edge.to) + idOffset) })),
+    adjacency: Object.fromEntries(Object.entries(built.adjacency).map(([id, list]) => [String(Number(id) + idOffset), list.map(n => n + idOffset)])),
+    dfsOrder: built.dfsOrder.map(id => String(Number(id) + idOffset)),
+  })
+  const left = place(a, 0, 0.06, 0.4)
+  const right = place(b, sizeA, 0.54, 0.4)
+  const adjacency = Object.fromEntries([...Object.entries(left.adjacency), ...Object.entries(right.adjacency)].map(([id, list]) => [Number(id), list]))
+  return {
+    layout: { nodes: [...left.nodes, ...right.nodes], edges: [...left.edges, ...right.edges], directed: false },
+    adjacency,
+    dfsOrder: [...left.dfsOrder, ...right.dfsOrder],
+  }
+}
+
 function makeDag(size) {
   const ranks = shuffle(Array.from({ length: size }, (_, i) => i))
   const edges = []
@@ -160,6 +198,21 @@ function makePuzzle(level) {
   if (modeId === 'topo') {
     const dag = makeDag(Math.min(size, 7))
     return { modeId, mode, layout: dag.layout, preds: dag.preds }
+  }
+  if (modeId === 'graphDfsForest') {
+    const sizeA = 3 + rand(2)
+    const sizeB = 3 + rand(2)
+    const forest = makeForest(sizeA, sizeB)
+    return { modeId, mode, layout: forest.layout, order: forest.dfsOrder, adjacency: forest.adjacency }
+  }
+  if (modeId === 'bfsMultiSource') {
+    const graph = makeGraph(Math.min(size, 8))
+    const total = graph.layout.nodes.length
+    const sourceA = rand(total)
+    let sourceB = rand(total)
+    while (sourceB === sourceA) sourceB = rand(total)
+    const sources = [sourceA, sourceB].sort((a, b) => a - b)
+    return { modeId, mode, layout: graph.layout, order: multiSourceBfsOrder(graph.adjacency, sources), adjacency: graph.adjacency, sources }
   }
   const root = makeTree(size)
   return { modeId, mode, layout: treeLayout(root), order: treeOrders(root)[modeId] }
@@ -246,9 +299,10 @@ function mount(container, api) {
       : null
     ctx.stage.append(h('div', { class: 'card game-card fade-in' },
       h('div', { class: 'row row-wrap game-tags' },
-        h('span', { class: 'pill pill-teal' }, `🧭 ${puzzle.mode.label}`),
+        h('span', { class: 'pill pill-teal' }, icon('compass', 13), ` ${puzzle.mode.label}`),
         puzzle.adjacency ? h('span', { class: 'chip' }, 'neighbors ascending') : null,
-        puzzle.modeId === 'topo' ? h('span', { class: 'chip' }, 'any valid order') : null),
+        puzzle.modeId === 'topo' ? h('span', { class: 'chip' }, 'any valid order') : null,
+        puzzle.sources ? h('span', { class: 'chip mono' }, `sources: ${puzzle.sources.join(', ')}`) : null),
       h('div', { class: 'game-ask' }, 'Click nodes in visit order'),
       h('div', { class: 'trav-wrap' }, board, adjacency),
       strip,
@@ -293,8 +347,8 @@ function mount(container, api) {
         nodeState[correctId] = { cls: 'hinted', order: picked.length }
         locked = false
         if (!alive) {
-          ctx.resolve(false, { skills: puzzle.mode.skills, id: `traversal-order:${puzzle.modeId}` })
-          ctx.end()
+          draw(ctx)
+          complete(ctx, { lost: true })
           return
         }
         draw(ctx)
@@ -306,22 +360,43 @@ function mount(container, api) {
     if (picked.length === puzzle.layout.nodes.length) complete(ctx)
   }
 
-  function complete(ctx) {
+  function complete(ctx, { lost = false } = {}) {
     locked = true
     const clean = mistakes === 0
     const seconds = (performance.now() - startTime) / 1000
     ctx.resolve(clean, { skills: puzzle.mode.skills, id: `traversal-order:${puzzle.modeId}` })
-    if (clean) ctx.hit(120, Math.max(0, 1 - seconds / 25))
-    feedback.append(h('div', { class: `game-why ${clean ? 'good' : 'bad'}` }, clean ? '✓ ' : '', puzzle.mode.why))
-    ctx.waitFor(() => nextPuzzle(ctx), clean ? 1300 : 2600)
+    if (clean) {
+      ctx.hit(120, Math.max(0, 1 - seconds / 25))
+      feedback.append(h('div', { class: 'game-why good' }, icon('check', 14), ' ', puzzle.mode.why))
+      ctx.waitFor(() => nextPuzzle(ctx), 1300)
+      return
+    }
+    let alive = !lost
+    const missedSteps = mistakes
+    const continueButton = h('button', { class: 'btn btn-primary game-continue', onclick: () => ctx.proceed() }, alive ? 'Continue ' : 'Results ', h('span', { class: 'kbd' }, 'Enter'))
+    const overrule = overrideButton({
+      title: 'My order was also a valid traversal. Count it.',
+      onOverride: () => {
+        if (!ctx.overrule({ restoreLives: missedSteps, dropMistakes: missedSteps, base: 120 })) return
+        alive = true
+        applyOverrideVisuals(feedback)
+        for (const slot of strip.querySelectorAll('.trav-slot.hinted')) slot.classList.replace('hinted', 'done')
+        continueButton.firstChild.textContent = 'Continue '
+      },
+    })
+    feedback.append(
+      h('div', { class: 'game-why bad' }, puzzle.mode.why),
+      h('div', { class: 'row row-wrap' }, continueButton, overrule))
+    ctx.waitFor(() => (alive ? nextPuzzle(ctx) : ctx.end()))
   }
 
   return createArcade(container, api, {
     title: 'Traversal Order',
-    icon: '🧭',
+    icon: 'compass',
     rules: ['tap nodes in order', 'digits pick nodes'],
     mode: 'lives',
     lives: 3,
+    seed: api.seed,
     onStart: ctx => nextPuzzle(ctx),
     onKey: (event, ctx) => {
       if (!puzzle || !/^[0-9]$/.test(event.key)) return
@@ -337,8 +412,11 @@ function mount(container, api) {
 export default {
   id: 'traversal-order',
   title: 'Traversal Order',
-  icon: '🧭',
+  icon: 'compass',
   blurb: 'Click nodes exactly as DFS or BFS would.',
   skills: ['tree-dfs', 'tree-bfs', 'graph-dfs', 'graph-bfs', 'topo-sort'],
+  difficulty: 'Trees → graphs → forests → DAGs',
+  modeLabel: '3 lives',
+  supportsDaily: true,
   mount,
 }

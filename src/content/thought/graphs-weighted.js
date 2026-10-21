@@ -1,7 +1,7 @@
 export default {
   id: 'graphs-weighted',
   title: 'Graphs: ordering & weighted',
-  icon: '🧭',
+  icon: 'compass',
   items: [
     {
       id: 'thought:graphs-weighted:course-schedule',
@@ -10,9 +10,8 @@ export default {
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['topo-sort', 'graph-dfs', 'graph-modeling'],
+      companies: ['google', 'amazon', 'microsoft'],
       statement: `You're given n courses labeled 0 to n-1 and a list of prerequisite pairs [a, b] meaning you must finish course b before course a. Decide whether it's possible to finish every course given these dependencies.
-
-Think of each prerequisite as a directed edge. You can finish all courses exactly when the dependency graph has no cycle — a cycle means two or more courses depend on each other in a loop, so none of them could ever go first.
 
 Return true if an ordering exists that satisfies every prerequisite, and false if some cycle makes that impossible.`,
       examples: [
@@ -74,11 +73,10 @@ Return true if an ordering exists that satisfies every prerequisite, and false i
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['topo-sort', 'queue-deque', 'graph-modeling'],
+      companies: ['google', 'amazon'],
       statement: `This is the same course dependency setup as before, but now you must produce one valid order to take all n courses, not just decide if it's possible. Each prerequisite pair [a, b] still means b must come before a.
 
-If no valid order exists because of a cycle, return an empty array instead.
-
-A natural way to build an order is to repeatedly pick courses whose prerequisites are all already satisfied — courses with zero remaining dependencies — append them to the result, and update the dependency counts of everything that depended on them.`,
+If no valid order exists because of a cycle, return an empty array instead.`,
       examples: [
         { input: 'numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]', output: '[0,1,2,3] (or [0,2,1,3])', explanation: '0 has no prereqs; 1 and 2 both need 0; 3 needs both 1 and 2.' },
       ],
@@ -137,11 +135,8 @@ A natural way to build an order is to repeatedly pick courses whose prerequisite
       difficulty: 'Hard',
       category: 'graphs-weighted',
       skills: ['topo-sort', 'graph-dfs', 'graph-modeling'],
-      statement: `You're given a list of words from an alien language, already sorted according to that language's unknown alphabet order. From the order the words appear in, figure out one valid ordering of the letters themselves, or report that no valid ordering exists.
-
-Compare each pair of neighboring words letter by letter. The first position where they differ tells you that one letter must come before the other in the alien alphabet — that's a directed edge. If one word is a prefix of the next but appears after it, the order is already broken and no answer is possible.
-
-Once you've built this letter-ordering graph, a valid alphabet is just a topological sort of it; if the graph has a cycle, no valid alphabet exists.`,
+      companies: ['google', 'amazon', 'meta'],
+      statement: `You're given a list of words from an alien language, already sorted according to that language's unknown alphabet order. From the order the words appear in, figure out one valid ordering of the letters themselves, or report that no valid ordering exists.`,
       examples: [
         { input: 'words = ["wrt","wrf","er","ett","rftt"]', output: '"wertf"', explanation: 'Comparing adjacent words gives edges w<e, r<t, t<f, e<r.' },
         { input: 'words = ["z","x","z"]', output: '""', explanation: 'z<x and x<z contradict each other — a cycle.' },
@@ -206,11 +201,10 @@ Once you've built this letter-ordering graph, a valid alphabet is just a topolog
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['dijkstra', 'heap', 'graph-modeling'],
+      companies: ['google', 'amazon'],
       statement: `A network has n nodes labeled 1 to n. You're given directed edges times[i] = [u, v, w] meaning a signal takes w time units to travel from node u to node v. A signal starts at node k and needs to reach every other node.
 
-Find the minimum time for the signal sent from k to reach all n nodes. If some node is unreachable, return -1 instead.
-
-This is a shortest-path problem with positive weights, so track the shortest known distance to each node and always expand from the closest unvisited node next.`,
+Find the minimum time for the signal sent from k to reach all n nodes. If some node is unreachable, return -1 instead.`,
       examples: [
         { input: 'times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2', output: '2', explanation: 'From node 2: nodes 1 and 3 reached at time 1, node 4 reached at time 2.' },
       ],
@@ -269,11 +263,10 @@ This is a shortest-path problem with positive weights, so track the shortest kno
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['dijkstra', 'heap', 'grid'],
+      companies: ['google', 'amazon'],
       statement: `You're given a 2-D grid of heights. You start at the top-left cell and must reach the bottom-right cell, moving only up/down/left/right. The effort of a route is the maximum absolute height difference between any two consecutive cells on that route, not the sum.
 
-Find the route that minimizes this maximum step, and return that minimum possible effort.
-
-This is a shortest-path variant where instead of summing edge weights you take the max along the path, then minimize that max over all paths — a classic Dijkstra-style minimax on an implicit grid graph.`,
+Find the route that minimizes this maximum step, and return that minimum possible effort.`,
       examples: [
         { input: 'heights = [[1,2,2],[3,8,2],[5,3,5]]', output: '2', explanation: 'Going right, right, down, down keeps every step difference at most 2.' },
       ],
@@ -331,11 +324,10 @@ This is a shortest-path variant where instead of summing edge weights you take t
       difficulty: 'Hard',
       category: 'graphs-weighted',
       skills: ['dijkstra', 'heap', 'grid'],
+      companies: ['google'],
       statement: `You're given an n x n grid where cell (i, j) has an elevation. At time t, water has risen to level t, so you can only stand on a cell once the water level is at least that cell's elevation. You start at the top-left cell at time 0 and want to reach the bottom-right cell, moving to any of the 4 adjacent cells.
 
-Find the minimum time t at which a path from start to end exists.
-
-Equivalently, over every path from start to end, a path's cost is the highest elevation cell on it; you want the path that minimizes that highest elevation — expand outward from the start and always surface the lowest-elevation frontier cell next.`,
+Find the minimum time t at which a path from start to end exists.`,
       examples: [
         { input: 'grid = [[0,2],[1,3]]', output: '3', explanation: 'You must eventually step on the cell with elevation 3 to reach the bottom-right.' },
       ],
@@ -391,11 +383,8 @@ Equivalently, over every path from start to end, a path's cost is the highest el
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['graph-modeling', 'dp-1d'],
-      statement: `There are n cities connected by flights, each with a cost. You're given a starting city src, a destination dst, and a cap k on the number of stops (intermediate cities) you're allowed to use. Find the cheapest price to get from src to dst using at most k stops, or -1 if it's not possible within that limit.
-
-Because there's a hard cap on the number of edges in the path (at most k+1 edges), a plain Dijkstra isn't safe here — it could lock in a cheaper but longer route before a more expensive, shorter-hop route gets a chance.
-
-Instead, relax every edge exactly k+1 times, each round only using distances fixed by the previous round. This is Bellman-Ford limited to k+1 rounds, which naturally caps the number of edges used per path.`,
+      companies: ['google', 'amazon'],
+      statement: `There are n cities connected by flights, each with a cost. You're given a starting city src, a destination dst, and a cap k on the number of stops (intermediate cities) you're allowed to use. Find the cheapest price to get from src to dst using at most k stops, or -1 if it's not possible within that limit.`,
       examples: [
         { input: 'n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1', output: '700', explanation: '0 -> 1 -> 3 costs 700 with one stop; the cheaper 0->1->2->3 route needs 2 stops.' },
       ],
@@ -445,11 +434,8 @@ Instead, relax every edge exactly k+1 times, each round only using distances fix
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['mst', 'heap', 'graph-modeling'],
-      statement: `You're given n points on a 2-D plane. The cost to connect any two points is the Manhattan distance between them. Find the minimum total cost to connect all n points so that every point can reach every other point, directly or through others.
-
-This is a minimum spanning tree problem on a complete graph where every pair of points has an implicit edge — you don't build the graph explicitly, you compute distances on demand.
-
-Grow the tree one point at a time: start from any point, and repeatedly add whichever unconnected point is closest to the current tree, using a heap to always have the next-cheapest edge ready.`,
+      companies: ['google', 'amazon'],
+      statement: `You're given n points on a 2-D plane. The cost to connect any two points is the Manhattan distance between them. Find the minimum total cost to connect all n points so that every point can reach every other point, directly or through others.`,
       examples: [
         { input: 'points = [[0,0],[2,2],[3,10],[5,2],[7,0]]', output: '20', explanation: 'Connecting via Manhattan distances in the cheapest tree sums to 20.' },
       ],
@@ -506,11 +492,10 @@ Grow the tree one point at a time: start from any point, and repeatedly add whic
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['union-find', 'graph-modeling'],
+      companies: ['google', 'amazon'],
       statement: `You're given a list of edges that describe a graph which started as a tree on n nodes, then had exactly one extra edge added, creating a single cycle. Find that extra edge — the one you could remove to get back to a tree.
 
-If multiple edges could be removed to break the cycle, return the one that appears last in the input list.
-
-Process edges in order and union their two endpoints. The first edge whose two endpoints are already in the same component is the redundant one — adding it is what created the cycle.`,
+If multiple edges could be removed to break the cycle, return the one that appears last in the input list.`,
       examples: [
         { input: 'edges = [[1,2],[1,3],[2,3]]', output: '[2,3]', explanation: '1-2 and 1-3 already connect everything; 2-3 closes a cycle.' },
       ],
@@ -567,11 +552,10 @@ Process edges in order and union their two endpoints. The first edge whose two e
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['union-find', 'arrays-hashing', 'graph-modeling'],
+      companies: ['google', 'amazon', 'meta'],
       statement: `You're given a list of accounts, each a list starting with a name followed by emails belonging to that account. Two accounts belong to the same person if they share at least one email, even transitively through a chain of accounts.
 
-Merge all accounts that belong to the same person into one, combining all their emails (sorted) under that person's name, and return the merged list in any order.
-
-Treat each account as a node and each shared email as gluing two accounts together — union accounts that share any email, then gather every email that ends up in the same group.`,
+Merge all accounts that belong to the same person into one, combining all their emails (sorted) under that person's name, and return the merged list in any order.`,
       examples: [
         { input: 'accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"],["John","johnsmith@mail.com","john00@mail.com"],["Mary","mary@mail.com"],["John","johnny@mail.com"]]', output: '[["John","john00@mail.com","john_newyork@mail.com","johnsmith@mail.com"],["Mary","mary@mail.com"],["John","johnny@mail.com"]]', explanation: 'The first two John accounts share johnsmith@mail.com so they merge; the third John is unrelated.' },
       ],
@@ -635,11 +619,10 @@ Treat each account as a node and each shared email as gluing two accounts togeth
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['graph-bfs', 'queue-deque', 'graph-modeling'],
+      companies: ['google', 'meta'],
       statement: `You're given an undirected graph as an adjacency list. A graph is bipartite if you can split its nodes into two groups so that every edge connects a node in one group to a node in the other — no edge stays within a group.
 
-Determine whether the given graph is bipartite. The graph may not be connected, so you need to check every component.
-
-A standard way is to 2-color the graph with BFS: color the start node, then force every neighbor to the opposite color; if a neighbor is already colored the same as the current node, the graph isn't bipartite.`,
+Determine whether the given graph is bipartite. The graph may not be connected, so you need to check every component.`,
       examples: [
         { input: 'graph = [[1,2,3],[0,2],[0,1,3],[0,2]]', output: 'false', explanation: 'Nodes 0,1,2 form an odd cycle (triangle), so no valid 2-coloring exists.' },
         { input: 'graph = [[1,3],[0,2],[1,3],[0,2]]', output: 'true', explanation: 'Colors alternate cleanly around the even cycle 0-1-2-3-0.' },
@@ -699,11 +682,10 @@ A standard way is to 2-color the graph with BFS: color the start node, then forc
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['graph-dfs', 'graph-modeling'],
+      companies: ['google'],
       statement: `You have n people numbered 1 to n and a list of dislike pairs. You need to split everyone into two groups so that no two people who dislike each other end up in the same group.
 
-Return true if such a split is possible, and false otherwise.
-
-This is the same 2-coloring problem as graph bipartiteness, just phrased through people and dislikes instead of nodes and edges — build the dislike graph, then try to 2-color it, this time with DFS.`,
+Return true if such a split is possible, and false otherwise.`,
       examples: [
         { input: 'n = 4, dislikes = [[1,2],[1,3],[2,4]]', output: 'true', explanation: 'Group {1,4} and {2,3} satisfy every dislike pair.' },
         { input: 'n = 3, dislikes = [[1,2],[1,3],[2,3]]', output: 'false', explanation: '1, 2, 3 mutually dislike each other — an odd cycle (triangle).' },
@@ -757,11 +739,10 @@ This is the same 2-coloring problem as graph bipartiteness, just phrased through
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['graph-dfs', 'graph-modeling'],
+      companies: ['google'],
       statement: `You're given a directed graph as an adjacency list. A node is terminal if it has no outgoing edges. A node is safe if every possible path starting from it eventually ends at a terminal node — no matter which path you take, you can never get stuck in a cycle.
 
-Return all safe nodes, sorted in ascending order.
-
-This is a cycle-detection problem again: a node is unsafe exactly when some path from it reaches a cycle. Run a 3-state DFS from every node, memoizing each node's safety once it's known so you don't redo work.`,
+Return all safe nodes, sorted in ascending order.`,
       examples: [
         { input: 'graph = [[1,2],[2,3],[5],[0],[5],[],[]]', output: '[2,4,5,6]', explanation: 'Nodes 2, 4, 5, 6 only ever reach terminal nodes; 0, 1, 3 are stuck in a cycle.' },
       ],
@@ -817,11 +798,10 @@ This is a cycle-detection problem again: a node is unsafe exactly when some path
       difficulty: 'Hard',
       category: 'graphs-weighted',
       skills: ['binary-search', 'graph-bfs', 'grid'],
+      companies: ['google'],
       statement: `You have a 1-indexed n x n grid of land that floods one cell per day, given by the order in cells. On day 0, every cell is land; you want to walk from the top row to the bottom row using only land cells, moving in the 4 cardinal directions.
 
-Find the last day on which such a path still exists. After that day, every path from top to bottom is blocked by water.
-
-As days increase, more cells become water, so the set of days where a path exists is monotonic — once it's impossible, it stays impossible. That lets you binary search on the day and, for each candidate day, run a BFS to check whether top-to-bottom is still reachable using only cells that haven't flooded yet.`,
+Find the last day on which such a path still exists. After that day, every path from top to bottom is blocked by water.`,
       examples: [
         { input: 'row = 2, col = 2, cells = [[1,1],[2,1],[1,2],[2,2]]', output: '2', explanation: 'By day 2, a path through (1,2) still exists; day 3 floods everything.' },
       ],
@@ -884,11 +864,8 @@ As days increase, more cells become water, so the set of days where a path exist
       difficulty: 'Medium',
       category: 'graphs-weighted',
       skills: ['graph-dfs', 'graph-modeling'],
-      statement: `You're given a list of equations like a / b = value, meaning you know the ratio between a and b. You're also given a list of queries c / d, and for each one you need to compute that ratio using the known equations, or return -1.0 if it can't be determined.
-
-Model each equation a / b = v as a weighted, directed, bidirectional pair of edges: a to b with weight v, and b to a with weight 1 / v. A query c / d is then just the product of edge weights along any path from c to d.
-
-For each query, DFS from c multiplying weights as you go, and return the accumulated product the moment you reach d, or -1.0 if no path connects them (or either variable is unknown).`,
+      companies: ['google', 'amazon'],
+      statement: `You're given a list of equations like a / b = value, meaning you know the ratio between a and b. You're also given a list of queries c / d, and for each one you need to compute that ratio using the known equations, or return -1.0 if it can't be determined.`,
       examples: [
         { input: 'equations = [["a","b"],["b","c"]], values = [2.0,3.0], queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]', output: '[6.0,0.5,-1.0,1.0,-1.0]', explanation: 'a/c = (a/b)*(b/c) = 2*3 = 6; a/e is undetermined since e is unknown.' },
       ],
@@ -939,6 +916,590 @@ For each query, DFS from c multiplying weights as you go, and return the accumul
       space: { answer: 'O(V+E)', choices: ['O(V+E)', 'O(V)', 'O(E)', 'O(V^2)'], why: 'Adjacency map plus the recursion stack and seen set per query.' },
       sayIt: 'Build a weighted graph from each equation and its reciprocal, then DFS per query multiplying edge weights until the denominator is reached.',
       pitfall: 'Forgetting the reverse edge with the reciprocal weight breaks queries run the other way.',
+    },
+    {
+      id: 'thought:graphs-weighted:reconstruct-itinerary',
+      lc: 332,
+      title: 'Reconstruct Itinerary',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['graph-dfs', 'graph-modeling'],
+      companies: ['google', 'meta'],
+      statement: `You're given a list of airline tickets as [from, to] pairs, all starting from "JFK". Reconstruct the itinerary that uses every ticket exactly once, starting at "JFK".
+
+If multiple valid itineraries use every ticket, return the one that is lexicographically smallest when read as a single sequence of airport codes.
+
+You may assume all tickets form at least one valid itinerary, and all tickets must be used exactly once.`,
+      examples: [
+        { input: 'tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]', output: '["JFK","MUC","LHR","SFO","SJC"]', explanation: 'the only itinerary that uses every ticket starting from JFK' },
+      ],
+      constraints: ['1 <= tickets.length <= 300', 'every ticket forms at least one valid itinerary'],
+      ds: {
+        answer: 'dict of sorted destination lists per airport (adjacency), built reverse-sorted so pop() returns the smallest',
+        choices: ['dict of sorted destination lists per airport (adjacency), built reverse-sorted so pop() returns the smallest', 'min-heap per airport of destinations', 'Union-Find over airports to detect when a loop closes', '2-D dp table of (airport, tickets used)'],
+      },
+      method: {
+        answer: "Hierholzer's algorithm: ==DFS using up a ticket (pop) on each visit, and only append an airport to the route once it has no edges left==, then reverse the post-order route at the end",
+        choices: [
+          "Hierholzer's algorithm: ==DFS using up a ticket (pop) on each visit, and only append an airport to the route once it has no edges left==, then reverse the post-order route at the end",
+          'Greedy: always fly to the lexicographically smallest reachable airport next, backtracking if you get stuck with unused tickets',
+          'BFS layer by layer, picking the smallest unvisited destination at each airport per layer',
+          'Topological sort of airports by out-degree, breaking ties alphabetically',
+        ],
+      },
+      code: `class Solution:
+    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+        graph = defaultdict(list)
+        for src, dst in sorted(tickets, reverse=True):
+            graph[src].append(dst)
+
+        route = []
+
+        def dfs(airport):
+            while graph[airport]:
+                dfs(graph[airport].pop())
+            route.append(airport)
+
+        dfs("JFK")
+        return route[::-1]`,
+      blanks: [4, 10, 14],
+      time: { answer: 'O(E log E)', choices: ['O(E log E)', 'O(E)', 'O(V + E)', 'O(E^2)'], why: 'sorting all E tickets dominates; the DFS itself visits each edge once' },
+      space: { answer: 'O(E)', choices: ['O(E)', 'O(V)', 'O(1)', 'O(V + E)'], why: 'adjacency list holds every ticket, plus recursion depth up to E' },
+      sayIt: 'I build a reverse-sorted adjacency so pop() gives the smallest next stop, DFS consuming tickets, append on the way back out, then reverse; O(E log E) time.',
+      pitfall: "Appending to the route BEFORE exhausting an airport's edges produces the wrong order — must append post-order.",
+    },
+    {
+      id: 'thought:graphs-weighted:number-of-operations-to-make-network-connected',
+      lc: 1319,
+      title: 'Number of Operations to Make Network Connected',
+      difficulty: 'Medium',
+      category: 'graphs-weighted',
+      skills: ['union-find', 'graph-modeling'],
+      companies: ['amazon', 'google'],
+      statement: `You're given n computers labeled 0 to n-1 and a list of direct connections (cables), each connecting two computers. You can unplug any cable and use it to connect any two computers that currently aren't connected.
+
+Return the minimum number of operations (cable moves) needed to make every computer reachable from every other computer, or -1 if it's impossible.
+
+It's impossible only when there aren't even enough cables to connect everyone, regardless of how they're arranged.`,
+      examples: [
+        { input: 'n = 4, connections = [[0,1],[0,2],[1,2]]', output: '1', explanation: 'move the redundant 0-2 or 1-2 cable to connect computer 3' },
+        { input: 'n = 6, connections = [[0,1],[0,2],[0,3],[1,2]]', output: '-1', explanation: 'only 4 cables for 6 computers, fewer than the 5 needed at minimum' },
+      ],
+      constraints: ['1 <= n <= 10^5', '1 <= connections.length <= min(n * (n - 1) / 2, 10^5)'],
+      ds: {
+        answer: 'Union-Find (disjoint set) over the n computers with path compression',
+        choices: ['Union-Find (disjoint set) over the n computers with path compression', 'adjacency list + BFS counting components', '2-D dp table of (computer, operations used)', 'min-heap of (component size, root) to merge smallest first'],
+      },
+      method: {
+        answer: "Union-Find: ==first check len(connections) >= n - 1== (enough cables to possibly connect everyone), union every connection, and the answer is ==components - 1==, since each extra cable can stitch two components together",
+        choices: [
+          "Union-Find: ==first check len(connections) >= n - 1== (enough cables to possibly connect everyone), union every connection, and the answer is ==components - 1==, since each extra cable can stitch two components together",
+          'BFS/DFS to count connected components directly, then the answer is always the component count with no -1 check needed',
+          'Greedy: repeatedly remove a cable from the largest component and attach it to the smallest until one component remains',
+          'Union-Find, but the answer is the number of redundant (same-root) connections encountered, not components - 1',
+        ],
+      },
+      code: `class Solution:
+    def makeConnected(self, n: int, connections: List[List[int]]) -> int:
+        if len(connections) < n - 1:
+            return -1
+
+        parent = list(range(n))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        components = n
+        for a, b in connections:
+            rootA, rootB = find(a), find(b)
+            if rootA != rootB:
+                parent[rootA] = rootB
+                components -= 1
+
+        return components - 1`,
+      blanks: [3, 18, 20],
+      time: { answer: 'O(E * α(n))', choices: ['O(E * α(n))', 'O(E log E)', 'O(n^2)', 'O(E)'], why: 'near-constant find/union per connection with path compression' },
+      space: { answer: 'O(n)', choices: ['O(n)', 'O(E)', 'O(1)', 'O(n + E)'], why: 'the parent array holds one entry per computer' },
+      sayIt: "I union-find the connections, bail out early if there aren't even n-1 cables, then the answer is components - 1 since each spare cable can join two components.",
+      pitfall: 'Forgetting the len(connections) < n - 1 early return lets an impossible case silently return a wrong positive number.',
+    },
+    {
+      id: 'thought:graphs-weighted:critical-connections-in-a-network',
+      lc: 1192,
+      title: 'Critical Connections in a Network',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['graph-dfs', 'graph-modeling'],
+      companies: ['google', 'meta'],
+      statement: `There are n servers connected by n-1 or more bidirectional connections, forming a network. A critical connection is one that, if removed, would split the network into two or more disconnected pieces.
+
+Return all critical connections in the network, in any order.`,
+      examples: [
+        { input: 'n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]', output: '[[1,3]]', explanation: '0-1-2 form a cycle (any one edge there is replaceable), but 1-3 is the only way to reach server 3' },
+      ],
+      constraints: ['2 <= n <= 10^5', 'n - 1 <= connections.length <= 10^5', 'no repeated connections, no self-loops'],
+      ds: {
+        answer: "adjacency list + two int arrays: discovery time and low-link value per node (Tarjan's bridge algorithm)",
+        choices: ["adjacency list + two int arrays: discovery time and low-link value per node (Tarjan's bridge algorithm)", 'Union-Find merging nodes and checking component count after removing each edge', 'BFS layering to find back-edges by level difference', '2-D dp table of (node, parent) reachability'],
+      },
+      method: {
+        answer: "DFS assigning each node a ==discovery time and low-link value==, and an edge (node, neighbor) is a bridge exactly when ==low[neighbor] > disc[node]==, meaning the subtree below neighbor has no back-edge reaching node or higher",
+        choices: [
+          "DFS assigning each node a ==discovery time and low-link value==, and an edge (node, neighbor) is a bridge exactly when ==low[neighbor] > disc[node]==, meaning the subtree below neighbor has no back-edge reaching node or higher",
+          'Remove each edge one at a time and re-run BFS/DFS to check if the graph is still fully connected (O(E) full traversals)',
+          'Union-Find: an edge is critical whenever its two endpoints are not already in the same component before union',
+          'DFS coloring nodes by component after temporarily deleting each node, flagging edges whose removal increases component count',
+        ],
+      },
+      code: `class Solution:
+    def criticalConnections(self, n: int, connections: List[List[int]]) -> List[List[int]]:
+        graph = defaultdict(list)
+        for a, b in connections:
+            graph[a].append(b)
+            graph[b].append(a)
+
+        disc = [-1] * n
+        low = [-1] * n
+        bridges = []
+        timer = [0]
+
+        def dfs(node, parent):
+            disc[node] = low[node] = timer[0]
+            timer[0] += 1
+
+            for neighbor in graph[node]:
+                if neighbor == parent:
+                    continue
+                if disc[neighbor] == -1:
+                    dfs(neighbor, node)
+                    low[node] = min(low[node], low[neighbor])
+                    if low[neighbor] > disc[node]:
+                        bridges.append([node, neighbor])
+                else:
+                    low[node] = min(low[node], disc[neighbor])
+
+        dfs(0, -1)
+        return bridges`,
+      blanks: [13, 21, 22],
+      time: { answer: 'O(V + E)', choices: ['O(V + E)', 'O(E * (V + E))', 'O(V * E)', 'O(E log E)'], why: 'a single DFS computes disc/low for every node and edge once' },
+      space: { answer: 'O(V + E)', choices: ['O(V + E)', 'O(V)', 'O(E)', 'O(1)'], why: 'adjacency list plus the disc/low arrays and recursion stack' },
+      sayIt: "Single DFS tracking discovery time and low-link per node; an edge is a bridge when the child's low-link can't reach back to or above the parent's discovery time, O(V+E) time.",
+      pitfall: 'Must skip only the immediate parent edge, not all previously visited neighbors, or real back-edges get missed.',
+    },
+    {
+      id: 'thought:graphs-weighted:minimum-height-trees',
+      lc: 310,
+      title: 'Minimum Height Trees',
+      difficulty: 'Medium',
+      category: 'graphs-weighted',
+      skills: ['topo-sort', 'graph-modeling'],
+      companies: ['google', 'amazon'],
+      statement: `You're given a tree (a connected, undirected, acyclic graph) of n nodes. For any node you pick as the root, the tree's height is the longest distance from that root down to any leaf.
+
+A "minimum height tree" is a tree rooted at a node that minimizes this height, meaning that node minimizes the greatest distance to any other node.
+
+Return every node that could serve as the root of a minimum height tree; there can be at most 2 such roots.`,
+      examples: [
+        { input: 'n = 4, edges = [[1,0],[1,2],[1,3]]', output: '[1]', explanation: 'rooting at node 1 gives height 1, the smallest possible since it reaches every other node in one hop' },
+        { input: 'n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]', output: '[3,4]', explanation: 'both node 3 and node 4 tie for the minimum possible height' },
+      ],
+      constraints: ['1 <= n <= 2 * 10^4', 'edges.length == n - 1', 'the given input is guaranteed to be a valid tree'],
+      ds: {
+        answer: 'adjacency set per node (degree-tracked) + a queue of current leaves (degree 1)',
+        choices: ['adjacency set per node (degree-tracked) + a queue of current leaves (degree 1)', 'adjacency list + DFS computing eccentricity from every node', 'Union-Find grouping nodes, then BFS from the root of each component', 'min-heap of (degree, node) processed like Dijkstra'],
+      },
+      method: {
+        answer: "Topological leaf-trimming (BFS layers): repeatedly strip every current leaf (degree-1 node) from the tree, ==shrinking the remaining node count each round==, until 1 or 2 nodes are left — those are the centers, the roots that minimize tree height",
+        choices: [
+          'Run BFS from every single node to compute its height, then keep whichever node(s) have the minimum height (O(n^2) overall)',
+          "Topological leaf-trimming (BFS layers): repeatedly strip every current leaf (degree-1 node) from the tree, ==shrinking the remaining node count each round==, until 1 or 2 nodes are left — those are the centers, the roots that minimize tree height",
+          'DFS to find the two endpoints of the longest path (tree diameter), then return only its exact midpoint',
+          'Union-Find to detect the tree is connected, then arbitrarily root at node 0',
+        ],
+      },
+      code: `class Solution:
+    def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
+        if n == 1:
+            return [0]
+
+        graph = defaultdict(set)
+        for a, b in edges:
+            graph[a].add(b)
+            graph[b].add(a)
+
+        leaves = deque(node for node in range(n) if len(graph[node]) == 1)
+        remaining = n
+
+        while remaining > 2:
+            remaining -= len(leaves)
+            for _ in range(len(leaves)):
+                leaf = leaves.popleft()
+                neighbor = graph[leaf].pop()
+                graph[neighbor].discard(leaf)
+                if len(graph[neighbor]) == 1:
+                    leaves.append(neighbor)
+
+        return list(leaves)`,
+      blanks: [10, 14, 20],
+      time: { answer: 'O(V + E)', choices: ['O(V + E)', 'O(V^2)', 'O(V log V)', 'O(V * E)'], why: 'each node is trimmed from the leaf queue exactly once, each edge removed once' },
+      space: { answer: 'O(V + E)', choices: ['O(V + E)', 'O(V)', 'O(1)', 'O(E log E)'], why: 'adjacency sets plus the leaves queue scale with nodes and edges' },
+      sayIt: "Peel leaves layer by layer like topological sort, ==remaining shrinks each round==, the last 1 or 2 nodes standing are the tree's centers since they minimize the furthest distance to any other node, O(V+E) time.",
+      pitfall: 'A tree center can be 2 nodes when the longest path has odd length, not always exactly 1 — stop trimming once remaining <= 2, never trim all the way down to 1.',
+    },
+    {
+      id: 'thought:graphs-weighted:find-the-city-with-smallest-number-of-neighbors',
+      lc: 1334,
+      title: 'Find the City With the Smallest Number of Neighbors at a Threshold Distance',
+      difficulty: 'Medium',
+      category: 'graphs-weighted',
+      skills: ['dijkstra', 'graph-modeling'],
+      companies: ['google', 'amazon'],
+      statement: `You're given n cities connected by weighted, bidirectional roads. For a given distance threshold, a city A is a "neighbor" of city B if the shortest path between them is at most that threshold.
+
+For each city, count how many neighbors it has. Find the city with the smallest such count.
+
+If more than one city ties for the smallest count, return the one with the largest city number.`,
+      examples: [
+        { input: 'n = 4, edges = [[0,1,3],[1,2,1],[1,3,4],[2,3,1]], distanceThreshold = 4', output: '3', explanation: 'city 3 can only reach cities 1 and 2 within distance 4, the fewest of any city' },
+      ],
+      constraints: ['2 <= n <= 100', '1 <= edges.length <= n * (n-1) / 2', '1 <= edgeWeight <= 10^4', 'at most one edge between any pair of cities'],
+      ds: {
+        answer: 'n x n distance matrix (Floyd-Warshall all-pairs shortest paths)',
+        choices: ['n x n distance matrix (Floyd-Warshall all-pairs shortest paths)', "run Dijkstra from every node with a min-heap (n separate single-source searches)", 'BFS from every node, treating every edge as weight 1', 'Union-Find grouping cities within distanceThreshold of each other'],
+      },
+      method: {
+        answer: 'Floyd-Warshall: try every node k as an intermediate hop, ==dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])== for every pair (i,j); once all-pairs distances settle, count reachable neighbors per city within the threshold and keep the city with the fewest, breaking ties toward the larger index',
+        choices: [
+          "Run Dijkstra's algorithm n times, once rooted at each city, merging the results into the same distance matrix",
+          'BFS n times treating the graph as unweighted, ignoring the actual edge weights',
+          'Greedy: only keep direct edges under the threshold, ignoring any multi-hop paths entirely',
+          'Floyd-Warshall: try every node k as an intermediate hop, ==dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])== for every pair (i,j); once all-pairs distances settle, count reachable neighbors per city within the threshold and keep the city with the fewest, breaking ties toward the larger index',
+        ],
+      },
+      code: `class Solution:
+    def findTheCity(self, n: int, edges: List[List[int]], distanceThreshold: int) -> int:
+        dist = [[math.inf] * n for _ in range(n)]
+        for i in range(n):
+            dist[i][i] = 0
+        for a, b, w in edges:
+            dist[a][b] = min(dist[a][b], w)
+            dist[b][a] = min(dist[b][a], w)
+
+        for k in range(n):
+            for i in range(n):
+                for j in range(n):
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+        best, bestCount = -1, math.inf
+        for i in range(n):
+            count = sum(1 for j in range(n) if i != j and dist[i][j] <= distanceThreshold)
+            if count <= bestCount:
+                best, bestCount = i, count
+
+        return best`,
+      blanks: [12, 16, 17],
+      time: { answer: 'O(n^3)', choices: ['O(n^3)', 'O(n^2 log n)', 'O(n^2)', 'O(n^4)'], why: 'three nested loops over every (k, i, j) triple' },
+      space: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(n)', 'O(1)', 'O(n^2 log n)'], why: 'full n x n distance matrix' },
+      sayIt: "Floyd-Warshall fills ==dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j]) for every k==, then count each city's neighbors under the threshold, ties go to the larger city index, O(n^3) time.",
+      pitfall: 'Ties must pick the city with the LARGER index, not the first one found — using < instead of <= silently breaks this.',
+    },
+    {
+      id: 'thought:graphs-weighted:path-with-maximum-probability',
+      lc: 1514,
+      title: 'Path With Maximum Probability',
+      difficulty: 'Medium',
+      category: 'graphs-weighted',
+      skills: ['dijkstra'],
+      companies: ['google', 'amazon'],
+      statement: `You're given a graph of n nodes where each edge has a success probability between 0 and 1. Starting from a given node, you want to reach another given node.
+
+The probability of a path is the product of the probabilities of every edge along it (not the sum, since each edge must independently succeed).
+
+Find the maximum probability of success along any path from start to end, or return 0 if no path exists.`,
+      examples: [
+        { input: 'n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.2], start = 0, end = 2', output: '0.25', explanation: 'the path 0->1->2 has probability 0.5*0.5 = 0.25, beating the direct edge 0->2 at 0.2' },
+      ],
+      constraints: ['2 <= n <= 10^4', '0 <= edges.length <= 2 * 10^4', '0 <= succProb[i] <= 1', 'there is at most one edge between any two nodes'],
+      ds: {
+        answer: 'max-heap of (probability, node) via negation, plus a best[] array of the best probability found so far',
+        choices: ['max-heap of (probability, node) via negation, plus a best[] array of the best probability found so far', 'min-heap of (probability, node), same as plain Dijkstra with no negation', 'BFS queue exploring every edge once, multiplying probabilities along the way', '2-D dp table of (node, steps taken)'],
+      },
+      method: {
+        answer: "Dijkstra, but maximize instead of minimize: python's heapq is a min-heap, so push ==negated probabilities== to simulate a max-heap; relax a neighbor by ==multiplying probabilities== instead of adding weights, since independent probabilities compound by multiplication",
+        choices: [
+          'Bellman-Ford style relaxation over all edges repeatedly, summing log-probabilities instead of multiplying raw probabilities',
+          'BFS exploring every path from start to end, multiplying probabilities and keeping the maximum found',
+          "Dijkstra, but maximize instead of minimize: python's heapq is a min-heap, so push ==negated probabilities== to simulate a max-heap; relax a neighbor by ==multiplying probabilities== instead of adding weights, since independent probabilities compound by multiplication",
+          'Greedy: always take the single highest-probability edge available at each step',
+        ],
+      },
+      code: `class Solution:
+    def maxProbability(self, n: int, edges: List[List[int]], succProb: List[float], start: int, end: int) -> float:
+        graph = defaultdict(list)
+        for (a, b), prob in zip(edges, succProb):
+            graph[a].append((b, prob))
+            graph[b].append((a, prob))
+
+        best = [0.0] * n
+        best[start] = 1.0
+        heap = [(-1.0, start)]
+
+        while heap:
+            negProb, node = heapq.heappop(heap)
+            prob = -negProb
+            if node == end:
+                return prob
+            if prob < best[node]:
+                continue
+
+            for neighbor, edgeProb in graph[node]:
+                candidate = prob * edgeProb
+                if candidate > best[neighbor]:
+                    best[neighbor] = candidate
+                    heapq.heappush(heap, (-candidate, neighbor))
+
+        return 0.0`,
+      blanks: [13, 20, 23],
+      time: { answer: 'O(E log V)', choices: ['O(E log V)', 'O(V^2 log V)', 'O(V * E)', 'O(E^2)'], why: 'standard Dijkstra bound, each edge can trigger one heap push, the heap holds at most V entries wide' },
+      space: { answer: 'O(V + E)', choices: ['O(V + E)', 'O(V)', 'O(E)', 'O(V * E)'], why: 'adjacency list plus the best[] array plus the heap, each scaling with nodes/edges' },
+      sayIt: "Max-heap via ==negated probabilities==, relax neighbors by ==multiplying probabilities== (not adding), same lazy-deletion Dijkstra pattern, stop early the moment end is popped, O(E log V) time.",
+      pitfall: 'Forgetting to negate probabilities breaks everything, since heapq only pops the smallest — must negate going in and negate again coming out.',
+    },
+
+    {
+      id: 'thought:graphs-weighted:min-cost-valid-path-grid',
+      lc: 1368,
+      title: 'Minimum Cost to Make at Least One Valid Path in a Grid',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['graph-bfs', 'queue-deque', 'grid'],
+      companies: ['google', 'amazon'],
+      statement: `Each cell of a grid holds an arrow: 1 right, 2 left, 3 down, 4 up. You start at the top-left and want to reach the bottom-right by following arrows.
+
+You may change any cell's arrow once at a cost of 1. Return the minimum total cost so that at least one valid path exists.`,
+      examples: [
+        { input: 'grid = [[1,1,3],[3,2,2],[1,1,4]]', output: '0' },
+        { input: 'grid = [[1,2],[4,3]]', output: '1' },
+      ],
+      constraints: ['1 <= m, n <= 100', '1 <= grid[i][j] <= 4'],
+      ds: {
+        answer: 'deque of cells + 2-D cost grid initialised to infinity',
+        choices: [
+          'deque of cells + 2-D cost grid initialised to infinity',
+          'min-heap of cells keyed by Manhattan distance',
+          'stack of cells + visited set',
+          'union-find over the cells',
+        ],
+      },
+      method: {
+        answer: '==0-1 BFS==: moving along the arrow costs 0 so push that cell to the ==front== of the deque, any other move costs 1 so push it to the back',
+        choices: [
+          '==0-1 BFS==: moving along the arrow costs 0 so push that cell to the ==front== of the deque, any other move costs 1 so push it to the back',
+          'Plain BFS counting each step as cost 1, ignoring the arrows',
+          'DFS to the corner, then count the cells whose arrow points the wrong way',
+          'Sort all cells by arrow value and relax them in that order',
+        ],
+      },
+      code: `class Solution:
+    def minCost(self, grid):
+        rows, cols = len(grid), len(grid[0])
+        moves = ((0, 1), (0, -1), (1, 0), (-1, 0))
+        cost = [[float('inf')] * cols for _ in range(rows)]
+        cost[0][0] = 0
+        queue = deque([(0, 0)])
+        while queue:
+            r, c = queue.popleft()
+            for arrow, (dr, dc) in enumerate(moves, 1):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    step = 0 if grid[r][c] == arrow else 1
+                    if cost[r][c] + step < cost[nr][nc]:
+                        cost[nr][nc] = cost[r][c] + step
+                        if step == 0:
+                            queue.appendleft((nr, nc))
+                        else:
+                            queue.append((nr, nc))
+        return cost[rows - 1][cols - 1]`,
+      blanks: [5, 12, 13, 16],
+      time: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(m * n * log(m * n))', 'O((m * n)^2)', 'O(m + n)'], why: 'each cell is relaxed a constant number of times because only 0 and 1 weights exist' },
+      space: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(1)', 'O(m + n)', 'O((m * n)^2)'], why: 'cost grid plus the deque' },
+      sayIt: 'Edge weights are only 0 or 1, so ==0-1 BFS==: free moves go to the ==front== of the deque, paid moves to the back, relax only on strict improvement. O(m * n).',
+      pitfall: 'Pushing without checking for a strict improvement lets cells re-enter the deque forever.',
+    },
+
+    {
+      id: 'thought:graphs-weighted:shortest-path-obstacles-elimination',
+      lc: 1293,
+      title: 'Shortest Path in a Grid with Obstacles Elimination',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['graph-bfs', 'grid'],
+      companies: ['google'],
+      statement: `You are given an m x n grid of 0 (empty) and 1 (obstacle). You start at the top-left and want the fewest steps to reach the bottom-right, moving in four directions.
+
+You may walk through at most k obstacles. Return the minimum steps, or -1 if impossible.`,
+      examples: [
+        { input: 'grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1', output: '6' },
+      ],
+      constraints: ['1 <= m, n <= 40', '1 <= k <= m * n'],
+      ds: {
+        answer: 'deque of (r, c, eliminations left, steps) + seen set of (r, c, left)',
+        choices: [
+          'deque of (r, c, eliminations left, steps) + seen set of (r, c, left)',
+          'min-heap keyed by distance to the corner',
+          'union-find over free cells',
+          '2-D visited grid of booleans only',
+        ],
+      },
+      method: {
+        answer: '==BFS== over states (row, col, ==eliminations left==); stepping onto an obstacle spends one, and the first time the corner pops gives the minimum steps',
+        choices: [
+          '==BFS== over states (row, col, ==eliminations left==); stepping onto an obstacle spends one, and the first time the corner pops gives the minimum steps',
+          'Plain BFS on (row, col) and stop at the first visit of each cell',
+          'DFS that tries all paths and keeps the shortest',
+          'Dijkstra on cell values, treating obstacles as weight k',
+        ],
+      },
+      code: `class Solution:
+    def shortestPath(self, grid, k):
+        rows, cols = len(grid), len(grid[0])
+        if k >= rows + cols - 2:
+            return rows + cols - 2
+        queue = deque([(0, 0, k, 0)])
+        seen = {(0, 0, k)}
+        while queue:
+            r, c, left, steps = queue.popleft()
+            if r == rows - 1 and c == cols - 1:
+                return steps
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols:
+                    nextLeft = left - grid[nr][nc]
+                    if nextLeft >= 0 and (nr, nc, nextLeft) not in seen:
+                        seen.add((nr, nc, nextLeft))
+                        queue.append((nr, nc, nextLeft, steps + 1))
+        return -1`,
+      blanks: [3, 5, 14, 15],
+      time: { answer: 'O(m * n * k)', choices: ['O(m * n * k)', 'O(m * n)', 'O(4^(m * n))', 'O(m * n * log k)'], why: 'each (cell, eliminations left) state is enqueued once' },
+      space: { answer: 'O(m * n * k)', choices: ['O(m * n * k)', 'O(m * n)', 'O(k)', 'O(1)'], why: 'the seen set holds every state' },
+      sayIt: 'Unit steps, so ==BFS==, but the state is ==(row, col, eliminations left)==. Stepping on a wall costs one elimination. First pop of the corner is the answer. O(m * n * k).',
+      pitfall: 'A visited set keyed only by (row, col) blocks a later arrival that has more eliminations left.',
+    },
+
+    {
+      id: 'thought:graphs-weighted:parallel-courses-iii',
+      lc: 2050,
+      title: 'Parallel Courses III',
+      difficulty: 'Hard',
+      category: 'graphs-weighted',
+      skills: ['topo-sort', 'dp-1d'],
+      companies: ['google', 'amazon'],
+      statement: `There are n courses numbered 1..n, a list of prerequisite relations [prev, next], and time[i] months to finish course i+1. You can take any number of courses at once as long as their prerequisites are done.
+
+Return the minimum number of months to finish every course.`,
+      examples: [
+        { input: 'n = 3, relations = [[1,3],[2,3]], time = [3,2,5]', output: '8', explanation: 'Courses 1 and 2 run together (3 months), then course 3 takes 5.' },
+      ],
+      constraints: ['1 <= n <= 5 * 10^4', 'relations form a DAG'],
+      ds: {
+        answer: 'adjacency list + indegree array + finish-time array + deque',
+        choices: [
+          'adjacency list + indegree array + finish-time array + deque',
+          'min-heap of courses keyed by duration',
+          'union-find over the courses',
+          'recursion stack with a visited set only',
+        ],
+      },
+      method: {
+        answer: "==Topological sort== (Kahn); when popping a course set each dependent's finish to ==max(its finish, this finish + its time)==, answer is the max finish",
+        choices: [
+          "==Topological sort== (Kahn); when popping a course set each dependent's finish to ==max(its finish, this finish + its time)==, answer is the max finish",
+          'Sum every course time because they all must be taken',
+          'Dijkstra from course 1 using durations as edge weights',
+          'Sort courses by time and take them shortest first',
+        ],
+      },
+      code: `class Solution:
+    def minimumTime(self, n, relations, time):
+        graph = [[] for _ in range(n)]
+        indegree = [0] * n
+        for prev, nxt in relations:
+            graph[prev - 1].append(nxt - 1)
+            indegree[nxt - 1] += 1
+        finish = time[:]
+        queue = deque(i for i in range(n) if indegree[i] == 0)
+        while queue:
+            course = queue.popleft()
+            for nxt in graph[course]:
+                finish[nxt] = max(finish[nxt], finish[course] + time[nxt])
+                indegree[nxt] -= 1
+                if indegree[nxt] == 0:
+                    queue.append(nxt)
+        return max(finish)`,
+      blanks: [7, 8, 12, 16],
+      time: { answer: 'O(n + E)', choices: ['O(n + E)', 'O(n^2)', 'O(E log n)', 'O(n * E)'], why: 'Kahn visits each course and each relation once' },
+      space: { answer: 'O(n + E)', choices: ['O(n + E)', 'O(n)', 'O(E)', 'O(1)'], why: 'adjacency list, in-degrees, finish times and the queue' },
+      sayIt: "Kahn's ==topological sort== with a DP: ==finish[next] = max(finish[next], finish[course] + time[next])== for every edge, answer is the max finish. O(n + E).",
+      pitfall: 'Adding durations along one path instead of taking the max over all prerequisites.',
+    },
+
+    {
+      id: 'thought:graphs-weighted:equality-equations',
+      lc: 990,
+      title: 'Satisfiability of Equality Equations',
+      difficulty: 'Medium',
+      category: 'graphs-weighted',
+      skills: ['union-find', 'graph-modeling'],
+      companies: ['google'],
+      statement: `You are given equations like 'a==b' and 'b!=c' over single lowercase letters. Return true if you can assign integers to the letters so every equation holds.`,
+      examples: [
+        { input: "['a==b','b!=a']", output: 'false' },
+        { input: "['b==a','a==b']", output: 'true' },
+      ],
+      constraints: ['1 <= equations.length <= 500', "each equation is 'x==y' or 'x!=y'"],
+      ds: {
+        answer: 'parent array of size 26 for union-find',
+        choices: [
+          'parent array of size 26 for union-find',
+          'min-heap of equations',
+          'adjacency list + indegree array',
+          'dict of letter -> assigned integer only',
+        ],
+      },
+      method: {
+        answer: "==Union== the two letters of every '==' first, then for every '!=' check the letters are ==not in the same set==",
+        choices: [
+          "==Union== the two letters of every '==' first, then for every '!=' check the letters are ==not in the same set==",
+          'Process equations in the given order and union or split as you read them',
+          'Topologically sort the letters by the equations',
+          'Run BFS from each letter along the != equations',
+        ],
+      },
+      code: `class Solution:
+    def equationsPossible(self, equations):
+        parent = list(range(26))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for eq in equations:
+            if eq[1] == '=':
+                parent[find(ord(eq[0]) - 97)] = find(ord(eq[3]) - 97)
+        for eq in equations:
+            if eq[1] == '!' and find(ord(eq[0]) - 97) == find(ord(eq[3]) - 97):
+                return False
+        return True`,
+      blanks: [11, 12, 14, 15],
+      time: { answer: 'O(n)', choices: ['O(n)', 'O(n^2)', 'O(n log n)', 'O(26^n)'], why: 'two passes with near-constant find on 26 letters' },
+      space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(log n)', 'O(26^2)'], why: 'a fixed parent array of 26' },
+      sayIt: "Equality is transitive, so ==union all '=='== first, then a '!=' whose letters share a root is a contradiction. Two passes, O(n).",
+      pitfall: 'Checking != equations while still reading == ones misses contradictions created by a later equality.',
     },
   ],
 }

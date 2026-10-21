@@ -2,11 +2,10 @@ const items = [
   {
     id: 'thought:trees:max-depth', lc: 104, title: 'Maximum Depth of Binary Tree', difficulty: 'Easy', category: 'trees',
     skills: ['tree-dfs'],
+    companies: ['google', 'amazon', 'microsoft'],
     statement: `Given the root of a binary tree, return its maximum depth: the number of nodes along the longest path from the root down to the farthest leaf.
 
-A tree with just a root node has depth 1. An empty tree has depth 0. The tree is not necessarily balanced or complete, so one side can be much deeper than the other.
-
-You get TreeNode objects with .val, .left and .right. There's no separate size input; you discover the shape as you recurse.`,
+A tree with just a root node has depth 1. An empty tree has depth 0. The tree is not necessarily balanced or complete, so one side can be much deeper than the other.`,
     examples: [
       { input: 'root = [3,9,20,null,null,15,7]', output: '3' },
       { input: 'root = []', output: '0' },
@@ -37,11 +36,10 @@ You get TreeNode objects with .val, .left and .right. There's no separate size i
   {
     id: 'thought:trees:diameter', lc: 543, title: 'Diameter of Binary Tree', difficulty: 'Easy', category: 'trees',
     skills: ['tree-dfs'],
+    companies: ['google', 'amazon', 'microsoft', 'meta'],
     statement: `Given the root of a binary tree, return the length (in edges) of the longest path between any two nodes. The path may or may not pass through the root.
 
-A path is counted in edges, so a single node has diameter 0. The tricky part is that the longest path might live entirely inside a subtree and never touch the root, so you can't just add the two subtree heights at the top and stop there.
-
-Each dfs call still needs to return a height so the parent can keep combining, but you also need a separate place to remember the best left+right sum seen at any node along the way.`,
+A path is counted in edges, so a single node has diameter 0.`,
     examples: [{ input: 'root = [1,2,3,4,5]', output: '3', explanation: 'the path 4-2-1-3 (or 5-2-1-3) has 3 edges' }],
     constraints: ['1 <= number of nodes <= 10^4', '-100 <= Node.val <= 100'],
     ds: { answer: 'recursion returning height + nonlocal int for best', choices: ['recursion returning height + nonlocal int for best', 'dd(list) adjacency + BFS distance dict', 'stack of (node, depth) pairs, iterative', 'two pointers over a flattened inorder list'] },
@@ -73,11 +71,8 @@ Each dfs call still needs to return a height so the parent can keep combining, b
   {
     id: 'thought:trees:balanced-binary-tree', lc: 110, title: 'Balanced Binary Tree', difficulty: 'Easy', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Given a binary tree, determine if it is height-balanced: for every node, the heights of its left and right subtrees differ by at most 1.
-
-The naive approach recomputes height from scratch at every node and is O(n^2) on a skewed tree. The trick is to fold the balance check into the same postorder pass that computes height, using a sentinel value to mean "already found unbalanced below, stop checking properly."
-
-Once one subtree reports the sentinel, there's no point computing the other side's real height, you can just propagate the failure straight up to the root.`,
+    companies: ['google', 'amazon', 'bloomberg'],
+    statement: `Given a binary tree, determine if it is height-balanced: for every node, the heights of its left and right subtrees differ by at most 1.`,
     examples: [
       { input: 'root = [3,9,20,null,null,15,7]', output: 'true' },
       { input: 'root = [1,2,2,3,3,null,null,4,4]', output: 'false' },
@@ -110,11 +105,8 @@ Once one subtree reports the sentinel, there's no point computing the other side
   {
     id: 'thought:trees:longest-univalue-path', lc: 687, title: 'Longest Univalue Path', difficulty: 'Easy', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Given the root of a binary tree, find the length (in edges) of the longest path where every node has the same value. The path does not need to pass through the root, and it can bend at a node, using one arm going left and one arm going right.
-
-For each node, compute the longest same-value arm going down into the left child and into the right child, but only count an arm if the child's value actually matches the current node's value.
-
-The answer at that node is the sum of its two matching arms; track the best across all nodes in a nonlocal variable, and return just the single longer arm up to the parent so it can extend the path further.`,
+    companies: ['google'],
+    statement: `Given the root of a binary tree, find the length (in edges) of the longest path where every node has the same value. The path does not need to pass through the root, and it can bend at a node, using one arm going left and one arm going right.`,
     examples: [{ input: 'root = [5,4,5,1,1,null,5]', output: '2', explanation: 'the path 5-5-5 has 2 edges' }],
     constraints: ['0 <= number of nodes <= 10^4', '-1000 <= Node.val <= 1000'],
     ds: { answer: 'recursion returning matched-arm length + nonlocal best for edge count', choices: ['recursion returning matched-arm length + nonlocal best for edge count', "dd(int) counting frequency of each value across the tree", 'deque BFS grouping nodes by value per level', 'union-find merging same-valued neighbors into components'] },
@@ -150,11 +142,8 @@ The answer at that node is the sum of its two matching arms; track the best acro
   {
     id: 'thought:trees:max-path-sum', lc: 124, title: 'Binary Tree Maximum Path Sum', difficulty: 'Hard', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Given the root of a binary tree where nodes can hold negative values, find the maximum sum of any downward-bending path. A path can start and end at any node, doesn't need to pass through the root, and can use one child subtree on the left and one on the right to bend at a node, but it can never fork at two different points.
-
-At each node, pull the best contribution from the left and right subtrees, but clamp each side at 0 so a negative branch never drags the sum down, that's what lets you effectively skip a branch instead of being forced to include it.
-
-The max over "node.val + left + right" across every node, tracked in a nonlocal, is the answer; you still only return "node.val + the better single side" up to the parent, since a parent can only extend one arm further up.`,
+    companies: ['google', 'amazon', 'microsoft', 'meta'],
+    statement: `Given the root of a binary tree where nodes can hold negative values, find the maximum sum of any downward-bending path. A path can start and end at any node, doesn't need to pass through the root, and can use one child subtree on the left and one on the right to bend at a node, but it can never fork at two different points.`,
     examples: [
       { input: 'root = [1,2,3]', output: '6' },
       { input: 'root = [-10,9,20,null,null,15,7]', output: '42' },
@@ -190,11 +179,8 @@ The max over "node.val + left + right" across every node, tracked in a nonlocal,
   {
     id: 'thought:trees:same-tree', lc: 100, title: 'Same Tree', difficulty: 'Easy', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Given the roots of two binary trees, determine whether they are structurally identical and every corresponding pair of nodes has the same value.
-
-This is a straightforward paired recursion: walk both trees at once, and at each pair of positions compare both the shape (is one None where the other isn't) and the value.
-
-If either tree has an extra node where the other doesn't, or a value mismatches, the whole thing is false; both trees agreeing all the way down to two Nones is the only way to succeed.`,
+    companies: ['amazon', 'microsoft', 'bloomberg'],
+    statement: `Given the roots of two binary trees, determine whether they are structurally identical and every corresponding pair of nodes has the same value.`,
     examples: [
       { input: 'p = [1,2,3], q = [1,2,3]', output: 'true' },
       { input: 'p = [1,2], q = [1,null,2]', output: 'false' },
@@ -220,9 +206,8 @@ If either tree has an extra node where the other doesn't, or a value mismatches,
   {
     id: 'thought:trees:subtree-of-another-tree', lc: 572, title: 'Subtree of Another Tree', difficulty: 'Easy', category: 'trees',
     skills: ['tree-dfs'],
+    companies: ['amazon', 'microsoft', 'meta'],
     statement: `Given the roots of two binary trees root and subRoot, determine whether subRoot appears anywhere inside root as an exact subtree, meaning there's some node in root whose entire subtree matches subRoot node-for-node.
-
-This builds directly on "same tree": walk root looking for any node where the subtree rooted there equals subRoot exactly, recursing into root's children to keep searching if the current node doesn't match.
 
 An empty subRoot trivially matches (vacuously true), but an empty root with a non-empty subRoot can never match.`,
     examples: [{ input: 'root = [3,4,5,1,2], subRoot = [4,1,2]', output: 'true' }],
@@ -255,11 +240,8 @@ An empty subRoot trivially matches (vacuously true), but an empty root with a no
   {
     id: 'thought:trees:invert-tree', lc: 226, title: 'Invert Binary Tree', difficulty: 'Easy', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Given the root of a binary tree, flip it into its mirror image: swap every node's left and right children, all the way down.
-
-The natural recursive approach swaps a node's two children, then recurses into what are now the new left and new right subtrees to keep inverting below them.
-
-Order doesn't actually matter here (swap-then-recurse vs recurse-then-swap both work), since every node's own swap is independent of its descendants' swaps.`,
+    companies: ['google', 'amazon'],
+    statement: `Given the root of a binary tree, flip it into its mirror image: swap every node's left and right children, all the way down.`,
     examples: [
       { input: 'root = [4,2,7,1,3,6,9]', output: '[4,7,2,9,6,3,1]' },
       { input: 'root = []', output: '[]' },
@@ -287,11 +269,8 @@ Order doesn't actually matter here (swap-then-recurse vs recurse-then-swap both 
   {
     id: 'thought:trees:level-order', lc: 102, title: 'Binary Tree Level Order Traversal', difficulty: 'Medium', category: 'trees',
     skills: ['tree-bfs', 'queue-deque'],
-    statement: `Given the root of a binary tree, return its node values grouped level by level, from top to bottom, each level read left to right.
-
-This is the textbook BFS: push the root into a queue, then repeatedly pop everything currently in the queue, record a value, and push its children for the next round.
-
-The one subtlety is you must snapshot the queue's current length before the inner loop starts, otherwise children you just enqueued get processed in the same round and your levels blur together.`,
+    companies: ['amazon', 'microsoft', 'meta', 'bloomberg'],
+    statement: `Given the root of a binary tree, return its node values grouped level by level, from top to bottom, each level read left to right.`,
     examples: [
       { input: 'root = [3,9,20,null,null,15,7]', output: '[[3],[9,20],[15,7]]' },
       { input: 'root = []', output: '[]' },
@@ -334,11 +313,8 @@ class Solution:
   {
     id: 'thought:trees:right-side-view', lc: 199, title: 'Binary Tree Right Side View', difficulty: 'Medium', category: 'trees',
     skills: ['tree-bfs', 'queue-deque'],
-    statement: `Given the root of a binary tree, imagine standing to its right: return the values of the nodes you can see, ordered from top to bottom.
-
-This is level order BFS again, but you only keep the last node processed in each level, since that's the rightmost (and therefore visible) one.
-
-As before, snapshot the queue's length before draining a level, then check the loop index against size-1 to know when you're at the last node of the level.`,
+    companies: ['amazon', 'meta', 'bloomberg'],
+    statement: `Given the root of a binary tree, imagine standing to its right: return the values of the nodes you can see, ordered from top to bottom.`,
     examples: [{ input: 'root = [1,2,3,null,5,null,4]', output: '[1,3,4]' }],
     constraints: ['0 <= number of nodes <= 100', '-100 <= Node.val <= 100'],
     ds: { answer: 'deque queue, keep last-popped node per level', choices: ['deque queue, keep last-popped node per level', 'dd(dict) mapping depth to the rightmost value via preorder DFS (right first)', 'stack-based DFS always pushing right child before left', 'min-heap keyed by depth to find the max-depth node per branch'] },
@@ -377,11 +353,8 @@ class Solution:
   {
     id: 'thought:trees:count-good-nodes', lc: 1448, title: 'Count Good Nodes in Binary Tree', difficulty: 'Medium', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Given the root of a binary tree, a node X is "good" if, on the path from the root down to X, no node has a value greater than X.val. Count how many good nodes exist.
-
-This is top-down: as you descend, carry the maximum value seen so far along the current path. A node is good exactly when its own value is at least that running max.
-
-That node then becomes (or stays) the new running max for its own children, since the max only grows or stays the same going down a single path.`,
+    companies: ['amazon', 'microsoft'],
+    statement: `Given the root of a binary tree, a node X is "good" if, on the path from the root down to X, no node has a value greater than X.val. Count how many good nodes exist.`,
     examples: [{ input: 'root = [3,1,4,3,null,1,5]', output: '4' }],
     constraints: ['1 <= number of nodes <= 10^5', '-10^4 <= Node.val <= 10^4'],
     ds: { answer: 'top-down recursion passing pathMax + nonlocal counter', choices: ['top-down recursion passing pathMax + nonlocal counter', 'postorder DFS returning the max of each subtree, compare against root.val once', 'dd(list) bucketing nodes by depth, then scanning each bucket for a running max', 'BFS tracking the global max seen so far across the whole queue'] },
@@ -414,11 +387,8 @@ That node then becomes (or stays) the new running max for its own children, sinc
   {
     id: 'thought:trees:validate-bst', lc: 98, title: 'Validate Binary Search Tree', difficulty: 'Medium', category: 'trees',
     skills: ['bst', 'tree-dfs'],
-    statement: `Given the root of a binary tree, determine if it's a valid binary search tree: every node's value must be strictly greater than all values in its left subtree and strictly less than all values in its right subtree.
-
-Checking a node only against its direct parent isn't enough, a node deep in a subtree could still violate a constraint from a grandparent or higher ancestor.
-
-The fix is to pass a (low, high) window down through the recursion: going left tightens the high bound to the parent's value, going right tightens the low bound, so every node is checked against the full chain of ancestor constraints.`,
+    companies: ['amazon', 'microsoft', 'meta', 'bloomberg'],
+    statement: `Given the root of a binary tree, determine if it's a valid binary search tree: every node's value must be strictly greater than all values in its left subtree and strictly less than all values in its right subtree.`,
     examples: [
       { input: 'root = [2,1,3]', output: 'true' },
       { input: 'root = [5,1,4,null,null,3,6]', output: 'false', explanation: '4 is less than 5 but sits in the right subtree, so it must be greater than 5' },
@@ -448,11 +418,8 @@ The fix is to pass a (low, high) window down through the recursion: going left t
   {
     id: 'thought:trees:kth-smallest-bst', lc: 230, title: 'Kth Smallest Element in a BST', difficulty: 'Medium', category: 'trees',
     skills: ['bst', 'stack'],
-    statement: `Given the root of a binary search tree and an integer k, return the kth smallest value in the tree (1-indexed).
-
-Inorder traversal of a BST visits nodes in sorted order, so the kth node visited by an inorder walk is the answer. Doing this iteratively with an explicit stack avoids building the whole sorted list when you just need to stop early at the kth visit.
-
-Push the entire left spine, pop one node (that's the next-smallest unvisited value), decrement k, and if k hits 0 you're done, otherwise move to that node's right subtree and repeat.`,
+    companies: ['amazon', 'meta', 'bloomberg'],
+    statement: `Given the root of a binary search tree and an integer k, return the kth smallest value in the tree (1-indexed).`,
     examples: [
       { input: 'root = [3,1,4,null,2], k = 1', output: '1' },
       { input: 'root = [5,3,6,2,4,null,null,1], k = 3', output: '3' },
@@ -486,11 +453,8 @@ Push the entire left spine, pop one node (that's the next-smallest unvisited val
   {
     id: 'thought:trees:lca-bst', lc: 235, title: 'Lowest Common Ancestor of a BST', difficulty: 'Easy', category: 'trees',
     skills: ['bst'],
-    statement: `Given a binary search tree and two nodes p and q that both exist in it, find their lowest common ancestor: the deepest node that has both p and q as descendants (a node can be its own descendant).
-
-BST ordering tells you everything you need without even looking at subtrees you haven't visited: if both p and q are smaller than the current node, the LCA must be in the left subtree; if both are larger, it must be in the right subtree.
-
-The moment they're not both on the same side, you've found the split point, and that's the LCA (this also covers the case where curr itself equals p or q).`,
+    companies: ['amazon', 'microsoft'],
+    statement: `Given a binary search tree and two nodes p and q that both exist in it, find their lowest common ancestor: the deepest node that has both p and q as descendants (a node can be its own descendant).`,
     examples: [
       { input: 'root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8', output: '6' },
       { input: 'root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4', output: '2' },
@@ -518,11 +482,8 @@ The moment they're not both on the same side, you've found the split point, and 
   {
     id: 'thought:trees:lca-binary-tree', lc: 236, title: 'Lowest Common Ancestor of a Binary Tree', difficulty: 'Medium', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Given a binary tree (not necessarily a BST) and two nodes p and q guaranteed to exist in it, find their lowest common ancestor.
-
-Without BST ordering to guide you, you have to search both subtrees. Recurse into left and right; if a call finds p or q itself, it bubbles that node straight up.
-
-A node where both the left and right calls came back non-null is exactly the split point: p and q live in different subtrees of it, so it's the LCA. If only one side came back non-null, pass that result further up unchanged.`,
+    companies: ['amazon', 'microsoft', 'meta'],
+    statement: `Given a binary tree (not necessarily a BST) and two nodes p and q guaranteed to exist in it, find their lowest common ancestor.`,
     examples: [
       { input: 'root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1', output: '3' },
       { input: 'root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4', output: '5' },
@@ -551,11 +512,8 @@ A node where both the left and right calls came back non-null is exactly the spl
   {
     id: 'thought:trees:insert-into-bst', lc: 701, title: 'Insert into a Binary Search Tree', difficulty: 'Medium', category: 'trees',
     skills: ['bst'],
-    statement: `Given the root of a binary search tree and a value to insert, add a new node with that value so the tree stays a valid BST, and return the tree's new root. There can be multiple valid trees after the insert; any of them is accepted as long as the BST property holds.
-
-Walk down from the root exactly like a search: go left if val is smaller than the current node, go right if larger.
-
-The moment you hit a None spot, a child slot that doesn't exist yet, that's where the new node belongs: create it and hook it in.`,
+    companies: ['microsoft'],
+    statement: `Given the root of a binary search tree and a value to insert, add a new node with that value so the tree stays a valid BST, and return the tree's new root. There can be multiple valid trees after the insert; any of them is accepted as long as the BST property holds.`,
     examples: [
       { input: 'root = [4,2,7,1,3], val = 5', output: '[4,2,7,1,3,5]' },
       { input: 'root = [], val = 5', output: '[5]' },
@@ -592,11 +550,8 @@ The moment you hit a None spot, a child slot that doesn't exist yet, that's wher
   {
     id: 'thought:trees:build-tree-preorder-inorder', lc: 105, title: 'Construct Binary Tree from Preorder and Inorder Traversal', difficulty: 'Medium', category: 'trees',
     skills: ['tree-dfs', 'arrays-hashing'],
-    statement: `Given two integer arrays preorder and inorder representing the preorder and inorder traversal of the same binary tree (values are unique), reconstruct and return the original tree.
-
-The first unused element of preorder is always the root of the current subtree. Once you know the root's value, its position in inorder splits that range into everything to the left (the left subtree) and everything to the right (the right subtree).
-
-Building a hashmap from value to inorder index up front turns that split into an O(1) lookup instead of a linear scan; a shared index into preorder, walked left to right, picks off the next root each time you recurse.`,
+    companies: ['amazon', 'microsoft', 'bloomberg'],
+    statement: `Given two integer arrays preorder and inorder representing the preorder and inorder traversal of the same binary tree (values are unique), reconstruct and return the original tree.`,
     examples: [{ input: 'preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]', output: '[3,9,20,null,null,15,7]' }],
     constraints: ['1 <= preorder.length <= 3000', 'inorder.length == preorder.length', 'all values unique'],
     ds: { answer: 'dd/dict mapping value to inorder index + nonlocal preorder pointer', choices: ['dd/dict mapping value to inorder index + nonlocal preorder pointer', 'two pointers scanning inorder linearly for the root value on every call, no hashmap', 'stack simulating preorder, pushing right then left children as you go', 'deque BFS reconstructing the tree level by level from preorder alone'] },
@@ -631,11 +586,8 @@ Building a hashmap from value to inorder index up front turns that split into an
   {
     id: 'thought:trees:path-sum-iii', lc: 437, title: 'Path Sum III', difficulty: 'Medium', category: 'trees',
     skills: ['tree-dfs', 'arrays-hashing'],
-    statement: `Given the root of a binary tree and an integer targetSum, count the number of downward paths (parent to child to child, never moving back up) whose node values sum to targetSum. A path doesn't need to start at the root or end at a leaf, but it must move strictly downward.
-
-The classic trick is prefix sums: track the running sum from the root down to the current node, and keep a running count of every prefix-sum value seen so far on the current path.
-
-At any node, the number of valid paths ending here equals how many times (currentSum - targetSum) has appeared as a prefix sum higher up on this same path. Because the count must only reflect the current root-to-node path, not siblings or unrelated branches, you decrement that prefix sum's count again after backtracking out of this subtree.`,
+    companies: ['amazon'],
+    statement: `Given the root of a binary tree and an integer targetSum, count the number of downward paths (parent to child to child, never moving back up) whose node values sum to targetSum. A path doesn't need to start at the root or end at a leaf, but it must move strictly downward.`,
     examples: [{ input: 'root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8', output: '3' }],
     constraints: ['0 <= number of nodes <= 1000', '-10^9 <= Node.val <= 10^9', '-1000 <= targetSum <= 1000'],
     ds: { answer: 'dd(int) counting prefix sums along the current root-to-node path + backtracking', choices: ['dd(int) counting prefix sums along the current root-to-node path + backtracking', 'dd(list) adjacency + BFS computing all pairwise path sums', 'two pointers over a flattened inorder array of node values', 'monotonic stack of partial sums, popping when a sum exceeds targetSum'] },
@@ -672,11 +624,8 @@ class Solution:
   {
     id: 'thought:trees:serialize-deserialize', lc: 297, title: 'Serialize and Deserialize Binary Tree', difficulty: 'Hard', category: 'trees',
     skills: ['tree-dfs'],
-    statement: `Design an algorithm to serialize a binary tree into a string and deserialize that string back into the exact same tree structure. The only requirement is that your own serialize and deserialize functions are inverses of each other; the string format is entirely up to you.
-
-A simple approach is a preorder traversal that writes out every node's value, and writes a sentinel marker (like "N") wherever a child is None. Join everything with commas into one string.
-
-Deserializing just replays the same preorder order: read the next token, if it's the sentinel it's a None leaf, otherwise build a node and recursively fill its left and right from the rest of the token stream, using one shared position in that stream across all the recursive calls.`,
+    companies: ['google', 'amazon', 'microsoft', 'meta', 'apple'],
+    statement: `Design an algorithm to serialize a binary tree into a string and deserialize that string back into the exact same tree structure. The only requirement is that your own serialize and deserialize functions are inverses of each other; the string format is entirely up to you.`,
     examples: [{ input: 'root = [1,2,3,null,null,4,5]', output: '"1,2,3,N,N,4,5" (deserialize reproduces [1,2,3,null,null,4,5])' }],
     constraints: ['0 <= number of nodes <= 10^4', '-1000 <= Node.val <= 1000'],
     ds: { answer: 'preorder DFS into a comma-joined string, with a sentinel for None', choices: ['preorder DFS into a comma-joined string, with a sentinel for None', 'level order BFS with a queue, writing None markers for missing children per level', 'inorder DFS storing values plus a separate shape bitmask', 'store the tree as an array by index (2*i+1, 2*i+2) like a heap'] },
@@ -720,11 +669,8 @@ Deserializing just replays the same preorder order: read the next token, if it's
   {
     id: 'thought:trees:delete-node-bst', lc: 450, title: 'Delete Node in a BST', difficulty: 'Medium', category: 'trees',
     skills: ['bst'],
-    statement: `Given the root of a binary search tree and a key, delete the node with that value from the tree (if present) and return the new root. The remaining tree must still be a valid BST, and you don't need to preserve any particular shape beyond that.
-
-First walk down comparing key to node.val to find the target node, exactly like a BST search. Deleting it then splits into cases: no children (just remove it), one child (splice that child up in its place).
-
-With two children, find the smallest value in the right subtree (the right subtree's leftmost node), copy that value into the current node, then recursively delete that smallest value from the right subtree, which now only has at most one child to handle.`,
+    companies: ['amazon', 'microsoft'],
+    statement: `Given the root of a binary search tree and a key, delete the node with that value from the tree (if present) and return the new root. The remaining tree must still be a valid BST, and you don't need to preserve any particular shape beyond that.`,
     examples: [{ input: 'root = [5,3,6,2,4,null,7], key = 3', output: '[5,4,6,2,null,null,7] (or an equivalent valid BST)' }],
     constraints: ['0 <= number of nodes <= 10^4', '-10^5 <= Node.val, key <= 10^5', 'all Node.val unique'],
     ds: { answer: 'recursive BST search + splice/successor-copy on delete', choices: ['recursive BST search + splice/successor-copy on delete', "iterative BST search with an explicit parent pointer, then unlink the node from its parent's child slot", 'convert to a sorted array via inorder, remove the key, rebuild the tree from scratch', 'dd(list) adjacency list representation, delete the node and reconnect its neighbors'] },
@@ -758,6 +704,306 @@ With two children, find the smallest value in the right subtree (the right subtr
     sayIt: "BST search for key; with two children, copy in the ==right subtree's minimum== and recursively delete that value from the right subtree. O(h)/O(h).",
     pitfall: 'Forgetting to recursively delete the copied successor leaves a duplicate.',
   },
+  {
+    id: 'thought:trees:path-sum', lc: 112, title: 'Path Sum', difficulty: 'Easy', category: 'trees',
+    skills: ['tree-dfs'],
+    companies: ['amazon', 'microsoft', 'meta'],
+    statement: `Given the root of a binary tree and a target sum, decide whether the tree has a root-to-leaf path such that the values along the path add up exactly to the target.
+
+A leaf is a node with no children. The path must start at the root and end at a leaf; it can't stop partway down.`,
+    examples: [
+      { input: 'root = [5,4,8,11,null,13,4,7,2], targetSum = 22', output: 'true', explanation: '5 -> 4 -> 11 -> 2 sums to 22' },
+    ],
+    constraints: ['0 <= number of nodes <= 5000', '-1000 <= Node.val <= 1000', '-1000 <= targetSum <= 1000'],
+    ds: {
+      answer: '1-D recursive DFS passing down the remaining target (no extra structure)',
+      choices: ['1-D recursive DFS passing down the remaining target (no extra structure)', 'BFS queue of (node, running sum)', '2-D dp table keyed by (node, remaining)', 'stack-based iterative DFS with an explicit sum stack'],
+    },
+    method: {
+      answer: "Top-down DFS: ==subtract root.val from the target on the way down==, and at a leaf check if ==the remaining target equals root.val==, true if either subtree succeeds",
+      choices: [
+        "Top-down DFS: ==subtract root.val from the target on the way down==, and at a leaf check if ==the remaining target equals root.val==, true if either subtree succeeds",
+        'Bottom-up DFS: compute every root-to-leaf sum first, then check afterward if any equals targetSum',
+        'BFS level by level, tracking the running sum to each node in a queue, checking leaves as they are dequeued',
+        'DFS that collects every root-to-leaf path into a list first, then checks each path sum against targetSum',
+      ],
+    },
+    code: `class Solution:
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if not root:
+            return False
+
+        if not root.left and not root.right:
+            return root.val == targetSum
+
+        remaining = targetSum - root.val
+        return self.hasPathSum(root.left, remaining) or self.hasPathSum(root.right, remaining)`,
+    blanks: [3, 6, 9],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(log n)', 'O(n^2)', 'O(h)'], why: 'visits every node at most once' },
+    space: { answer: 'O(h)', choices: ['O(h)', 'O(n)', 'O(1)', 'O(n log n)'], why: 'recursion stack depth equals the tree height, h' },
+    sayIt: 'I carry the remaining target down the recursion, subtracting each node value, and check for exactly 0 at a leaf; O(n) time, O(h) space.',
+    pitfall: 'A node with only one child is NOT a leaf — must check both root.left and root.right are None before comparing.',
+  },
+  {
+    id: 'thought:trees:minimum-absolute-difference-bst', lc: 530, title: 'Minimum Absolute Difference in BST', difficulty: 'Easy', category: 'trees',
+    skills: ['bst'],
+    companies: ['amazon', 'microsoft'],
+    statement: `Given the root of a binary search tree, return the minimum absolute difference between the values of any two distinct nodes in the tree.
+
+There are at least two nodes in the tree.`,
+    examples: [
+      { input: 'root = [4,2,6,1,3]', output: '1', explanation: 'the pairs (1,2), (2,3), and (3,4) each differ by 1' },
+    ],
+    constraints: ['2 <= number of nodes <= 10^4', '0 <= Node.val <= 10^5'],
+    ds: {
+      answer: '2 rolling vars (prev value, best diff) updated during an inorder traversal',
+      choices: ['2 rolling vars (prev value, best diff) updated during an inorder traversal', 'list collecting every value, sorted afterward', 'min-heap of all node values', '1-D dp array indexed by node depth'],
+    },
+    method: {
+      answer: "Inorder traversal visits BST nodes in ==sorted order==, so the minimum difference is always between ==two values adjacent in that inorder sequence==, track a running previous value and update the best gap as you go",
+      choices: [
+        "Inorder traversal visits BST nodes in ==sorted order==, so the minimum difference is always between ==two values adjacent in that inorder sequence==, track a running previous value and update the best gap as you go",
+        'Collect all values into a list via any traversal, sort it, then scan for the minimum adjacent gap',
+        "Preorder traversal comparing each node directly to its parent's value",
+        'For each node, binary-search the rest of the tree for its closest value and take the global min',
+      ],
+    },
+    code: `class Solution:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        prev = None
+        best = math.inf
+
+        def inorder(node):
+            nonlocal prev, best
+            if not node:
+                return
+
+            inorder(node.left)
+
+            if prev is not None:
+                best = min(best, node.val - prev)
+            prev = node.val
+
+            inorder(node.right)
+
+        inorder(root)
+        return best`,
+    blanks: [10, 13, 16],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(h)', 'O(n^2)'], why: 'a single inorder visit of every node' },
+    space: { answer: 'O(h)', choices: ['O(h)', 'O(n)', 'O(1)', 'O(n log n)'], why: 'recursion depth only, no extra list of values' },
+    sayIt: 'Inorder gives BST values in sorted order for free, so I just track the previous value and keep the running min gap; O(n) time, O(h) space.',
+    pitfall: 'Must guard prev is not None for the very first visited node, or the first comparison breaks.',
+  },
+  {
+    id: 'thought:trees:all-nodes-distance-k', lc: 863, title: 'All Nodes Distance K in Binary Tree', difficulty: 'Medium', category: 'trees',
+    skills: ['tree-bfs', 'graph-bfs'],
+    companies: ['amazon', 'meta'],
+    statement: `Given the root of a binary tree, a target node within that tree, and an integer k, return the values of all nodes that are exactly distance k from target.
+
+Distance means the number of edges on the path between two nodes, and that path can go up through ancestors as well as down through descendants. You may return the values in any order.`,
+    examples: [
+      { input: 'root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, k = 2', output: '[7,4,1]', explanation: "7 and 4 are target's grandchildren, 1 is target's sibling via the shared parent" },
+    ],
+    constraints: ['1 <= number of nodes <= 500', 'all node values are unique', '0 <= k <= 1000'],
+    ds: {
+      answer: 'dict mapping each node to its parent, then BFS queue treating the tree as an undirected graph',
+      choices: ['dict mapping each node to its parent, then BFS queue treating the tree as an undirected graph', '2-D dp table of (node, distance)', 'DFS computing depth of every node, then filtering by |depth - target depth| == k', 'Union-Find grouping nodes within distance k'],
+    },
+    method: {
+      answer: "Two-phase BFS: first DFS to build a ==parent pointer for every node==, then level-order BFS from target treating ==left child, right child, AND parent== as neighbors (undirected graph), stopping after k levels",
+      choices: [
+        "Two-phase BFS: first DFS to build a ==parent pointer for every node==, then level-order BFS from target treating ==left child, right child, AND parent== as neighbors (undirected graph), stopping after k levels",
+        "Single DFS from root computing each node's distance to target directly via path reconstruction",
+        'BFS from root down recording depth of every node, then separately BFS from target down its own subtree only',
+        'Binary search on node depth after an inorder traversal, since BST ordering lets you binary search for distance',
+      ],
+    },
+    code: `class Solution:
+    def distanceK(self, root: TreeNode, target: TreeNode, k: int) -> List[int]:
+        parent = {}
+
+        def link(node, par):
+            if not node:
+                return
+
+            parent[node] = par
+            link(node.left, node)
+            link(node.right, node)
+
+        link(root, None)
+
+        queue = deque([target])
+        visited = {target}
+        depth = 0
+
+        while queue and depth < k:
+            for _ in range(len(queue)):
+                node = queue.popleft()
+                for neighbor in (node.left, node.right, parent[node]):
+                    if neighbor and neighbor not in visited:
+                        visited.add(neighbor)
+                        queue.append(neighbor)
+            depth += 1
+
+        return [node.val for node in queue]`,
+    blanks: [8, 21, 25],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(k)', 'O(n + k)'], why: 'build parents in O(n), then BFS visits each node at most once' },
+    space: { answer: 'O(n)', choices: ['O(n)', 'O(h)', 'O(k)', 'O(1)'], why: 'parent dict and visited set both scale with node count' },
+    sayIt: 'I link every node to its parent first, then BFS from target treating left/right/parent all as neighbors, stopping at depth k; O(n) time.',
+    pitfall: 'Forgetting the parent pointer means you can only walk down the tree, never back up toward where target came from.',
+  },
+  {
+    id: 'thought:trees:flatten-binary-tree-to-linked-list', lc: 114, title: 'Flatten Binary Tree to Linked List', difficulty: 'Medium', category: 'trees',
+    skills: ['tree-dfs', 'stack'],
+    companies: ['microsoft', 'meta', 'amazon'],
+    statement: `You're given the root of a binary tree. Flatten it in place into a "linked list" that follows the same shape as a preorder traversal: every node's left child becomes null, and its right child points to the next node in preorder order.
+
+You must do this in place, modifying the tree's own pointers rather than building a new structure.
+
+The final right-chain, read from the root, should list every node in the same order a preorder traversal would visit them.`,
+    examples: [
+      { input: 'root = [1,2,5,3,4,null,6]', output: '[1,null,2,null,3,null,4,null,5,null,6]', explanation: 'preorder visits 1,2,3,4,5,6, so the flattened chain follows that same order via right pointers only' },
+    ],
+    constraints: ['the number of nodes is in the range [0, 2000]', '-100 <= Node.val <= 100'],
+    ds: {
+      answer: 'explicit stack doing a reverse preorder (push right child before left, so left pops first) + a prev pointer',
+      choices: ['explicit stack doing a reverse preorder (push right child before left, so left pops first) + a prev pointer', 'recursion returning the tail node of the flattened subtree', 'queue doing level-order traversal, re-linking nodes level by level', 'Morris traversal threading the right subtree into the predecessor, no stack'],
+    },
+    method: {
+      answer: "Iterative preorder with an explicit stack: ==push the right child, then the left child==, so left is processed first (true preorder order); after popping each node, rewire the PREVIOUS node's pointers so ==prev.left = None, prev.right = node==, then advance prev to the current node",
+      choices: [
+        'Recursively flatten the left and right subtrees first, then splice the flattened left subtree between the root and the flattened right subtree',
+        "Morris-style: for each node with a left child, find that left subtree's rightmost node and thread the original right subtree onto it, then move left into right",
+        "Iterative preorder with an explicit stack: ==push the right child, then the left child==, so left is processed first (true preorder order); after popping each node, rewire the PREVIOUS node's pointers so ==prev.left = None, prev.right = node==, then advance prev to the current node",
+        'BFS level by level, collecting nodes into a list, then rebuilding a right-only chain from that list',
+      ],
+    },
+    code: `class Solution:
+    def flatten(self, root: Optional[TreeNode]) -> None:
+        prev = None
+        stack = [root] if root else []
+
+        while stack:
+            node = stack.pop()
+            if node.right:
+                stack.append(node.right)
+            if node.left:
+                stack.append(node.left)
+
+            if prev:
+                prev.left = None
+                prev.right = node
+
+            prev = node`,
+    blanks: [10, 13, 14],
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(n^2)', 'O(h)'], why: 'every node is pushed and popped from the stack exactly once' },
+    space: { answer: 'O(n)', choices: ['O(n)', 'O(h)', 'O(1)', 'O(log n)'], why: 'the stack can hold up to O(n) nodes since both children get pushed' },
+    sayIt: "Iterative preorder stack, ==push right then left== so left pops first, rewire ==prev.right = node, prev.left = None== after each pop, O(n) time, O(n) space for the stack.",
+    pitfall: "Must null out prev.left after rewiring, or the old left subtree stays attached as a dangling branch.",
+  },
+  {
+    id: 'thought:trees:bst-iterator', lc: 173, title: 'Binary Search Tree Iterator', difficulty: 'Medium', category: 'trees',
+    skills: ['bst', 'stack'],
+    companies: ['meta', 'microsoft', 'google'],
+    statement: `Design an iterator over a BST's in-order traversal. The constructor takes the root; next() returns the next smallest number, and hasNext() reports whether a next number exists.
+
+Both next() and hasNext() must run in O(1) average time per call, using O(h) memory overall where h is the tree's height, even though the tree could have many more nodes than that.
+
+You should not simply build the full sorted list of values up front; the point is to produce them lazily, one at a time.`,
+    examples: [
+      { input: 'root = [7,3,15,null,null,9,20]; next(), next(), hasNext(), next(), hasNext(), next(), hasNext(), next(), hasNext()', output: '3, 7, true, 9, true, 15, true, 20, false', explanation: 'calls return values in sorted order: 3, 7, 9, 15, 20' },
+    ],
+    constraints: ['the number of nodes is in the range [1, 10^5]', '0 <= Node.val <= 10^6', 'at most 10^5 calls total to hasNext and next'],
+    ds: {
+      answer: 'explicit stack holding the left spine (controlled/iterative inorder traversal)',
+      choices: ['explicit stack holding the left spine (controlled/iterative inorder traversal)', 'flatten the whole tree into a sorted list up front, then walk it with an index', 'queue doing level-order traversal, filtering out-of-order values on the fly', 'recursion with a generator/yield doing true inorder traversal'],
+    },
+    method: {
+      answer: "Controlled recursion: push the entire left spine onto a stack in __init__, so the top of the stack is always the next smallest unvisited node; ==next() pops that node, then pushes the left spine of its right child==, giving each node amortized O(1) work overall",
+      choices: [
+        'Precompute a full sorted list of every value with one inorder traversal in __init__, then next() just increments an index',
+        'Use a generator-based inorder traversal and call next() on it each time',
+        "Controlled recursion: push the entire left spine onto a stack in __init__, so the top of the stack is always the next smallest unvisited node; ==next() pops that node, then pushes the left spine of its right child==, giving each node amortized O(1) work overall",
+        'Store only the root and re-traverse from scratch on every next() call',
+      ],
+    },
+    code: `class BSTIterator:
+    def __init__(self, root: Optional[TreeNode]):
+        self.stack = []
+        self._pushLeft(root)
+
+    def _pushLeft(self, node):
+        while node:
+            self.stack.append(node)
+            node = node.left
+
+    def next(self) -> int:
+        node = self.stack.pop()
+        self._pushLeft(node.right)
+        return node.val
+
+    def hasNext(self) -> bool:
+        return len(self.stack) > 0`,
+    blanks: [7, 8, 12],
+    time: { answer: 'O(1) amortized', choices: ['O(1) amortized', 'O(h)', 'O(n)', 'O(log n)'], why: 'each node is pushed and popped exactly once across all calls, O(n) total work spread over n calls' },
+    space: { answer: 'O(h)', choices: ['O(h)', 'O(n)', 'O(1)', 'O(log n)'], why: 'the stack holds at most one left spine, bounded by the tree height' },
+    sayIt: "Stack holds the ==left spine==; next() pops the smallest, then pushes the left spine of ==its right child==, so work amortizes to O(1) per call even though a single next() can do up to O(h) work, O(h) space.",
+    pitfall: "Forgetting to push the left spine of the popped node's right child means later nodes get skipped entirely.",
+  },
+  {
+    id: 'thought:trees:count-complete-tree-nodes', lc: 222, title: 'Count Complete Tree Nodes', difficulty: 'Medium', category: 'trees',
+    skills: ['bst', 'tree-dfs'],
+    companies: ['google', 'amazon'],
+    statement: `You're given the root of a complete binary tree: every level is completely filled except possibly the last, which is filled from left to right.
+
+Count the total number of nodes, faster than a plain O(n) traversal would, by exploiting the fact that the tree is complete.`,
+    examples: [
+      { input: 'root = [1,2,3,4,5,6]', output: '6', explanation: 'all 6 nodes are counted; the tree is complete since the last level fills left to right' },
+    ],
+    constraints: ['the number of nodes is in the range [0, 5 * 10^4]', '0 <= Node.val <= 5 * 10^4', 'the tree is guaranteed to be complete'],
+    ds: {
+      answer: 'two height-probing helpers (leftmost spine height, rightmost spine height) + recursion',
+      choices: ['two height-probing helpers (leftmost spine height, rightmost spine height) + recursion', 'plain BFS level-order traversal counting every node', '1-D dp array indexed by depth, counting nodes per level', 'binary search directly over node indices in an implicit array representation'],
+    },
+    method: {
+      answer: "At each node, compute both ==leftHeight (walking all-left) and rightHeight (walking all-right)==; if they're equal the subtree is a PERFECT tree, so its count is ==(1 << height) - 1== in O(1); otherwise recurse into both children and add 1 for the current node",
+      choices: [
+        'Plain recursive node count: 1 + count(left) + count(right), with no height shortcut (always O(n))',
+        'BFS counting nodes level by level until a level comes back incomplete, binary-searching within that last level only',
+        'Treat the tree as an implicit heap array and binary search for the largest valid 1-indexed position',
+        "At each node, compute both ==leftHeight (walking all-left) and rightHeight (walking all-right)==; if they're equal the subtree is a PERFECT tree, so its count is ==(1 << height) - 1== in O(1); otherwise recurse into both children and add 1 for the current node",
+      ],
+    },
+    code: `class Solution:
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        if not root:
+            return 0
+
+        def leftHeight(node):
+            height = 0
+            while node:
+                height += 1
+                node = node.left
+            return height
+
+        def rightHeight(node):
+            height = 0
+            while node:
+                height += 1
+                node = node.right
+            return height
+
+        left, right = leftHeight(root), rightHeight(root)
+        if left == right:
+            return (1 << left) - 1
+
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)`,
+    blanks: [19, 21, 23],
+    time: { answer: 'O(log^2 n)', choices: ['O(log^2 n)', 'O(n)', 'O(log n)', 'O(n log n)'], why: 'height probes cost O(log n) and happen O(log n) times down the recursion' },
+    space: { answer: 'O(log n)', choices: ['O(log n)', 'O(n)', 'O(1)', 'O(log^2 n)'], why: 'recursion depth is bounded by the tree height' },
+    sayIt: "Compare ==leftHeight vs rightHeight==: equal means a perfect subtree, count it in O(1) via ==(1<<height)-1==; otherwise recurse both sides, O(log^2 n) time beats the naive O(n).",
+    pitfall: "This only beats O(n) because of the height shortcut — skipping it degrades to a plain O(n) traversal.",
+  },
 ]
 
-export default { id: 'trees', title: 'Trees & BST', icon: '🌳', items }
+export default { id: 'trees', title: 'Trees & BST', icon: 'tree', items }

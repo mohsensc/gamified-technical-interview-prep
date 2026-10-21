@@ -1,34 +1,35 @@
-import { course, units, allModules, hrefFor } from './curriculum.js'
-
-export const interviewLabel = 'Interview Tue 12:00'
-
-export function interviewTime() {
-  return new Date(course.deadline)
-}
+import { units, hrefFor } from './curriculum.js'
 
 const unitById = Object.fromEntries(units.map(unit => [unit.id, unit]))
-const tierWeight = { P0: 0, P1: 1 }
-const gapScore = mod => (tierWeight[mod.gap?.tier] ?? 2) * 1000 + (mod.gap?.rank ?? 50)
 
-const priorityOrder = allModules
-  .map((mod, index) => ({ mod, index }))
-  .sort((a, b) => {
-    const score = entry => (entry.mod.mustLearn ? gapScore(entry.mod) : 100000 + entry.index)
-    return score(a) - score(b)
-  })
-  .map(entry => entry.mod)
+const weekDefs = [
+  {
+    id: 'week-1',
+    title: 'Week 1 · Foundations & Arrays',
+    focus: 'Big-O, constraints, prefix sums, binary search, sliding windows, two pointers, hashing',
+    unitIds: ['u-complexity', 'u-arrays'],
+  },
+  {
+    id: 'week-2',
+    title: 'Week 2 · Linear Structures & Trees',
+    focus: 'Stacks, queues, linked lists, tree traversal, heaps, tries, OOP design',
+    unitIds: ['u-stacks', 'u-trees', 'u-oop'],
+  },
+  {
+    id: 'week-3',
+    title: 'Week 3 · Graphs',
+    focus: 'DFS/BFS on graphs and grids, topological sort, union-find, shortest paths, MST',
+    unitIds: ['u-graphs1', 'u-graphs2'],
+  },
+  {
+    id: 'week-4',
+    title: 'Week 4 · Paradigms & Interview Craft',
+    focus: 'Backtracking, DP, greedy, intervals, narration drills, mock interviews',
+    unitIds: ['u-paradigms', 'u-craft'],
+  },
+]
 
-const budgetMinutes = 600
-
-const picked = []
-let spent = 0
-for (const mod of priorityOrder) {
-  if (spent >= budgetMinutes) break
-  picked.push(mod)
-  spent += mod.minutes
-}
-
-export const planBlocks = picked.map(mod => ({
+const blockFromModule = (mod, unit) => ({
   id: mod.id,
   title: mod.title,
   minutes: mod.minutes,
@@ -36,11 +37,20 @@ export const planBlocks = picked.map(mod => ({
   href: hrefFor(mod.id),
   mustLearn: mod.mustLearn,
   gap: mod.gap,
-  unitId: mod.unitId,
-  unitTitle: unitById[mod.unitId]?.title || '',
-  unitIcon: unitById[mod.unitId]?.icon || '',
-}))
+  unitId: unit.id,
+  unitTitle: unit.title,
+  unitIcon: unit.icon,
+})
+
+export const weeks = weekDefs.map(week => {
+  const weekUnits = week.unitIds.map(id => unitById[id]).filter(Boolean)
+  const modules = weekUnits.flatMap(unit => unit.modules.map(mod => blockFromModule(mod, unit)))
+  const minutes = modules.reduce((sum, mod) => sum + mod.minutes, 0)
+  return { id: week.id, title: week.title, focus: week.focus, minutes, modules }
+})
+
+export const planBlocks = weeks.flatMap(week => week.modules)
 
 export const totalPlanMinutes = planBlocks.reduce((total, block) => total + block.minutes, 0)
 
-export default { planBlocks, totalPlanMinutes, interviewTime, interviewLabel }
+export default { weeks, planBlocks, totalPlanMinutes }

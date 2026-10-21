@@ -1,0 +1,11 @@
+{
+  "name": "TechPrep",
+  "short_name": "TechPrep",
+  "start_url": "/#/",
+  "display": "standalone",
+  "background_color": "#fbfbfa",
+  "theme_color": "#fbfbfa",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

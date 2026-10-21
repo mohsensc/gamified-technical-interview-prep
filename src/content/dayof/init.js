@@ -1,7 +1,7 @@
 export default {
   id: 'init',
   title: 'Setup & init: build your containers',
-  icon: '🧱',
+  icon: 'layers',
   minutes: 15,
   summary: [
     '==ROWS outside, COLS inside== — `[[0] * cols for _ in range(rows)]`',

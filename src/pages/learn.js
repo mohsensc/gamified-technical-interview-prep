@@ -6,6 +6,8 @@ import * as store from '../store.js'
 import { topics, topicById, problems } from '../content/index.js'
 import { skills } from '../content/skills.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { subnav } from '../ui/subnav.js'
+import { icon } from '../ui/icons.js'
 
 const decodeParam = value => {
   try { return decodeURIComponent(value) } catch { return value }
@@ -46,15 +48,19 @@ function renderGrid(container) {
     const doneLessons = lessons.filter(lesson => seen(lesson.id)).length
     return h('a', { class: 'card topic-card', href: `#/learn/${encodeURIComponent(topic.id)}` },
       h('div', { class: 'row topic-card-top' },
-        h('span', { class: 'topic-icon' }, topic.icon || '•'),
+        h('span', { class: 'topic-icon' }, topic.icon ? icon(topic.icon, 18) : null),
         masteryRing(topicMastery(topic))),
       h('div', { class: 'topic-title' }, stripMarks(topic.title)),
       h('div', { class: 'row topic-meta muted' },
         h('span', null, `${doneLessons}/${lessons.length} lessons`),
         h('span', null, `${(topic.traces || []).length} traces`)))
   })
+  const nextTopic = topics.find(topic => (topic.lessons || []).some(lesson => !seen(lesson.id))) || topics[0]
   container.append(h('div', { class: 'page learn-page' },
-    h('div', { class: 'page-header' }, h('h1', null, 'Learn')),
+    subnav('learn', 'learn'),
+    h('div', { class: 'page-header row' },
+      h('h1', null, 'Learn'),
+      nextTopic ? h('a', { class: 'btn btn-primary', href: `#/learn/${encodeURIComponent(nextTopic.id)}` }, 'Start next lesson') : null),
     cards.length ? h('div', { class: 'grid topic-grid' }, cards) : h('div', { class: 'empty card' }, 'No topics yet.')))
 }
 
@@ -100,7 +106,7 @@ function renderTopic(container, topic) {
         drawTabs()
         drawSlide()
       },
-    }, seen(lesson.id) ? '✓ ' : '', stripMarks(lesson.title))))
+    }, seen(lesson.id) ? icon('check', 13) : null, seen(lesson.id) ? ' ' : '', stripMarks(lesson.title))))
   }
 
   function drawSlide() {
@@ -138,12 +144,12 @@ function renderTopic(container, topic) {
       body.append(currentAsk.el)
     }
 
-    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, '←')
+    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, icon('arrowLeft', 16))
     const nextButton = isLast
       ? (lessons[lessonIndex + 1]
-        ? h('button', { class: 'btn btn-primary', onclick: () => nextLesson() }, 'Next lesson →')
-        : h('a', { class: 'btn btn-primary', href: `#/drill/${encodeURIComponent(topic.id)}` }, 'Drill it →'))
-      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, '→')
+        ? h('button', { class: 'btn btn-primary', onclick: () => nextLesson() }, ['Next lesson ', icon('arrowRight', 16)])
+        : h('a', { class: 'btn btn-primary', href: `#/drill/${encodeURIComponent(topic.id)}` }, ['Drill it ', icon('arrowRight', 16)]))
+      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, icon('arrowRight', 16))
 
     deck.replaceChildren(
       h('div', { class: 'row slide-head' },
@@ -210,18 +216,19 @@ function renderTopic(container, topic) {
   })
 
   container.append(h('div', { class: 'page learn-topic' },
+    subnav('learn', 'learn'),
     h('div', { class: 'page-header row' },
-      h('a', { class: 'btn btn-ghost', href: '#/learn' }, '←'),
-      h('span', { class: 'topic-icon' }, topic.icon || ''),
+      h('a', { class: 'btn btn-ghost', href: '#/learn' }, icon('arrowLeft', 16)),
+      h('span', { class: 'topic-icon' }, topic.icon ? icon(topic.icon, 22) : null),
       h('h1', null, stripMarks(topic.title)),
       masteryRing(topicMastery(topic), 48),
-      h('a', { class: 'btn btn-primary learn-drill-all', href: `#/drill/${encodeURIComponent(topic.id)}` }, 'Drill topic')),
+      h('a', { class: 'btn learn-drill-all', href: `#/drill/${encodeURIComponent(topic.id)}` }, 'Drill topic')),
     lessons.length ? tabs : null,
     deck,
     traces.length ? h('section', { class: 'stack learn-section' },
       h('h3', null, 'Step through'),
       h('div', { class: 'grid trace-grid' }, traces.map(trace => h('a', { class: 'card trace-link', href: `#/trace/${encodeURIComponent(trace.id)}` },
-        h('div', { class: 'trace-link-title' }, '▶ ', stripMarks(trace.title)),
+        h('div', { class: 'trace-link-title row' }, icon('play', 14), ' ', stripMarks(trace.title)),
         trace.problem ? h('div', { class: 'muted trace-link-problem' }, stripMarks(trace.problem)) : null,
         trace.complexity ? h('div', { class: 'row' },
           h('span', { class: 'pill' }, `T ${trace.complexity.time}`),

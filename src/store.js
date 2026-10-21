@@ -1,21 +1,24 @@
-const storageKey = 'google-cram-state'
+const themeStorageKey = 'techprep-theme'
+const legacyStateKeyPattern = /^(techprep|codecram)-state(:|$)|^google-cram-state$/
 const boxIntervals = [0, 5 * 60e3, 30 * 60e3, 3 * 3600e3, 12 * 3600e3, 2 * 86400e3]
 const startMastery = 0.3
-const serverDebounceMs = 900
+const saveDebounceMs = 500
 const idleLimitMs = 3 * 60e3
 const tickMs = 15e3
 const maxEvents = 20000
 const maxSessions = 300
 const masteryFloor = startMastery
 const masteryTarget = 0.85
+const saveErrorToastGapMs = 60e3
 
 const listeners = new Set()
+const replaceListeners = new Set()
 let state = null
-let serverTimer = null
-let localTimer = null
-let serverAvailable = true
+let saveTimer = null
+let saveChain = Promise.resolve()
 let lastInputAt = Date.now()
 let lastTickAt = Date.now()
+let lastSaveErrorToastAt = 0
 
 const dayKey = (time = Date.now()) => {
   const date = new Date(time)
@@ -35,7 +38,7 @@ const freshState = () => ({
   seen: {},
   daily: {},
   plan: {},
-  settings: { theme: 'dark' },
+  settings: { theme: 'light' },
   gameScores: {},
   notes: {},
   history: [],
@@ -64,63 +67,58 @@ const normalize = raw => {
   return merged
 }
 
-const readLocal = () => {
-  try {
-    const text = localStorage.getItem(storageKey)
-    return text ? JSON.parse(text) : null
-  } catch {
-    return null
-  }
+const answeredCount = source => Object.values(source?.items || {}).filter(item => item?.attempts > 0).length
+
+const hasProgress = source => Boolean(source) && (answeredCount(source) > 0 || source.xp > 0)
+
+const warnSaveFailed = () => {
+  if (Date.now() - lastSaveErrorToastAt < saveErrorToastGapMs) return
+  lastSaveErrorToastAt = Date.now()
+  import('./ui/h.js').then(({ toast }) => toast('Could not save progress. Is the TechPrep server still running?', 'bad')).catch(() => {})
 }
 
-const writeLocal = () => {
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(state))
-  } catch {}
+const sendState = async (snapshot, { keepalive = false } = {}) => {
+  const response = await fetch('/api/state', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: snapshot,
+    keepalive: keepalive && snapshot.length < 60000,
+  })
+  if (!response.ok) throw new Error(`Save failed with status ${response.status}`)
 }
 
-const fetchWithTimeout = async (url, options = {}, ms = 2500) => {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), ms)
-  try {
-    return await fetch(url, { ...options, signal: controller.signal })
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
-const pushToServer = async () => {
-  if (!state) return
-  try {
-    await fetchWithTimeout('/api/state', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state),
-    }, 5000)
-    serverAvailable = true
-  } catch {
-    serverAvailable = false
-  }
+const saveNow = () => {
+  clearTimeout(saveTimer)
+  saveTimer = null
+  if (!state) return saveChain
+  const snapshot = JSON.stringify(state)
+  saveChain = saveChain.then(() => sendState(snapshot)).catch(error => {
+    console.error(error)
+    warnSaveFailed()
+  })
+  return saveChain
 }
 
 const scheduleSave = () => {
-  clearTimeout(localTimer)
-  localTimer = setTimeout(writeLocal, 120)
-  clearTimeout(serverTimer)
-  serverTimer = setTimeout(pushToServer, serverDebounceMs)
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(saveNow, saveDebounceMs)
 }
 
 const flushNow = () => {
-  if (!state) return
-  clearTimeout(localTimer)
-  writeLocal()
-  clearTimeout(serverTimer)
+  if (!state || !saveTimer) return
+  clearTimeout(saveTimer)
+  saveTimer = null
+  const snapshot = JSON.stringify(state)
   try {
-    const body = new Blob([JSON.stringify(state)], { type: 'application/json' })
-    if (!navigator.sendBeacon?.('/api/state', body)) pushToServer()
-  } catch {
-    pushToServer()
-  }
+    const body = new Blob([snapshot], { type: 'application/json' })
+    if (navigator.sendBeacon?.('/api/state', body)) return
+  } catch {}
+  sendState(snapshot, { keepalive: true }).catch(() => {})
+}
+
+export function onStateReplaced(fn) {
+  replaceListeners.add(fn)
+  return () => replaceListeners.delete(fn)
 }
 
 const notify = () => {
@@ -247,28 +245,79 @@ export function getEvents(filter = {}) {
   return result
 }
 
-export async function initStore() {
-  const local = readLocal()
-  let remote = null
-  try {
-    const res = await fetchWithTimeout('/api/state')
-    if (res.ok) remote = await res.json()
-  } catch {
-    serverAvailable = false
+
+const publishState = () => {
+  applyTheme()
+  notify()
+  for (const listener of [...replaceListeners]) {
+    try {
+      listener(state)
+    } catch (error) {
+      console.error(error)
+    }
   }
-  const localTime = local?.updatedAt || 0
-  const remoteTime = remote?.updatedAt || 0
-  state = normalize(remoteTime > localTime ? remote : local || remote)
+}
+
+const replaceState = next => {
+  state = normalize(next)
+  publishState()
+}
+
+const readLegacyBrowserStates = () => {
+  const found = []
+  try {
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index)
+      if (!key || !legacyStateKeyPattern.test(key)) continue
+      try {
+        const parsed = JSON.parse(localStorage.getItem(key))
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) found.push({ key, state: parsed })
+      } catch {}
+    }
+  } catch {}
+  return found
+}
+
+const dropLegacyBrowserStates = keys => {
+  try {
+    for (const key of keys) localStorage.removeItem(key)
+  } catch {}
+}
+
+const loadServerState = async () => {
+  const response = await fetch('/api/state', { cache: 'no-store' })
+  if (!response.ok) throw new Error(`Load failed with status ${response.status}`)
+  return (await response.json()).state
+}
+
+const importBrowserProgressOnce = async serverState => {
+  const legacy = readLegacyBrowserStates()
+  if (!legacy.length) return serverState
+  const best = legacy.sort((a, b) => answeredCount(b.state) - answeredCount(a.state))[0]
+  if (serverState || !hasProgress(best.state)) return serverState
+  const imported = normalize(best.state)
+  await sendState(JSON.stringify(imported))
+  dropLegacyBrowserStates(legacy.map(entry => entry.key))
+  return imported
+}
+
+export async function initStore() {
   await loadCurriculum()
-  writeLocal()
-  if (localTime > remoteTime && serverAvailable) pushToServer()
+  let loaded = null
+  try {
+    loaded = await importBrowserProgressOnce(await loadServerState())
+  } catch (error) {
+    console.error('could not load progress', error)
+    warnSaveFailed()
+  }
+  state = normalize(loaded)
   applyTheme()
   startActivityTracking()
   return state
 }
 
 export function getState() {
-  if (!state) state = normalize(readLocal())
+  if (!state) state = normalize(null)
   return state
 }
 
@@ -296,6 +345,14 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms, mode, top
   const newMastery = {}
   update(draft => {
     const now = Date.now()
+    const undo = correct ? null : {
+      at: now,
+      streak: draft.answerStreak,
+      skills: Object.fromEntries(skills.map(skill => {
+        const record = draft.skills[skill]
+        return [skill, record ? { mastery: record.mastery, attempts: record.attempts, correct: record.correct } : null]
+      })),
+    }
     if (correct) {
       draft.answerStreak += 1
       draft.bestAnswerStreak = Math.max(draft.bestAnswerStreak, draft.answerStreak)
@@ -308,6 +365,12 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms, mode, top
     for (const skill of skills) newMastery[skill] = adjustMastery(skill, correct ? 1 : 0)
     if (itemId) {
       const item = ensureItem(itemId, kind, skills)
+      if (undo) {
+        undo.box = item.box
+        item.undo = undo
+      } else {
+        delete item.undo
+      }
       item.attempts += 1
       if (correct) item.correct += 1
       item.box = correct ? Math.min(5, item.box + 1) : 0
@@ -329,6 +392,92 @@ export function recordAnswer({ itemId, kind, skills = [], correct, ms, mode, top
     if (draft.history.length > 400) draft.history.splice(0, draft.history.length - 400)
   })
   return { xpGained, newMastery }
+}
+
+const findLastIndex = (list, predicate) => {
+  for (let i = list.length - 1; i >= 0; i--) if (predicate(list[i])) return i
+  return -1
+}
+
+export function overrideAnswer({ itemId, kind, skills = [], mode, topic, nodeId } = {}) {
+  if (!itemId) return false
+  const current = getState()
+  const eventIndex = findLastIndex(current.events, event => event.type === 'answer' && event.itemId === itemId)
+  const event = current.events[eventIndex]
+  const item = current.items[itemId]
+  const itemWrong = item && item.attempts > 0 && item.lastCorrect === false
+  if (event ? event.correct : !itemWrong) return false
+  let flipped = false
+  update(draft => {
+    const now = Date.now()
+    const target = eventIndex >= 0 ? draft.events[eventIndex] : null
+    const answeredAt = target?.ts || draft.items[itemId]?.lastAt || now
+    const skillIds = skills.length ? skills : target?.skills || draft.items[itemId]?.skills || []
+    const record = draft.items[itemId] || ensureItem(itemId, kind, skillIds)
+    const undo = record.undo && Math.abs((record.undo.at || 0) - answeredAt) < 5000 ? record.undo : null
+    const laterAnswers = draft.events.slice(eventIndex + 1).some(entry => entry.type === 'answer' || entry.type === 'card')
+    if (record.lastCorrect === false) {
+      record.correct = Math.min(record.attempts, (record.correct || 0) + 1)
+      record.box = Math.min(5, (undo ? undo.box : 0) + 1)
+      record.due = answeredAt + boxIntervals[record.box]
+      record.lastCorrect = true
+    }
+    delete record.undo
+    if (kind) record.kind = record.kind || kind
+    let xpGained
+    if (!laterAnswers && draft.answerStreak === 0) {
+      draft.answerStreak = (undo ? undo.streak : 0) + 1
+      draft.bestAnswerStreak = Math.max(draft.bestAnswerStreak, draft.answerStreak)
+      xpGained = 10 + Math.min(10, Math.floor(draft.answerStreak / 3) * 2)
+    } else {
+      xpGained = 10
+    }
+    const xpDelta = xpGained - 2
+    draft.xp += xpDelta
+    const day = draft.daily[dayKey(answeredAt)]
+    if (day) {
+      day.xp = (day.xp || 0) + xpDelta
+      day.correct = Math.min(day.answers || 0, (day.correct || 0) + 1)
+    } else {
+      today().xp += xpDelta
+    }
+    for (const skill of skillIds) {
+      const before = undo?.skills?.[skill]
+      const skillRecord = ensureSkill(skill)
+      if (before !== undefined && skillRecord.attempts === (before?.attempts || 0) + 1) {
+        if (before) Object.assign(skillRecord, before)
+        else Object.assign(skillRecord, { mastery: startMastery, attempts: 0, correct: 0 })
+        adjustMastery(skill, 1)
+      } else {
+        skillRecord.correct = Math.min(skillRecord.attempts, (skillRecord.correct || 0) + 1)
+        skillRecord.mastery = Math.min(1, skillRecord.mastery + Math.max(0.05, 0.16 / (1 + skillRecord.attempts * 0.02)) * (1 - skillRecord.mastery))
+        const key = dayKey()
+        if (!draft.skillHistory[key]) draft.skillHistory[key] = {}
+        draft.skillHistory[key][skill] = Math.round(skillRecord.mastery * 1000) / 1000
+      }
+    }
+    if (target) {
+      target.correct = true
+      target.overridden = true
+    } else {
+      pushEvent(draft, { type: 'answer', itemId, kind, skills: skillIds, correct: true, mode, topic, nodeId, ts: now })
+      draft.events[draft.events.length - 1].overridden = true
+    }
+    const historyIndex = findLastIndex(draft.history, entry => entry.id === itemId && entry.kind !== 'xp')
+    if (historyIndex >= 0) draft.history[historyIndex].ok = true
+    const sessionIndex = findLastIndex(draft.sessions, session => session.at >= answeredAt - 1000 && (session.results || []).some(result => result.itemId === itemId && !result.correct))
+    if (sessionIndex >= 0) {
+      const session = draft.sessions[sessionIndex]
+      const resultIndex = findLastIndex(session.results, result => result.itemId === itemId && !result.correct)
+      session.results[resultIndex] = { ...session.results[resultIndex], correct: true, overridden: true }
+      session.correct = Math.min(session.total, (session.correct || 0) + 1)
+      session.pct = session.total ? Math.round(session.correct / session.total * 100) : 0
+      const sessionEvent = draft.events.find(entry => entry.type === 'session' && entry.sessionId === session.id)
+      if (sessionEvent) sessionEvent.score = session.pct
+    }
+    flipped = true
+  })
+  return flipped
 }
 
 export function rateCard(itemId, skills = [], grade = 2, extra = {}) {
@@ -530,16 +679,28 @@ export function setNote(key, value) {
 }
 
 export function resetState() {
-  state = freshState()
-  state.updatedAt = Date.now()
-  writeLocal()
-  pushToServer()
-  notify()
+  const fresh = freshState()
+  fresh.updatedAt = Date.now()
+  replaceState(fresh)
+  saveNow()
+}
+
+export function exportState() {
+  return JSON.parse(JSON.stringify(getState()))
+}
+
+export function importState(raw) {
+  if (!raw || typeof raw !== 'object' || !raw.items || typeof raw.items !== 'object') return false
+  replaceState({ ...raw, updatedAt: Date.now() })
+  saveNow()
+  return true
 }
 
 export function applyTheme() {
+  const theme = getState().settings.theme === 'dark' ? 'dark' : 'light'
   try {
-    document.documentElement.dataset.theme = getState().settings.theme || 'dark'
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem(themeStorageKey, theme)
   } catch {}
 }
 

@@ -1,4 +1,5 @@
 import { h } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { syncKeyed, flash, setText, cellText, formatValue } from './util.js'
 
 const emptyNote = text => h('div', { class: 'viz-empty' }, text)
@@ -17,7 +18,7 @@ export function createHashmap() {
     const entries = Array.isArray(raw) ? raw : raw instanceof Map ? [...raw] : Object.entries(raw)
     const highlight = new Set((panel.highlight || []).map(key => formatValue(key)))
     syncKeyed(rows, entries, ([key]) => formatValue(key), () => h('div', { class: 'vh-row' },
-      h('span', { class: 'vh-key' }), h('span', { class: 'vh-arrow' }, '→'), h('span', { class: 'vh-val' })), (node, [key, value], i, fresh) => {
+      h('span', { class: 'vh-key' }), h('span', { class: 'vh-arrow' }, icon('arrowRight', 14)), h('span', { class: 'vh-val' })), (node, [key, value], i, fresh) => {
       node.classList.toggle('is-hl', highlight.has(formatValue(key)))
       setText(node.firstChild, cellText(key))
       if (setText(node.lastChild, formatValue(value, 1).replace(/^'(.*)'$/, '$1')) && !fresh) flash(node)

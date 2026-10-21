@@ -79,7 +79,7 @@ export function toast(message, kind = 'info') {
   return toastEl
 }
 
-const confettiColors = ['#2dd4bf', '#fbbf24', '#38bdf8', '#f472b6', '#4ade80']
+const confettiColors = ['#2E6A68', '#9EAF8B', '#FEB8B6', '#E8A33D', '#FFDFE0']
 
 export function confetti(originX, originY) {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return

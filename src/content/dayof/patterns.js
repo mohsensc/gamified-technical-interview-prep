@@ -1,7 +1,7 @@
 export default {
   id: 'patterns',
   title: 'Core pattern boilerplates + formulas',
-  icon: '🧩',
+  icon: 'puzzle',
   minutes: 35,
 
   summary: [

@@ -1,7 +1,7 @@
 import { h } from '../h.js'
 import { renderMcq } from '../items.js'
 import { recordAnswer } from '../../store.js'
-import { bookmarkButton, itemLabel, resultItemId } from './shared.js'
+import { bookmarkButton, itemLabel, resultItemId, companyBadge } from './shared.js'
 
 export default function runRapid(container, items, { seconds = 90, onFinish } = {}) {
   let index = 0
@@ -24,7 +24,8 @@ export default function runRapid(container, items, { seconds = 90, onFinish } = 
       h('div', { class: 'rapid-metric' }, clock, h('span', { class: 'muted small' }, 's left')),
       comboEl,
       h('div', { class: 'rapid-metric' }, scoreEl, h('span', { class: 'muted small' }, 'correct'))),
-    h('div', { class: 'rapid-card-wrap' }, stage, flash))
+    h('div', { class: 'rapid-card-wrap' }, stage, flash),
+    h('div', { class: 'key-hints muted small' }, '1-4 to answer'))
   container.replaceChildren(root)
 
   const timer = setInterval(() => {
@@ -52,7 +53,9 @@ export default function runRapid(container, items, { seconds = 90, onFinish } = 
     const item = pool[index]
     flash.className = 'rapid-flash'
     stage.replaceChildren(
-      h('div', { class: 'row spread rapid-item-top' }, h('span', { class: 'muted small' }, `#${index + 1}`), bookmarkButton(item.id)),
+      h('div', { class: 'row spread rapid-item-top' },
+        h('div', { class: 'row' }, h('span', { class: 'muted small' }, `#${index + 1}`), companyBadge(item, { size: 'xs' })),
+        bookmarkButton(item.id)),
       renderMcq(item, result => onAnswer(item, result)))
   }
 
@@ -72,8 +75,10 @@ export default function runRapid(container, items, { seconds = 90, onFinish } = 
 
   show()
 
-  return () => {
+  const cleanup = () => {
     clearInterval(timer)
     clearTimeout(advanceTimer)
   }
+  cleanup.endNow = finish
+  return cleanup
 }

@@ -1,7 +1,7 @@
-import { framework, googleTips, whereToLook, templates } from './narration.js'
+import { framework, interviewTips, whereToLook, templates } from './narration.js'
 
 const bigO = {
-  id: 'big-o', title: 'Big-O & constraints', icon: '📏', blurb: 'Read n, know the budget.',
+  id: 'big-o', title: 'Big-O & constraints', icon: 'ruler', blurb: 'Read n, know the budget.',
   sections: [
     {
       type: 'bars', title: 'n → allowed complexity (≈10^8 ops/sec)',
@@ -16,43 +16,13 @@ const bigO = {
         { n: 'n ≤ 10^9', complexity: 'O(log n) · O(√n)', level: 0.08, example: 'binary search on answer' },
       ],
     },
-    {
-      type: 'table', title: 'Special shapes',
-      cols: ['Input', 'Target'],
-      rows: [
-        ['Grid r×c ≤ 10^5 cells', 'O(r·c)'],
-        ['Graph V, E ≤ 10^5', 'O(V+E) · O((V+E) log V)'],
-        ['k ≪ n, top k', 'O(n log k)'],
-        ['Many queries q', 'precompute, O(1) or O(log n) each'],
-      ],
-    },
-    {
-      type: 'table', title: 'Common costs',
-      cols: ['Pattern', 'Time', 'Space'],
-      rows: [
-        ['Hash lookups in loop', 'O(n)', 'O(n)'],
-        ['Sort then scan', 'O(n log n)', 'O(n)'],
-        ['Binary search', 'O(log n)', 'O(1)'],
-        ['Heap of size k', 'O(n log k)', 'O(k)'],
-        ['DFS / BFS', 'O(V+E)', 'O(V)'],
-        ['Subsets', 'O(n·2^n)', 'O(n)'],
-        ['Permutations', 'O(n·n!)', 'O(n)'],
-        ['Memo DP', 'states × work per state', 'states'],
-      ],
-    },
     { type: 'where', title: 'Where to look', items: whereToLook },
   ],
 }
 
 const pythonOps = {
-  id: 'python-ds', title: 'Python DS ops', icon: '🐍', blurb: 'What each call really costs.',
+  id: 'python-ds', title: 'Python DS ops', icon: 'code', blurb: 'Full cost tables live in the cheat sheet.',
   sections: [
-    { type: 'table', title: 'list', cols: ['Op', 'Cost'], rows: [['a[i], a[i] = x', 'O(1)'], ['append, pop()', 'O(1)'], ['pop(0), insert(0, x)', 'O(n)'], ['x in a', 'O(n)'], ['a[l:r]', 'O(r-l)'], ['sort(), sorted()', 'O(n log n)'], ['min, max, sum', 'O(n)'], ['a.reverse(), a[::-1]', 'O(n)']] },
-    { type: 'table', title: 'dict / set', cols: ['Op', 'Cost'], rows: [['d[k], d[k] = v', 'O(1) avg'], ['k in d, k in s', 'O(1) avg'], ['del d[k], s.remove', 'O(1)'], ['s | t, s & t', 'O(len(s)+len(t))'], ['iterate', 'O(n)']] },
-    { type: 'table', title: 'deque', cols: ['Op', 'Cost'], rows: [['append, appendleft', 'O(1)'], ['pop, popleft', 'O(1)'], ['q[i] middle', 'O(n)']] },
-    { type: 'table', title: 'heapq (min-heap)', cols: ['Op', 'Cost'], rows: [['heappush, heappop', 'O(log n)'], ['heapify(list)', 'O(n)'], ['heap[0] peek', 'O(1)'], ['nlargest(k, a)', 'O(n log k)'], ['max-heap', 'push -x']] },
-    { type: 'table', title: 'string', cols: ['Op', 'Cost'], rows: [['s[i]', 'O(1)'], ['s + t', 'O(len)'], ['"".join(parts)', 'O(total)'], ['s[::-1], s.split()', 'O(n)'], ['sub in s', 'O(n·m) worst'], ['+= in loop', 'O(n^2) risk']] },
-    { type: 'table', title: 'Counter / bisect / sorted', cols: ['Op', 'Cost'], rows: [['Counter(a)', 'O(n)'], ['c.most_common(k)', 'O(n log k)'], ['c1 == c2', 'O(distinct)'], ['bisect_left(a, x)', 'O(log n)'], ['insort(a, x)', 'O(n)'], ['sorted(d, key=...)', 'O(n log n)']] },
     {
       type: 'code', title: 'Imports I use',
       code: 'from collections import defaultdict as dd, Counter, deque\nimport heapq\nfrom functools import cache\nimport bisect',
@@ -61,7 +31,7 @@ const pythonOps = {
 }
 
 const decisionTree = {
-  id: 'decision-tree', title: 'Pattern decision tree', icon: '🧭', blurb: 'Answer yes/no, land on a pattern.',
+  id: 'decision-tree', title: 'Pattern decision tree', icon: 'compass', blurb: 'Answer yes/no, land on a pattern.',
   sections: [
     {
       type: 'flow', title: 'Which pattern?', start: 'graph',
@@ -116,7 +86,7 @@ const sampleGraph = {
 }
 
 const graphs = {
-  id: 'graphs', title: 'Graph toolkit', icon: '🕸️', blurb: 'Representations + 5 templates.',
+  id: 'graphs', title: 'Graph toolkit', icon: 'web', blurb: 'Representations + how to talk through them. Templates are in the cheat sheet.',
   sections: [
     { type: 'panels', title: 'BFS mid-run', panels: [sampleGraph, { kind: 'queue', label: 'queue', items: [4] }, { kind: 'set', label: 'seen', items: [0, 1, 2, 3, 4] }] },
     {
@@ -130,135 +100,6 @@ const graphs = {
         ['Matrix', 'adj[i][j]', 'Dense, n ≤ 1000'],
       ],
     },
-    {
-      type: 'code', title: 'DFS (recursive)', when: 'Components, reachability, cycle check, all paths',
-      code: `graph = dd(list)
-for a, b in edges:
-    graph[a].append(b)
-    graph[b].append(a)
-
-seen = set()
-
-def dfs(node):
-    if node in seen:
-        return
-    seen.add(node)
-
-    for nei in graph[node]:
-        dfs(nei)
-
-result = 0
-for node in range(n):
-    if node not in seen:
-        dfs(node)
-        result += 1`,
-    },
-    {
-      type: 'code', title: 'BFS shortest steps', when: 'Unweighted shortest path, levels, nearest',
-      code: `queue = deque([start])
-seen = {start}
-steps = 0
-
-while queue:
-    for _ in range(len(queue)):
-        node = queue.popleft()
-        if node == target:
-            return steps
-
-        for nei in graph[node]:
-            if nei not in seen:
-                seen.add(nei)
-                queue.append(nei)
-    steps += 1
-
-return -1`,
-    },
-    {
-      type: 'code', title: 'Grid BFS / DFS', when: 'Islands, rotting oranges, flood fill',
-      code: `rows, cols = len(grid), len(grid[0])
-seen = set()
-
-def dfs(r, c):
-    if r < 0 or c < 0 or r >= rows or c >= cols:
-        return
-    if (r, c) in seen or grid[r][c] == "0":
-        return
-    seen.add((r, c))
-
-    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-        dfs(r + dr, c + dc)`,
-    },
-    {
-      type: 'code', title: 'Topological sort (Kahn)', when: 'Prerequisites, build order, cycle in directed graph',
-      code: `graph = {i: [] for i in range(n)}
-indegree = [0] * n
-for course, prereq in prerequisites:
-    graph[prereq].append(course)
-    indegree[course] += 1
-
-queue = deque([i for i in range(n) if indegree[i] == 0])
-order = []
-
-while queue:
-    node = queue.popleft()
-    order.append(node)
-
-    for nei in graph[node]:
-        indegree[nei] -= 1
-        if indegree[nei] == 0:
-            queue.append(nei)
-
-return order if len(order) == n else []`,
-    },
-    {
-      type: 'code', title: 'Union-Find', when: 'Dynamic connectivity, redundant edge, Kruskal',
-      code: `parent = [i for i in range(n)]
-rank = [1] * n
-
-def find(node):
-    result = node
-
-    while parent[result] != result:
-        parent[result] = parent[parent[result]]
-        result = parent[result]
-
-    return result
-
-def union(n1, n2):
-    p1, p2 = find(n1), find(n2)
-
-    if p1 == p2:
-        return False
-
-    if rank[p1] > rank[p2]:
-        parent[p2] = p1
-        rank[p1] += rank[p2]
-    else:
-        parent[p1] = p2
-        rank[p2] += rank[p1]
-    return True`,
-    },
-    {
-      type: 'code', title: 'Dijkstra', when: 'Weighted shortest path, weights ≥ 0',
-      code: `graph = dd(list)
-for u, v, w in times:
-    graph[u].append((v, w))
-
-heap = [(0, start)]
-seen = set()
-dist = {}
-
-while heap:
-    length, node = heapq.heappop(heap)
-    if node in seen:
-        continue
-    seen.add(node)
-    dist[node] = length
-
-    for nei, w in graph[node]:
-        if nei not in seen:
-            heapq.heappush(heap, (length + w, nei))`,
-    },
     { type: 'narration', title: 'Say this', items: templates.filter(template => ['dfs', 'bfs', 'topo'].includes(template.id)) },
   ],
 }
@@ -271,7 +112,7 @@ const sampleTree = {
 }
 
 const trees = {
-  id: 'trees', title: 'Trees', icon: '🌳', blurb: 'Recursion contract + level order.',
+  id: 'trees', title: 'Trees', icon: 'tree', blurb: 'Recursion contract + level order.',
   sections: [
     { type: 'panels', title: 'Post-order: children answer first', panels: [sampleTree, { kind: 'callstack', label: 'call stack', frames: ['dfs(4)', 'dfs(2)', 'dfs(3)'] }] },
     {
@@ -298,27 +139,6 @@ dfs(root)
 return result`,
     },
     {
-      type: 'code', title: 'Level order BFS', when: 'Per-level answers',
-      code: `if not root:
-    return []
-
-result = []
-queue = deque([root])
-
-while queue:
-    level = []
-    for _ in range(len(queue)):
-        node = queue.popleft()
-        level.append(node.val)
-        if node.left:
-            queue.append(node.left)
-        if node.right:
-            queue.append(node.right)
-    result.append(level)
-
-return result`,
-    },
-    {
       type: 'code', title: 'Validate BST (bounds)', when: 'Pass allowed range down',
       code: `def dfs(node, low, high):
     if not node:
@@ -334,7 +154,7 @@ return dfs(root, float("-inf"), float("inf"))`,
 }
 
 const linear = {
-  id: 'linear', title: 'Stacks, queues, lists', icon: '🔗', blurb: 'LIFO, FIFO, pointer surgery.',
+  id: 'linear', title: 'Stacks, queues, lists', icon: 'link', blurb: 'LIFO, FIFO, pointer surgery. Templates are in the cheat sheet.',
   sections: [
     {
       type: 'panels', title: 'Shapes',
@@ -349,65 +169,11 @@ const linear = {
       cols: ['Signal', 'Structure'],
       rows: [['Brackets, undo, nested', 'stack'], ['Next greater / warmer', 'monotonic stack'], ['Process in arrival order, BFS', 'deque'], ['Sliding window max', 'monotonic deque'], ['Min in O(1)', 'stack of (val, min)'], ['Reverse / middle / cycle', 'two pointers on list']],
     },
-    {
-      type: 'code', title: 'Monotonic stack', when: 'Next greater element, daily temperatures',
-      code: `result = [0] * len(temperatures)
-stack = []
-
-for i, temp in enumerate(temperatures):
-    while stack and temp > stack[-1][1]:
-        index = stack.pop()[0]
-        result[index] = i - index
-    stack.append([i, temp])
-
-return result`,
-    },
-    {
-      type: 'code', title: 'Reverse linked list', when: 'Reverse, reorder, palindrome list',
-      code: `prev, curr = None, head
-
-while curr:
-    nxt = curr.next
-    curr.next = prev
-    prev = curr
-    curr = nxt
-
-return prev`,
-    },
-    {
-      type: 'code', title: 'Fast & slow pointers', when: 'Cycle, middle node',
-      code: `slow, fast = head, head
-
-while fast and fast.next:
-    slow = slow.next
-    fast = fast.next.next
-    if slow == fast:
-        return True
-
-return False`,
-    },
-    {
-      type: 'code', title: 'Dummy head merge', when: 'Merge lists, remove nodes',
-      code: `dummy = ListNode()
-curr = dummy
-
-while list1 and list2:
-    if list1.val < list2.val:
-        curr.next = list1
-        list1 = list1.next
-    else:
-        curr.next = list2
-        list2 = list2.next
-    curr = curr.next
-
-curr.next = list1 or list2
-return dummy.next`,
-    },
   ],
 }
 
 const dp = {
-  id: 'dp', title: 'Dynamic programming', icon: '🧮', blurb: 'State, transition, base, order.',
+  id: 'dp', title: 'Dynamic programming', icon: 'calculator', blurb: 'State, transition, base, order.',
   sections: [
     {
       type: 'panels', title: 'LCS table: cell = max(up, left) or diag + 1',
@@ -430,20 +196,6 @@ def dp(i):
 return dp(0)`,
     },
     {
-      type: 'code', title: 'Bottom-up 2-D', when: 'Two strings / grid',
-      code: `rows, cols = len(text1), len(text2)
-dp = [[0] * (cols + 1) for _ in range(rows + 1)]
-
-for i in range(rows - 1, -1, -1):
-    for j in range(cols - 1, -1, -1):
-        if text1[i] == text2[j]:
-            dp[i][j] = 1 + dp[i + 1][j + 1]
-        else:
-            dp[i][j] = max(dp[i + 1][j], dp[i][j + 1])
-
-return dp[0][0]`,
-    },
-    {
       type: 'table', title: 'Families',
       cols: ['Family', 'Problems'],
       rows: [['Linear choose/skip', 'House robber, climbing stairs'], ['Unbounded knapsack', 'Coin change'], ['Two sequences', 'LCS, edit distance'], ['Grid paths', 'Unique paths, min path sum'], ['Intervals / palindromes', 'Longest palindromic substring'], ['LIS', 'O(n^2) DP or O(n log n) bisect']],
@@ -452,13 +204,13 @@ return dp[0][0]`,
 }
 
 const dayOf = {
-  id: 'day-of', title: 'Interview day', icon: '🎯', blurb: 'Checklist + narration framework.',
+  id: 'day-of', title: 'Interview day', icon: 'target', blurb: 'Checklist + narration framework.',
   sections: [
     { type: 'steps', title: 'The 45-minute flow', items: framework },
-    { type: 'tips', title: 'Google signals', items: googleTips },
+    { type: 'tips', title: 'What interviewers look for', items: interviewTips },
     {
       type: 'list', title: 'Day-of checklist',
-      items: ['Laptop charged, camera + mic tested', 'Google Doc / editor open, font readable', 'Water, paper, pen', 'Say hello, smile, short intro (30 sec)', 'Clarify before coding, every time', 'Narrate each block as you write it', 'Trace one example through your code', 'State time + space with reasons', 'Ask one real question at the end'],
+      items: ['Laptop charged, camera + mic tested', 'Shared doc / editor open, font readable', 'Water, paper, pen', 'Say hello, smile, short intro (30 sec)', 'Clarify before coding, every time', 'Narrate each block as you write it', 'Trace one example through your code', 'State time + space with reasons', 'Ask one real question at the end'],
     },
     { type: 'narration', title: 'DFS / BFS lines to say', items: templates.filter(template => ['dfs', 'bfs'].includes(template.id)) },
   ],

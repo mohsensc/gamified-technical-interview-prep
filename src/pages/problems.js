@@ -1,12 +1,16 @@
 import { h, clear, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { renderMcq } from '../ui/items.js'
 import * as store from '../store.js'
 import { problems, problemById, traceById } from '../content/index.js'
 import { skills } from '../content/skills.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { companyChips, companyFilter } from '../ui/companies.js'
+import { companiesFor, matchesCompanies, companyCounts } from '../content/companies.js'
+import { subnav } from '../ui/subnav.js'
 
-const filters = { search: '', googleOnly: false, difficulty: 'all', skill: 'all', pattern: 'all' }
+const filters = { search: '', companies: [], difficulty: 'all', skill: 'all', pattern: 'all' }
 
 const commonTimes = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n^2)', 'O(n^3)', 'O(2^n)', 'O(n!)', 'O(V+E)', 'O(m·n)', 'O(n·k)', 'O(E log V)', 'O(n log k)', 'O(√n)']
 const commonDs = ['hashmap', 'set', 'array', 'stack', 'queue', 'deque', 'heap', 'linked list', 'trie', 'union-find', 'adjacency list', 'sorted array', '2-D table']
@@ -49,7 +53,7 @@ const dsLabel = problem => (problem.ds || []).join(' + ')
 const difficultyClass = difficulty => `diff-${String(difficulty || '').toLowerCase()}`
 
 function matches(problem) {
-  if (filters.googleOnly && !problem.google) return false
+  if (!matchesCompanies(problem, filters.companies)) return false
   if (filters.difficulty !== 'all' && problem.difficulty !== filters.difficulty) return false
   if (filters.skill !== 'all' && !(problem.skills || []).includes(filters.skill)) return false
   if (filters.pattern !== 'all' && problem.pattern !== filters.pattern) return false
@@ -78,8 +82,8 @@ function renderList(container) {
     h('td', { class: 'problem-title-cell' },
       h('span', { class: `diff-dot ${difficultyClass(problem.difficulty)}`, title: problem.difficulty || '' }),
       stripMarks(problem.title),
-      problem.google ? h('span', { class: 'pill pill-google' }, 'G') : null,
-      seen(problem.id) ? h('span', { class: 'seen-mark' }, '✓') : null),
+      companyChips(companiesFor(problem), { size: 'xs', labels: false, max: 3 }),
+      seen(problem.id) ? h('span', { class: 'seen-mark' }, icon('check', 13)) : null),
     h('td', null, problem.pattern ? h('span', { class: 'chip chip-pattern' }, problem.pattern) : null),
     h('td', { class: 'mono' }, problem.time || ''),
     h('td', { class: 'mono muted' }, problem.space || ''))))
@@ -104,14 +108,14 @@ function renderList(container) {
     },
   }, level === 'all' ? 'Any' : level)))
 
-  const googleChip = h('button', {
-    class: `chip${filters.googleOnly ? ' active' : ''}`,
-    onclick: () => {
-      filters.googleOnly = !filters.googleOnly
-      googleChip.classList.toggle('active', filters.googleOnly)
+  const companyRow = companyFilter({
+    selected: filters.companies,
+    counts: companyCounts(problems),
+    onChange: next => {
+      filters.companies = next
       drawRows()
     },
-  }, 'Google only')
+  })
 
   const searchInput = h('input', {
     class: 'filter-search',
@@ -135,10 +139,11 @@ function renderList(container) {
   }, 'Random diagnose')
 
   container.append(h('div', { class: 'page problems-page' },
+    subnav('learn', 'problems'),
     h('div', { class: 'page-header row' }, h('h1', null, 'Problems'), countEl, randomButton),
+    companyRow,
     h('div', { class: 'row problem-filters' },
       searchInput,
-      googleChip,
       difficultyChips,
       select('skill', usedSkills.map(skill => [skill, skills[skill].label]), 'All skills'),
       select('pattern', patterns.map(pattern => [pattern, pattern]), 'All patterns')),
@@ -226,7 +231,7 @@ function renderDetail(container, problem) {
           ...(problem.ds || []).map(ds => h('span', { class: 'chip' }, ds)),
           problem.time ? h('span', { class: 'pill' }, `T ${problem.time}`) : null,
           problem.space ? h('span', { class: 'pill' }, `S ${problem.space}`) : null,
-          trace ? h('a', { class: 'btn btn-primary', href: `#/trace/${encodeURIComponent(trace.id)}` }, '▶ Step through') : null)),
+          trace ? h('a', { class: 'btn btn-primary', href: `#/trace/${encodeURIComponent(trace.id)}` }, icon('play', 14), ' Step through') : null)),
       problem.narration?.length ? h('div', { class: 'card narration-card' },
         h('div', { class: 'label muted' }, 'Say it'),
         h('ol', { class: 'narration' }, problem.narration.map(line => h('li', null, rich(line))))) : null,
@@ -249,22 +254,23 @@ function renderDetail(container, problem) {
   const next = problems[index + 1]
 
   container.append(h('div', { class: 'page problem-detail' },
+    subnav('learn', 'problems'),
     h('div', { class: 'page-header row' },
-      h('a', { class: 'btn btn-ghost', href: '#/problems' }, '←'),
+      h('a', { class: 'btn btn-ghost', href: '#/problems' }, icon('arrowLeft', 16)),
       problem.lc ? h('span', { class: 'mono muted lc-num' }, `#${problem.lc}`) : null,
       h('h1', null, stripMarks(problem.title)),
       problem.difficulty ? h('span', { class: `pill ${difficultyClass(problem.difficulty)}` }, problem.difficulty) : null,
-      problem.google ? h('span', { class: 'pill pill-google' }, 'Google') : null),
+      companyChips(companiesFor(problem), { size: 'sm' })),
     h('div', { class: 'card statement-card' },
       problem.constraints ? h('div', { class: 'constraints mono' }, problem.constraints) : null,
       problem.signals?.length ? h('div', { class: 'row signals' }, problem.signals.map(signal => h('span', { class: 'chip chip-signal' }, rich(signal)))) : null,
-      problem.lc ? h('a', { class: 'muted lc-link', href: `https://leetcode.com/problems/${slugify(problem.title)}/`, target: '_blank', rel: 'noopener' }, 'Open on LeetCode ↗') : null),
+      problem.lc ? h('a', { class: 'muted lc-link', href: `https://leetcode.com/problems/${slugify(problem.title)}/`, target: '_blank', rel: 'noopener' }, ['Open on LeetCode ', icon('external', 14)]) : null),
     steps.length ? h('div', { class: 'row diag-head' }, h('h3', null, 'Diagnose first'), scoreEl, skipButton) : null,
     stepHost,
     reveal,
     h('div', { class: 'row problem-pager' },
-      prev ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(prev.id)}` }, `← ${stripMarks(prev.title)}`) : h('span'),
-      next ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(next.id)}` }, `${stripMarks(next.title)} →`) : null)))
+      prev ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(prev.id)}` }, [icon('arrowLeft', 16), ` ${stripMarks(prev.title)}`]) : h('span'),
+      next ? h('a', { class: 'btn btn-ghost', href: `#/problems/${encodeURIComponent(next.id)}` }, [`${stripMarks(next.title)} `, icon('arrowRight', 16)]) : null)))
 
   showStep(0)
 }

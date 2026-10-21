@@ -1,17 +1,22 @@
 import { h, toast, confetti } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { getState, update, recordAnswer } from '../store.js'
 import { problems } from '../content/index.js'
-import { framework, phrases, rubric, googleTips, blockKinds, splitSolution, templates } from '../content/narration.js'
+import { framework, phrases, rubric, interviewTips, blockKinds, splitSolution, templates } from '../content/narration.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { companyChips } from '../ui/companies.js'
+import { overrideButton, persistOverride } from '../ui/override.js'
+import { companiesFor } from '../content/companies.js'
+import { subnav } from '../ui/subnav.js'
 
 const totalMs = 45 * 60 * 1000
 const sessionKey = 'mock:session'
 let mode = 'sim'
 
 const pool = () => {
-  const google = problems.filter(problem => problem.google)
-  return google.length ? google : problems
+  const tagged = problems.filter(problem => companiesFor(problem).length)
+  return tagged.length ? tagged : problems
 }
 
 const findProblem = id => problems.find(problem => problem.id === id)
@@ -61,7 +66,7 @@ const tabsBar = rerender => h('div', { class: 'row mk-tabs' },
 const problemMeta = problem => h('div', { class: 'row mk-meta' },
   problem.lc ? h('span', { class: 'pill' }, `#${problem.lc}`) : null,
   h('span', { class: `pill mk-diff-${(problem.difficulty || '').toLowerCase()}` }, problem.difficulty || '—'),
-  problem.google ? h('span', { class: 'pill mk-google' }, 'Google') : null)
+  companyChips(companiesFor(problem), { size: 'xs' }))
 
 const renderPicker = (root, rerender) => {
   const list = pool()
@@ -89,9 +94,9 @@ const renderPicker = (root, rerender) => {
   root.append(h('div', { class: 'mk-picker' },
     h('div', { class: 'card mk-hero' },
       h('div', { class: 'mk-hero-clock' }, '45:00'),
-      h('div', { class: 'muted' }, `${framework.length} phases · Google's 4 axes`),
-      h('div', { class: 'row mk-phase-dots' }, framework.map(step => h('span', { class: 'chip', title: step.title }, `${step.icon} ${step.minutes}m`))),
-      h('button', { class: 'btn btn-primary mk-big', onclick: () => start(randomOf(list)) }, 'Random Google problem')),
+      h('div', { class: 'muted' }, `${framework.length} phases · 4 rubric axes`),
+      h('div', { class: 'row mk-phase-dots' }, framework.map(step => h('span', { class: 'chip', title: step.title }, icon(step.icon, 13), ` ${step.minutes}m`))),
+      h('button', { class: 'btn btn-primary mk-big', onclick: () => start(randomOf(list)) }, 'Random problem')),
     h('div', { class: 'card stack' }, h('strong', null, 'Or choose'), search, listEl)))
 }
 
@@ -108,7 +113,7 @@ const phaseExtras = (phase, problem, session, persist) => {
           h('b', null, problem.lc ? `LC ${problem.lc} · ${stripMarks(problem.title)}` : stripMarks(problem.title)),
           problem.constraints ? h('span', { class: 'mono small' }, problem.constraints) : null,
           problem.signals?.length ? h('span', { class: 'muted small' }, 'Prompt mentions: ', rich(problem.signals.join(' · '))) : null,
-          problem.lc ? h('a', { class: 'small', href: `https://leetcode.com/problems/${problem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}/`, target: '_blank', rel: 'noopener' }, `Open LC #${problem.lc} statement ↗`) : null),
+          problem.lc ? h('a', { class: 'small', href: `https://leetcode.com/problems/${problem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}/`, target: '_blank', rel: 'noopener' }, [`Open LC #${problem.lc} statement `, icon('external', 14)]) : null),
       problem.pitfalls?.length ? reveal('pitfalls', 'Questions worth asking', h('ul', { class: 'mk-list' }, problem.pitfalls.map(item => h('li', null, rich(item))))) : null)
   }
   if (phase.id === 'constraints') {
@@ -145,9 +150,23 @@ const phaseExtras = (phase, problem, session, persist) => {
       if (!session.answers.checked) return
       const timeOk = normalizeBigO(session.answers.time) === normalizeBigO(problem.time)
       const spaceOk = normalizeBigO(session.answers.space) === normalizeBigO(problem.space)
+      const overridden = Boolean(session.answers.overridden)
+      const tone = ok => ok || overridden ? 'good' : 'bad'
+      const overrideRow = !overridden && !(timeOk && spaceOk)
+        ? h('div', { class: 'row' }, overrideButton({
+          onOverride: () => {
+            session.answers.overridden = true
+            session.answers.complexityCorrect = true
+            persistOverride({ itemId: `mock:complexity:${problem.id}`, kind: 'mcq', skills: ['complexity', 'constraints'] })
+            persist()
+            drawResult()
+          },
+        }))
+        : overridden ? h('div', { class: 'row' }, h('span', { class: 'pill pill-green override-pill' }, icon('check', 13), ' Counted as correct')) : null
       result.replaceChildren(
-        h('div', { class: `mk-cmp ${timeOk ? 'good' : 'bad'}` }, h('span', null, 'Time'), h('span', null, session.answers.time || '—'), h('span', null, '→'), h('strong', null, problem.time || '?')),
-        h('div', { class: `mk-cmp ${spaceOk ? 'good' : 'bad'}` }, h('span', null, 'Space'), h('span', null, session.answers.space || '—'), h('span', null, '→'), h('strong', null, problem.space || '?')))
+        h('div', { class: `mk-cmp ${tone(timeOk)}` }, h('span', null, 'Time'), h('span', null, session.answers.time || '—'), h('span', null, icon('arrowRight', 16)), h('strong', null, problem.time || '?')),
+        h('div', { class: `mk-cmp ${tone(spaceOk)}` }, h('span', null, 'Space'), h('span', null, session.answers.space || '—'), h('span', null, icon('arrowRight', 16)), h('strong', null, problem.space || '?')),
+        overrideRow)
     }
     const check = () => {
       session.answers.time = time.value
@@ -245,7 +264,7 @@ const renderSession = (root, session, rerender, timers) => {
   const tracker = h('div', { class: 'mk-tracker' }, framework.map((step, index) => h('button', {
     class: `mk-phase ${index === session.phaseIndex ? 'current' : ''} ${index < session.phaseIndex ? 'done' : ''}`,
     onclick: () => { session.phaseIndex = index; session.rating = false; persist(true) },
-  }, h('span', { class: 'mk-phase-icon' }, step.icon), h('span', { class: 'mk-phase-label' }, step.title))))
+  }, h('span', { class: 'mk-phase-icon' }, icon(step.icon, 16)), h('span', { class: 'mk-phase-label' }, step.title))))
 
   const header = h('div', { class: 'card mk-head' },
     h('div', { class: 'mk-head-main' },
@@ -290,7 +309,7 @@ const renderSession = (root, session, rerender, timers) => {
   const isLast = session.phaseIndex === framework.length - 1
   const phaseCard = h('div', { class: 'card mk-phase-card stack' },
     h('div', { class: 'mk-phase-top' },
-      h('span', { class: 'mk-phase-big' }, phase.icon),
+      h('span', { class: 'mk-phase-big' }, icon(phase.icon, 28)),
       h('div', null, h('div', { class: 'muted hb-small' }, `Phase ${session.phaseIndex + 1}/${framework.length} · ${phase.minutes} min`), h('h3', { class: 'mk-phase-title' }, phase.title))),
     h('div', { class: 'mk-goal' }, phase.goal),
     checklist,
@@ -298,10 +317,10 @@ const renderSession = (root, session, rerender, timers) => {
     starters,
     phaseExtras(phase, problem, session, persist),
     h('div', { class: 'row mk-nav' },
-      session.phaseIndex > 0 ? h('button', { class: 'btn btn-ghost', onclick: () => { session.phaseIndex -= 1; persist(true) } }, '← Back') : null,
+      session.phaseIndex > 0 ? h('button', { class: 'btn btn-ghost', onclick: () => { session.phaseIndex -= 1; persist(true) } }, [icon('arrowLeft', 16), ' Back']) : null,
       isLast
         ? h('button', { class: 'btn btn-primary', onclick: () => { session.rating = true; persist(true) } }, 'Finish & rate')
-        : h('button', { class: 'btn btn-primary', onclick: () => { session.phaseIndex += 1; persist(true) } }, 'Next phase →'),
+        : h('button', { class: 'btn btn-primary', onclick: () => { session.phaseIndex += 1; persist(true) } }, ['Next phase ', icon('arrowRight', 16)]),
       h('button', { class: 'btn btn-ghost mk-abandon', onclick: () => { if (confirm('Abandon this mock?')) { saveSession(null); rerender() } } }, 'Abandon')))
 
   root.append(header, h('div', { class: 'mk-body' }, phaseCard,
@@ -367,7 +386,7 @@ const renderNarrate = (root, rerender) => {
         class: `mk-choice ${drill.picked ? (kind === block.kind ? 'good' : kind === drill.picked ? 'bad' : 'faded') : ''}`,
         onclick: () => choose(kind),
       }, stripMarks(blockKinds[kind]))),
-      drill.picked ? h('button', { class: 'btn btn-primary', onclick: next }, drill.index + 1 < blocks.length ? 'Next block →' : 'Finish') : null)))
+      drill.picked ? h('button', { class: 'btn btn-primary', onclick: next }, drill.index + 1 < blocks.length ? ['Next block ', icon('arrowRight', 16)] : 'Finish') : null)))
 }
 
 const renderHistory = root => {
@@ -396,7 +415,7 @@ const renderHistory = root => {
 
 const renderTips = root => {
   root.append(h('div', { class: 'grid mk-tips' },
-    googleTips.map(tip => h('div', { class: 'card' }, h('strong', null, stripMarks(tip.title)), h('div', { class: 'muted hb-small' }, rich(tip.text)))),
+    interviewTips.map(tip => h('div', { class: 'card' }, h('strong', null, stripMarks(tip.title)), h('div', { class: 'muted hb-small' }, rich(tip.text)))),
     Object.entries(phrases).map(([group, lines]) => h('div', { class: 'card stack' },
       h('strong', null, group.replace(/([A-Z])/g, ' $1').replace(/^./, char => char.toUpperCase())),
       lines.map(line => h('div', { class: 'hb-small' }, '“', rich(line), '”'))))))
@@ -410,6 +429,7 @@ export default function render(container) {
     container.replaceChildren()
     const body = h('div')
     container.append(h('div', { class: 'page mk-page' },
+      subnav('practice', 'mock'),
       h('div', { class: 'page-header' }, h('h1', null, 'Mock interview'), tabsBar(rerender)),
       body))
     if (mode === 'sim') {

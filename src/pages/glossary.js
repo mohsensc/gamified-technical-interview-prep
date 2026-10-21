@@ -1,8 +1,10 @@
 import { h, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { renderMcq } from '../ui/items.js'
 import { recordAnswer } from '../store.js'
 import { lessons, traces, mcqs, clozes, parsons, flashcards, problems } from '../content/index.js'
 import { glossaryTerms, categoryOrder, categoryMeta, termId, findTerm, relatedEntries } from '../content/glossary.js'
+import { subnav } from '../ui/subnav.js'
 
 const decodeParam = value => {
   try { return decodeURIComponent(value) } catch { return value }
@@ -78,16 +80,17 @@ function renderList(container) {
   const rapidHost = h('div')
   let rapidOpen = false
 
+  const paintRapidButton = () => rapidButton.replaceChildren(...(rapidOpen ? ['Close rapid fire'] : [icon('bolt', 14), ' Glossary rapid fire']))
   const rapidButton = h('button', { class: 'btn btn-primary gl-rapid-btn', onclick: () => {
     rapidOpen = !rapidOpen
-    rapidButton.textContent = rapidOpen ? 'Close rapid fire' : '⚡ Glossary rapid fire'
+    paintRapidButton()
     rapidHost.replaceChildren()
     if (rapidOpen) renderRapid(rapidHost, () => {
       rapidOpen = false
-      rapidButton.textContent = '⚡ Glossary rapid fire'
+      paintRapidButton()
       rapidHost.replaceChildren()
     })
-  } }, '⚡ Glossary rapid fire')
+  } }, icon('bolt', 14), ' Glossary rapid fire')
 
   const searchInput = h('input', {
     class: 'filter-search gl-search', type: 'search', placeholder: 'Search terms, aliases, definitions…',
@@ -135,6 +138,7 @@ function renderList(container) {
   drawResults()
 
   container.append(h('div', { class: 'page gl-page' },
+    subnav('cheatsheet', 'glossary'),
     h('div', { class: 'page-header row' },
       h('h1', null, 'Glossary'),
       countEl,
@@ -203,8 +207,9 @@ function renderDetail(container, rawTerm) {
   const color = categoryMeta[entry.category]?.color || 'accent'
 
   container.append(h('div', { class: 'page gl-detail' },
+    subnav('cheatsheet', 'glossary'),
     h('div', { class: 'page-header row' },
-      h('a', { class: 'btn btn-ghost', href: '#/glossary' }, '←'),
+      h('a', { class: 'btn btn-ghost', href: '#/glossary' }, icon('arrowLeft', 16)),
       h('h1', null, entry.term),
       h('span', { class: `pill pill-${color}` }, categoryMeta[entry.category]?.label || entry.category)),
     h('div', { class: 'card gl-def-card' },

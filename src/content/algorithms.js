@@ -1599,7 +1599,7 @@ class MedianFinder:
         if len(self.small) > len(self.large):
             return -self.small[0]
         return (-self.small[0] + self.large[0]) / 2`,
-  time: 'O(n log n)',
+  time: 'O(log n) per add, O(1) median',
   space: 'O(n)',
   whyComplexity: 'Each add does a constant number of O(log n) heap ops; findMedian peeks in O(1).',
   variants: ['Sliding window median (LC 480)', 'IPO (LC 502)', 'Find median from data stream (LC 295)'],
@@ -5686,23 +5686,23 @@ def({
 
 
 const branches = [
-  { id: 'searching', title: 'Searching', color: '#38bdf8' },
-  { id: 'linear', title: 'Linear tricks', color: '#22d3ee' },
-  { id: 'stacks', title: 'Stacks & deques', color: '#f59e0b' },
-  { id: 'lists', title: 'Linked lists', color: '#fb923c' },
-  { id: 'sorting', title: 'Sorting & selection', color: '#a3e635' },
-  { id: 'heaps', title: 'Heaps', color: '#facc15' },
-  { id: 'trees', title: 'Trees', color: '#4ade80' },
-  { id: 'traversal', title: 'Graph traversal', color: '#2dd4bf' },
-  { id: 'ordering', title: 'Cycles & ordering', color: '#f472b6' },
-  { id: 'connectivity', title: 'Connectivity', color: '#34d399' },
-  { id: 'paths', title: 'Shortest paths', color: '#60a5fa' },
-  { id: 'mst', title: 'MST', color: '#10b981' },
-  { id: 'dp', title: 'Dynamic programming', color: '#fb7185' },
-  { id: 'backtracking', title: 'Backtracking', color: '#f97316' },
-  { id: 'greedy', title: 'Greedy & intervals', color: '#eab308' },
-  { id: 'strings', title: 'Strings', color: '#93c5fd' },
-  { id: 'bits', title: 'Bits & random', color: '#cbd5e1' },
+  { id: 'searching', title: 'Searching', color: '#2E6A68' },
+  { id: 'linear', title: 'Linear tricks', color: '#4F9992' },
+  { id: 'stacks', title: 'Stacks & deques', color: '#74B6A1' },
+  { id: 'lists', title: 'Linked lists', color: '#9EAF8B' },
+  { id: 'sorting', title: 'Sorting & selection', color: '#B9C77A' },
+  { id: 'heaps', title: 'Heaps', color: '#E8C15C' },
+  { id: 'trees', title: 'Trees', color: '#D98E3F' },
+  { id: 'traversal', title: 'Graph traversal', color: '#E8956B' },
+  { id: 'ordering', title: 'Cycles & ordering', color: '#FEB8B6' },
+  { id: 'connectivity', title: 'Connectivity', color: '#F49A98' },
+  { id: 'paths', title: 'Shortest paths', color: '#C97A82' },
+  { id: 'mst', title: 'MST', color: '#3E8E86' },
+  { id: 'dp', title: 'Dynamic programming', color: '#6F8FAE' },
+  { id: 'backtracking', title: 'Backtracking', color: '#4A7D9C' },
+  { id: 'greedy', title: 'Greedy & intervals', color: '#7FA0A8' },
+  { id: 'strings', title: 'Strings', color: '#A9B79A' },
+  { id: 'bits', title: 'Bits & random', color: '#8B9280' },
 ]
 
 const aid = slug => `algorithms:${slug}`
@@ -5973,7 +5973,7 @@ const paths = [
 export default {
   id: 'algorithms',
   title: 'Algorithm Tree',
-  icon: '🌳',
+  icon: 'tree',
   skills: [...new Set(specs.flatMap(spec => spec.skills))],
   tree,
   branches,

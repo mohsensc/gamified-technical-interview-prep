@@ -1,7 +1,8 @@
 import { h } from '../h.js'
+import { icon } from '../icons.js'
 import { mountStepper } from '../../viz/stepper.js'
 import { traceById } from '../../content/index.js'
-import { bookmarkButton } from './shared.js'
+import { bookmarkButton, companyBadge } from './shared.js'
 
 export default function runPredict(container, items, { onFinish, nextLabel = 'Finish' } = {}) {
   let index = 0
@@ -10,7 +11,7 @@ export default function runPredict(container, items, { onFinish, nextLabel = 'Fi
 
   const head = h('div', { class: 'row spread pm-predict-head' })
   const host = h('div', { class: 'pm-predict-host' })
-  const nextButton = h('button', { class: 'btn btn-primary', onclick: () => advance() }, 'Next trace →')
+  const nextButton = h('button', { class: 'btn btn-primary', onclick: () => advance() }, ['Next trace ', icon('arrowRight', 16)])
   const root = h('div', { class: 'practice-run pm-predict' }, head, host, h('div', { class: 'row pm-predict-actions' }, nextButton))
   container.replaceChildren(root)
 
@@ -29,12 +30,14 @@ export default function runPredict(container, items, { onFinish, nextLabel = 'Fi
       return loadTrace()
     }
     head.replaceChildren(
-      h('span', { class: 'muted small' }, items.length > 1 ? `Trace ${index + 1}/${items.length}` : 'Predict the trace'),
+      h('div', { class: 'row' },
+        h('span', { class: 'muted small' }, items.length > 1 ? `Trace ${index + 1}/${items.length}` : 'Predict the trace'),
+        companyBadge(item, { size: 'xs' })),
       bookmarkButton(item.id))
     if (stepperDestroy) stepperDestroy()
     host.replaceChildren()
     stepperDestroy = mountStepper(host, trace)
-    nextButton.textContent = index + 1 < items.length ? 'Next trace →' : nextLabel
+    nextButton.replaceChildren(...(index + 1 < items.length ? ['Next trace ', icon('arrowRight', 16)] : [nextLabel]))
     setTimeout(() => host.querySelector('.st-predict-toggle')?.click(), 0)
   }
 
@@ -56,5 +59,7 @@ export default function runPredict(container, items, { onFinish, nextLabel = 'Fi
 
   loadTrace()
 
-  return () => { if (stepperDestroy) stepperDestroy() }
+  const cleanup = () => { if (stepperDestroy) stepperDestroy() }
+  cleanup.endNow = finish
+  return cleanup
 }

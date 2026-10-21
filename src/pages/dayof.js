@@ -1,8 +1,11 @@
 import { h, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { rich } from '../ui/rich.js'
 import { renderMcq } from '../ui/items.js'
 import { getState, update, subscribe, recordAnswer } from '../store.js'
+import { subnav } from '../ui/subnav.js'
+import { getInterviewAt } from '../engine/recommend.js'
 
 const budgetMs = 3 * 3600e3
 const passPct = 80
@@ -145,18 +148,26 @@ function isCodeLike(text) {
 
 function emptyCard(title, sub) {
   return h('div', { class: 'card empty' },
-    h('div', { class: 'empty-icon' }, '🧩'),
+    h('div', { class: 'empty-icon' }, icon('puzzle', 32)),
     h('h3', null, title),
     sub ? h('p', { class: 'muted' }, sub) : null,
     h('a', { class: 'btn', href: '#/dayof' }, 'Back to DAYOF'))
 }
 
 function loadingCard() {
-  return h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, '⏳'), h('h3', null, 'Loading…'))
+  return h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, icon('clock', 32)), h('h3', null, 'Loading…'))
 }
 
 function secHead(tag, tone, title) {
   return h('div', { class: 'dayof-sec-head' }, h('span', { class: `pill pill-${tone}` }, tag), h('h3', null, rich(title)))
+}
+
+function interviewPill() {
+  const at = getInterviewAt()
+  if (!at) return null
+  const days = Math.max(0, Math.ceil((at.getTime() - Date.now()) / 86400e3))
+  const isToday = at.toDateString() === new Date().toDateString()
+  return h('span', { class: 'pill pill-amber' }, isToday ? 'Interview today' : `Interview in ${days}d`)
 }
 
 function stageHead(title, metaText, pct) {
@@ -167,7 +178,7 @@ function stageHead(title, metaText, pct) {
 
 function reviewCard(sheet, status) {
   return h('a', { class: `card card-hover dayof-sheet-card${status.reviewed ? ' is-done' : ''}`, href: `#/dayof/review/${encodeURIComponent(sheet.id)}` },
-    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'), status.reviewed ? h('span', { class: 'dayof-check' }, '✓') : null),
+    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)), status.reviewed ? h('span', { class: 'dayof-check' }, icon('check', 14)) : null),
     h('div', { class: 'dayof-sheet-title' }, sheet.title),
     h('div', { class: 'muted small' }, `${sheet.minutes || 10} min`))
 }
@@ -176,7 +187,7 @@ function testCard(sheet, status) {
   const label = status.best === null ? 'not tested' : `${status.best}%`
   const tone = status.best === null ? '' : status.passed ? 'pill-green' : 'pill-amber'
   return h('a', { class: `card card-hover dayof-sheet-card${status.passed ? ' is-done' : ''}`, href: `#/dayof/test/${encodeURIComponent(sheet.id)}` },
-    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'), h('span', { class: `pill ${tone}` }, label)),
+    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)), h('span', { class: `pill ${tone}` }, label)),
     h('div', { class: 'dayof-sheet-title' }, sheet.title),
     h('div', { class: 'muted small' }, `${(sheet.quiz || []).length} questions`))
 }
@@ -185,14 +196,14 @@ function finalExamCard(best, passed) {
   const label = best === null ? 'not tried' : `${best}%`
   const tone = best === null ? '' : passed ? 'pill-green' : 'pill-amber'
   return h('a', { class: `card card-hover dayof-sheet-card dayof-final-exam${passed ? ' is-done' : ''}`, href: '#/dayof/test/final' },
-    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, '🏁'), h('span', { class: `pill ${tone}` }, label)),
+    h('div', { class: 'row spread' }, h('span', { class: 'dayof-sheet-icon' }, icon('flag', 18)), h('span', { class: `pill ${tone}` }, label)),
     h('div', { class: 'dayof-sheet-title' }, 'Final exam'),
     h('div', { class: 'muted small' }, '25 mixed questions'))
 }
 
 function finalCard(sheet, ready) {
   return h('a', { class: `card card-hover dayof-sheet-card dayof-final-card${ready ? ' is-ready' : ''}`, href: `#/dayof/final/${encodeURIComponent(sheet.id)}` },
-    h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'),
+    h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)),
     h('div', { class: 'dayof-sheet-title' }, sheet.title),
     h('div', { class: 'muted small' }, 'One-screen summary'))
 }
@@ -213,8 +224,8 @@ function renderHome(container) {
 
     if (!sheets.length) {
       page.replaceChildren(
-        h('div', { class: 'page-header' },
-          h('div', null, h('span', { class: 'eyebrow' }, 'DAYOF'), h('h1', null, '3-hour final cram'))),
+        subnav('handbook', 'dayof'),
+        h('div', { class: 'page-header' }, h('h1', null, 'Interview day')),
         emptyCard('Building your sheets…', 'The cram sheets are still being written. This page will pick them up automatically once ready.'))
       return
     }
@@ -229,32 +240,30 @@ function renderHome(container) {
     const next = computeNextStep(sheets, dayof)
 
     const header = h('div', { class: 'page-header' },
-      h('div', null,
-        h('div', { class: 'row-wrap' }, h('span', { class: 'eyebrow' }, 'DAYOF'), h('span', { class: 'pill pill-amber' }, 'Interview today')),
-        h('h1', null, '3-hour final cram'),
-        h('p', { class: 'muted' }, 'Review → Test → Final sheets. One pass through, then you walk in.')))
+      h('h1', null, 'Interview day'),
+      interviewPill())
 
     const nextBtn = h('a', { class: 'btn btn-primary btn-lg dayof-next', href: next.href }, h('span', null, 'Next step'), h('b', null, next.label))
 
     const reviewStage = h('div', { class: 'card dayof-stage-card' },
-      stageHead('① Review', `${reviewedCount}/${sheets.length}`, reviewedCount / sheets.length),
+      stageHead('Review', `${reviewedCount}/${sheets.length}`, reviewedCount / sheets.length),
       h('div', { class: 'grid-3 dayof-sheet-grid' }, statuses.map(({ sheet, status }) => reviewCard(sheet, status))))
 
     const testStage = h('div', { class: 'card dayof-stage-card' },
-      stageHead('② Test', `${passedCount}/${sheets.length} + exam`, (passedCount + (finalPassed ? 1 : 0)) / (sheets.length + 1)),
+      stageHead('Test', `${passedCount}/${sheets.length} + exam`, (passedCount + (finalPassed ? 1 : 0)) / (sheets.length + 1)),
       h('div', { class: 'grid-3 dayof-sheet-grid' }, [...statuses.map(({ sheet, status }) => testCard(sheet, status)), finalExamCard(finalBest, finalPassed)]))
 
     const finalStage = h('div', { class: 'card dayof-stage-card' },
-      stageHead('③ Final sheets', allTestsPassed ? 'ready' : `${sheets.length} sheets`, allTestsPassed ? 1 : 0.1),
+      stageHead('Final sheets', allTestsPassed ? 'ready' : `${sheets.length} sheets`, allTestsPassed ? 1 : 0.1),
       h('div', { class: 'grid-3 dayof-sheet-grid' }, statuses.map(({ sheet }) => finalCard(sheet, allTestsPassed))),
-      h('a', { class: 'btn dayof-final-all', href: '#/dayof/final' }, 'Open the full final page →'))
+      h('a', { class: 'btn dayof-final-all', href: '#/dayof/final' }, ['Open the full final page ', icon('arrowRight', 16)]))
 
     const timeline = h('div', { class: 'timeline dayof-path' },
-      h('div', { class: `plan-block${allReviewed ? ' done' : ' current'}` }, h('div', { class: 'plan-dot' }, allReviewed ? '✓' : '1'), reviewStage),
-      h('div', { class: `plan-block${allTestsPassed ? ' done' : allReviewed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, allTestsPassed ? '✓' : '2'), testStage),
+      h('div', { class: `plan-block${allReviewed ? ' done' : ' current'}` }, h('div', { class: 'plan-dot' }, allReviewed ? icon('check', 13) : '1'), reviewStage),
+      h('div', { class: `plan-block${allTestsPassed ? ' done' : allReviewed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, allTestsPassed ? icon('check', 13) : '2'), testStage),
       h('div', { class: `plan-block${allTestsPassed ? ' current' : ''}` }, h('div', { class: 'plan-dot' }, '3'), finalStage))
 
-    page.replaceChildren(header, nextBtn, timeline)
+    page.replaceChildren(subnav('handbook', 'dayof'), header, nextBtn, timeline)
   }
 
   loadSheets().then(result => {
@@ -341,7 +350,7 @@ function wholeTree(node) {
   for (const opt of node.options || []) {
     if (opt.leaf) {
       opts.append(h('div', { class: 'dayof-tree-diagram-leaf' },
-        h('span', { class: 'dayof-tree-diagram-label' }, rich(opt.label)), h('span', { class: 'muted' }, '→'),
+        h('span', { class: 'dayof-tree-diagram-label' }, rich(opt.label)), h('span', { class: 'muted' }, icon('arrowRight', 16)),
         h('b', null, rich(opt.leaf.result)), h('span', { class: 'pill mono' }, opt.leaf.time)))
     } else {
       opts.append(h('div', { class: 'dayof-tree-diagram-branch' },
@@ -364,7 +373,7 @@ function treeCard(section, id, ctx) {
     const rootBtn = h('button', { class: 'chip', type: 'button' }, 'Start')
     rootBtn.addEventListener('click', restart)
     crumbs.append(rootBtn)
-    for (const label of path) crumbs.append(h('span', { class: 'muted' }, '→'), h('span', { class: 'chip active' }, label))
+    for (const label of path) crumbs.append(h('span', { class: 'muted' }, icon('arrowRight', 16)), h('span', { class: 'chip active' }, label))
   }
 
   function renderNode(node) {
@@ -436,7 +445,7 @@ function beforeAfterCard(section, id) {
     h('div', { class: 'dayof-ba-list' }, (section.rows || []).map(row => h('div', { class: 'dayof-ba-row' },
       h('code', { class: 'dayof-ba-op' }, row.op),
       h('span', { class: 'dayof-ba-before mono' }, row.before),
-      h('span', { class: 'dayof-ba-arrow' }, '→'),
+      h('span', { class: 'dayof-ba-arrow' }, icon('arrowRight', 16)),
       h('span', { class: 'dayof-ba-after mono' }, row.after),
       row.note ? h('span', { class: 'muted small dayof-ba-note' }, row.note) : null))))
 }
@@ -517,13 +526,13 @@ function recallDrill(cards, onFinish) {
 
 function buildReview(page, sheet, sheets) {
   const startedAt = Date.now()
-  const backRow = h('div', { class: 'row-wrap dayof-review-top' }, h('a', { class: 'btn btn-ghost btn-sm', href: '#/dayof' }, '← DAYOF'), h('span', { class: 'muted small' }, 'Review'))
+  const backRow = h('div', { class: 'row-wrap dayof-review-top' }, h('a', { class: 'btn btn-ghost btn-sm', href: '#/dayof' }, [icon('arrowLeft', 16), ' DAYOF']), h('span', { class: 'muted small' }, 'Review'))
 
   const header = h('div', { class: 'page-header' },
     h('div', null,
-      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, sheet.icon || '📄'), h('h1', null, sheet.title)),
+      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, icon(sheet.icon || 'file', 26)), h('h1', null, sheet.title)),
       h('p', { class: 'muted' }, `${sheet.minutes || 10} min budget · ${sheet.sections.length} sections`)),
-    h('a', { class: 'btn btn-primary', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, 'Skip to test →'))
+    h('a', { class: 'btn btn-primary', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, ['Skip to test ', icon('arrowRight', 16)]))
 
   const tldr = h('div', { class: 'card dayof-tldr', id: 'sec-tldr' },
     h('div', { class: 'section-title' }, 'TL;DR'),
@@ -533,7 +542,7 @@ function buildReview(page, sheet, sheets) {
 
   const recallWrap = h('div', { class: 'card dayof-recall', id: 'sec-recall' })
 
-  const ctaLink = h('a', { class: 'btn btn-primary btn-lg', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, 'Take the test →')
+  const ctaLink = h('a', { class: 'btn btn-primary btn-lg', href: `#/dayof/test/${encodeURIComponent(sheet.id)}` }, ['Take the test ', icon('arrowRight', 16)])
   const ctaCard = h('div', { class: 'card dayof-cta', id: 'sec-test-cta' },
     h('div', null, h('h3', null, 'Ready?'), h('p', { class: 'muted small' }, 'Lock in what you just reviewed.')),
     ctaLink)
@@ -552,7 +561,7 @@ function buildReview(page, sheet, sheets) {
   const toc = h('nav', { class: 'dayof-toc' }, tocLinks)
 
   const layout = h('div', { class: 'dayof-review-layout' }, toc, flowEl)
-  page.replaceChildren(backRow, header, layout)
+  page.replaceChildren(subnav('handbook', 'dayof'), backRow, header, layout)
 
   let finished = false
   function finishReview() {
@@ -611,6 +620,7 @@ function runTest(page, initialItems, title, retryHref, onComplete) {
       const retryBtn = misses.length ? h('button', { class: 'btn btn-primary', type: 'button' }, 'Retry misses') : null
       if (retryBtn) retryBtn.addEventListener('click', () => { items = misses.map(m => m.item); index = 0; results = []; draw() })
       page.append(
+        subnav('handbook', 'dayof'),
         h('div', { class: 'page-header' },
           h('div', null, h('h1', null, title), h('p', { class: 'muted' }, `${correct}/${items.length} correct`)),
           h('span', { class: `pill dayof-score-pill ${passed ? 'pill-green' : 'pill-red'}` }, `${pct}%${passed ? ' PASS' : ''}`)),
@@ -630,7 +640,7 @@ function runTest(page, initialItems, title, retryHref, onComplete) {
 
     const item = items[index]
     const pct = Math.round(index / items.length * 100)
-    const nextBtn = h('button', { class: 'btn btn-primary dayof-next-q', type: 'button', disabled: true }, index === items.length - 1 ? 'See results' : 'Next →')
+    const nextBtn = h('button', { class: 'btn btn-primary dayof-next-q', type: 'button', disabled: true }, index === items.length - 1 ? 'See results' : ['Next ', icon('arrowRight', 16)])
     nextBtn.addEventListener('click', () => { index += 1; draw() })
     const mcqEl = renderMcq(item, ({ correct, ms }) => {
       try {
@@ -642,6 +652,7 @@ function runTest(page, initialItems, title, retryHref, onComplete) {
       nextBtn.disabled = false
     })
     page.append(
+      subnav('handbook', 'dayof'),
       h('div', { class: 'page-header' },
         h('h1', null, title),
         h('span', { class: 'pill' }, `${results.filter(r => r.correct).length} correct`)),
@@ -685,15 +696,15 @@ function findSection(sheets, predicate) {
 
 function summaryCard(sheet) {
   return h('div', { class: 'card dayof-summary-card' },
-    h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon' }, sheet.icon || '📄'), h('h3', null, sheet.title)),
+    h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon' }, icon(sheet.icon || 'file', 18)), h('h3', null, sheet.title)),
     h('ul', { class: 'dayof-list dayof-summary-list' }, (sheet.summary || []).map(line => h('li', null, rich(line)))),
-    h('a', { class: 'btn btn-sm btn-ghost', href: `#/dayof/final/${encodeURIComponent(sheet.id)}` }, 'Full sheet →'))
+    h('a', { class: 'btn btn-sm btn-ghost', href: `#/dayof/final/${encodeURIComponent(sheet.id)}` }, ['Full sheet ', icon('arrowRight', 16)]))
 }
 
 function buildFinalOverview(sheets) {
   const header = h('div', { class: 'page-header' },
-    h('div', null, h('span', { class: 'eyebrow' }, 'DAYOF'), h('h1', null, 'Final sheets'), h('p', { class: 'muted' }, 'One screen each. Scan right before you go in.')),
-    h('a', { class: 'btn btn-ghost', href: '#/dayof' }, '← DAYOF'))
+    h('h1', null, 'Final sheets'),
+    h('a', { class: 'btn btn-ghost', href: '#/dayof' }, [icon('arrowLeft', 16), ' DAYOF']))
 
   const grid = h('div', { class: 'grid-3 dayof-final-grid' }, sheets.map(sheet => summaryCard(sheet)))
 
@@ -711,7 +722,7 @@ function buildFinalOverview(sheets) {
     secHead('Script', 'pink', 'Say this out loud'),
     h('ul', { class: 'dayof-list' }, scriptItems.map(item => h('li', null, rich(item)))))
 
-  return h('div', { class: 'stack-lg dayof-final-page' }, header, grid, h('div', { class: 'grid-2' }, constraintCard, scriptCard))
+  return h('div', { class: 'stack-lg dayof-final-page' }, subnav('handbook', 'dayof'), header, grid, h('div', { class: 'grid-2' }, constraintCard, scriptCard))
 }
 
 function compactBoilerplate(section) {
@@ -731,16 +742,16 @@ function compactBoilerplate(section) {
 function buildSheetFinal(sheet) {
   const header = h('div', { class: 'page-header' },
     h('div', null,
-      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, sheet.icon || '📄'), h('h1', null, sheet.title)),
+      h('div', { class: 'row-wrap' }, h('span', { class: 'dayof-sheet-icon-lg' }, icon(sheet.icon || 'file', 26)), h('h1', null, sheet.title)),
       h('p', { class: 'muted' }, 'Final sheet — one screen')),
-    h('a', { class: 'btn btn-ghost', href: '#/dayof/final' }, '← All sheets'))
+    h('a', { class: 'btn btn-ghost', href: '#/dayof/final' }, [icon('arrowLeft', 16), ' All sheets']))
 
   const summary = h('div', { class: 'card dayof-tldr' }, h('ul', { class: 'dayof-list' }, (sheet.summary || []).map(line => h('li', null, rich(line)))))
   const boilerplates = sheet.sections.filter(s => s.kind === 'boilerplate')
   const codeGrid = boilerplates.length ? h('div', { class: 'grid-2 dayof-final-code-grid' }, boilerplates.map(section => compactBoilerplate(section))) : null
   const others = sheet.sections.filter(s => s.kind !== 'boilerplate').map((section, i) => sectionCard(section, `fsec-${i}`, { sheet, sheets: [sheet] }))
 
-  return h('div', { class: 'stack dayof-final-page' }, header, summary, codeGrid, others.length ? h('div', { class: 'stack' }, others) : null)
+  return h('div', { class: 'stack dayof-final-page' }, subnav('handbook', 'dayof'), header, summary, codeGrid, others.length ? h('div', { class: 'stack' }, others) : null)
 }
 
 async function renderFinal(container, sheetId) {

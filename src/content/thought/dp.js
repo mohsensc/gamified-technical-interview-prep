@@ -6,6 +6,7 @@ const items = [
     difficulty: 'Easy',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['google', 'amazon', 'apple', 'bloomberg'],
     statement: `You're climbing a staircase that takes n steps to reach the top, and on each move you can climb either 1 or 2 steps.
 
 Count how many distinct sequences of moves get you from the ground to the top step.
@@ -53,6 +54,7 @@ Only the count matters here, not what the actual sequences look like.`,
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['google', 'amazon', 'microsoft'],
     statement: `You're planning a heist down a street of houses, each holding some amount of cash. Robbing two houses that are directly next to each other trips the alarm, so any two houses you pick can't be adjacent.
 
 Given the cash at each house, find the maximum total you can steal.
@@ -100,6 +102,7 @@ You may rob any subset of non-adjacent houses, not just every other one; skippin
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['amazon', 'microsoft'],
     statement: `Same heist, except the houses are arranged in a circle this time, so the first and last houses count as adjacent to each other too.
 
 You still can't rob two adjacent houses, and now that adjacency wraps around the ends of the street.
@@ -152,6 +155,7 @@ Find the maximum you can steal from this circular street.`,
     difficulty: 'Easy',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['amazon'],
     statement: `You're given the cost to step on each stair in an array, and you start standing just before index 0, where you can enter at either index 0 or index 1 for free.
 
 From any stair you can move 1 or 2 indices forward, paying the cost of whatever stair you land on. One index past the last stair is the "top", and reaching it costs nothing.
@@ -196,6 +200,7 @@ Find the minimum total cost to get from the start to the top.`,
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['google', 'microsoft', 'meta'],
     statement: `A message of digits was encoded by mapping letters A-Z to the numbers 1-26, then concatenating the numbers with no separator.
 
 Given the encoded digit string, count how many different letter messages could have produced it.
@@ -248,6 +253,7 @@ A "0" can never stand alone as a valid code, and two digits only form a valid le
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['google', 'amazon', 'microsoft'],
     statement: `You have coins of several denominations and an unlimited supply of each. You need to make up a target amount using the fewest coins possible.
 
 Return that minimum number of coins, or report that the amount can't be made at all with these denominations.
@@ -295,6 +301,7 @@ You can reuse any coin as many times as needed; only the count of coins used mat
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['amazon'],
     statement: `Same pile of unlimited coin denominations, but now you're counting instead of minimizing.
 
 Given a target amount, count how many different combinations of coins add up to exactly that amount. Two combinations that use the same coins in a different order count as the same combination.
@@ -339,6 +346,7 @@ So two 1s and a 3 is the same combination as a 3 and two 1s; you're counting mul
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['google', 'amazon', 'microsoft', 'meta'],
     statement: `You're given a string and a dictionary of words. Decide whether the string can be fully segmented into a sequence of one or more dictionary words, back to back with no leftover characters.
 
 The same dictionary word can be reused as many times as needed, and the dictionary may contain words that never end up being used.
@@ -389,6 +397,7 @@ You only need to answer whether a valid segmentation exists, not what it looks l
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['google', 'amazon', 'microsoft'],
     statement: `Given an array of integers, find the length of the longest subsequence that is strictly increasing.
 
 A subsequence keeps the relative order of the original array but can skip over elements; it doesn't need to be contiguous.
@@ -438,11 +447,10 @@ You only need the length of the longest such subsequence, not the subsequence it
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['amazon', 'meta'],
     statement: `Given an array of positive integers, decide whether it can be split into two subsets whose sums are exactly equal.
 
-Every element must land in exactly one of the two groups; nothing is left out and nothing is shared between groups.
-
-This is really asking whether some subset of the array sums to exactly half of the total.`,
+Every element must land in exactly one of the two groups; nothing is left out and nothing is shared between groups.`,
     examples: [
       { input: 'nums = [1,5,11,5]', output: 'true', explanation: '[1,5,5] sums to 11 and the remaining [11] also sums to 11' },
       { input: 'nums = [1,2,3,5]', output: 'false', explanation: 'total is 11 (odd), so it can never split into two equal halves' },
@@ -489,6 +497,7 @@ This is really asking whether some subset of the array sums to exactly half of t
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-2d'],
+    companies: ['google', 'amazon', 'bloomberg'],
     statement: `A robot sits at the top-left corner of an m x n grid and wants to reach the bottom-right corner.
 
 At each step the robot can only move right or down by one cell, never left or up.
@@ -534,6 +543,7 @@ Count how many distinct paths get the robot from the top-left to the bottom-righ
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-2d'],
+    companies: ['google', 'amazon', 'bloomberg'],
     statement: `You're given a grid of non-negative numbers representing the cost to step on each cell. Starting at the top-left corner, you want to reach the bottom-right corner.
 
 From any cell you can only move right or down, and you pay the cost of every cell you land on, including the start and the end.
@@ -581,6 +591,7 @@ Find the minimum total cost of any path from the top-left to the bottom-right.`,
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-2d'],
+    companies: ['google', 'amazon'],
     statement: `Given two strings, find the length of their longest common subsequence.
 
 A subsequence of a string keeps the relative order of its characters but can skip any number of them, and a common subsequence is one that appears as a subsequence of both strings.
@@ -630,6 +641,7 @@ You only need the length of the longest shared subsequence, not the subsequence 
     difficulty: 'Hard',
     category: 'dp',
     skills: ['dp-2d'],
+    companies: ['google', 'amazon', 'microsoft'],
     statement: `Given two strings, find the minimum number of operations needed to turn the first string into the second.
 
 Each operation is either inserting one character, deleting one character, or replacing one character with another.
@@ -684,11 +696,12 @@ Return the fewest operations needed, not the sequence of edits itself.`,
     difficulty: 'Hard',
     category: 'dp',
     skills: ['dp-2d'],
+    companies: ['google'],
     statement: `Given two strings s and t, count how many distinct ways t appears as a subsequence of s.
 
 Each way is a different choice of index positions in s, read left to right, whose characters spell out t exactly; the same characters chosen at different positions count as different ways.
 
-Return that count, which can get large, so think in terms of accumulating counts rather than enumerating them.`,
+Return that count, which can get large.`,
     examples: [
       { input: 's = "rabbbit", t = "rabbit"', output: '3', explanation: "3 different choices of which 'b' to skip among the three b's" },
     ],
@@ -734,6 +747,7 @@ Return that count, which can get large, so think in terms of accumulating counts
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-2d'],
+    companies: ['amazon', 'microsoft', 'meta', 'apple', 'bloomberg'],
     statement: `Given a string, find the longest substring that reads the same forward and backward.
 
 A substring has to be contiguous, no skipping characters, unlike a subsequence.
@@ -783,6 +797,7 @@ If more than one longest palindromic substring of the same length exists, return
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['amazon', 'meta'],
     statement: `You're given an array of non-negative integers and a target value. You must assign either a plus or minus sign to every number and sum them all up.
 
 Count how many different ways of assigning signs make the total equal exactly the target.
@@ -830,6 +845,7 @@ Every number gets exactly one sign, and two assignments that differ in even one 
     difficulty: 'Hard',
     category: 'dp',
     skills: ['dp-2d', 'intervals'],
+    companies: ['google', 'amazon'],
     statement: `You have a row of balloons, each painted with a number. Bursting a balloon gives coins equal to the product of the numbers on its current left and right neighbors, treating the ends of the row as invisible balloons worth 1.
 
 You must burst every balloon exactly once, choosing the order, and bursting one balloon makes its former neighbors adjacent to each other for all future bursts.
@@ -883,9 +899,8 @@ Find the maximum total coins you can collect by choosing the best order to burst
     difficulty: 'Medium',
     category: 'dp',
     skills: ['dp-1d'],
+    companies: ['amazon', 'meta'],
     statement: `Given an array of integers that can include negative numbers and zero, find the contiguous subarray with the largest product.
-
-Because a negative number flips the sign, the subarray with the best product so far can turn into the worst one after multiplying by another negative, so tracking only a running maximum isn't enough.
 
 Return that maximum product, not the subarray itself.`,
     examples: [
@@ -924,11 +939,415 @@ Return that maximum product, not the subarray itself.`,
     sayIt: "I track ==running max AND running min== together since a negative number can flip which one is best next, O(n) time, O(1) space.",
     pitfall: 'Forgetting to also track the running minimum product.',
   },
+  {
+    id: 'thought:dp:number-of-longest-increasing-subsequence',
+    lc: 673,
+    title: 'Number of Longest Increasing Subsequence',
+    difficulty: 'Medium',
+    category: 'dp',
+    skills: ['dp-1d'],
+    companies: ['google'],
+    statement: `Given an integer array, return the number of distinct longest strictly increasing subsequences.
+
+A subsequence keeps the relative order of the original array but can skip elements. You need both the length of the longest increasing subsequence AND how many different subsequences achieve that length.`,
+    examples: [
+      { input: 'nums = [1,3,5,4,7]', output: '2', explanation: 'the two length-4 LIS are [1,3,4,7] and [1,3,5,7]' },
+    ],
+    constraints: ['1 <= nums.length <= 2000', '-10^6 <= nums[i] <= 10^6'],
+    ds: {
+      answer: 'two parallel 1-D dp arrays: longest length ending at i, and count of ways to reach that length',
+      choices: ['two parallel 1-D dp arrays: longest length ending at i, and count of ways to reach that length', '1-D dp array of length only (like plain LIS)', '2-D dp table of (i, j) pairs', 'tails array + bisect (patience sorting) plus a separate count array'],
+    },
+    method: {
+      answer: "O(n^2) DP tracking both arrays: for each ==j < i with nums[j] < nums[i]==, if it ==strictly extends the longest chain ending at i==, reset count[i] to count[j]; if it ties the current best length, add count[j] onto count[i]",
+      choices: [
+        "O(n^2) DP tracking both arrays: for each ==j < i with nums[j] < nums[i]==, if it ==strictly extends the longest chain ending at i==, reset count[i] to count[j]; if it ties the current best length, add count[j] onto count[i]",
+        'Track only length[i] via plain LIS DP, then count afterward by re-running DFS from every index that achieves the max length',
+        "Greedy: always extend whichever earlier index has the single largest count[j], ignoring ties",
+        'Patience sorting with a tails array, incrementing a global counter whenever a number extends the longest pile',
+      ],
+    },
+    code: `class Solution:
+    def findNumberOfLIS(self, nums: List[int]) -> int:
+        n = len(nums)
+        length = [1] * n
+        count = [1] * n
+
+        for i in range(n):
+            for j in range(i):
+                if nums[j] < nums[i]:
+                    if length[j] + 1 > length[i]:
+                        length[i] = length[j] + 1
+                        count[i] = count[j]
+                    elif length[j] + 1 == length[i]:
+                        count[i] += count[j]
+
+        longest = max(length)
+        return sum(c for l, c in zip(length, count) if l == longest)`,
+    blanks: [10, 13, 16],
+    time: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(n log n)', 'O(n)', 'O(n^2 log n)'], why: 'nested loop over every pair (i, j)' },
+    space: { answer: 'O(n)', choices: ['O(n)', 'O(1)', 'O(n^2)', 'O(log n)'], why: 'two parallel dp arrays of length n' },
+    sayIt: 'I keep length[i] AND count[i] together: a strictly longer chain resets the count, a tie adds onto it, then sum counts at the max length; O(n^2) time.',
+    pitfall: 'A longer chain must RESET count[i], not add to it — mixing up reset vs accumulate double-counts.',
+  },
+  {
+    id: 'thought:dp:combination-sum-iv',
+    lc: 377,
+    title: 'Combination Sum IV',
+    difficulty: 'Medium',
+    category: 'dp',
+    skills: ['dp-1d'],
+    companies: ['amazon', 'meta'],
+    statement: `Given an array of distinct positive integers and a target, count the number of possible ORDERED sequences that add up to target. The same number can be reused any number of times, and different orderings count as different sequences.`,
+    examples: [
+      { input: 'nums = [1,2,3], target = 4', output: '7', explanation: '(1,1,1,1),(1,1,2),(1,2,1),(2,1,1),(1,3),(3,1),(2,2) are all counted separately' },
+    ],
+    constraints: ['1 <= nums.length <= 200', '1 <= nums[i] <= 1000', 'all nums distinct', '1 <= target <= 1000'],
+    ds: {
+      answer: '1-D dp array of ways to reach each total (amount-outer, number-inner loop)',
+      choices: ['1-D dp array of ways to reach each total (amount-outer, number-inner loop)', '1-D dp array of ways to reach each total (number-outer, amount-inner loop)', '2-D dp table of (number index, amount)', 'dd(int) memo keyed by (index, remaining), top-down with order fixed by index'],
+    },
+    method: {
+      answer: "Bottom-up counting DP where ==amounts are the outer loop and numbers are the inner loop==, so at each total every number is tried in every order, making this count ORDERED sequences, unlike Coin Change II which loops coins outside to count unordered combinations",
+      choices: [
+        "Bottom-up counting DP where ==amounts are the outer loop and numbers are the inner loop==, so at each total every number is tried in every order, making this count ORDERED sequences, unlike Coin Change II which loops coins outside to count unordered combinations",
+        'Loop numbers on the outside and amounts on the inside — identical recurrence to Coin Change II, since both just count ways to hit a target',
+        'Backtracking that enumerates every ordered sequence of numbers summing to target directly, no dp array',
+        'Greedy: always pick the smallest number that still fits under the remaining target',
+      ],
+    },
+    code: `class Solution:
+    def combinationSum4(self, nums: List[int], target: int) -> int:
+        dp = [1] + [0] * target
+
+        for total in range(1, target + 1):
+            for num in nums:
+                if total - num >= 0:
+                    dp[total] += dp[total - num]
+
+        return dp[target]`,
+    blanks: [2, 6, 9],
+    time: { answer: 'O(target * len(nums))', choices: ['O(target * len(nums))', 'O(target)', 'O(2^target)', 'O(target log target)'], why: 'nested loop over every total and every number' },
+    space: { answer: 'O(target)', choices: ['O(target)', 'O(1)', 'O(target * len(nums))', 'O(len(nums))'], why: 'one dp array of size target + 1' },
+    sayIt: 'Looping totals outside, numbers inside counts ordered sequences, dp[total] += dp[total-num] for every number; swapping the loop order would make it Coin Change II instead, O(target*nums) time.',
+    pitfall: 'This is secretly counting permutations, not combinations — the name is misleading; loop order is the whole trick.',
+  },
+  {
+    id: 'thought:dp:interleaving-string',
+    lc: 97,
+    title: 'Interleaving String',
+    difficulty: 'Medium',
+    category: 'dp',
+    skills: ['dp-2d'],
+    companies: ['google'],
+    statement: `Given three strings s1, s2, and s3, decide whether s3 can be formed by interleaving the characters of s1 and s2 while keeping each string's own characters in their original relative order.
+
+An interleaving means every character of s3 comes from s1 or s2, consumed left to right, and both s1 and s2 must be fully used up exactly once.`,
+    examples: [
+      { input: 's1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"', output: 'true', explanation: 's3 can be built by weaving characters from s1 and s2 without reordering either' },
+      { input: 's1 = "ab", s2 = "cd", s3 = "adbc"', output: 'false', explanation: "d comes before c, which breaks s2's required order" },
+    ],
+    constraints: ['0 <= s1.length, s2.length <= 100', 's1.length + s2.length == s3.length'],
+    ds: {
+      answer: '2-D dp table of boolean, base case = the (rows, cols) corner (both strings exhausted)',
+      choices: ['2-D dp table of boolean, base case = the (rows, cols) corner (both strings exhausted)', '1-D dp array rolled across rows', 'two pointers greedily choosing whichever string matches next', 'dd(int) memo keyed by (i, j), top-down'],
+    },
+    method: {
+      answer: "Bottom-up DP filled backward from both ends: ==dp[i][j] is true if s1[i] can extend a valid interleaving from dp[i+1][j]==, OR if ==s2[j] can extend one from dp[i][j+1]==, matched against s3 at position i+j",
+      choices: [
+        "Bottom-up DP filled backward from both ends: ==dp[i][j] is true if s1[i] can extend a valid interleaving from dp[i+1][j]==, OR if ==s2[j] can extend one from dp[i][j+1]==, matched against s3 at position i+j",
+        'Greedy: at each position of s3, always consume from whichever of s1/s2 currently matches, backtrack only on a dead end',
+        'Two separate dp arrays for s1 and s2, checked independently then ANDed together at the end',
+        'Top-down DFS trying every interleaving order, no memoization (exponential)',
+      ],
+    },
+    code: `class Solution:
+    def isInterleave(self, s1: str, s2: str, s3: str) -> bool:
+        rows, cols = len(s1), len(s2)
+        if rows + cols != len(s3):
+            return False
+
+        dp = [[False] * (cols + 1) for _ in range(rows + 1)]
+        dp[rows][cols] = True
+
+        for i in range(rows, -1, -1):
+            for j in range(cols, -1, -1):
+                if i < rows and s1[i] == s3[i + j] and dp[i + 1][j]:
+                    dp[i][j] = True
+                if j < cols and s2[j] == s3[i + j] and dp[i][j + 1]:
+                    dp[i][j] = True
+
+        return dp[0][0]`,
+    blanks: [4, 11, 13],
+    time: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(rows + cols)', 'O(2^(rows+cols))', 'O(rows * cols * len(s3))'], why: 'fill every (i, j) cell once, O(1) work each' },
+    space: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(min(rows, cols))', 'O(1)', 'O(rows + cols)'], why: 'full 2-D boolean table, rollable to one row' },
+    sayIt: "dp[i][j] true if s1[i] or s2[j] can match s3[i+j] and lead into an already-true state; early-exit when lengths don't add up, O(rows*cols) time/space.",
+    pitfall: "Must check rows + cols == len(s3) up front — skipping it can index s3 out of range.",
+  },
+  {
+    id: 'thought:dp:longest-palindromic-subsequence',
+    lc: 516,
+    title: 'Longest Palindromic Subsequence',
+    difficulty: 'Medium',
+    category: 'dp',
+    skills: ['dp-2d'],
+    companies: ['amazon', 'google'],
+    statement: `Given a string, find the length of the longest subsequence of it that reads the same forward and backward.
+
+A subsequence keeps the relative order of the original string but can skip over any number of characters; it doesn't have to be contiguous like a substring does.
+
+You only need the length of the longest such subsequence, not the subsequence itself.`,
+    examples: [
+      { input: 's = "bbbab"', output: '4', explanation: '"bbbb" (dropping the "a") is the longest palindromic subsequence' },
+      { input: 's = "cbbd"', output: '2', explanation: '"bb" is the longest palindromic subsequence' },
+    ],
+    constraints: ['1 <= s.length <= 1000'],
+    ds: {
+      answer: '2-D dp table of (i, j) intervals, filled with i decreasing and j increasing',
+      choices: ['2-D dp table of (i, j) intervals, filled with i decreasing and j increasing', 'two pointers expanding outward from the center of the string', '1-D dp array equal to the LCS of s and reversed(s)', 'monotonic stack tracking matched palindrome boundaries'],
+    },
+    method: {
+      answer: "Interval DP from the inside out: ==s[i]==s[j] -> dp[i][j] = 2 + dp[i+1][j-1]; otherwise dp[i][j] = max(dp[i+1][j], dp[i][j-1])==, base case dp[i][i] = 1 for every single character",
+      choices: [
+        'Reduce to LCS: compute the longest common subsequence between s and its reverse',
+        'Two pointers expand from the center of the string outward, trying every odd and even center',
+        "Interval DP from the inside out: ==s[i]==s[j] -> dp[i][j] = 2 + dp[i+1][j-1]; otherwise dp[i][j] = max(dp[i+1][j], dp[i][j-1])==, base case dp[i][i] = 1 for every single character",
+        'Top-down DFS trying to include or exclude each end character, with no memoization',
+      ],
+    },
+    code: `class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        n = len(s)
+        dp = [[0] * n for _ in range(n)]
+
+        for i in range(n - 1, -1, -1):
+            dp[i][i] = 1
+            for j in range(i + 1, n):
+                if s[i] == s[j]:
+                    dp[i][j] = 2 + dp[i + 1][j - 1]
+                else:
+                    dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])
+
+        return dp[0][n - 1]`,
+    blanks: [6, 9, 11],
+    accept: { 11: ['dp[i][j] = max(dp[i][j - 1], dp[i + 1][j])'] },
+    time: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(n)', 'O(n log n)', 'O(n^3)'], why: 'fills every (i, j) interval once, O(1) work per cell' },
+    space: { answer: 'O(n^2)', choices: ['O(n^2)', 'O(n)', 'O(1)', 'O(n log n)'], why: 'full n x n table of subsequence lengths' },
+    sayIt: "Interval DP from the inside out: ==match extends both ends +2, mismatch drops whichever end gives the better inner answer==, base case single chars = 1, O(n^2) time/space.",
+    pitfall: 'dp[i][j] depends on dp[i][j-1] in the same row, so j must run increasing while i runs decreasing — filling in the wrong order reads uninitialized cells.',
+  },
+  {
+    id: 'thought:dp:best-time-to-buy-and-sell-stock-with-cooldown',
+    lc: 309,
+    title: 'Best Time to Buy and Sell Stock with Cooldown',
+    difficulty: 'Medium',
+    category: 'dp',
+    skills: ['dp-1d'],
+    companies: ['amazon', 'bloomberg', 'google'],
+    statement: `You're given daily stock prices. You may buy and sell as many times as you like, but you can only hold at most one share at a time, and after selling you must skip a day (cooldown) before buying again.
+
+Find the maximum total profit achievable under these rules.
+
+You can't buy and sell on the same day, and the cooldown only applies to buying again right after a sell, not to selling itself.`,
+    examples: [
+      { input: 'prices = [1,2,3,0,2]', output: '3', explanation: 'buy day0 (1), sell day1 (2) for profit 1, cooldown day2, buy day3 (0), sell day4 (2) for profit 2, total 3' },
+    ],
+    constraints: ['1 <= prices.length <= 5000', '0 <= prices[i] <= 1000'],
+    ds: {
+      answer: 'three rolling state variables: hold, sold (just sold today), and rest (free to buy)',
+      choices: ['three rolling state variables: hold, sold (just sold today), and rest (free to buy)', '1-D dp array of max profit per day, single state only', '2-D dp table of (day, holding-or-not)', 'monotonic stack tracking increasing price runs'],
+    },
+    method: {
+      answer: "State machine DP with rolling ==hold, sold, rest== variables: hold = max(hold, rest-price) (keep holding, or buy today from rest); sold = hold + price (sell what was held, using yesterday's hold); rest = max(rest, prevSold) (stay rested, or cooldown clears into rest the day after a sell)",
+      choices: [
+        'Greedy: buy at every local minimum and sell at every local maximum, skipping only the day right after a sell',
+        '2-D dp table of (day index, holding boolean, cooldown boolean), filled iteratively',
+        "State machine DP with rolling ==hold, sold, rest== variables: hold = max(hold, rest-price) (keep holding, or buy today from rest); sold = hold + price (sell what was held, using yesterday's hold); rest = max(rest, prevSold) (stay rested, or cooldown clears into rest the day after a sell)",
+        'DFS trying every subset of buy/sell/cooldown days, no memoization',
+      ],
+    },
+    code: `class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        hold, sold, rest = -math.inf, 0, 0
+
+        for price in prices:
+            prevSold = sold
+            sold = hold + price
+            hold = max(hold, rest - price)
+            rest = max(rest, prevSold)
+
+        return max(sold, rest)`,
+    blanks: [6, 7, 8],
+    accept: { 7: ['hold = max(rest - price, hold)'], 8: ['rest = max(prevSold, rest)'] },
+    time: { answer: 'O(n)', choices: ['O(n)', 'O(n log n)', 'O(n^2)', 'O(2^n)'], why: 'single pass updating three rolling vars per price' },
+    space: { answer: 'O(1)', choices: ['O(1)', 'O(n)', 'O(n^2)', 'O(log n)'], why: 'only three scalars tracked, no array allocated' },
+    sayIt: "Three rolling states, ==hold = max(hold, rest-price), sold = hold+price, rest = max(rest, prevSold)==, cooldown just means rest waits one extra day after a sell, O(n) time, O(1) space.",
+    pitfall: "sold must be computed from the OLD hold value before hold gets updated this same iteration, or you'd allow buying and selling on the same day.",
+  },
+  {
+    id: 'thought:dp:maximal-square',
+    lc: 221,
+    title: 'Maximal Square',
+    difficulty: 'Medium',
+    category: 'dp',
+    skills: ['dp-2d'],
+    companies: ['google', 'amazon'],
+    statement: `You're given a 2-D binary matrix of 0s and 1s. Find the largest square made up only of 1s and return its area.
+
+The square must be axis-aligned and fully contained within the matrix; every cell inside it has to be a 1.
+
+Return the area (side length squared), not the side length itself.`,
+    examples: [
+      { input: 'matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]', output: '4', explanation: 'a 2x2 square of 1s gives area 4' },
+    ],
+    constraints: ['1 <= rows, cols <= 300', 'matrix[i][j] is "0" or "1"'],
+    ds: {
+      answer: '2-D dp table padded with an extra zero row/col (top and left border)',
+      choices: ['2-D dp table padded with an extra zero row/col (top and left border)', '1-D dp array rolled row by row, tracking the previous row only', 'monotonic stack of column heights (like Largest Rectangle in Histogram)', 'prefix-sum 2-D table of 1-counts per rectangle'],
+    },
+    method: {
+      answer: 'Bottom-up DP filled forward: ==dp[i+1][j+1] = 1 + min(dp[i][j], dp[i][j+1], dp[i+1][j]) when the cell is a 1==, a square can only grow as large as the smallest of its top, left, and top-left neighbor squares',
+      choices: [
+        'Rolling 1-D dp array updated left to right, same min-of-three recurrence but using only the previous row in place',
+        'Expand every 1-cell into the largest square it anchors by brute-force checking increasing side lengths',
+        'Greedy: scan row by row and extend the current square only while the next cell below-right is also 1',
+        'Bottom-up DP filled forward: ==dp[i+1][j+1] = 1 + min(dp[i][j], dp[i][j+1], dp[i+1][j]) when the cell is a 1==, a square can only grow as large as the smallest of its top, left, and top-left neighbor squares',
+      ],
+    },
+    code: `class Solution:
+    def maximalSquare(self, matrix: List[List[str]]) -> int:
+        rows, cols = len(matrix), len(matrix[0])
+        dp = [[0] * (cols + 1) for _ in range(rows + 1)]
+        best = 0
+
+        for i in range(rows):
+            for j in range(cols):
+                if matrix[i][j] == "1":
+                    dp[i + 1][j + 1] = 1 + min(dp[i][j], dp[i][j + 1], dp[i + 1][j])
+                    best = max(best, dp[i + 1][j + 1])
+
+        return best * best`,
+    blanks: [9, 10, 12],
+    accept: { 9: ['dp[i + 1][j + 1] = 1 + min(dp[i + 1][j], dp[i][j + 1], dp[i][j])'] },
+    time: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(rows * cols * min(rows, cols))', 'O(rows + cols)', 'O(rows * cols * log(rows*cols))'], why: 'fill every padded cell once, O(1) work per cell' },
+    space: { answer: 'O(rows * cols)', choices: ['O(rows * cols)', 'O(min(rows, cols))', 'O(1)', 'O(rows + cols)'], why: 'full padded 2-D table, one entry per cell, rollable to one row' },
+    sayIt: "A square at (i,j) can only be as big as the smallest of its ==top, left, and top-left neighbor squares, plus one==, padded border handles edges, track the running best side, answer is best squared, O(rows*cols) time/space.",
+    pitfall: 'Return best squared (the area), not best itself (the side length).',
+  },
+
+  {
+    id: 'thought:dp:dungeon-game',
+    lc: 174,
+    title: 'Dungeon Game',
+    difficulty: 'Hard',
+    category: 'dp',
+    skills: ['dp-2d', 'grid'],
+    companies: ['amazon', 'microsoft'],
+    statement: `A knight starts at the top-left of a grid and must reach the bottom-right, moving only right or down. Each cell changes health by its value (negative hurts). Health must never drop to 0 or below.
+
+Return the minimum initial health that guarantees survival.`,
+    examples: [
+      { input: 'dungeon = [[-2,-3,3],[-5,-10,1],[10,30,-5]]', output: '7', explanation: 'Right, right, down, down.' },
+    ],
+    constraints: ['1 <= m, n <= 200', '-1000 <= dungeon[i][j] <= 1000'],
+    ds: {
+      answer: '2-D need table padded with infinity, filled backward',
+      choices: [
+        '2-D need table padded with infinity, filled backward',
+        '2-D table of max health, filled forward',
+        'min-heap of (health, r, c)',
+        'queue for BFS with a visited grid',
+      ],
+    },
+    method: {
+      answer: 'Work ==backward== from the princess: need[r][c] = ==max(1, min(need down, need right) - dungeon[r][c])==',
+      choices: [
+        'Work ==backward== from the princess: need[r][c] = ==max(1, min(need down, need right) - dungeon[r][c])==',
+        'Fill forward keeping the largest health along any path, then subtract',
+        'Run BFS and track the lowest health seen',
+        'Greedily step to the larger neighbor each time',
+      ],
+    },
+    code: `class Solution:
+    def calculateMinimumHP(self, dungeon):
+        rows, cols = len(dungeon), len(dungeon[0])
+        need = [[float('inf')] * (cols + 1) for _ in range(rows + 1)]
+        need[rows][cols - 1] = need[rows - 1][cols] = 1
+        for r in range(rows - 1, -1, -1):
+            for c in range(cols - 1, -1, -1):
+                best = min(need[r + 1][c], need[r][c + 1])
+                need[r][c] = max(1, best - dungeon[r][c])
+        return need[0][0]`,
+    blanks: [4, 7, 8, 9],
+    time: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(2^(m + n))', 'O((m * n)^2)', 'O(m + n)'], why: 'each cell is computed once' },
+    space: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(1)', 'O(m + n)', 'O(2^(m + n))'], why: 'one table cell per grid cell; one row would also do' },
+    sayIt: 'Forward DP fails because the future matters, so go ==backward==: need[r][c] = ==max(1, min(down, right) - cell)==, seeded with 1 beyond the goal. O(m * n).',
+    pitfall: 'Dropping the max(1, ...) lets required health fall to zero or below on big positive cells.',
+  },
+
+  {
+    id: 'thought:dp:regular-expression-matching',
+    lc: 10,
+    title: 'Regular Expression Matching',
+    difficulty: 'Hard',
+    category: 'dp',
+    skills: ['dp-2d'],
+    companies: ['google', 'meta', 'microsoft'],
+    statement: `Implement matching of string s against pattern p, where '.' matches any single character and '*' means zero or more of the element before it. The match must cover the entire string.
+
+Return true or false.`,
+    examples: [
+      { input: "s = 'aa', p = 'a*'", output: 'true' },
+      { input: "s = 'ab', p = '.*'", output: 'true' },
+      { input: "s = 'aa', p = 'a'", output: 'false' },
+    ],
+    constraints: ['1 <= s.length <= 20', '1 <= p.length <= 20', "'*' always follows a valid character"],
+    ds: {
+      answer: '2-D boolean table dp[i][j] over prefixes of s and p',
+      choices: [
+        '2-D boolean table dp[i][j] over prefixes of s and p',
+        'hash set of matched indices',
+        'stack of pattern characters',
+        '1-D array indexed by character code',
+      ],
+    },
+    method: {
+      answer: 'dp[i][j] = does s[:i] match p[:j]; for ==x*== either ==drop it (dp[i][j-2])== or consume one matching char (dp[i-1][j])',
+      choices: [
+        'dp[i][j] = does s[:i] match p[:j]; for ==x*== either ==drop it (dp[i][j-2])== or consume one matching char (dp[i-1][j])',
+        'Greedily match each pattern character against the next string character',
+        'Backtrack every way to expand each star without caching',
+        'Sort the pattern and compare to the sorted string',
+      ],
+    },
+    code: `class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        m, n = len(s), len(p)
+        dp = [[False] * (n + 1) for _ in range(m + 1)]
+        dp[0][0] = True
+        for j in range(2, n + 1):
+            if p[j - 1] == '*':
+                dp[0][j] = dp[0][j - 2]
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if p[j - 1] == '*':
+                    dp[i][j] = dp[i][j - 2]
+                    if p[j - 2] == '.' or p[j - 2] == s[i - 1]:
+                        dp[i][j] = dp[i][j] or dp[i - 1][j]
+                else:
+                    dp[i][j] = dp[i - 1][j - 1] and (p[j - 1] == '.' or p[j - 1] == s[i - 1])
+        return dp[m][n]`,
+    blanks: [4, 7, 11, 13],
+    time: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(2^(m + n))', 'O(m + n)', 'O(m * n^2)'], why: 'each (i, j) cell is computed once from earlier cells' },
+    space: { answer: 'O(m * n)', choices: ['O(m * n)', 'O(m + n)', 'O(1)', 'O(2^n)'], why: 'the full table' },
+    sayIt: '2-D DP over prefixes. For ==x*== take ==zero uses (dp[i][j-2])== or, if x matches s[i-1], one more use (dp[i-1][j]). Otherwise the diagonal plus a char match. O(m * n).',
+    pitfall: "Treating '*' as match-anything instead of repeating the single element before it.",
+  },
 ]
 
 export default {
   id: 'dp',
   title: 'Dynamic programming',
-  icon: '🧮',
+  icon: 'calculator',
   items,
 }

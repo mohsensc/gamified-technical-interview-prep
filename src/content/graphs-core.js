@@ -2418,7 +2418,7 @@ const mcqRows = [
   [['graph-dfs', 'grid'], 2, 'Surrounded regions: why start DFS from the border?', ['Border cells are larger', 'Safe regions are exactly those touching the border', 'It is faster to index', 'Interior cells are always X'], 1, 'Mark escapable O cells, then everything else is captured. Easier than proving enclosure.'],
   [['graph-dfs', 'topo-sort'], 2, 'Directed graph A→B, A→C, B→D, C→D. A seen-set DFS reports a cycle when it re-reaches D. Correct?', ['Yes, D twice means cycle', 'No, a diamond is acyclic', 'Yes, any repeat is a cycle', 'Only if D has outgoing edges'], 1, 'In directed graphs reaching a FINISHED node is fine. Only an on-path node means a cycle.'],
   [['graph-dfs', 'topo-sort'], 2, '3-color DFS hits a neighbor with state 1. Meaning?', ['Already finished: skip', 'On the current path: cycle', 'Unvisited: recurse', 'Isolated'], 1, 'State 1 = visiting. An edge to it is a back edge.'],
-  [['graph-dfs', 'topo-sort'], 3, 'Path-set course DFS (add, recurse, remove) without memoizing finished courses. Worst case?', ['O(V+E)', 'Exponential on DAGs with shared subpaths', 'O(V log V)', 'O(E²)'], 1, 'Each path re-explores shared descendants. Your submission fixed this by setting courses[c] = [] after success.'],
+  [['graph-dfs', 'topo-sort'], 3, 'Path-set course DFS (add, recurse, remove) without memoizing finished courses. Worst case?', ['O(V+E)', 'Exponential on DAGs with shared subpaths', 'O(V log V)', 'O(E²)'], 1, 'Each path re-explores shared descendants. The fix: set courses[c] = [] after a course succeeds.'],
   [['graph-dfs', 'topo-sort'], 1, 'Course schedule with courses = 2000, prereqs = 5000. Target complexity?', ['O(V·E)', 'O(V+E)', 'O(V²·E)', 'O(2^V)'], 1, 'One DFS or Kahn pass touches each node and edge a constant number of times.'],
   [['topo-sort'], 1, "Kahn's algorithm starts with…", ['The node with most edges', 'All nodes with indegree 0', 'Node 0', 'A random node'], 1, 'Indegree 0 means no unmet prerequisites: safe to output first.'],
   [['topo-sort'], 2, "Kahn's output has length < n. Conclusion?", ['Graph disconnected', 'Graph has a cycle', 'Bug in indegree', 'Graph is a tree'], 1, 'Nodes on a cycle (and behind it) never reach indegree 0.'],
@@ -3193,7 +3193,7 @@ const generators = [
 export default {
   id: 'graphs-core',
   title: 'Graphs: DFS, BFS, Grids, Topo',
-  icon: '🕸️',
+  icon: 'web',
   skills: ['graph-modeling', 'graph-dfs', 'graph-bfs', 'grid', 'topo-sort'],
   lessons,
   traces,

@@ -1,4 +1,5 @@
-import { runQuiz, part, pickByLevel } from './_engine.js'
+import { h } from '../ui/h.js'
+import { runQuiz, part, pickByLevel, shuffle, rand } from './_engine.js'
 
 const costs = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(α(n))', 'O(L)', 'O(k)']
 
@@ -51,9 +52,69 @@ const scenarios = [
     why: "Kahn's: queue the nodes with no remaining prereqs.", op: ['Total cost?', 'O(V+E)', 'Each edge decrements once.'], skills: ['topo-sort'] },
   { d: 3, s: 'Merge k sorted linked lists.', ds: 'Min-heap of list heads', alts: ['Stack', 'Hash map (Counter)', 'Queue (deque)'],
     why: 'Heap picks the smallest head among k.', op: ['Total cost for N nodes?', 'O(N log k)', 'Each node passes through a size-k heap.'], skills: ['heap', 'linked-list'] },
+  { d: 1, s: 'Evaluate a basic calculator expression with + − and parentheses.', ds: 'Stack', alts: ['Queue (deque)', 'Min-heap', 'Trie'],
+    why: 'Push partial results and signs; resolve on a closing paren.', op: ['Cost for an expression of length n?', 'O(n)', 'Each character is pushed or combined once.'], skills: ['stack'] },
+  { d: 2, s: 'Implement a FIFO queue using only two stacks.', ds: 'Two stacks', alts: ['One stack', 'Deque only', 'Hash map'],
+    why: 'Reverse onto the second stack only when it is empty.', op: ['Amortized cost per enqueue/dequeue?', 'O(1)', 'Each element moves between the two stacks at most once.'], skills: ['stack', 'queue-deque'] },
+  { d: 2, s: 'Largest rectangle area in a histogram of n bars.', ds: 'Monotonic stack', alts: ['Min-heap', 'Queue (deque)', 'Sorted list'],
+    why: 'Pop a bar once a shorter one bounds its rectangle.', op: ['Total cost over n bars?', 'O(n)', 'Each bar is pushed and popped once.'], skills: ['monotonic-stack'] },
+  { d: 2, s: 'Count subarrays whose sum equals k, negatives allowed.', ds: 'Hash map: prefix sum → count', alts: ['Sorted list + bisect', 'Stack', 'Min-heap'],
+    why: 'prefix[j] − prefix[i] = k, so store counts of prefix sums seen.', op: ['Total cost over n elements?', 'O(n)', 'One O(1) lookup and update per index.'], skills: ['prefix-sum', 'arrays-hashing'] },
+  { d: 2, s: 'Return the k points closest to the origin.', ds: 'Max-heap of size k', alts: ['Min-heap of everything', 'Sorted list', 'Stack'],
+    why: 'Keep the heap capped at k, evict the farthest point on overflow.', op: ['Cost per new point?', 'O(log k)', 'Heap never exceeds size k.'], skills: ['heap'] },
+  { d: 2, s: 'Is there an edge that, once added, creates a cycle?', ds: 'Union-Find', alts: ['Stack', 'Queue (deque)', 'Trie'],
+    why: 'The first edge joining two already-connected nodes closes a cycle.', op: ['Amortized cost per edge?', 'O(α(n))', 'Path compression keeps find nearly constant.'], skills: ['union-find'] },
+  { d: 2, s: 'Group emails that share any account owner.', ds: 'Union-Find', alts: ['Hash map alone', 'Adjacency matrix', 'Stack'],
+    why: 'Union every pair of emails on the same account, then group by root.', op: ['Total cost for n emails, e unions?', 'O((n+e)·α(n))', 'Each union/find call is near constant.'], skills: ['union-find'] },
+  { d: 1, s: 'Autocomplete: suggest words starting with a typed prefix.', ds: 'Trie', alts: ['Sorted list + bisect', 'Hash set', 'Min-heap'],
+    why: 'Shared prefixes share the same path down the trie.', op: ['Cost to list m matches of a length-L prefix?', 'O(L + m)', 'Walk the prefix once, then read off its subtree.'], skills: ['trie'] },
+  { d: 2, s: 'Search a grid of letters for many dictionary words at once.', ds: 'Trie', alts: ['Hash set of words', 'Sorted list', 'Stack'],
+    why: 'A trie lets DFS prune branches with no matching prefix.', op: ['Cost to build the trie for m words of length L?', 'O(m·L)', 'Insert each word once, one node per character.'], skills: ['trie'] },
+  { d: 1, s: 'Delete a node from a doubly linked list given only a pointer to it.', ds: 'Doubly linked list', alts: ['Singly linked list', 'Array', 'Stack'],
+    why: 'Both neighbors are already known, so no search is needed.', op: ['Cost of the delete?', 'O(1)', 'Rewire two neighbor pointers.'], skills: ['linked-list'] },
+  { d: 1, s: 'Detect a cycle in a linked list using O(1) extra space.', ds: 'Fast & slow pointers', alts: ['Hash set of visited nodes', 'Stack', 'Queue (deque)'],
+    why: 'A fast pointer laps a slow one only inside a cycle.', op: ['Cost until they meet or fast hits null?', 'O(n)', 'Each pointer makes a bounded number of total steps.'], skills: ['linked-list'] },
+  { d: 2, s: 'Fewest one-letter changes to turn one word into another, words built on the fly.', ds: 'Queue (BFS over implicit edges)', alts: ['DFS with a stack', 'Union-Find', 'Min-heap'],
+    why: 'Unweighted edges: BFS layers give the fewest changes.', op: ['Total cost with n words of length L, alphabet 26?', 'O(n·L·26)', 'Each word tries L·26 one-letter edits.'], skills: ['graph-bfs', 'graph-modeling'] },
+  { d: 3, s: 'Repeatedly combine the two least-frequent items (Huffman-style).', ds: 'Min-heap', alts: ['Sorted list + bisect', 'Stack', 'Queue (deque)'],
+    why: 'Always need the two smallest next: a heap gives both in log time.', op: ['Total cost for n items?', 'O(n log n)', 'n−1 merges, each heap op is log n.'], skills: ['heap'] },
+  { d: 1, s: 'Undo and redo edits in both directions.', ds: 'Two stacks', alts: ['Doubly linked list', 'Queue (deque)', 'Min-heap'],
+    why: 'Undo pops one stack and pushes onto the redo stack; redo reverses that.', op: ['Cost of one undo?', 'O(1)', 'Pop one stack, push the other.'], skills: ['stack'] },
+  { d: 2, s: 'Search a text stream for many fixed patterns at once.', ds: 'Trie (Aho-Corasick style)', alts: ['One hash set per pattern', 'Sorted list', 'Min-heap'],
+    why: 'A trie checks every pattern as you scan the text once.', op: ['Cost to scan length n for patterns of total length L?', 'O(n + L)', 'One pass over the text plus building the trie once.'], skills: ['trie'] },
+  { d: 3, s: 'Kth smallest value in a BST, queried repeatedly as it mutates.', ds: 'BST augmented with subtree size', alts: ['Sorted list + bisect', 'Min-heap', 'Hash map'],
+    why: 'Subtree counts let you binary-search down the tree by rank.', op: ['Cost per query?', 'O(log n)', 'One root-to-leaf walk guided by subtree sizes.'], skills: ['bst'] },
+  { d: 2, s: 'Track the least frequently used item, evict it on overflow.', ds: 'Hash map + frequency buckets of linked lists', alts: ['Stack', 'Sorted list', 'Min-heap'],
+    why: 'Each frequency bucket is a doubly linked list, so eviction never scans.', op: ['Cost of a touch or evict?', 'O(1)', 'Move between buckets via pointers, no search.'], skills: ['linked-list', 'arrays-hashing'] },
+  { d: 2, s: 'Serialize a binary tree, then rebuild it exactly.', ds: 'Queue (level-order encoding)', alts: ['Stack for preorder encoding', 'Min-heap', 'Trie'],
+    why: 'Either traversal works if nulls are marked; BFS with a queue is a common choice.', op: ['Cost to serialize n nodes?', 'O(n)', 'Visit every node exactly once.'], skills: ['tree-bfs'] },
+  { d: 1, s: 'Check whether a string is a valid palindrome, ignoring punctuation.', ds: 'Two pointers (no extra structure)', alts: ['Stack', 'Hash set', 'Queue (deque)'],
+    why: 'Compare inward from both ends in place: no extra storage needed.', op: ['Cost for length n?', 'O(n)', 'Each pointer sweeps its half once.'], skills: ['two-pointers'] },
+  { d: 2, s: 'Connect all points with the minimum total wire length.', ds: 'Min-heap (Prim-style MST)', alts: ['Stack', 'Queue (deque)', 'Hash set'],
+    why: 'Prim grows the tree, always taking the cheapest edge out of it via a heap.', op: ['Total cost for V vertices, E edges?', 'O(E log V)', 'Each edge may enter the heap once.'], skills: ['mst', 'heap'] },
+  { d: 1, s: 'Repeatedly find and remove the maximum as new values arrive.', ds: 'Max-heap', alts: ['Sorted list', 'Stack', 'Hash set'],
+    why: 'A max-heap keeps the largest on top with log-time updates.', op: ['Cost of push / extract-max?', 'O(log n)', 'One sift up or down a root-to-leaf path.'], skills: ['heap'] },
+  { d: 1, s: 'Check if two strings are anagrams of each other.', ds: 'Hash map (Counter)', alts: ['Stack', 'Min-heap', 'Trie'],
+    why: 'Count letters in one pass each, then compare the counts.', op: ['Cost for strings of length n?', 'O(n)', 'One linear scan per string.'], skills: ['arrays-hashing'] },
+  { d: 2, s: 'Longest run of consecutive integers in an unsorted array, O(n).', ds: 'Hash set', alts: ['Sorted list + bisect', 'Stack', 'Min-heap'],
+    why: 'Only start counting from a value with no predecessor in the set.', op: ['Cost for n values?', 'O(n)', 'Each value is visited by a run at most once.'], skills: ['arrays-hashing'] },
+  { d: 2, s: 'Find the first non-repeating character in a stream of characters.', ds: 'Hash map (Counter) + queue', alts: ['Stack', 'Min-heap', 'Trie'],
+    why: 'Counts track frequency; the queue holds candidates, dropping ones that became repeated.', op: ['Amortized cost per character?', 'O(1)', 'Each character enters and leaves the queue at most once.'], skills: ['arrays-hashing', 'queue-deque'] },
+  { d: 3, s: 'Range sums over an array where individual values keep changing.', ds: 'Fenwick tree', alts: ['Prefix-sum array', 'Hash map: prefix sum → count', 'Stack'],
+    why: 'A plain prefix array makes every update O(n); a Fenwick tree keeps update and query both logarithmic.', op: ['Cost of one update or prefix query?', 'O(log n)', 'Each step jumps by the lowest set bit, so at most log n cells are touched.'], skills: ['prefix-sum', 'ds-diagnosis'] },
+  { d: 3, s: 'Stock prices that can be corrected later, with current, max and min asked at any time.', ds: 'Two heaps with lazy deletion', alts: ['Sorted list + bisect', 'Min-heap of size k', 'Stack'],
+    why: 'A min-heap and a max-heap give the extremes; stale entries are discarded only when they reach the top.', op: ['Cost per update, max or min?', 'O(log n)', 'Each push is log n and each stale entry is popped once.'], skills: ['heap', 'ds-diagnosis'] },
+  { d: 3, s: 'Stack whose pop returns the most frequent element, newest first on ties.', ds: 'Hash map of frequency → stack', alts: ['Max-heap', 'Hash map (Counter)', 'Monotonic stack'],
+    why: 'One stack per frequency level means the top of the highest level is always the answer.', op: ['Cost of push or pop?', 'O(1)', 'One count update and one stack operation.'], skills: ['stack', 'arrays-hashing', 'ds-diagnosis'] },
+  { d: 3, s: 'Pick the pair of numbers whose XOR is largest.', ds: 'Trie of bits', alts: ['Hash set', 'Sorted list + bisect', 'Max-heap'],
+    why: 'Walking the opposite bit at each level greedily builds the largest XOR for each number.', op: ['Cost per number with L-bit values?', 'O(L)', 'One trie step per bit.'], skills: ['trie', 'bit'] },
+  { d: 2, s: 'Accept a booking only if it does not overlap any earlier booking.', ds: 'Sorted list + bisect', alts: ['Min-heap', 'Hash set', 'Stack'],
+    why: 'Only the neighbors of the insertion point can overlap, and bisect finds that point.', op: ['Cost of the overlap search?', 'O(log n)', 'Bisect finds the two neighbors; only the list insert shifts elements.'], skills: ['intervals', 'binary-search'] },
+  { d: 2, s: 'Count hits in the last 5 minutes when timestamps only move forward.', ds: 'Deque of (timestamp, count)', alts: ['Min-heap', 'Sorted list + bisect', 'Hash set'],
+    why: 'Expired hits are always at the front, so pop them as time advances.', op: ['Amortized cost per call?', 'O(1)', 'Each bucket is appended once and popped once.'], skills: ['queue-deque', 'ds-diagnosis'] },
 ]
 
-export function makeQuestion(level = 1) {
+function structureQuestion(level) {
   const item = pickByLevel(scenarios, level)
   const index = scenarios.indexOf(item)
   const [opQ, opAnswer, opWhy] = item.op
@@ -63,7 +124,7 @@ export function makeQuestion(level = 1) {
   return {
     id: `ds-match:${index}`,
     skills: ['ds-diagnosis', ...item.skills],
-    tag: '🧩 Pick the structure',
+    tag: { icon: 'puzzle', text: 'Pick the structure' },
     summary: item.s,
     prompt: item.s,
     parts: [
@@ -73,19 +134,229 @@ export function makeQuestion(level = 1) {
   }
 }
 
+function heapPush(heap, value) {
+  heap.push(value)
+  let idx = heap.length - 1
+  while (idx > 0) {
+    const parent = Math.floor((idx - 1) / 2)
+    if (heap[parent] <= heap[idx]) break
+    ;[heap[parent], heap[idx]] = [heap[idx], heap[parent]]
+    idx = parent
+  }
+}
+
+function randomHeap(size) {
+  const values = shuffle(Array.from({ length: 30 }, (_, i) => i + 1)).slice(0, size)
+  const heap = []
+  for (const value of values) heapPush(heap, value)
+  return heap
+}
+
+function buildPushSteps(heap, value) {
+  const arr = [...heap, value]
+  const steps = []
+  let idx = arr.length - 1
+  while (idx > 0) {
+    const parent = Math.floor((idx - 1) / 2)
+    const swap = arr[idx] < arr[parent]
+    steps.push({ idx, parent, parentVal: arr[parent], val: arr[idx], swap, before: [...arr] })
+    if (!swap) break
+    ;[arr[idx], arr[parent]] = [arr[parent], arr[idx]]
+    idx = parent
+  }
+  return steps
+}
+
+function buildPopSteps(heap) {
+  const arr = [...heap]
+  const popped = arr[0]
+  const last = arr.pop()
+  if (!arr.length) return { popped, steps: [] }
+  arr[0] = last
+  const steps = []
+  let idx = 0
+  while (true) {
+    const left = 2 * idx + 1
+    const right = 2 * idx + 2
+    let smallest = idx
+    if (left < arr.length && arr[left] < arr[smallest]) smallest = left
+    if (right < arr.length && arr[right] < arr[smallest]) smallest = right
+    steps.push({
+      idx, val: arr[idx], target: smallest,
+      left: left < arr.length ? left : null, leftVal: left < arr.length ? arr[left] : null,
+      right: right < arr.length ? right : null, rightVal: right < arr.length ? arr[right] : null,
+      before: [...arr],
+    })
+    if (smallest === idx) break
+    ;[arr[idx], arr[smallest]] = [arr[smallest], arr[idx]]
+    idx = smallest
+  }
+  return { popped, steps }
+}
+
+function drawHeapArray(arr, roles = {}) {
+  return h('div', { class: 'heap-row' }, arr.map((val, i) => h('div', { class: `heap-box${roles[i] ? ` heap-${roles[i]}` : ''}` },
+    h('span', { class: 'heap-val' }, String(val)),
+    h('span', { class: 'heap-idx' }, String(i)))))
+}
+
+function heapStepVisual(caption, arr, roles) {
+  return h('div', { class: 'heap-ask' }, h('div', { class: 'heap-ask-cap' }, caption), drawHeapArray(arr, roles))
+}
+
+function heapPushQuestion(level) {
+  const size = Math.min(12, 5 + Math.floor(level / 1.4) + rand(3))
+  const heap = randomHeap(size)
+  const value = 1 + rand(30)
+  const steps = buildPushSteps(heap, value)
+  const parts = steps.map((step, i) => {
+    const roles = { [step.idx]: 'current', [step.parent]: 'parent' }
+    const swapLabel = `Swap with parent (idx ${step.parent}, val ${step.parentVal})`
+    const stopLabel = 'Stop — in place'
+    const answer = step.swap ? swapLabel : stopLabel
+    const why = step.swap ? `${step.val} < ${step.parentVal}, so it keeps bubbling up.` : `${step.val} ≥ ${step.parentVal}: the min-heap property holds here.`
+    return part(heapStepVisual(`Step ${i + 1} · index ${step.idx} (${step.val}) vs parent`, step.before, roles), answer, [swapLabel, stopLabel], why)
+  })
+  return {
+    id: `ds-match:heap:push:${size}:${value}`,
+    skills: ['ds-diagnosis', 'heap'],
+    tag: { icon: 'layers', text: 'Sift up' },
+    tagClass: 'pill-sky',
+    summary: `Push ${value} into a size-${size} min-heap`,
+    prompt: `Push ${value} onto the heap — where does it settle?`,
+    parts,
+  }
+}
+
+function heapPopQuestion(level) {
+  const size = Math.min(12, 6 + Math.floor(level / 1.4) + rand(3))
+  const heap = randomHeap(size)
+  const { popped, steps } = buildPopSteps(heap)
+  if (!steps.length) return heapPushQuestion(level)
+  const parts = steps.map((step, i) => {
+    const roles = { [step.idx]: 'current' }
+    if (step.left != null) roles[step.left] = 'left'
+    if (step.right != null) roles[step.right] = 'right'
+    const options = []
+    if (step.left != null) options.push({ key: 'left', label: `Swap with left (idx ${step.left}, val ${step.leftVal})` })
+    if (step.right != null) options.push({ key: 'right', label: `Swap with right (idx ${step.right}, val ${step.rightVal})` })
+    options.push({ key: 'stop', label: 'Stop — smaller than both children' })
+    const answerKey = step.target === step.idx ? 'stop' : (step.target === step.left ? 'left' : 'right')
+    const answerOption = options.find(option => option.key === answerKey)
+    const distractors = options.map(option => option.label)
+    const why = answerKey === 'stop' ? `${step.val} is already ≤ both children.` : `The smaller child wins: swap with ${answerKey}.`
+    return part(heapStepVisual(`Step ${i + 1} · index ${step.idx} (${step.val}) vs children`, step.before, roles), answerOption.label, distractors, why)
+  })
+  return {
+    id: `ds-match:heap:pop:${size}`,
+    skills: ['ds-diagnosis', 'heap'],
+    tag: { icon: 'layers', text: 'Sift down' },
+    tagClass: 'pill-sky',
+    summary: `Pop the min from a size-${size} heap (removed ${popped})`,
+    prompt: `Pop the min (${popped}) — sift the replacement down`,
+    parts,
+  }
+}
+
+function heapQuestion(level) {
+  return rand(2) === 0 ? heapPushQuestion(level) : heapPopQuestion(level)
+}
+
+function buildStackOps(level) {
+  const opsCount = Math.min(11, 5 + Math.floor(level / 1.3) + rand(3))
+  const stack = []
+  const ops = []
+  for (let i = 0; i < opsCount; i++) {
+    const doPop = stack.length > 0 && (rand(3) === 0 || i === opsCount - 1 && stack.length > 2 && rand(2) === 0)
+    if (doPop) {
+      const val = stack.pop()
+      ops.push({ type: 'pop', val })
+    } else {
+      const val = 1 + rand(99)
+      stack.push(val)
+      ops.push({ type: 'push', val })
+    }
+  }
+  if (!stack.length) {
+    const val = 1 + rand(99)
+    stack.push(val)
+    ops.push({ type: 'push', val })
+  }
+  return { ops, finalStack: [...stack] }
+}
+
+function stackOpsToCode(ops) {
+  const lines = ['stack = []']
+  for (const op of ops) lines.push(op.type === 'push' ? `stack.append(${op.val})` : 'stack.pop()')
+  return lines.join('\n')
+}
+
+function stackLabel(list) {
+  return `[${list.join(', ')}]`
+}
+
+function stackVariants(finalStack) {
+  const variants = new Set([stackLabel(finalStack)])
+  if (finalStack.length > 1) variants.add(stackLabel([...finalStack].reverse()))
+  if (finalStack.length > 1) {
+    const swapped = [...finalStack]
+    const n = swapped.length
+    ;[swapped[n - 1], swapped[n - 2]] = [swapped[n - 2], swapped[n - 1]]
+    variants.add(stackLabel(swapped))
+  }
+  if (finalStack.length > 2) variants.add(stackLabel(finalStack.slice(0, -1)))
+  if (finalStack.length > 2) variants.add(stackLabel(finalStack.slice(1)))
+  variants.add(stackLabel([...finalStack, finalStack[finalStack.length - 1]]))
+  return [...variants]
+}
+
+function stackQuestion(level) {
+  const { ops, finalStack } = buildStackOps(level)
+  const code = stackOpsToCode(ops)
+  const answer = stackLabel(finalStack)
+  const variants = stackVariants(finalStack)
+  const topVal = finalStack[finalStack.length - 1]
+  const prevVal = finalStack.length > 1 ? finalStack[finalStack.length - 2] : null
+  const poppedVal = [...ops].reverse().find(op => op.type === 'pop')?.val
+  const popDistractors = [...new Set([prevVal, poppedVal, 1 + rand(99), 1 + rand(99)].filter(v => v !== undefined && v !== null && v !== topVal))].map(String)
+  return {
+    id: `ds-match:stack:${ops.length}:${finalStack.join('-')}`,
+    skills: ['ds-diagnosis', 'stack'],
+    tag: { icon: 'layers', text: 'Predict the stack' },
+    tagClass: 'pill-teal',
+    summary: `Stack after ${ops.length} ops`,
+    code,
+    parts: [
+      part('Stack now, bottom → top?', answer, variants, `Last in, first out: ${answer}.`),
+      part('Next stack.pop() returns?', String(topVal), popDistractors, `The top is the most recent value still on the stack: ${topVal}.`),
+    ],
+  }
+}
+
+export function makeQuestion(level = 1) {
+  const roll = rand(3)
+  if (roll === 0) return structureQuestion(level)
+  if (roll === 1) return heapQuestion(level)
+  return stackQuestion(level)
+}
+
 export default {
   id: 'ds-match',
   title: 'DS Match',
-  icon: '🧩',
-  blurb: 'Scenario in, data structure and cost out.',
+  icon: 'puzzle',
+  blurb: 'Scenario, heap sifts, and stack traces.',
   skills: ['ds-diagnosis', 'heap', 'stack', 'queue-deque'],
+  difficulty: 'Up to Lv 6',
+  modeLabel: '3 lives',
+  supportsDaily: true,
   mount: (container, api) => runQuiz(container, api, {
     title: 'DS Match',
-    icon: '🧩',
-    rules: ['structure, then cost', 'combos multiply'],
+    icon: 'puzzle',
+    rules: ['structure, heap, or stack', 'combos multiply'],
     mode: 'lives',
     lives: 3,
     speedMs: 12000,
+    seed: api.seed,
     makeQuestion,
   }),
 }

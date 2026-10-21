@@ -1,6 +1,13 @@
 {
-  "name": "google-cram",
+  "name": "techprep",
   "private": true,
   "type": "module",
-  "scripts": { "start": "node server.js" }
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "validate": "node scripts/validate-content.mjs",
+    "test": "node --test tests/"
+  }
 }

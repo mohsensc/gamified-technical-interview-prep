@@ -1,12 +1,14 @@
 import { h, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { breadcrumb } from '../ui/breadcrumb.js'
 import { shuffleMcq } from '../ui/items.js'
 import { renderPanels } from '../viz/render.js'
 import { mountStepper } from '../viz/stepper.js'
 import { findNode, hrefFor, pathTo, nextBite, algorithmById } from '../content/curriculum.js'
-import { lessons, traceById } from '../content/index.js'
-import { framework, phrases, googleTips, templates } from '../content/narration.js'
+import { lessons, traceById, problems } from '../content/index.js'
+import { companyChips } from '../ui/companies.js'
+import { framework, phrases, interviewTips, templates } from '../content/narration.js'
 import { buildSession } from '../engine/session.js'
 import { recordAnswer, completeBite, saveSession, setEventContext, clearEventContext } from '../store.js'
 import runRapid from '../ui/modes/rapid.js'
@@ -22,7 +24,7 @@ const decodeParam = value => {
 }
 
 function emptyCard(message) {
-  return h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, '🧩'), h('p', { class: 'muted' }, message))
+  return h('div', { class: 'empty card' }, h('div', { class: 'empty-icon' }, icon('puzzle', 32)), h('p', { class: 'muted' }, message))
 }
 
 function askBlock(originalAsk, askId, skillsList) {
@@ -81,15 +83,16 @@ function renderLesson(stage, bite, markDone) {
       currentAsk = askBlock(slide.ask, `${lesson.id}:ask:${slideIndex}`, lesson.skills || bite.skills || [])
       body.append(currentAsk.el)
     }
-    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, '←')
+    const prevButton = h('button', { class: 'btn btn-ghost', disabled: slideIndex === 0, onclick: () => go(-1) }, icon('arrowLeft', 16))
     const nextButton = isLast
       ? h('button', { class: 'btn btn-primary', onclick: () => markDone() }, 'Finish')
-      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, '→')
+      : h('button', { class: 'btn btn-primary', onclick: () => go(1) }, icon('arrowRight', 16))
     deck.replaceChildren(
       h('div', { class: 'row slide-head' },
         h('div', { class: 'slide-lesson muted' }, lesson.title),
         h('div', { class: 'slide-dots' }, slides.map((_, i) => h('button', {
           class: `slide-dot${i === slideIndex ? ' active' : ''}${i < slideIndex ? ' past' : ''}`,
+          'aria-label': `Slide ${i + 1}`,
           onclick: () => { slideIndex = i; draw() },
         })))),
       h('h2', { class: 'slide-title' }, slide.title || lesson.title),
@@ -148,7 +151,7 @@ function renderAlgoBite(stage, bite, markDone) {
         algo.time ? h('span', { class: 'pill pill-amber mono' }, algo.time) : null,
         algo.space ? h('span', { class: 'pill pill-sky mono' }, algo.space) : null)),
     algo.oneLiner ? h('p', null, richText(algo.oneLiner)) : null,
-    algo.mnemonic ? h('div', { class: 'algo-mnemonic' }, '💡 ', richText(algo.mnemonic)) : null,
+    algo.mnemonic ? h('div', { class: 'algo-mnemonic' }, icon('idea', 14), ' ', richText(algo.mnemonic)) : null,
     algo.whenToUse?.length ? h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'When'), h('ul', { class: 'slide-points' }, algo.whenToUse.map(line => h('li', null, richText(line))))) : null,
     algo.notWhen?.length ? h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Not when'), h('ul', { class: 'slide-points' }, algo.notWhen.map(line => h('li', null, richText(line))))) : null,
     algo.steps?.length ? h('div', { class: 'stack-sm' }, h('span', { class: 'label muted' }, 'Steps'), h('ol', { class: 'algo-steps' }, algo.steps.map(step => h('li', null, richText(step))))) : null,
@@ -192,7 +195,7 @@ function renderSessionBite(stage, bite, markDone) {
 function renderFrameworkRef(stage, markDone) {
   stage.replaceChildren(
     h('div', { class: 'stack' }, framework.map(step => h('div', { class: 'card bite-phase-card stack-sm' },
-      h('div', { class: 'row' }, h('span', null, step.icon), h('strong', null, step.title), h('span', { class: 'muted small' }, `${step.minutes}m`)),
+      h('div', { class: 'row' }, h('span', null, icon(step.icon, 16)), h('strong', null, step.title), h('span', { class: 'muted small' }, `${step.minutes}m`)),
       h('p', { class: 'muted small' }, step.goal),
       h('ul', { class: 'slide-points' }, step.checklist.map(item => h('li', null, item)))))),
     doneButton(markDone))
@@ -200,7 +203,7 @@ function renderFrameworkRef(stage, markDone) {
 
 function renderTipsRef(stage, markDone) {
   stage.replaceChildren(
-    h('div', { class: 'grid' }, googleTips.map(tip => h('div', { class: 'card' }, h('strong', null, tip.title), h('div', { class: 'muted small' }, tip.text)))),
+    h('div', { class: 'grid' }, interviewTips.map(tip => h('div', { class: 'card' }, h('strong', null, tip.title), h('div', { class: 'muted small' }, tip.text)))),
     h('div', { class: 'stack' }, Object.entries(phrases).map(([group, lines]) => h('div', { class: 'card stack-sm' },
       h('strong', null, group.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase())),
       lines.map(line => h('div', { class: 'small' }, `"${line}"`))))),
@@ -211,7 +214,7 @@ function renderSimRef(stage, markDone) {
   stage.replaceChildren(
     h('div', { class: 'card stack' },
       h('p', null, 'Run a full 45-minute mock interview with the timer and rubric.'),
-      h('a', { class: 'btn btn-primary', href: '#/mock' }, 'Open mock interview →')),
+      h('a', { class: 'btn btn-primary', href: '#/mock' }, ['Open mock interview ', icon('arrowRight', 16)])),
     doneButton(markDone, 'Mark done after you run it'))
 }
 
@@ -238,7 +241,7 @@ function renderNarrateRef(stage, templateId, markDone) {
       h('div', { class: 'bite-narrate-line' }, revealed ? richText(line.say) : h('span', { class: 'muted' }, 'Say it out loud, then reveal')),
       h('div', { class: 'row' },
         revealed ? null : h('button', { class: 'btn btn-primary', onclick: () => { revealed = true; draw() } }, 'Reveal'),
-        revealed ? h('button', { class: 'btn btn-primary', onclick: () => { index += 1; revealed = false; draw() } }, index + 1 < template.lines.length ? 'Next →' : 'Finish') : null))
+        revealed ? h('button', { class: 'btn btn-primary', onclick: () => { index += 1; revealed = false; draw() } }, index + 1 < template.lines.length ? ['Next ', icon('arrowRight', 16)] : 'Finish') : null))
   }
   draw()
   return null
@@ -247,12 +250,15 @@ function renderNarrateRef(stage, templateId, markDone) {
 function renderReadBite(stage, bite, markDone) {
   const isDrill = !bite.ref || bite.ref === 'drill'
   const target = isDrill ? '#/read/drill' : `#/read/${encodeURIComponent(bite.ref)}`
+  const lcMatch = !isDrill && bite.ref.match(/lc(\d+)/)
+  const problem = lcMatch ? problems.find(entry => entry.lc === Number(lcMatch[1])) : null
   stage.replaceChildren(
     h('div', { class: 'card stack' },
+      problem ? companyChips(problem.companies, { size: 'sm' }) : null,
       h('p', { class: 'muted' }, isDrill
         ? 'Rapid-fire signature drill: title + one-liner, type the class and method signature from memory.'
         : 'Read the full statement, extract the signal, then type the exact signature (class included).'),
-      h('a', { class: 'btn btn-primary', href: target }, 'Open Read & Sign →')),
+      h('a', { class: 'btn btn-primary', href: target }, ['Open Read & Sign ', icon('arrowRight', 16)])),
     doneButton(markDone, 'Done, mark complete'))
   return null
 }
@@ -290,7 +296,7 @@ function renderBite(container, bite) {
     const next = nextBite(bite.id, { includeOptional: true })
     footer.replaceChildren(
       h('a', { class: 'btn btn-ghost', href: hrefFor(bite.moduleId) }, 'Back to module'),
-      next ? h('a', { class: 'btn btn-primary', href: hrefFor(next.id) }, 'Next bite →') : h('a', { class: 'btn btn-primary', href: hrefFor(bite.moduleId) }, 'Module done →'))
+      next ? h('a', { class: 'btn btn-primary', href: hrefFor(next.id) }, ['Next bite ', icon('arrowRight', 16)]) : h('a', { class: 'btn btn-primary', href: hrefFor(bite.moduleId) }, ['Module done ', icon('arrowRight', 16)]))
   }
 
   let cleanup = null
@@ -315,7 +321,7 @@ export default function render(container, params = {}) {
   const node = findNode(id)
   if (!node || node.kind !== 'bite') {
     container.append(h('div', { class: 'page' }, h('div', { class: 'empty card' },
-      h('div', { class: 'empty-icon' }, '🧩'),
+      h('div', { class: 'empty-icon' }, icon('puzzle', 32)),
       h('p', { class: 'muted' }, `No bite "${id}".`),
       h('a', { class: 'btn btn-primary', href: '#/course' }, 'Back to course'))))
     return null

@@ -1,4 +1,5 @@
 import { h, svg, clear } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { parseCloze } from '../ui/items.js'
 import { mountStepper } from '../viz/stepper.js'
@@ -9,6 +10,7 @@ import { allBites } from '../content/curriculum.js'
 import { problems } from '../content/index.js'
 import { skills as skillMeta } from '../content/skills.js'
 import algorithmsContent from '../content/algorithms.js'
+import { subnav } from '../ui/subnav.js'
 
 const branches = algorithmsContent.branches
 const branchById = Object.fromEntries(branches.map(b => [b.id, b]))
@@ -115,7 +117,7 @@ function pathProgress(pathId) {
 
 function notFoundCard() {
   return h('div', { class: 'page' }, h('div', { class: 'card empty' },
-    h('div', { class: 'empty-icon' }, '🌳'),
+    h('div', { class: 'empty-icon' }, icon('tree', 32)),
     h('h3', null, 'Algorithm not found'),
     h('a', { class: 'btn', href: '#/algorithms' }, 'Back to the tree')))
 }
@@ -170,8 +172,8 @@ function wrapLabel(title, maxChars = 15) {
 }
 
 function renderTree(container, query) {
-  let view = readPref('cram.algoView', 'tree')
-  let activePath = query.path && pathById[query.path] ? query.path : readPref('cram.algoPath', '')
+  let view = readPref('techprep.algoView', 'tree')
+  let activePath = query.path && pathById[query.path] ? query.path : readPref('techprep.algoPath', '')
   if (activePath && !pathById[activePath]) activePath = ''
   let tierFilter = 'all'
   const activeBranches = new Set(branches.map(b => b.id))
@@ -179,7 +181,7 @@ function renderTree(container, query) {
 
   const setPath = id => {
     activePath = id
-    writePref('cram.algoPath', id || '')
+    writePref('techprep.algoPath', id || '')
   }
 
   const matches = node => {
@@ -242,10 +244,10 @@ function renderTree(container, query) {
   }, `${path.title} · ${path.minutes}m`))
   const pathRow = h('div', { class: 'row-wrap path-row' }, pathChipEls)
 
-  const viewTreeChip = h('button', { class: `chip${view === 'tree' ? ' active' : ''}` }, '🌳 Tree')
-  const viewListChip = h('button', { class: `chip${view === 'list' ? ' active' : ''}` }, '▤ List')
-  viewTreeChip.onclick = () => { view = 'tree'; writePref('cram.algoView', view); viewTreeChip.classList.add('active'); viewListChip.classList.remove('active'); redrawBody() }
-  viewListChip.onclick = () => { view = 'list'; writePref('cram.algoView', view); viewListChip.classList.add('active'); viewTreeChip.classList.remove('active'); redrawBody() }
+  const viewTreeChip = h('button', { class: `chip${view === 'tree' ? ' active' : ''}` }, icon('tree', 14), ' Tree')
+  const viewListChip = h('button', { class: `chip${view === 'list' ? ' active' : ''}` }, icon('list', 14), ' List')
+  viewTreeChip.onclick = () => { view = 'tree'; writePref('techprep.algoView', view); viewTreeChip.classList.add('active'); viewListChip.classList.remove('active'); redrawBody() }
+  viewListChip.onclick = () => { view = 'list'; writePref('techprep.algoView', view); viewListChip.classList.add('active'); viewTreeChip.classList.remove('active'); redrawBody() }
 
   const pathBarHost = h('div', { class: 'algo-pathbar-host' })
   const bodyHost = h('div', { class: 'algo-body-host' })
@@ -254,8 +256,9 @@ function renderTree(container, query) {
     levelLabel.map((label, i) => h('span', null, h('i', { style: { background: `var(--border-strong)`, opacity: 0.35 + i * 0.22 } }), label)))
 
   const page = h('div', { class: 'page algo-tree-page' },
+    subnav('learn', 'algorithms'),
     h('div', { class: 'page-header' },
-      h('div', null, h('h1', null, 'Algorithm Tree'), h('p', { class: 'muted' }, 'Pan, zoom, click a node. Lit nodes are the ones you already know.')),
+      h('h1', null, 'Algorithms'),
       h('div', { class: 'row' }, viewTreeChip, viewListChip)),
     h('div', { class: 'card algo-controls' },
       searchInput,
@@ -282,7 +285,7 @@ function renderTree(container, query) {
       h('div', { class: 'stack-sm grow' },
         h('div', { class: 'row spread' }, h('b', null, path.title), h('span', { class: 'muted small' }, `${done}/${total} done · ${path.minutes} min`)),
         h('div', { class: 'progress' }, h('div', { class: 'progress-fill', style: { width: `${total ? (done / total) * 100 : 0}%` } }))),
-      nextAlgo ? h('a', { class: 'btn btn-primary', href: algoHref(nextAlgo.id, activePath) }, `Next: ${nextAlgo.title} →`) : null,
+      nextAlgo ? h('a', { class: 'btn btn-primary', href: algoHref(nextAlgo.id, activePath) }, [`Next: ${nextAlgo.title} `, icon('arrowRight', 16)]) : null,
       h('button', { class: 'btn btn-icon', title: 'Clear path', onclick: () => { setPath(''); for (const chip of pathChipEls) chip.classList.remove('active'); refresh() } }, '×')))
   }
 
@@ -312,7 +315,7 @@ function renderListView(host, { matches, activePath }) {
   })).filter(group => group.nodes.length)
 
   if (!groups.length) {
-    host.append(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, '🔍'), h('h3', null, 'No matches'), h('p', { class: 'muted' }, 'Try a different search or filter.')))
+    host.append(h('div', { class: 'card empty' }, h('div', { class: 'empty-icon' }, icon('search', 32)), h('h3', null, 'No matches'), h('p', { class: 'muted' }, 'Try a different search or filter.')))
     return
   }
 
@@ -475,7 +478,7 @@ function renderDetail(container, algo, query) {
 
   const header = h('div', { class: 'page-header algo-detail-head' },
     h('div', { class: 'row algo-crumb' },
-      h('a', { class: 'btn btn-ghost btn-sm', href: pathId ? `#/algorithms?path=${encodeURIComponent(pathId)}` : '#/algorithms' }, '← Tree'),
+      h('a', { class: 'btn btn-ghost btn-sm', href: pathId ? `#/algorithms?path=${encodeURIComponent(pathId)}` : '#/algorithms' }, [icon('arrowLeft', 16), ' Tree']),
       branch ? h('span', { class: 'pill', style: { color: branch.color, background: 'color-mix(in srgb, currentColor 16%, transparent)' } }, branch.title) : null,
       h('span', { class: `pill tier-pill tier-${algo.tier}` }, tierLabel(algo.tier)),
       h('span', { class: `pill level-pill level-${level}` }, levelLabel[level]),
@@ -518,7 +521,7 @@ function renderDetail(container, algo, query) {
       recallPanel.style.display = showing ? 'none' : ''
       templateBlock.style.display = showing ? '' : 'none'
       recallToggle.classList.toggle('active', !showing)
-    } }, '🧠 Recall mode')
+    } }, icon('brain', 14), ' Recall mode')
   }
 
   const templateCard = h('div', { class: 'card' },
@@ -527,8 +530,8 @@ function renderDetail(container, algo, query) {
 
   const complexityCard = h('div', { class: 'card algo-complexity' },
     h('div', { class: 'row' },
-      algo.time ? h('span', { class: 'pill pill-amber' }, `⏱ ${algo.time}`) : null,
-      algo.space ? h('span', { class: 'pill pill-sky' }, `▦ ${algo.space}`) : null),
+      algo.time ? h('span', { class: 'pill pill-amber' }, icon('clock', 12), ` ${algo.time}`) : null,
+      algo.space ? h('span', { class: 'pill pill-sky' }, icon('grid', 12), ` ${algo.space}`) : null),
     algo.whyComplexity ? h('p', { class: 'muted' }, rich(algo.whyComplexity)) : null)
 
   const compareCard = algo.compare?.length ? h('div', { class: 'card' },
@@ -560,10 +563,11 @@ function renderDetail(container, algo, query) {
     h('a', { class: 'btn', href: practiceHref('cards', { skills: algo.skills }) }, 'Flashcards'))
 
   const pagerRow = h('div', { class: 'row problem-pager' },
-    prevHref ? h('a', { class: 'btn btn-ghost', href: prevHref }, '← Prev') : h('span'),
-    nextHref ? h('a', { class: 'btn btn-ghost', href: nextHref }, 'Next →') : null)
+    prevHref ? h('a', { class: 'btn btn-ghost', href: prevHref }, [icon('arrowLeft', 16), ' Prev']) : h('span'),
+    nextHref ? h('a', { class: 'btn btn-ghost', href: nextHref }, ['Next ', icon('arrowRight', 16)]) : null)
 
   const page = h('div', { class: 'page algo-detail-page' },
+    subnav('learn', 'algorithms'),
     header,
     mnemonicHero,
     h('div', { class: 'grid-2 algo-pair' }, signals, traps),

@@ -1,7 +1,8 @@
-import { initStore } from './store.js'
-import { route, setNotFound, startRouter } from './router.js'
+import { initStore, onStateReplaced } from './store.js'
+import { route, setNotFound, startRouter, resolve } from './router.js'
 import { mountShell } from './ui/shell.js'
 import { h } from './ui/h.js'
+import { icon } from './ui/icons.js'
 
 const lazyPage = loader => async (container, params) => {
   let mod
@@ -11,7 +12,7 @@ const lazyPage = loader => async (container, params) => {
     console.error(error)
     container.replaceChildren(h('div', { class: 'page' },
       h('div', { class: 'card empty' },
-        h('div', { class: 'empty-icon' }, '🚧'),
+        h('div', { class: 'empty-icon' }, icon('warning', 32)),
         h('h3', null, 'This section is still being built'),
         h('p', { class: 'muted' }, String(error?.message || error)),
         h('a', { class: 'btn', href: '#/' }, 'Dashboard'))))
@@ -41,6 +42,7 @@ const pages = {
   cheatsheet: lazyPage(() => import('./pages/cheatsheet.js')),
   dayof: lazyPage(() => import('./pages/dayof.js')),
   thought: lazyPage(() => import('./pages/thought.js')),
+  settings: lazyPage(() => import('./pages/settings.js')),
 }
 
 route('#/', pages.dashboard)
@@ -77,11 +79,12 @@ route('#/dayof/:stage', pages.dayof)
 route('#/dayof/:stage/:id', pages.dayof)
 route('#/thought', pages.thought)
 route('#/thought/:id', pages.thought)
+route('#/settings', pages.settings)
 
 setNotFound(container => {
   container.replaceChildren(h('div', { class: 'page' },
     h('div', { class: 'card empty' },
-      h('div', { class: 'empty-icon' }, '🧭'),
+      h('div', { class: 'empty-icon' }, icon('compass', 32)),
       h('h3', null, 'Nothing here'),
       h('a', { class: 'btn btn-primary', href: '#/' }, 'Go to dashboard'))))
 })
@@ -94,11 +97,18 @@ const boot = async () => {
   }
   const view = mountShell(document.getElementById('app'))
   startRouter(view)
+  let pendingRender = null
+  onStateReplaced(() => {
+    if (location.hash.startsWith('#/settings')) return
+    cancelAnimationFrame(pendingRender)
+    pendingRender = requestAnimationFrame(() => resolve())
+  })
 }
 
 const fetchVersion = async () => {
   try {
     const res = await fetch('/api/version', { cache: 'no-store' })
+    if (!res.ok || !(res.headers.get('content-type') || '').includes('application/json')) return null
     return (await res.json()).version
   } catch {
     return null

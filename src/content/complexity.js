@@ -692,7 +692,7 @@ const flashcardData = [
   [C, 'Does output count toward space?', 'Usually stated separately. Say "O(1) extra, excluding the output list."'],
   [C, 'Graph BFS/DFS time with adjacency list?', 'O(V + E). Each node processed once, each edge scanned once or twice.'],
   [C, 'Grid DFS/BFS time on r×c grid?', 'O(r·c). Each cell visited once, 4 neighbors each.'],
-  [C, 'Dijkstra with a binary heap?', 'O((V + E) log V) time, O(V + E) space.'],
+  [['trie'], 'Autocomplete: top suggestions under a prefix?', 'Walk to the prefix node, then DFS its subtree in alphabetical order and stop after k words. Or cache the top k words at every node.'],
   [C, 'Generate all subsets of n items?', 'O(n · 2ⁿ): 2ⁿ subsets, up to n to copy each.'],
   [C, 'Generate all permutations of n items?', 'O(n · n!). n! orderings, n to copy each.'],
   [C, 'Group anagrams by sorted key: w words, length L?', 'O(w · L log L). Counting key instead: O(w · L).'],
@@ -1465,7 +1465,7 @@ const generators = [
 export default {
   id: topicId,
   title: 'Complexity & Constraints',
-  icon: '⏱️',
+  icon: 'clock',
   skills: ['complexity', 'constraints', 'ds-diagnosis'],
   lessons,
   traces,

@@ -70,6 +70,7 @@
 .choice.is-correct {
   border-color: var(--it-good);
   background: color-mix(in srgb, var(--it-good) 16%, transparent);
+  animation: itemPop 0.3s ease;
 }
 
 .choice.is-wrong {
@@ -403,6 +404,11 @@
 .grade-btn {
   justify-content: center;
   gap: 6px;
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 .grade-again {
@@ -1039,6 +1045,11 @@
   gap: 8px;
 }
 
+.problem-title-cell .co-chips {
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
 .mono {
   font-family: var(--mono, ui-monospace, 'JetBrains Mono', Menlo, monospace);
   font-size: 0.88em;
@@ -1075,10 +1086,6 @@
   color: var(--bad, #f87171);
 }
 
-.pill-google {
-  font-size: 0.7rem;
-  color: var(--sky, #38bdf8);
-}
 
 .seen-mark {
   color: var(--good, #4ade80);
@@ -1118,6 +1125,8 @@
 
 .chip-signal {
   border-color: color-mix(in srgb, var(--sky, #38bdf8) 60%, transparent);
+  white-space: normal;
+  max-width: 100%;
 }
 
 .lc-link {
@@ -1230,6 +1239,15 @@
   gap: 10px;
 }
 
+.problem-pager .btn {
+  display: block;
+  max-width: 48%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @keyframes itemFadeUp {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
@@ -1239,6 +1257,12 @@
   0%, 100% { transform: none; }
   25% { transform: translateX(-4px); }
   75% { transform: translateX(4px); }
+}
+
+@keyframes itemPop {
+  0% { transform: scale(0.94); }
+  55% { transform: scale(1.035); }
+  100% { transform: scale(1); }
 }
 
 @keyframes itemPulse {
@@ -1296,4 +1320,47 @@ a.chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
   .filter-search { min-width: 0; flex-basis: 100%; }
   .problem-table th:nth-child(n+3), .problem-table td:nth-child(n+3) { display: none; }
   .problem-title-cell { word-break: break-word; }
+}
+
+.override-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.override-btn {
+  border: 1px dashed var(--border-strong);
+  color: var(--muted);
+}
+
+.override-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.override-pill {
+  animation: itemFadeUp 0.25s ease-out;
+}
+
+.cloze-input.is-overridden,
+.parsons-line.is-overridden,
+.thought-fill-input.is-overridden {
+  border-style: dashed;
+}
+
+.cloze-answer.is-alt {
+  opacity: 0.55;
+  text-decoration: none;
+}
+
+.cloze-answer.is-alt::before {
+  content: 'ref ';
+  font-size: 0.85em;
+}
+
+.game-why.good.is-overridden {
+  background: var(--green-soft);
 }

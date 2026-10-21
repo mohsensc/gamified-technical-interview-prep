@@ -1124,7 +1124,7 @@ const flashcards = [
   ['linked-list', 'Remove nth from end', 'Dummy; ahead moves n+1; then move both until ahead None; behind.next = behind.next.next.'],
   ['linked-list', 'Reorder list recipe', 'Find middle, cut, reverse second half, weave halves alternating.'],
   ['linked-list', 'Merge two sorted lists', 'Dummy + tail. Attach smaller head, advance. End: tail.next = list1 or list2.'],
-  ['linked-list', 'Add two numbers loop condition', 'while l1 or l2 or carry. Carry can create one extra node (5 + 5 = 10).'],
+  ['bit', 'Swap two integers without a temp?', 'a ^= b; b ^= a; a ^= b. Each XOR step recovers one original value from the other two.'],
   ['linked-list', 'Reverse k-group: leftover', 'If fewer than k nodes remain, leave them as is. Check with a kth walk first.'],
   ['linked-list', 'Cycle detection with a set of values: bug?', 'Duplicate values give false positives. Store node objects, or use fast/slow.'],
   ['linked-list', 'LRU cache structure', 'Hashmap key → node, plus doubly linked list for recency. get/put O(1).'],
@@ -1501,7 +1501,7 @@ const generators = [
 export default {
   id: topicId,
   title: 'Stacks, Queues & Linked Lists',
-  icon: '🥞',
+  icon: 'layers',
   skills: ['stack', 'monotonic-stack', 'queue-deque', 'linked-list'],
   lessons,
   traces,

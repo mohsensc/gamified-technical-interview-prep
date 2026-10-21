@@ -1,7 +1,9 @@
 import { h, toast } from '../ui/h.js'
+import { icon } from '../ui/icons.js'
 import { codeBlock } from '../ui/code.js'
 import { chapters, chapterById } from '../content/handbook.js'
 import { rich, stripMarks } from '../ui/rich.js'
+import { subnav } from '../ui/subnav.js'
 
 let panelRenderer = null
 const loadPanelRenderer = () => {
@@ -95,7 +97,7 @@ export const flowSection = section => {
 
 const stepsSection = section => h('div', { class: 'hb-steps' },
   section.items.map((step, index) => h('div', { class: 'hb-step card' },
-    h('div', { class: 'hb-step-head' }, h('span', { class: 'hb-step-num' }, index + 1), h('span', null, `${step.icon} ${stripMarks(step.title)}`), h('span', { class: 'pill' }, `${step.minutes}m`)),
+    h('div', { class: 'hb-step-head' }, h('span', { class: 'hb-step-num' }, index + 1), h('span', null, icon(step.icon, 15), ` ${stripMarks(step.title)}`), h('span', { class: 'pill' }, `${step.minutes}m`)),
     h('div', { class: 'muted hb-small' }, rich(step.goal)),
     h('div', { class: 'hb-starter' }, '“', rich(step.starters[0]), '”'))))
 
@@ -106,9 +108,11 @@ const listSection = section => h('div', { class: 'hb-checklist' },
   section.items.map(item => h('label', { class: 'hb-check' }, h('input', { type: 'checkbox' }), h('span', null, rich(item)))))
 
 const narrationSection = section => h('div', { class: 'hb-narration' },
-  section.items.map(template => h('div', { class: 'hb-narration-card' },
+  section.items.map(template => h('div', { class: 'hb-narration-card', style: { minWidth: 0 } },
     h('div', { class: 'hb-narration-title' }, stripMarks(template.title)),
-    template.lines.map(line => h('div', { class: 'hb-say' }, h('span', { class: 'chip' }, stripMarks(line.cue)), h('span', null, rich(line.say)))))))
+    template.lines.map(line => h('div', { class: 'hb-say', style: { minWidth: 0 } },
+      h('span', { class: 'chip' }, stripMarks(line.cue)),
+      h('span', { style: { minWidth: 0, overflowWrap: 'anywhere' } }, rich(line.say)))))))
 
 const sectionRenderers = {
   bars: barsSection,
@@ -134,10 +138,11 @@ const renderSection = section => {
 
 const renderList = container => {
   container.append(h('div', { class: 'page' },
-    h('div', { class: 'page-header' }, h('h1', null, 'Handbook'), h('span', { class: 'muted' }, 'Cheat sheets. Tables, trees, templates.')),
+    subnav('handbook', 'handbook'),
+    h('div', { class: 'page-header' }, h('h1', null, 'Handbook')),
     h('div', { class: 'grid hb-grid' },
       chapters.map(chapter => h('a', { class: 'card hb-chapter', href: `#/handbook/${chapter.id}` },
-        h('div', { class: 'hb-chapter-icon' }, chapter.icon),
+        h('div', { class: 'hb-chapter-icon' }, icon(chapter.icon, 24)),
         h('div', { class: 'hb-chapter-title' }, stripMarks(chapter.title)),
         h('div', { class: 'muted hb-small' }, stripMarks(chapter.blurb)))))))
 }
@@ -152,12 +157,13 @@ export default function render(container, params = {}) {
   const previous = chapters[index - 1]
   const next = chapters[index + 1]
   container.append(h('div', { class: 'page hb-page' },
+    subnav('handbook', 'handbook'),
     h('div', { class: 'page-header' },
-      h('a', { class: 'btn btn-ghost', href: '#/handbook' }, '← Handbook'),
-      h('h1', null, `${chapter.icon} ${stripMarks(chapter.title)}`)),
+      h('a', { class: 'btn btn-ghost', href: '#/handbook' }, [icon('arrowLeft', 16), ' Handbook']),
+      h('h1', { class: 'row' }, icon(chapter.icon, 24), ` ${stripMarks(chapter.title)}`)),
     h('div', { class: 'row hb-tabs' }, chapters.map(other => h('a', { class: `chip ${other.id === chapter.id ? 'active' : ''}`, href: `#/handbook/${other.id}` }, stripMarks(other.title)))),
     h('div', { class: 'hb-sections' }, chapter.sections.map(renderSection)),
     h('div', { class: 'row hb-pager' },
-      previous ? h('a', { class: 'btn btn-ghost', href: `#/handbook/${previous.id}` }, `← ${stripMarks(previous.title)}`) : h('span'),
-      next ? h('a', { class: 'btn btn-primary', href: `#/handbook/${next.id}` }, `${stripMarks(next.title)} →`) : null)))
+      previous ? h('a', { class: 'btn btn-ghost', href: `#/handbook/${previous.id}` }, [icon('arrowLeft', 16), ` ${stripMarks(previous.title)}`]) : h('span'),
+      next ? h('a', { class: 'btn btn-primary', href: `#/handbook/${next.id}` }, [`${stripMarks(next.title)} `, icon('arrowRight', 16)]) : null)))
 }
